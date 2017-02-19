@@ -1,0 +1,92 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title class="articlesTitleSec">Loading...</title>
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <link rel="stylesheet" href="/stylesheets/github-markdown.css">
+    <style>
+        .archiveSec ul {
+            list-style: none;
+        }
+
+        .archiveSec li {
+            margin: 0 0 10px;
+        }
+
+            .archiveSec li:before {
+                margin-left: 2px;
+                margin-right: 8px;
+                content: "📎";
+            }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <div class="headerSec"></div>
+            <div id="articleHeaderSec"></div>
+            <div class="contactSec"></div>
+        </header>
+        <section class="markdown-body">
+            <div class="promptSec"></div>
+            <div class="archiveSec"></div>
+            <div class="contentSec"></div>
+        </section>
+        <footer class="footerSec"></footer>
+    </div>
+    <script src="/javascripts/scale.fix.js"></script>
+    <script src="/javascripts/marked.js"></script>
+    <script src="/javascripts/bot-frame.js"></script>
+    <script src="/javascripts/extension.bot-frame.js"></script>
+    <script>
+        if (location.hash.length > 0)
+        {
+            RenderSectionWithPrompt("/assets.md", "promptSec",
+                [
+                    "headerSec",
+                    "footerSec"
+                ], function (isOK)
+                {
+                    if (!isOK) return;
+
+                    RenderSectionWithPrompt(location.hash.substr(1) + ".md",
+                        "promptSec", "contentSec", function (isOK2)
+                        {
+                            if (!isOK2) return;
+                            document.title =
+                                FixLayout(document.getElementById("articleHeaderSec"),
+                                    document.getElementsByClassName("contentSec")[0]);
+                        });
+                });
+        }
+        else
+        {
+            RenderSectionWithPrompt("/assets.md", "promptSec",
+                [
+                    "headerSec",
+                    "footerSec",
+                    "contactSec",
+                    {
+                        tagName: "archiveSec",
+                        articlesPath: "./"
+                    },
+                    {
+                        tagName: "articlesTitleSec",
+                        isMd: false
+                    }
+                ], function (isOK)
+                {
+                    if (!isOK) return;
+                    FixLayout(document.getElementById("articleHeaderSec"),
+                        document.getElementsByClassName("archiveSec")[0]);
+                });
+        }
+
+        // Navigation on Hash Change
+        window.onhashchange = function () { location.reload(); };
+    </script>
+</body>
+</html>

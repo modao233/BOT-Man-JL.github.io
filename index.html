@@ -1,0 +1,63 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title class="homeTitleSec">Loading...</title>
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <link rel="stylesheet" href="/stylesheets/github-markdown.css">
+    <style>
+        .archiveSec ul {
+            list-style: none;
+        }
+
+        .archiveSec li {
+            margin: 0 0 10px;
+        }
+
+            .archiveSec li:before {
+                margin-left: 2px;
+                margin-right: 8px;
+                content: "📎";
+            }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <div class="headerSec"></div>
+            <div class="usernameSec"></div>
+            <div class="contactSec"></div>
+        </header>
+        <section class="markdown-body">
+            <div class="promptSec"></div>
+            <div class="archiveSec"></div>
+            <div class="profileSec"></div>
+        </section>
+        <footer class="footerSec"></footer>
+    </div>
+    <script src="/javascripts/scale.fix.js"></script>
+    <script src="/javascripts/marked.js"></script>
+    <script src="/javascripts/bot-frame.js"></script>
+    <script src="/javascripts/extension.bot-frame.js"></script>
+    <script>
+        RenderSectionWithPrompt("/assets.md", "promptSec",
+            [
+                "headerSec",
+                "footerSec",
+                "usernameSec",
+                "contactSec",
+                {
+                    tagName: "archiveSec",
+                    articlesPath: "/articles/"
+                },
+                "profileSec",
+                {
+                    tagName: "homeTitleSec",
+                    isMd: false
+                }
+            ], null);
+    </script>
+</body>
+</html>

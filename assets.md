@@ -84,6 +84,8 @@ BOT Man JL, 2017
 
 <aboutSec>
 
+> I am BOT Man JL, a man who loves his beautiful life.
+
 ## Education
 
 #### 2014 - 2018

@@ -4,7 +4,7 @@
 
 <aboutTitleSec> About | BOT Man JL </aboutTitleSec>
 
-<headerSec> ## ~$ [🏠](/) | [📝](/articles/) | [🤖](/about/) _ </headerSec>
+<headerSec> ## ~$ [🏠](/) | [📝](/articles/) | [😊](/about/) _ </headerSec>
 
 <footerSec>
 
@@ -34,7 +34,7 @@ BOT Man JL, 2017
 
 👉 **~$ articles/ _**
 
-[🤖](/about/)
+[😊](/about/)
 
 👉 **~$ about/ _**
 

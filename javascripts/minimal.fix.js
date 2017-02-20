@@ -1,5 +1,5 @@
 ﻿/*
-	Extension for BOT Frame :-)
+	Extension for BOT Frame @ Minimal Theme :-)
 	BOT Man JL, 2016 (MIT License)
 
 	Note that: Remenber to Load "bot-frame.js" and "marked.js" Before this
@@ -25,15 +25,14 @@ RenderSectionWithPrompt = function (fileName, promptTag, tags, callback)
     });
 };
 
-// 1. Move the beginning H1 and BLOCKQUOTE from 'srcSec to 'dstSec
-// 2. Return the content of H1 (title of article)
+// 1. Move the beginning H1 and BLOCKQUOTE from 'srcSec to 'dstSec (Appending)
+// 2. Set the content of H1 to document title
 FixLayout = function (dstSec, srcSec)
 {
     var childLen = srcSec.childNodes.length;
     if (childLen == 0) return;
 
     var curElem = 0;
-    var ret = "";
 
     // First Element
     while (curElem < childLen &&
@@ -44,8 +43,8 @@ FixLayout = function (dstSec, srcSec)
     if (curElem < childLen &&
         srcSec.childNodes[curElem].tagName.toUpperCase() == "H1")
     {
-        ret = srcSec.childNodes[curElem].innerHTML;
-        dstSec.innerHTML += '<h1>' + ret + '</h1>';
+        document.title = srcSec.childNodes[curElem].innerHTML;
+        dstSec.innerHTML += '<h1>' + document.title + '</h1>';
         srcSec.removeChild(srcSec.childNodes[curElem]);
     }
 
@@ -64,6 +63,4 @@ FixLayout = function (dstSec, srcSec)
             '</blockquote>';
         srcSec.removeChild(srcSec.childNodes[curElem]);
     }
-
-    return ret;
 };

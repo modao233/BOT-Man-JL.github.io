@@ -215,7 +215,7 @@ RenderSection (fileName, tags, callback);
   - `callback(true)` if rendering successfully
   - `callback(false)` if rendering failed
 
-### `RenderSectionWithPrompt` @ `extension.bot-frame.js`
+### `RenderSectionWithPrompt` @ `minimal.fix.js`
 
 ``` javascript
 RenderSectionWithPrompt (fileName, promptTag, tags, callback);
@@ -227,7 +227,7 @@ RenderSectionWithPrompt (fileName, promptTag, tags, callback);
   - Rendering prompt of loading states
   - Set `document.title` if loading failed
 
-### `FixLayout` @ `extension.bot-frame.js`
+### `FixLayout` @ `minimal.fix.js`
 
 ``` javascript
 FixLayout (dstSec, srcSec);
@@ -238,7 +238,7 @@ FixLayout (dstSec, srcSec);
   - Move the beginning `H1` and `BLOCKQUOTE` from `srcSec` to `dstSec`
   - Return the content of `H1` (*title of article*)
 
-## Credit
+## Credits
 
 - **Markdown Parser JS** by [chjj](https://github.com/chjj/marked)
 - **Theme CSS** by [orderedlist](https://github.com/orderedlist/minimal)

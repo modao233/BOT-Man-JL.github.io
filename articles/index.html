@@ -8,15 +8,15 @@
     <link rel="stylesheet" href="/stylesheets/styles.css">
     <link rel="stylesheet" href="/stylesheets/github-markdown.css">
     <style>
-        .archiveSec ul {
+        .articlesSec ul {
             list-style: none;
         }
 
-        .archiveSec li {
+        .articlesSec li {
             margin: 0 0 10px;
         }
 
-            .archiveSec li:before {
+            .articlesSec li:before {
                 margin-left: 2px;
                 margin-right: 8px;
                 content: "📎";
@@ -27,12 +27,12 @@
     <div class="wrapper">
         <header>
             <div class="headerSec"></div>
-            <div id="articleHeaderSec"></div>
             <div class="contactSec"></div>
+            <div id="articleHeaderSec"></div>
         </header>
         <section class="markdown-body">
             <div class="promptSec"></div>
-            <div class="archiveSec"></div>
+            <div class="articlesSec"></div>
             <div class="contentSec"></div>
         </section>
         <footer class="footerSec"></footer>
@@ -40,7 +40,7 @@
     <script src="/javascripts/scale.fix.js"></script>
     <script src="/javascripts/marked.js"></script>
     <script src="/javascripts/bot-frame.js"></script>
-    <script src="/javascripts/extension.bot-frame.js"></script>
+    <script src="/javascripts/minimal.fix.js"></script>
     <script>
         if (location.hash.length > 0)
         {
@@ -51,14 +51,12 @@
                 ], function (isOK)
                 {
                     if (!isOK) return;
-
                     RenderSectionWithPrompt(location.hash.substr(1) + ".md",
                         "promptSec", "contentSec", function (isOK2)
                         {
                             if (!isOK2) return;
-                            document.title =
-                                FixLayout(document.getElementById("articleHeaderSec"),
-                                    document.getElementsByClassName("contentSec")[0]);
+                            FixLayout(document.getElementsByTagName("HEADER")[0],
+                                document.getElementsByClassName("contentSec")[0]);
                         });
                 });
         }
@@ -69,20 +67,9 @@
                     "headerSec",
                     "footerSec",
                     "contactSec",
-                    {
-                        tagName: "archiveSec",
-                        articlesPath: "./"
-                    },
-                    {
-                        tagName: "articlesTitleSec",
-                        isMd: false
-                    }
-                ], function (isOK)
-                {
-                    if (!isOK) return;
-                    FixLayout(document.getElementById("articleHeaderSec"),
-                        document.getElementsByClassName("archiveSec")[0]);
-                });
+                    { tagName: "articlesSec", articlesPath: "./" },
+                    { tagName: "articlesTitleSec", isMd: false }
+                ], null);
         }
 
         // Navigation on Hash Change

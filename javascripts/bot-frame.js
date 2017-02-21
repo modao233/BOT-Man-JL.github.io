@@ -189,7 +189,7 @@ RenderSectionWithPrompt = function (fileName, promptTag, tags, callback)
                 "Click to Refresh</a> 👈👈👈</p>";
         if (!isOK) document.title = "Loading Failed";
 
-        if (callback != null) callback(isOK);
+        if (callback != null && isOK) callback();
     });
 };
 

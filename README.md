@@ -102,13 +102,11 @@ RenderSectionWithPrompt("/assets.md", "promptSec",
   [
     "headerSec",
     "footerSec"
-  ], function (isOK)
+  ], function ()
   {
-    if (!isOK) return;
     RenderSectionWithPrompt(location.hash.substr(1) + ".md",
-      "promptSec", "contentSec", function (isOK2)
+      "promptSec", "contentSec", function ()
       {
-        if (!isOK2) return;
         FixLayout(document.getElementsByTagName("HEADER")[0],
           document.getElementsByClassName("contentSec")[0]);
       });
@@ -193,6 +191,7 @@ RenderSectionWithPrompt (fileName, promptTag, tags, callback);
 ```
 
 - `promptTag`: render prompt section into elements of `class promptTag`
+- `callback`: called at rendering without error, with no arguments
 - *other params* are same as `RenderSection`
 - This function is wrapper of `RenderSection`
   - Rendering prompt of loading status

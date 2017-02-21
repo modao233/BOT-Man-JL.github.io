@@ -331,7 +331,7 @@
     }
 
     .markdown-body > *:first-child {
-        margin-top: 0.2em !important;
+        margin-top: 1.2em !important;
     }
 
     .markdown-body > *:last-child {

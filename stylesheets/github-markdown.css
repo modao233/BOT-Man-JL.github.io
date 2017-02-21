@@ -117,7 +117,6 @@
 
     .markdown-body a {
         background-color: transparent;
-        -webkit-text-decoration-skip: objects;
     }
 
         .markdown-body a:active,
@@ -328,14 +327,6 @@
         display: table;
         clear: both;
         content: "";
-    }
-
-    .markdown-body > *:first-child {
-        margin-top: 1.2em !important;
-    }
-
-    .markdown-body > *:last-child {
-        margin-bottom: 1.5em !important;
     }
 
     .markdown-body a:not([href]) {
@@ -591,7 +582,7 @@
 
             .markdown-body pre code {
                 display: inline;
-                max-width: auto;
+                max-width: 100%;
                 padding: 0;
                 margin: 0;
                 overflow: visible;

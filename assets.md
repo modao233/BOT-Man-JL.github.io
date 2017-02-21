@@ -57,6 +57,7 @@ BOT Man JL, 2017
 
 - [关于可扩展性的思考](articles/2017/Thinking5)
 - [我们学习，都在学什么](articles/2017/Thinking6)
+- [如何使用英文搜索](articles/2017/How-to-Search-English)
 
 #### 2016
 

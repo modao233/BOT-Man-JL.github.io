@@ -82,7 +82,6 @@ This page is described in `articles/index.html`, used for
 <header>
   <div class="headerSec"></div>
   <div class="contactSec"></div>
-  <div id="articleHeaderSec"></div>
 </header>
 <section class="markdown-body">
   <div class="promptSec"></div>
@@ -191,7 +190,7 @@ RenderSectionWithPrompt (fileName, promptTag, tags, callback);
 ```
 
 - `promptTag`: render prompt section into elements of `class promptTag`
-- `callback`: called at rendering without error, with no arguments
+- `callback`: called only at rendering successfully, with no arguments
 - *other params* are same as `RenderSection`
 - This function is wrapper of `RenderSection`
   - Rendering prompt of loading status

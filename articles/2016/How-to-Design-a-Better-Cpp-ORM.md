@@ -4,7 +4,7 @@
 >
 > “用C++的方式读写数据库，简直太棒了！”
 
-上一篇相关文章：[如何设计一个简单的 C++ ORM](https://bot-man-jl.github.io/articles/#2016/How-to-Design-a-Naive-Cpp-ORM)
+上一篇相关文章：[如何设计一个简单的 C++ ORM](#2016/How-to-Design-a-Naive-Cpp-ORM)
 （[旧版代码](https://github.com/BOT-Man-JL/ORM-Lite/tree/v1.0)）
 😉
 

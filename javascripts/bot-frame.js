@@ -91,7 +91,8 @@ RenderSection = function (fileName, tags, callback)
 
                 if (elems[j][attrName].indexOf(location.origin) != -1 &&  // Same Origin
                     preSrc.indexOf(location.origin) == -1 &&  // Relative Path
-                    preSrc[0] != "/")  // NOT Root-Relative Path
+                    preSrc[0] != "/" &&  // NOT Root-Relative Path
+                    preSrc[0] != "#")  // NOT Hash
                 {
                     // Relative to absPath
                     elems[j][attrName] = absPath + preSrc;

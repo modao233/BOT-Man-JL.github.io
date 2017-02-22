@@ -1,8 +1,6 @@
-﻿# Microsoft MPC (More Personal Computing) Hackathon
+﻿# Microsoft MPC Hackathon
 
 > 2016/5/28 – 29
->
-> Microsoft Main Building
 >
 > Team Hack Tour: 李俊宁/王明哲/张悦枫/朱其泰/边红
 

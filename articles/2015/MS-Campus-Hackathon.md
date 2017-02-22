@@ -2,8 +2,6 @@
 
 > 2015/11/9
 >
-> MSRA & BUPT
->
 > Team Dimension: 李林旭/李俊宁/陈金柱
 
 ## Intro

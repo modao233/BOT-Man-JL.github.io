@@ -1,4 +1,4 @@
-﻿# 如何设计一个简单的C++ ORM
+﻿# 如何设计一个简单的 C++ ORM
 
 > 2016/11/15
 >
@@ -7,7 +7,7 @@
 阅读这篇文章前，你最好知道什么是
 [_Object Relation Mapping (ORM)_](https://en.wikipedia.org/wiki/Object-relational_mapping)
 
-阅读这篇文章后，欢迎阅读下一篇 [如何设计一个更好的C++ ORM](https://bot-man-jl.github.io/articles/#2016/How-to-Design-a-Better-Cpp-ORM)
+阅读这篇文章后，欢迎阅读下一篇 [如何设计一个更好的 C++ ORM](https://bot-man-jl.github.io/articles/#2016/How-to-Design-a-Better-Cpp-ORM)
 😉
 
 ## 为什么C++要ORM

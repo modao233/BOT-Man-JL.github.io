@@ -56,13 +56,9 @@ strong {
 }
 
 a {
-    color: #39c;
+    color: #4078c0;
     text-decoration: none;
 }
-
-    a:hover {
-        color: #069;
-    }
 
 blockquote {
     border-left: 0.25em solid #ddd;
@@ -178,7 +174,8 @@ section {
 
 /* Navigation Settings */
 
-nav a:hover {
+nav a:hover,
+nav a:active {
     text-shadow: 0 0 5px orange;
 }
 
@@ -192,7 +189,8 @@ nav a:hover {
         font-size: 72px;
     }
 
-        .homeSec a:hover {
+        .homeSec a:hover,
+        .homeSec a:active {
             text-shadow: 0 0 15px orange;
             text-decoration: none;
         }
@@ -201,6 +199,7 @@ nav a:hover {
 
 .articlesSec ul {
     list-style: none;
+    padding-left: 20px;
 }
 
 .articlesSec li {
@@ -208,7 +207,6 @@ nav a:hover {
 }
 
     .articlesSec li:before {
-        margin-left: 2px;
         margin-right: 8px;
         content: "📎";
     }

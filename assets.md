@@ -82,6 +82,7 @@ BOT Man JL, 2017
 ## 收藏 / Collection
 
 - [搜集的哲言](articles/misc/Quotes)
+- [书签](articles/misc/Bookmarks)
 
 </articlesSec>
 

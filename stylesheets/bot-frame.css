@@ -210,3 +210,17 @@ nav a:active {
         margin-right: 8px;
         content: "📎";
     }
+
+/* About Page Settings */
+
+.qrCodeSec {
+    display: none;
+}
+
+@media print {
+    .qrCodeSec {
+        text-align:right;
+        float:right;
+        display: block;
+    }
+}

@@ -88,8 +88,6 @@ BOT Man JL, 2017
 
 <aboutSec>
 
-> I am BOT Man JL, a man who loves his beautiful life.
-
 ## Education
 
 #### 2014 - 2018
@@ -157,3 +155,13 @@ BOT Man JL, 2017
 - Enjoying trying/learning new things;
 
 </aboutSec>
+
+<qrCodeSec>
+
+![QRCode](about/qrCode.svg)
+
+Hypertext version is available on
+
+https://BOT-Man-JL.github.io/
+
+</qrCodeSec>

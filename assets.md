@@ -116,12 +116,12 @@ BOT Man JL, 2017
   - JavaScript (Basic)
   - Java (Basic)
 - Solution stacks:
-  - Win32 App
-  - WPF App
-  - Universal Windows App
-  - ASP.NET MVC
-  - Web Frontend
-  - Editing Video (using *Sony Vegas*)
+  - Win32 App (Experienced)
+  - Universal Windows App (Experienced)
+  - ASP.NET MVC (Experienced)
+  - Web Frontend (Experienced)
+  - WPF App (Basic)
+  - Editing Video (using *Sony Vegas*) (Experienced)
 
 ## Experience
 
@@ -151,9 +151,9 @@ BOT Man JL, 2017
 
 ## 😊
 
-- Love my beautiful life;
-- Have strong team spirit;
+- Loving my beautiful life;
+- Having strong team spirit;
 - Reliable and hardworking;
-- Enjoy trying/learning new things;
+- Enjoying trying/learning new things;
 
 </aboutSec>

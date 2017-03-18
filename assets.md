@@ -108,7 +108,7 @@ BOT Man JL, 2017
 - Learn fast;
 - Effective in teamwork;
 - Programming language:
-  - Modern C++ (Expert)
+  - Modern C++ (Experienced)
   - C# (Experienced)
   - C (Experienced)
   - JavaScript (Basic)

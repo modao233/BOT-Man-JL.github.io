@@ -94,39 +94,40 @@ BOT Man JL, 2017
 
 #### 2014 - 2018
 
-*Computer Science*,
-*Beijing University of Posts and Telecommunications*
+- *Beijing University of Posts and Telecommunications*
+- Majoring in **Computer Science**
 
 #### 2016 - 2018
 
-*State Key Laboratory of Networking and Switching Technology, BUPT*
-*(Mentor: Dr. Zhang Zhongbao)*
+- *State Key Laboratory of Networking and Switching Technology, BUPT*
+- Studying **Virtual Network Embedding Algorithms**
+
+## Language
+
+- Chinese (Native)
+- English (Written better than Oral)
 
 ## Skills
 
-- Love my beautiful life and trying new things;
-- Learn fast;
-- Effective in teamwork;
 - Programming language:
-  - Modern C++ (Experienced)
+  - *Modern* C++ (Experienced)
   - C# (Experienced)
   - C (Experienced)
   - JavaScript (Basic)
   - Java (Basic)
-- Developing Skills:
+- Solution stacks:
   - Win32 App
   - WPF App
   - Universal Windows App
   - ASP.NET MVC
-  - Web Frontend with jQuery/Bootstrap
-- Other Skills:
-  - Editing video
+  - Web Frontend
+  - Editing Video (using *Sony Vegas*)
 
 ## Experience
 
-- 2016 – Studying **Virtual Network Embedding Algorithms**
-  at *State Key Laboratory of Networking and Switching Technology*
-  in BUPT;
+- 2017 – Publishing a **Research Paper**,
+  *Xu Liu, Zhongbao Zhang, Junning Li, Sen Su,
+  Clustering Based Energy-Aware Virtual Network Embedding*, on January;
 - 2016 – Joining in
   **_[Microsoft Elites Plan](https://studentclub.msra.cn/project/97)_**;
 - 2016 – Participating in **Microsoft More Personal Computing Hackathon**,
@@ -140,13 +141,19 @@ BOT Man JL, 2017
 - 2015 – Participating in **Microsoft Campus Hackathon**, building a
   *[Windows App](https://www.microsoft.com/store/apps/Random%20Master/9NBLGGH6HCP7)*;
 
-## Some Personal Projects
+## Open Source Projects
 
 - 2016 - Writing a **Header-Only**, **Strong-Typed**, **Compile-time**
   **_[Object Relation Mapping (ORM)](https://github.com/BOT-Man-JL/ORM-Lite)_** in Modern C++;
 - 2015 – Writing a **Lightweight, Cross-Platform C++** **_[Graphics (GUI) Library](https://github.com/BOT-Man-JL/EggAche-GL)_**
-  for who have no knowledge of GUI;
-- [Other Projects](https://github.com/BOT-Man-JL/BUPT-Projects)
-  built in **BUPT** College Life;
+  for those who have no knowledge of GUI;
+- An archive of [Coursework/Misc Projects](https://github.com/BOT-Man-JL/BUPT-Projects) that I built in college;
+
+## 😊
+
+- Love my beautiful life;
+- Have strong team spirit;
+- Reliable and hardworking;
+- Enjoy trying/learning new things;
 
 </aboutSec>

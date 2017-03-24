@@ -92,13 +92,13 @@ BOT Man JL, 2017
 
 #### 2014 - 2018
 
-- *Beijing University of Posts and Telecommunications*
+- Beijing University of Posts and Telecommunications (BUPT)
 - Majoring in **Computer Science**
 - GPA: 8.61/10.00 Ranking: 20%
 
-#### 2016 - 2018
+#### 2016 - 2018 *(Ye Peida Academy)*
 
-- *State Key Laboratory of Networking and Switching Technology, BUPT*
+- **State Key Laboratory** of Networking and Switching Technology, BUPT
 - Studying **Virtual Network Embedding Algorithms**
 
 ## Language

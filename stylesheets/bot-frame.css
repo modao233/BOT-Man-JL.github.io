@@ -193,6 +193,14 @@ nav a:active {
         display: block;
     }
 
+    .contactSec > *:first-child {
+        margin-top: 0;
+    }
+
+    .contactSec > *:last-child {
+        margin-bottom: 30px;
+    }
+
     .aboutSec > *:first-child {
         margin-top: 0;
     }

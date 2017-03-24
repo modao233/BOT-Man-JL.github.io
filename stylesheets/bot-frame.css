@@ -131,14 +131,6 @@ section {
         border-top: 1px solid #e5e5e5;
         border-width: 1px 0;
     }
-
-    section > *:first-child {
-        margin-top: 30px;
-    }
-
-    section > *:last-child {
-        margin-bottom: 30px;
-    }
 }
 
 /* 480P Layout */
@@ -146,29 +138,6 @@ section {
 @media screen and (max-width: 480px) {
     body {
         padding: 10px;
-    }
-}
-
-/* Print Settings */
-
-@media print {
-    body {
-        padding: 0;
-        font-size: 11pt;
-        color: #444;
-    }
-
-    .markdown-body {
-        font-size: 11pt;
-        color: #444;
-    }
-
-    nav {
-        display: none;
-    }
-
-    footer {
-        display: none;
     }
 }
 
@@ -219,8 +188,40 @@ nav a:active {
 
 @media print {
     .qrCodeSec {
-        text-align:right;
-        float:right;
+        text-align: right;
+        float: right;
         display: block;
+    }
+
+    .aboutSec > *:first-child {
+        margin-top: 0;
+    }
+
+    .aboutSec > *:last-child {
+        margin-bottom: 0;
+    }
+}
+
+/* Print Settings */
+
+@media print {
+    body {
+        padding: 0;
+        font-size: 11pt;
+        color: #444;
+    }
+
+    .markdown-body {
+        font-size: 10pt;
+        color: #444;
+        column-count: 2;
+    }
+
+    nav {
+        display: none;
+    }
+
+    footer {
+        display: none;
     }
 }

@@ -2,7 +2,7 @@
 
 ## Education
 
-#### 2014.9 - Now (Graduation: 2018.6)
+#### 2014.9 - Now (Graduate: 2018.6)
 
 - Beijing University of Posts and Telecommunications (**BUPT**)
 - Majoring in **Computer Science**

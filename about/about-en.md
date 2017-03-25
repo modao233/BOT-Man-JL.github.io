@@ -2,13 +2,13 @@
 
 ## Education
 
-#### 2014 - 2018
+#### 2014.9 - Now (Graduation: 2018.6)
 
 - Beijing University of Posts and Telecommunications (**BUPT**)
 - Majoring in **Computer Science**
 - GPA: 8.61/10.00; **Ranking: 20%**
 
-#### 2016 - 2018 *(Ye Peida Academy)*
+#### 2016.3 - Now *(Ye Peida Academy)*
 
 - **State Key Laboratory** of Networking and Switching Technology, BUPT
 - Studying **Virtual Network Embedding Algorithms**
@@ -73,6 +73,12 @@
 **Enjoy Learning, Trying, Open Source**
 
 </aboutSec>
+
+<langSec>
+
+EN | [中文](#zh)
+
+</langSec>
 
 <qrCodeSec>
 

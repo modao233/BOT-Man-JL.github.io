@@ -29,10 +29,22 @@
                 "navSec",
                 "footerSec",
                 "contactSec",
+                { tagName: "aboutTitleSec", isMd: false }
+            ]);
+
+        // Retrieve language (en/zh)
+        var lang = "en";
+        if (location.hash.length > 0)
+            lang = location.hash.substr(1);
+
+        RenderSectionWithPrompt("about-" + lang + ".md", "promptSec",
+            [
                 "aboutSec",
-                { tagName: "aboutTitleSec", isMd: false },
                 "qrCodeSec"
             ]);
+
+        // Navigation on Hash Change
+        window.onhashchange = function () { location.reload(); };
     </script>
 </body>
 </html>

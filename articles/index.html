@@ -16,7 +16,7 @@
         </header>
         <section class="markdown-body">
             <div class="promptSec"></div>
-            <div class="articlesSec"></div>
+            <div class="archiveSec"></div>
             <div class="contentSec"></div>
         </section>
         <footer class="footerSec"></footer>
@@ -47,8 +47,11 @@
                     "navSec",
                     "footerSec",
                     "contactSec",
-                    { tagName: "articlesSec", articlesPath: "./" },
                     { tagName: "articlesTitleSec", isMd: false }
+                ]);
+            RenderSectionWithPrompt("archive.md", "promptSec",
+                [
+                    { tagName: "archiveSec", articlesPath: "./" }
                 ]);
         }
 

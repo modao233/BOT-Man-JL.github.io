@@ -166,27 +166,35 @@ nav a:active {
 
 /* Articles Page Settings */
 
-.articlesSec ul {
+.archiveSec ul {
     list-style: none;
     padding-left: 20px;
 }
 
-.articlesSec li {
+.archiveSec li {
     margin: 0 0 10px;
 }
 
-    .articlesSec li:before {
+    .archiveSec li:before {
         margin-right: 8px;
         content: "📎";
     }
 
 /* About Page Settings */
 
+.langSec {
+    text-align: right;
+}
+
 .qrCodeSec {
     display: none;
 }
 
 @media print {
+    .langSec {
+        display:none;
+    }
+
     .qrCodeSec {
         text-align: right;
         float: right;

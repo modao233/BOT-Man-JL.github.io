@@ -39,18 +39,18 @@
 - 2017 – 一月，**发表论文**
   *Xu Liu, Zhongbao Zhang, Junning Li, Sen Su,
   Clustering Based Energy-Aware Virtual Network Embedding*；
-- 2016 – 参加 **微软（MSRA）菁英计划** 【**￥10,000 支持**】；
-- 2016 – 参加 **微软 More Personal Computing (MPC) 黑客马拉松**，开发 *Windows* 应用 【**二等奖**】；
-- 2016 – 参加 **CareerX-清华 黑客马拉松**，开发 *Slack* 机器人 【**二等奖**】；
-- 2016 - 参加 **微软（MSRA）学生夏令营**，开发 *Hololens* 应用；
-- 2016 - 为 北京大学 国家发展研究院 中国经济研究中心 开发和维护**数据收集分析网站** 【**￥12,000 支持**】；
-- 2015 – 参加 **微软（MSRA）校园黑客马拉松**，开发 *Windows* 应用 【**最佳团队奖**】；
+- 2016 – 参加 **微软（MSRA）[菁英计划](https://studentclub.msra.cn/project/97)** 【**￥10,000 支持**】；
+- 2016 – 参加 **微软 More Personal Computing (MPC) 黑客马拉松**，开发 [*Windows* 应用](https://github.com/BOT-Man-JL/Better-Kids) 【**二等奖**】；
+- 2016 – 参加 **CareerX-清华 黑客马拉松**，开发 [*Slack* 机器人](https://github.com/xinhuaRadioLAB/HackerX_slive) 【**二等奖**】；
+- 2016 - 参加 **微软（MSRA）学生夏令营**，开发 [*Hololens* 应用](https://github.com/BOT-Man-JL/IOT-Holo-Assistant)；
+- 2016 - 为 [北京大学 国家发展研究院 中国经济研究中心](http://ccer.nsd.edu.cn) 开发和维护**数据收集分析[网站](https://github.com/ZhangYuef/Survey_Platform_ccer)** 【**￥12,000 支持**】；
+- 2015 – 参加 **微软（MSRA）校园黑客马拉松**，开发 [*Windows* 应用](https://www.microsoft.com/store/apps/Random%20Master/9NBLGGH6HCP7) 【**最佳团队奖**】；
 
 ## 开源
 
-- 2016 - 使用**现代 C++** 编写**强类型、编译时**的对象关系映射（**ORM**）；
-- 2015 – 为没有图形编程基础的同学设计**轻量的跨平台 C++ 图形库**；
-- 课程作业和其他大学期间的项目 (**GitHub**：**BUPT-Projects**)；
+- 2016 - 使用**现代 C++** 编写**强类型、编译时**的[对象关系映射（**ORM**）](https://github.com/BOT-Man-JL/ORM-Lite)；
+- 2015 – 为没有图形编程基础的同学设计**轻量的跨平台 C++ [图形库](https://github.com/BOT-Man-JL/EggAche-GL)**；
+- 课程作业和其他大学期间的项目 (**GitHub**：[BUPT-Projects](https://github.com/BOT-Man-JL/BUPT-Projects))；
 
 ## Why Me? 😊
 

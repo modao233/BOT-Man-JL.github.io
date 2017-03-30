@@ -4,7 +4,7 @@
 
 <aboutTitleSec> About | BOT Man JL </aboutTitleSec>
 
-<navSec> ## ~/ [🏠](/) | [📝](/articles/) | [😊](/about/) _ </navSec>
+<navSec> ## ~/ [🏠](/) | [📝](/articles/) | [😊](/about/) </navSec>
 
 <footerSec>
 

@@ -180,6 +180,14 @@ nav a:active {
         content: "📎";
     }
 
+.contentSec > *:first-child {
+    margin-top: 20px;
+}
+
+.headerQuoteSec blockquote {
+    padding: 0 0 0 15px;
+}
+
 /* About Page Settings */
 
 .langSec {
@@ -192,7 +200,7 @@ nav a:active {
 
 @media print {
     .langSec {
-        display:none;
+        display: none;
     }
 
     .qrCodeSec {
@@ -201,12 +209,18 @@ nav a:active {
         display: block;
     }
 
+    .aboutSec {
+        column-count: 2;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
     .contactSec > *:first-child {
         margin-top: 0;
     }
 
     .contactSec > *:last-child {
-        margin-bottom: 30px;
+        margin-bottom: 20px;
     }
 
     .aboutSec > *:first-child {
@@ -230,7 +244,6 @@ nav a:active {
     .markdown-body {
         font-size: 10pt;
         color: #444;
-        column-count: 2;
     }
 
     nav {

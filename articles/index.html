@@ -13,6 +13,8 @@
         <header>
             <nav class="navSec"></nav>
             <div class="contactSec"></div>
+            <div class="headerTitleSec"></div>
+            <div class="headerQuoteSec"></div>
         </header>
         <section class="markdown-body">
             <div class="promptSec"></div>
@@ -35,7 +37,11 @@
                     RenderSectionWithPrompt(location.hash.substr(1) + ".md",
                         "promptSec", "contentSec", function ()
                         {
-                            FixLayout(document.getElementsByTagName("HEADER")[0],
+                            document.title = MoveFirstElement(
+                                document.getElementsByClassName("headerTitleSec")[0],
+                                document.getElementsByClassName("contentSec")[0]);
+                            MoveFirstElement(
+                                document.getElementsByClassName("headerQuoteSec")[0],
                                 document.getElementsByClassName("contentSec")[0]);
                         });
                 });

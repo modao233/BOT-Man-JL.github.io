@@ -194,42 +194,26 @@ RenderSectionWithPrompt = function (fileName, promptTag, tags, callback)
     });
 };
 
-// 1. Move the beginning H1 and BLOCKQUOTE from 'srcSec to 'dstSec (Appending)
-// 2. Set the content of H1 to document title
-FixLayout = function (dstSec, srcSec)
+// Move First Element from 'srcSec to 'dstSec, and return innerHTML
+MoveFirstElement = function (dstSec, srcSec)
 {
     var childLen = srcSec.childNodes.length;
-    if (childLen == 0) return;
-
     var curElem = 0;
 
-    // First Element
+    // Find First Element
     while (curElem < childLen &&
         srcSec.childNodes[curElem].nodeType != 1)
         curElem++;
 
-    // Title of the Markdown Article
-    if (curElem < childLen &&
-        srcSec.childNodes[curElem].tagName.toUpperCase() == "H1")
+    content = null;
+    if (curElem < childLen)
     {
-        document.title = srcSec.childNodes[curElem].innerHTML;
-        dstSec.innerHTML += '<h1>' + document.title + '</h1>';
-        srcSec.removeChild(srcSec.childNodes[curElem]);
-    }
-
-    // Second Element
-    while (curElem < childLen &&
-        srcSec.childNodes[curElem].nodeType != 1)
-        curElem++;
-
-    // BlockQuote Under the Title
-    if (curElem < childLen &&
-        srcSec.childNodes[curElem].tagName.toUpperCase() == "BLOCKQUOTE")
-    {
+        content = srcSec.childNodes[curElem].innerHTML;
         dstSec.innerHTML +=
-            '<blockquote style="padding: 0 0 0 15px">' +
-            srcSec.childNodes[curElem].innerHTML +
-            '</blockquote>';
+            "<" + srcSec.childNodes[curElem].tagName + ">" +
+            content +
+            "</" + srcSec.childNodes[curElem].tagName + ">";
         srcSec.removeChild(srcSec.childNodes[curElem]);
     }
+    return content;
 };

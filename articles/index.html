@@ -7,6 +7,8 @@
     <title class="articlesTitleSec">Loading...</title>
     <link rel="stylesheet" href="/stylesheets/github-markdown.css">
     <link rel="stylesheet" href="/stylesheets/bot-frame.css">
+    <!-- Math Support -->
+    <link rel="stylesheet" href="/stylesheets/katex.min.css">
 </head>
 <body>
     <div class="wrapper">
@@ -26,6 +28,9 @@
     </div>
     <script src="/javascripts/marked.min.js"></script>
     <script src="/javascripts/bot-frame.js"></script>
+    <!-- Math Support -->
+    <script src="/javascripts/katex.min.js"></script>
+    <script src="/javascripts/auto-render.min.js"></script>
     <script>
         if (location.hash.length > 0) {
             RenderSectionWithPrompt("/assets.md", "promptSec",
@@ -35,12 +40,27 @@
                 ], function () {
                     RenderSectionWithPrompt(location.hash.substr(1) + ".md",
                         "promptSec", "contentSec", function () {
+                            var contentSec =
+                                document.getElementsByClassName("contentSec")[0];
+
+                            // Move elements to left pane
                             document.title = MoveFirstElement(
                                 document.getElementsByClassName("headerTitleSec")[0],
-                                document.getElementsByClassName("contentSec")[0]);
+                                contentSec);
                             MoveFirstElement(
                                 document.getElementsByClassName("headerQuoteSec")[0],
-                                document.getElementsByClassName("contentSec")[0]);
+                                contentSec);
+
+                            // Render math
+                            renderMathInElement(contentSec, {
+                                delimiters: [
+                                    { left: "$", right: "$", display: false },
+                                    { left: "$$", right: "$$", display: true }
+                                ],
+                                ignoredTags: [
+                                    "script", "noscript", "style", "textarea", "pre", "code"
+                                ]
+                            });
                         });
                 });
 

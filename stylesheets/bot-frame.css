@@ -164,6 +164,42 @@ nav a:active {
             text-decoration: none;
         }
 
+/* Comment Settings */
+
+.comment-avatar {
+    width: 44px;
+    float: left;
+    border: none;
+    border-radius: 3px;
+}
+
+.comment-box {
+    margin-left: 60px;
+    border: double 1px;
+    border-radius: 3px;
+    margin-bottom: 20px;
+}
+
+.comment-box-timestamp {
+    float: right;
+}
+
+.comment-box-header {
+    border-bottom: groove 2px;
+    border-bottom-color: darkgray;
+    padding: 5px;
+}
+
+.comment-box-content {
+    padding: 5px;
+}
+
+@media print {
+    .commentSec {
+        display: none;
+    }
+}
+
 /* Articles Page Settings */
 
 .archiveSec ul {
@@ -253,4 +289,35 @@ nav a:active {
     footer {
         display: none;
     }
+}
+
+/* Cover & TOC Settings */
+
+@media print {
+    .headerTitleSec, .headerQuoteSec {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .headerTitleSec {
+        top: 30%;
+    }
+
+    .headerQuoteSec {
+        top: 60%;
+    }
+
+    .markdown-body {
+        page-break-before: always;
+    }
+
+    .markdown-toc {
+        page-break-after: always;
+    }
+
+        .markdown-toc ul, .markdown-toc li {
+            padding-left: 20px;
+        }
 }

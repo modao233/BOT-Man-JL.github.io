@@ -162,6 +162,10 @@ section {
     footer {
         display: none;
     }
+
+    .markdown-body pre > code {
+        white-space: pre-wrap;
+    }
 }
 
 /* Navigation Settings */

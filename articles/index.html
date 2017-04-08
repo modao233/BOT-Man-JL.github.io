@@ -89,7 +89,9 @@
                 [
                     {
                         tagName: "archiveSec",
-                        fixStyle: (absPath, relPath) => "./?post=" + relPath
+                        fixStyle: function (absPath, relPath) {
+                            return "./?post=" + relPath;
+                        }
                     }
                 ]);
         }

@@ -111,7 +111,7 @@ RenderSection = function (fileName, tags, callback) {
         };
 
         fixAll("A", "href", fixStyle);
-        fixAll("IMG", "src", (absPath, relPath) => absPath);
+        fixAll("IMG", "src", function (absPath, relPath) { return absPath; });
     };
 
     var GetTOC = function (tocArray) {
@@ -156,7 +156,7 @@ RenderSection = function (fileName, tags, callback) {
                 if (tag.isMd != null)
                     isMd = tag.isMd;
 
-                var fixStyle = (absPath, relPath) => absPath;
+                var fixStyle = function (absPath, relPath) { return absPath; };
                 if (tag.fixStyle != null)
                     fixStyle = tag.fixStyle;
 
@@ -166,10 +166,17 @@ RenderSection = function (fileName, tags, callback) {
                 // Ref: https://github.com/chjj/marked/issues/545
                 var toc = [];
                 var renderer = new marked.Renderer();
+                var anchorMap = new Map();
                 renderer.heading = function (text, level, raw) {
                     var anchor = this.options.headerPrefix +
                         raw.toLowerCase().replace(/[^\w\u4E00-\u9FFF]+/g, '-')
                             .replace(/^-+/g, '').replace(/-+$/g, '');
+
+                    // Fix duplicate ID issue
+                    var count = anchorMap.get(anchor);
+                    count = (count == null ? 0 : count) + 1;
+                    anchorMap.set(anchor, count);
+                    if (count > 1) anchor += "-" + count;
 
                     // Add all headers
                     toc.push({ text: text, level: level, anchor: anchor });

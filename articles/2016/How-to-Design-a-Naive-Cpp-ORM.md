@@ -10,6 +10,8 @@
 阅读这篇文章后，欢迎阅读下一篇 [如何设计一个更好的 C++ ORM](#2016/How-to-Design-a-Better-Cpp-ORM)
 😉
 
+[TOC]
+
 ## 为什么C++要ORM
 
 > As good object-oriented developers got tired of this repetitive work,

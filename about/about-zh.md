@@ -62,7 +62,7 @@
 
 <langSec>
 
-[EN](#en) | 中文
+[EN](?lang=en) | 中文
 
 </langSec>
 

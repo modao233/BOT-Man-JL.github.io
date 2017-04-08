@@ -141,6 +141,29 @@ section {
     }
 }
 
+/* Print Settings */
+
+@media print {
+    body {
+        padding: 0;
+        font-size: 11pt;
+        color: #444;
+    }
+
+    .markdown-body {
+        font-size: 10pt;
+        color: #444;
+    }
+
+    nav {
+        display: none;
+    }
+
+    footer {
+        display: none;
+    }
+}
+
 /* Navigation Settings */
 
 nav a:hover,
@@ -163,6 +186,91 @@ nav a:active {
             text-shadow: 0 0 15px orange;
             text-decoration: none;
         }
+
+/* Articles Page Settings */
+
+.archiveSec ul {
+    list-style: none;
+    padding-left: 20px;
+}
+
+.archiveSec li {
+    margin: 0 0 10px;
+}
+
+    .archiveSec li:before {
+        margin-right: 8px;
+        content: "📎";
+    }
+
+.contentSec > *:first-child {
+    margin-top: 20px;
+}
+
+.headerQuoteSec blockquote {
+    padding: 0 0 0 15px;
+}
+
+/* Goto TOP Settings */
+
+.gotoTopSec {
+    position: fixed;
+    right: 50px;
+    bottom: 50px;
+    opacity: 0.6;
+    padding: 5px 3px;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 2px;
+}
+
+@media print {
+    .gotoTopSec {
+        display: none;
+    }
+}
+
+/* TOC Settings */
+
+.markdown-toc p {
+    margin: 0 0 8px;
+}
+
+    .markdown-toc p:before {
+        margin-right: 8px;
+        content: ">";
+    }
+
+@media print {
+    .markdown-toc {
+        page-break-after: always;
+    }
+
+        .markdown-toc p {
+            font-size: 11pt;
+            margin: 0 0 10px;
+        }
+
+    /* Paging Issues */
+    .headerTitleSecCover, .headerQuoteSecCover {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .headerTitleSecCover {
+        top: 30%;
+    }
+
+    .headerQuoteSecCover {
+        top: 60%;
+    }
+
+    .markdown-body-with-toc {
+        page-break-before: always;
+    }
+}
 
 /* Comment Settings */
 
@@ -199,39 +307,6 @@ nav a:active {
         display: none;
     }
 }
-
-/* Articles Page Settings */
-
-.archiveSec ul {
-    list-style: none;
-    padding-left: 20px;
-}
-
-.archiveSec li {
-    margin: 0 0 10px;
-}
-
-    .archiveSec li:before {
-        margin-right: 8px;
-        content: "📎";
-    }
-
-.contentSec > *:first-child {
-    margin-top: 20px;
-}
-
-.headerQuoteSec blockquote {
-    padding: 0 0 0 15px;
-}
-
-.markdown-toc p {
-    margin: 0 0 8px;
-}
-
-    .markdown-toc p:before {
-        margin-right: 8px;
-        content: ">";
-    }
 
 /* About Page Settings */
 
@@ -275,58 +350,4 @@ nav a:active {
     .aboutSec > *:last-child {
         margin-bottom: 0;
     }
-}
-
-/* Print Settings */
-
-@media print {
-    body {
-        padding: 0;
-        font-size: 11pt;
-        color: #444;
-    }
-
-    .markdown-body {
-        font-size: 10pt;
-        color: #444;
-    }
-
-    nav {
-        display: none;
-    }
-
-    footer {
-        display: none;
-    }
-}
-
-/* Cover & TOC Settings */
-
-@media print {
-    .headerTitleSec, .headerQuoteSec {
-        position: absolute;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-    }
-
-    .headerTitleSec {
-        top: 30%;
-    }
-
-    .headerQuoteSec {
-        top: 60%;
-    }
-
-    .contentSec {
-        page-break-before: always;
-    }
-
-    .markdown-toc {
-        page-break-after: always;
-    }
-
-        .markdown-toc ul, .markdown-toc li {
-            padding-left: 20px;
-        }
 }

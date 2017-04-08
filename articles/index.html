@@ -23,6 +23,7 @@
             <div class="archiveSec"></div>
             <div class="contentSec"></div>
             <div class="commentSec"></div>
+            <div class="gotoTopSec"><a href="#">TOP ⬆️</a></div>
         </section>
         <footer class="footerSec"></footer>
     </div>
@@ -32,13 +33,14 @@
     <script src="/javascripts/katex.min.js"></script>
     <script src="/javascripts/auto-render.min.js"></script>
     <script>
-        if (location.hash.length > 0) {
+        var post = GetSearchParam(location.search, "post");
+        if (post != null) {
             RenderSectionWithPrompt("/assets.md", "promptSec",
                 [
                     "navSec",
                     "footerSec"
                 ], function () {
-                    RenderSectionWithPrompt(location.hash.substr(1) + ".md",
+                    RenderSectionWithPrompt(post + ".md",
                         "promptSec", "contentSec", function () {
                             var contentSec =
                                 document.getElementsByClassName("contentSec")[0];
@@ -85,12 +87,12 @@
                 ]);
             RenderSectionWithPrompt("archive.md", "promptSec",
                 [
-                    { tagName: "archiveSec", articlesPath: "./" }
+                    {
+                        tagName: "archiveSec",
+                        fixStyle: (absPath, relPath) => "./?post=" + relPath
+                    }
                 ]);
         }
-
-        // Navigation on Hash Change
-        window.onhashchange = function () { location.reload(); };
     </script>
 </body>
 </html>

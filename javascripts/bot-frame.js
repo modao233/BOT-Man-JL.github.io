@@ -80,46 +80,38 @@ RenderSection = function (fileName, tags, callback) {
         return (parents + destPath.substring(commonLen)) || './';
     };
 
-    var FixRelativePaths = function (mdSec, absPath) {
+    var FixRelativePaths = function (mdSec, mdAbsPath, fixStyle) {
         // Trick: use reflection 'attrName' to access property
         // http://stackoverflow.com/questions/4244896/dynamically-access-object-property-using-variable
-        var fixAll = function (tagName, attrName) {
+        var fixAll = function (tagName, attrName, fixStyle) {
             var elems = mdSec.getElementsByTagName(tagName);
             for (var j = 0; j < elems.length; j++) {
                 // Store original literal of attr
-                var preSrc = elems[j].getAttribute(attrName);
+                var rawSrc = elems[j].getAttribute(attrName);
+                var src = elems[j][attrName];
 
-                if (elems[j][attrName].indexOf(location.origin) != -1 &&  // Same Origin
-                    preSrc.indexOf(location.origin) == -1 &&  // Relative Path
-                    preSrc[0] != "/" &&  // NOT Root-Relative Path
-                    preSrc[0] != "#")  // NOT Hash
+                if (src.indexOf(location.origin) != -1 &&  // Same Origin
+                    rawSrc.indexOf(location.origin) == -1 &&  // Relative Path
+                    rawSrc[0] != "/" &&  // NOT Root-Relative Path
+                    rawSrc[0] != "#")  // NOT Hash
                 {
-                    // Relative to absPath
-                    elems[j][attrName] = absPath + preSrc;
+                    // Get absPath
+                    var aElem = document.createElement("A");
+                    aElem.href = mdAbsPath + rawSrc;
+                    var absPath = aElem.href;
+
+                    // Get relPath
+                    //alert(location.origin + location.pathname + "\n" + absPath);
+                    var relPath = GetRelPath(location.origin + location.pathname, absPath);
+
+                    // Set with pattern
+                    elems[j][attrName] = fixStyle(absPath, relPath);
                 }
             }
         };
 
-        fixAll("A", "href");
-        fixAll("IMG", "src");
-    };
-
-    var FixArticlesPaths = function (mdSec, articlesPath) {
-        var tagName = "A";
-        var attrName = "href";
-
-        var elems = mdSec.getElementsByTagName(tagName);
-        for (var j = 0; j < elems.length; j++) {
-            // Store original literal of attr
-            var preSrc = elems[j].getAttribute(attrName);
-
-            if (elems[j][attrName].indexOf(location.origin) != -1)  // Same Origin
-            {
-                // Relative to articlesPath
-                elems[j][attrName] = articlesPath + "#" +
-                    GetRelPath(articlesPath, elems[j][attrName]);
-            }
-        }
+        fixAll("A", "href", fixStyle);
+        fixAll("IMG", "src", (absPath, relPath) => absPath);
     };
 
     var GetTOC = function (tocArray) {
@@ -132,7 +124,7 @@ RenderSection = function (fileName, tags, callback) {
         for (var i = 1; i < tocArray.length; i++) {
             var item = tocArray[i];
             tocHTML += "<p style='padding-left:" +
-                (item.level - minLevel) * 2 + "em'><a href='#" +
+                (item.level - minLevel) * 1.5 + "em'><a href='#" +
                 item.anchor + "'>" +
                 item.text + "</a></p>";
         }
@@ -146,7 +138,7 @@ RenderSection = function (fileName, tags, callback) {
                 return;
             }
 
-            var absPath = GetAbsPath(fileName);
+            var mdAbsPath = GetAbsPath(fileName);
 
             // tags NOT Array = rendered the entire file
             var isSingleFile = !Array.isArray(tags);
@@ -164,9 +156,9 @@ RenderSection = function (fileName, tags, callback) {
                 if (tag.isMd != null)
                     isMd = tag.isMd;
 
-                var articlesPath = null;
-                if (tag.articlesPath != null)
-                    articlesPath = GetAbsPath(tag.articlesPath);
+                var fixStyle = (absPath, relPath) => absPath;
+                if (tag.fixStyle != null)
+                    fixStyle = tag.fixStyle;
 
                 var secText = isSingleFile ? mdSource : GetSection(mdSource, tagName);
 
@@ -177,7 +169,7 @@ RenderSection = function (fileName, tags, callback) {
                 renderer.heading = function (text, level, raw) {
                     var anchor = this.options.headerPrefix +
                         raw.toLowerCase().replace(/[^\w\u4E00-\u9FFF]+/g, '-')
-                            .replace(/^-+/g, '').replace (/-+$/g, '');
+                            .replace(/^-+/g, '').replace(/-+$/g, '');
 
                     // Add all headers
                     toc.push({ text: text, level: level, anchor: anchor });
@@ -189,25 +181,42 @@ RenderSection = function (fileName, tags, callback) {
                 // Patch for Math Support
                 marked.setOptions({
                     renderer: renderer,
-                    mathDelimiters: [['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend']
+                    mathDelimiters: [
+                        ['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend'
+                    ]
                 });
 
                 var content = isMd ? marked(secText) : secText;
+
+                // Render TOC
+                var hasTOC = false;
                 if (isMd && toc.length > 0) {
-                    var tocHTML = "<div class='markdown-toc'><h1>Table of Contents</h1>" +
+                    var tocHTML = "<div id='toc' class='markdown-toc'><h1>Table of Contents</h1>" +
                         GetTOC(toc) + "</div>";
+                    hasTOC = content.search(/\[TOC\]/g) != -1;
                     content = content.replace("[TOC]", tocHTML);
                 }
 
+                // Set 'Cover class to print if has TOC
+                if (hasTOC) {
+                    var headerTitleSecs = document.getElementsByClassName('headerTitleSec');
+                    for (var j = 0; j < headerTitleSecs.length; j++)
+                        headerTitleSecs[j].classList.add('headerTitleSecCover');
+                    var headerQuoteSecs = document.getElementsByClassName('headerQuoteSec');
+                    for (var j = 0; j < headerQuoteSecs.length; j++)
+                        headerQuoteSecs[j].classList.add('headerQuoteSecCover');
+                    var markdownBody = document.getElementsByClassName('markdown-body');
+                    for (var j = 0; j < markdownBody.length; j++)
+                        markdownBody[j].classList.add('markdown-body-with-toc');
+                }
+
+                // Fill content and Fix paths
                 var secs = document.getElementsByClassName(tagName);
                 for (var j = 0; j < secs.length; j++) {
                     secs[j].innerHTML = content;
 
-                    if (absPath != null)
-                        FixRelativePaths(secs[j], absPath);
-
-                    if (articlesPath != null)
-                        FixArticlesPaths(secs[j], articlesPath);
+                    if (mdAbsPath != null)
+                        FixRelativePaths(secs[j], mdAbsPath, fixStyle);
                 }
             }
             callback(true);
@@ -288,4 +297,15 @@ LoadIssues = function (userRepoName, callback) {
             }
             return callback(issuesHTML);
         });
+};
+
+GetSearchParam = function (searchStr, target) {
+    var beg = searchStr.indexOf(target);
+    if (beg == -1) return null;
+
+    beg += target.length + 1;
+    var end = searchStr.indexOf('&', beg);
+    if (end == -1) end = searchStr.length;
+
+    return searchStr.substr(beg, end - beg);
 };

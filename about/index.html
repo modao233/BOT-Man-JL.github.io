@@ -34,9 +34,8 @@
             ]);
 
         // Retrieve language (en/zh)
-        var lang = "en";
-        if (location.hash.length > 0)
-            lang = location.hash.substr(1);
+        var lang = GetSearchParam(location.search, "lang");
+        if (lang == null) lang = "en";
 
         RenderSectionWithPrompt("about-" + lang + ".md", "promptSec",
             [
@@ -44,9 +43,6 @@
                 "langSec",
                 "qrCodeSec"
             ]);
-
-        // Navigation on Hash Change
-        window.onhashchange = function () { location.reload(); };
     </script>
 </body>
 </html>

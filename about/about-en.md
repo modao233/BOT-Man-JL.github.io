@@ -76,7 +76,7 @@
 
 <langSec>
 
-EN | [中文](#zh)
+EN | [中文](?lang=zh)
 
 </langSec>
 

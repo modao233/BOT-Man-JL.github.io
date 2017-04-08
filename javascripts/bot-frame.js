@@ -183,8 +183,11 @@ RenderSection = function (fileName, tags, callback) {
                     return '<h' + level + ' id="' + anchor + '">' +
                         text + '</h' + level + '>\n';
                 };
+
+                // Patch for Math Support
                 marked.setOptions({
-                    renderer: renderer
+                    renderer: renderer,
+                    mathDelimiters: [['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend']
                 });
 
                 var content = isMd ? marked(secText) : secText;

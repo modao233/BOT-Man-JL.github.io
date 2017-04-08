@@ -26,7 +26,7 @@
         </section>
         <footer class="footerSec"></footer>
     </div>
-    <script src="/javascripts/marked.min.js"></script>
+    <script src="/javascripts/marked.js"></script>
     <script src="/javascripts/bot-frame.js"></script>
     <!-- Math Support -->
     <script src="/javascripts/katex.min.js"></script>
@@ -54,8 +54,10 @@
                             // Render math
                             renderMathInElement(contentSec, {
                                 delimiters: [
+                                    { left: "$$", right: "$$", display: true },
+                                    { left: "\\[", right: "\\]", display: true },
                                     { left: "$", right: "$", display: false },
-                                    { left: "$$", right: "$$", display: true }
+                                    { left: "\\(", right: "\\)", display: false }
                                 ],
                                 ignoredTags: [
                                     "script", "noscript", "style", "textarea", "pre", "code"

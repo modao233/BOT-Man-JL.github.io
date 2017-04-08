@@ -125,15 +125,16 @@ RenderSection = function (fileName, tags, callback) {
     var GetTOC = function (tocArray) {
         var tocHTML = "";
 
-        // Omit the first header
-        for (var i = 1; i <= tocArray.length; i++) {
-            var levelDiff = i < tocArray.length ?
-                tocArray[i].level - tocArray[i - 1].level :
-                tocArray[0].level - tocArray[i - 1].level;
-            for (; levelDiff > 0; --levelDiff) tocHTML += "<ul>";
-            for (; levelDiff < 0; ++levelDiff) tocHTML += "</ul>";
-            if (i < tocArray.length)
-                tocHTML += "<li>" + tocArray[i].text + "</li>";
+        var minLevel = 1024;
+        for (var i = 1; i < tocArray.length; i++)
+            minLevel = Math.min(minLevel, tocArray[i].level);
+
+        for (var i = 1; i < tocArray.length; i++) {
+            var item = tocArray[i];
+            tocHTML += "<p style='padding-left:" +
+                (item.level - minLevel) * 2 + "em'><a href='#" +
+                item.anchor + "'>" +
+                item.text + "</a></p>";
         }
         return tocHTML;
     };
@@ -175,10 +176,11 @@ RenderSection = function (fileName, tags, callback) {
                 var renderer = new marked.Renderer();
                 renderer.heading = function (text, level, raw) {
                     var anchor = this.options.headerPrefix +
-                        raw.toLowerCase().replace(/[^\w]+/g, '-');
+                        raw.toLowerCase().replace(/[^\w\u4E00-\u9FFF]+/g, '-')
+                            .replace(/^-+/g, '').replace (/-+$/g, '');
 
                     // Add all headers
-                    toc.push({ text: text, level: level });
+                    toc.push({ text: text, level: level, anchor: anchor });
 
                     return '<h' + level + ' id="' + anchor + '">' +
                         text + '</h' + level + '>\n';
@@ -192,7 +194,7 @@ RenderSection = function (fileName, tags, callback) {
 
                 var content = isMd ? marked(secText) : secText;
                 if (isMd && toc.length > 0) {
-                    var tocHTML = "<div class='markdown-toc'><h1>Table of Content</h1>" +
+                    var tocHTML = "<div class='markdown-toc'><h1>Table of Contents</h1>" +
                         GetTOC(toc) + "</div>";
                     content = content.replace("[TOC]", tocHTML);
                 }

@@ -68,32 +68,38 @@
                         });
                 });
 
-            var comment = document.getElementsByClassName("commentSec")[0];
-            comment.innerHTML = "<h1>Comment Section - Loading ...</h1>";
-            LoadIssues("BOT-Man-JL/BOT-Man-JL.github.io", function (issuesHTML) {
-                if (issuesHTML == null)
-                    comment.innerHTML = "<h1>Comment Section - Loading Failed :-(</h1>";
-                else
-                    comment.innerHTML = "<h1>Comment Section</h1>" + issuesHTML;
-            });
+            // Remove Comment currently
+            //var comment = document.getElementsByClassName("commentSec")[0];
+            //comment.innerHTML = "<h1>Comment Section - Loading ...</h1>";
+            //LoadIssues("BOT-Man-JL/BOT-Man-JL.github.io", function (issuesHTML) {
+            //    if (issuesHTML == null)
+            //        comment.innerHTML = "<h1>Comment Section - Loading Failed :-(</h1>";
+            //    else
+            //        comment.innerHTML = "<h1>Comment Section</h1>" + issuesHTML;
+            //});
         }
         else {
+            // Compatible with legacy routing
+            if (location.hash != null && location.hash.length > 1)
+                location = "./?post=" + location.hash.substr(1);
+
             RenderSectionWithPrompt("/assets.md", "promptSec",
                 [
                     "navSec",
                     "footerSec",
                     "contactSec",
                     { tagName: "articlesTitleSec", isMd: false }
-                ]);
-            RenderSectionWithPrompt("archive.md", "promptSec",
-                [
-                    {
-                        tagName: "archiveSec",
-                        fixStyle: function (absPath, relPath) {
-                            return "./?post=" + relPath;
-                        }
-                    }
-                ]);
+                ], function () {
+                    RenderSectionWithPrompt("archive.md", "promptSec",
+                        [
+                            {
+                                tagName: "archiveSec",
+                                fixStyle: function (absPath, relPath) {
+                                    return "./?post=" + relPath;
+                                }
+                            }
+                        ])
+                });
         }
     </script>
 </body>

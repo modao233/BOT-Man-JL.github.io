@@ -245,37 +245,6 @@ nav a:active {
         content: ">";
     }
 
-@media print {
-    .markdown-toc {
-        page-break-after: always;
-    }
-
-        .markdown-toc p {
-            font-size: 11pt;
-            margin: 0 0 10px;
-        }
-
-    /* Paging Issues */
-    .headerTitleSecCover, .headerQuoteSecCover {
-        position: absolute;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-    }
-
-    .headerTitleSecCover {
-        top: 30%;
-    }
-
-    .headerQuoteSecCover {
-        top: 60%;
-    }
-
-    .markdown-body-with-toc {
-        page-break-before: always;
-    }
-}
-
 /* Comment Settings */
 
 .comment-avatar {
@@ -354,4 +323,33 @@ nav a:active {
     .aboutSec > *:last-child {
         margin-bottom: 0;
     }
+}
+
+/* Page Settings */
+@media print {
+    .page-break {
+        page-break-after: always;
+    }
+
+    .cover-title, .cover-subtitle {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .cover-title {
+        top: 30%;
+    }
+
+    .cover-subtitle {
+        top: 60%;
+    }
+}
+
+@page {
+    widows: 0;
+    orphans: 0;
+    /* Word Style -- margin: 72pt 90pt; */
+    margin: 36pt 45pt;
 }

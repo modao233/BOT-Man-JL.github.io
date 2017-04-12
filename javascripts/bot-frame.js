@@ -176,10 +176,11 @@ RenderSection = function (fileName, tags, callback) {
                     var count = anchorMap.get(anchor);
                     count = (count == null ? 0 : count) + 1;
                     anchorMap.set(anchor, count);
-                    if (count > 1) anchor += "-" + count;
+                    if (count > 1) anchor += "_" + count;
 
-                    // Add all headers
-                    toc.push({ text: text, level: level, anchor: anchor });
+                    // Ignore 'TOC heading
+                    if (anchor.replace('_', '-').search(/(toc|table-of-contents)/ig) == -1)
+                        toc.push({ text: text, level: level, anchor: anchor });
 
                     return '<h' + level + ' id="' + anchor + '">' +
                         text + '</h' + level + '>\n';
@@ -195,26 +196,20 @@ RenderSection = function (fileName, tags, callback) {
 
                 var content = isMd ? marked(secText) : secText;
 
-                // Render TOC
-                var hasTOC = false;
+                // Render [TOC]
                 if (isMd && toc.length > 0) {
-                    var tocHTML = "<div id='toc' class='markdown-toc'><h1>Table of Contents</h1>" +
+                    var tocHTML = "<div class='markdown-toc'>" +
                         GetTOC(toc) + "</div>";
-                    hasTOC = content.search(/\[TOC\]/g) != -1;
-                    content = content.replace("[TOC]", tocHTML);
+                    content = content
+                        .replace(/(<p>)?\[TOC\](<\/p>)?/ig, tocHTML);
                 }
 
-                // Set 'Cover class to print if has TOC
-                if (hasTOC) {
-                    var headerTitleSecs = document.getElementsByClassName('headerTitleSec');
-                    for (var j = 0; j < headerTitleSecs.length; j++)
-                        headerTitleSecs[j].classList.add('headerTitleSecCover');
-                    var headerQuoteSecs = document.getElementsByClassName('headerQuoteSec');
-                    for (var j = 0; j < headerQuoteSecs.length; j++)
-                        headerQuoteSecs[j].classList.add('headerQuoteSecCover');
-                    var markdownBody = document.getElementsByClassName('markdown-body');
-                    for (var j = 0; j < markdownBody.length; j++)
-                        markdownBody[j].classList.add('markdown-body-with-toc');
+                // Render predefined-tags
+                if (isMd) {
+                    var predefinedTags = ["page-break", "cover-title", "cover-subtitle"];
+                    var condStr = predefinedTags.join("|").replace(/\-/g, '\\-');
+                    var regExp = new RegExp("(<p>)?\\[(" + condStr + ")\\](<\\/p>)?", "ig");
+                    content = content.replace(regExp, "<div class='$2'></div>");
                 }
 
                 // Fill content and Fix paths

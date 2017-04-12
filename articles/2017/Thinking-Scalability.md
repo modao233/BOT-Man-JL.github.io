@@ -4,20 +4,6 @@
 >
 > 程序设计源于生活 —— Love Coding, Love my Beautiful Life.
 
-[page-break]
-
-[cover-title]
-
-# 关于可扩展性的思考
-
-[cover-subtitle]
-
-> 2017/1/3
->
-> 程序设计源于生活 —— Love Coding, Love my Beautiful Life.
-
-[page-break]
-
 ## TOC
 
 [TOC]

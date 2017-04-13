@@ -15,8 +15,10 @@
         <header>
             <nav class="navSec"></nav>
             <div class="contactSec"></div>
-            <div class="headerTitleSec"></div>
-            <div class="headerQuoteSec"></div>
+            <div class="headerSec">
+                <div class="headerTitleSec"></div>
+                <div class="headerQuoteSec"></div>
+            </div>
         </header>
         <section class="markdown-body">
             <div class="promptSec"></div>
@@ -52,6 +54,17 @@
                             MoveFirstElement(
                                 document.getElementsByClassName("headerQuoteSec")[0],
                                 contentSec);
+
+                            // Styles
+                            var styles = GetSearchParam(location.search, "styles").split(',');
+                            for (var i = 0; i < styles.length; i++) {
+                                var style = styles[i];
+                                if (style == "cover") {
+                                    document.getElementsByClassName("headerSec")[0].classList.add('page');
+                                    document.getElementsByClassName("headerTitleSec")[0].classList.add('cover-title');
+                                    document.getElementsByClassName("headerQuoteSec")[0].classList.add('cover-subtitle');
+                                }
+                            }
 
                             // Render math
                             renderMathInElement(contentSec, {

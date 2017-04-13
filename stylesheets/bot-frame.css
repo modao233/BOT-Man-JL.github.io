@@ -283,23 +283,24 @@ nav a:active {
 
 /* About Page Settings */
 
-.langSec {
+.qrCodeSec {
     text-align: right;
+    float: right;
 }
 
-.qrCodeSec {
-    display: none;
+@media screen {
+    .qrCodeSec {
+        display: none;
+    }
+}
+
+.langSec {
+    text-align: right;
 }
 
 @media print {
     .langSec {
         display: none;
-    }
-
-    .qrCodeSec {
-        text-align: right;
-        float: right;
-        display: block;
     }
 
     .aboutSec {
@@ -331,6 +332,12 @@ nav a:active {
         page-break-after: always;
     }
 
+    .page {
+        page-break-after: always;
+        height: 260mm;
+        position: relative;
+    }
+
     .cover-title, .cover-subtitle {
         position: absolute;
         left: 50%;
@@ -339,10 +346,12 @@ nav a:active {
     }
 
     .cover-title {
+        font-size: 12pt;
         top: 30%;
     }
 
     .cover-subtitle {
+        font-size: 11pt;
         top: 60%;
     }
 }
@@ -350,6 +359,7 @@ nav a:active {
 @page {
     widows: 0;
     orphans: 0;
-    /* Word Style -- margin: 72pt 90pt; */
-    margin: 36pt 45pt;
+    /* Word Style -- margin: 25.4mm 31.8mm; */
+    margin: 15mm 15mm;
+    size: 210mm 297mm;
 }

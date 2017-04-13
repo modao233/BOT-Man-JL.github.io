@@ -196,20 +196,54 @@ RenderSection = function (fileName, tags, callback) {
 
                 var content = isMd ? marked(secText) : secText;
 
-                // Render [TOC]
-                if (isMd && toc.length > 0) {
-                    var tocHTML = "<div class='markdown-toc'>" +
-                        GetTOC(toc) + "</div>";
-                    content = content
-                        .replace(/(<p>)?\[TOC\](<\/p>)?/ig, tocHTML);
-                }
+                if (isMd && isSingleFile) {
 
-                // Render predefined-tags
-                if (isMd) {
+                    // Render [TOC]
+                    if (toc.length > 0) {
+                        var tocHTML = "<div class='markdown-toc'>" +
+                            GetTOC(toc) + "</div>";
+                        content = content
+                            .replace(/(<p>)?\[TOC\](<\/p>)?/ig, tocHTML);
+                    }
+
+                    // Render predefined-tags
                     var predefinedTags = ["page-break", "cover-title", "cover-subtitle"];
                     var condStr = predefinedTags.join("|").replace(/\-/g, '\\-');
                     var regExp = new RegExp("(<p>)?\\[(" + condStr + ")\\](<\\/p>)?", "ig");
                     content = content.replace(regExp, "<div class='$2'></div>");
+
+                    // Render Slides
+                    var targetStrs = [
+                        "<hr><div class='slide'>",
+                        "</div><hr><div class='slide'>",
+                        "</div><hr>"
+                    ];
+                    var newContent = "";
+                    var curIndex = content.indexOf("<hr>"), preIndex = 0;
+                    var step = "<hr>".length;
+                    while (true) {
+                        if (curIndex != -1)
+                            newContent += content.substr(preIndex, curIndex - preIndex);
+                        var nxtIndex = content.indexOf("<hr>", curIndex + step);
+                        if (nxtIndex != -1) {
+                            if (preIndex == 0)
+                                newContent += targetStrs[0];
+                            else
+                                newContent += targetStrs[1];
+                        }
+                        else {
+                            if (preIndex == 0)
+                                newContent += "<hr>";
+                            else
+                                newContent += targetStrs[2];
+                            newContent += content.substr(curIndex + step);
+                            break;
+                        }
+                        preIndex = curIndex + step;
+                        curIndex = nxtIndex;
+                    }
+                    if (curIndex != -1)
+                        content = newContent;
                 }
 
                 // Fill content and Fix paths

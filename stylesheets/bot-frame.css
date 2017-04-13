@@ -326,16 +326,41 @@ nav a:active {
     }
 }
 
-/* Page Settings */
+/* Slide Settings */
+@media print {
+    hr {
+        display: none;
+    }
+
+    .slide {
+        page-break-before: always;
+    }
+
+        .slide > h1 {
+            font-size: 44pt;
+        }
+
+        .slide > h2 {
+            font-size: 40pt;
+        }
+
+        .slide > h3 {
+            font-size: 36pt;
+        }
+
+        .slide > h4 {
+            font-size: 32pt;
+        }
+
+        .slide > p, .slide > ul, .slide > ol, .slide > table, .slide > pre, .slide > dl {
+            font-size: 28pt;
+        }
+}
+
+/* Cover Settings */
 @media print {
     .page-break {
         page-break-after: always;
-    }
-
-    .page {
-        page-break-after: always;
-        height: 260mm;
-        position: relative;
     }
 
     .cover-title, .cover-subtitle {
@@ -346,20 +371,10 @@ nav a:active {
     }
 
     .cover-title {
-        font-size: 12pt;
         top: 30%;
     }
 
     .cover-subtitle {
-        font-size: 11pt;
         top: 60%;
     }
-}
-
-@page {
-    widows: 0;
-    orphans: 0;
-    /* Word Style -- margin: 25.4mm 31.8mm; */
-    margin: 15mm 15mm;
-    size: 210mm 297mm;
 }

@@ -15,10 +15,8 @@
         <header>
             <nav class="navSec"></nav>
             <div class="contactSec"></div>
-            <div class="headerSec">
-                <div class="headerTitleSec"></div>
-                <div class="headerQuoteSec"></div>
-            </div>
+            <div class="headerTitleSec"></div>
+            <div class="headerQuoteSec"></div>
         </header>
         <section class="markdown-body">
             <div class="promptSec"></div>
@@ -56,15 +54,34 @@
                                 contentSec);
 
                             // Styles
-                            var styles = GetSearchParam(location.search, "styles").split(',');
+                            var stylesStr = GetSearchParam(location.search, "style");
+                            var styles = stylesStr != null ? stylesStr.split(',') : [];
+
+                            var isWordMargin = false;
+                            var isSlideMode = false;
+
                             for (var i = 0; i < styles.length; i++) {
                                 var style = styles[i];
                                 if (style == "cover") {
-                                    document.getElementsByClassName("headerSec")[0].classList.add('page');
+                                    // TODO: slide-cover
                                     document.getElementsByClassName("headerTitleSec")[0].classList.add('cover-title');
                                     document.getElementsByClassName("headerQuoteSec")[0].classList.add('cover-subtitle');
+                                    document.getElementsByTagName("header")[0].innerHTML += "<div class='page-break'></div>";
                                 }
+                                else if (style == "word") isWordMargin = true;
+                                else if (style == "slide") isSlideMode = true;
                             }
+
+                            var styleElem = document.createElement('style');
+                            if (isWordMargin)
+                                styleElem.innerHTML += "@page { margin: 25.4mm 31.8mm; }";
+                            else
+                                styleElem.innerHTML += "@page { margin: 15mm 15mm; }";
+                            if (isSlideMode)
+                                styleElem.innerHTML += "@page { size: 297mm 210mm; }";
+                            else
+                                styleElem.innerHTML += "@page { size: 210mm 297mm; }";
+                            document.head.appendChild(styleElem);
 
                             // Render math
                             renderMathInElement(contentSec, {

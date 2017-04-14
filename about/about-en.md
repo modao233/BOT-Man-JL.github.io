@@ -36,9 +36,8 @@
 
 ## Experience
 
-- 2017 – Publishing a **Research Paper**,
-  *Xu Liu, Zhongbao Zhang, Junning Li, Sen Su,
-  Clustering Based Energy-Aware Virtual Network Embedding*, on January;
+- 2017 – Publishing a **Research Paper**
+  *Clustering Based Energy-Aware Virtual Network Embedding, Xu Liu, Zhongbao Zhang, Junning Li, Sen Su*;
 - 2016 – Joining in
   **_[Microsoft (MSRA) Elites Plan](https://studentclub.msra.cn/project/97)_**
   [**￥10,000 support**];

@@ -204,7 +204,7 @@ nav a:active {
 
     .archiveSec li:before {
         margin-right: 8px;
-        content: "📎";
+        content: ">";
     }
 
 .contentSec > *:first-child {
@@ -242,7 +242,7 @@ nav a:active {
 
     .markdown-toc p:before {
         margin-right: 8px;
-        content: ">";
+        content: "#";
     }
 
 /* Comment Settings */
@@ -336,24 +336,32 @@ nav a:active {
         page-break-before: always;
     }
 
-        .slide > h1 {
+        .slide h1 {
             font-size: 44pt;
         }
 
-        .slide > h2 {
+        .slide h2 {
             font-size: 40pt;
         }
 
-        .slide > h3 {
+        .slide h3 {
             font-size: 36pt;
         }
 
-        .slide > h4 {
+        .slide h4 {
             font-size: 32pt;
         }
 
-        .slide > p, .slide > ul, .slide > ol, .slide > table, .slide > pre, .slide > dl {
+        .slide p, .slide ul, .slide ol, .slide table, .slide pre, .slide dl {
             font-size: 28pt;
+        }
+
+        .slide blockquote {
+            display: none;
+        }
+
+        .slide img {
+            max-height: 100mm;
         }
 }
 

@@ -36,9 +36,8 @@
 
 ## 经历
 
-- 2017 – 一月，**发表论文**
-  *Xu Liu, Zhongbao Zhang, Junning Li, Sen Su,
-  Clustering Based Energy-Aware Virtual Network Embedding*；
+- 2017 – **发表论文**
+  *Clustering Based Energy-Aware Virtual Network Embedding, Xu Liu, Zhongbao Zhang, Junning Li, Sen Su*；
 - 2016 – 参加 **微软（MSRA）[菁英计划](https://studentclub.msra.cn/project/97)** 【**￥10,000 支持**】；
 - 2016 – 参加 **微软 More Personal Computing (MPC) 黑客马拉松**，开发 [*Windows* 应用](https://github.com/BOT-Man-JL/Better-Kids) 【**二等奖**】；
 - 2016 – 参加 **CareerX-清华 黑客马拉松**，开发 [*Slack* 机器人](https://github.com/xinhuaRadioLAB/HackerX_slive) 【**二等奖**】；

@@ -201,6 +201,7 @@ RenderSection = function (fileName, tags, callback) {
                     // Render style setters
                     content = content.replace(/<p>(\[.+=.+\])<\/p>/g, '$1');
                     var styleSetters = content.match(/\[.+=.+\]/g);
+                    if (styleSetters == null) styleSetters = [];
                     for (var j = 0; j < styleSetters.length; j++) {
                         var styleSetter = styleSetters[j];
                         var tagPrefix = "<" + styleSetter.substr(1,

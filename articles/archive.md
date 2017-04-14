@@ -4,6 +4,7 @@
 
 #### 2017
 
+- [Virtual Network Embedding Algorithm Study](2017/Virtual-Network-Embedding-Study)
 - [关于可扩展性的思考](2017/Thinking-Scalability)
 
 #### 2016

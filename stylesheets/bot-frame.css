@@ -361,7 +361,7 @@ nav a:active {
         }
 
         .slide img {
-            max-height: 100mm;
+            max-height: 170mm;
         }
 }
 
@@ -385,4 +385,25 @@ nav a:active {
     .cover-subtitle {
         top: 60%;
     }
+}
+
+/* Alignment Settings */
+.float-left + * {
+    float: left;
+}
+
+.float-right + * {
+    float: right;
+}
+
+.align-left + * {
+    text-align: left;
+}
+
+.align-right + * {
+    text-align: right;
+}
+
+.align-center + * {
+    text-align: center;
 }

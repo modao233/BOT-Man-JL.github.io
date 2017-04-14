@@ -207,9 +207,11 @@ RenderSection = function (fileName, tags, callback) {
                     }
 
                     // Render predefined-tags
-                    var predefinedTags = ["page-break", "cover-title", "cover-subtitle"];
+                    var predefinedTags = [
+                        "page-break", "float-left", "float-right",
+                        "align-left", "align-right", "align-center"];
                     var condStr = predefinedTags.join("|").replace(/\-/g, '\\-');
-                    var regExp = new RegExp("(<p>)?\\[(" + condStr + ")\\](<\\/p>)?", "ig");
+                    var regExp = new RegExp("(<p>)?\\[(" + condStr + ")\\](<\\/p>)?", "g");
                     content = content.replace(regExp, "<div class='$2'></div>");
 
                     // Render Slides

@@ -198,12 +198,31 @@ RenderSection = function (fileName, tags, callback) {
 
                 if (isMd && isSingleFile) {
 
+                    // Render style setters
+                    content = content.replace(/<p>(\[.+=.+\])<\/p>/g, '$1');
+                    var styleSetters = content.match(/\[.+=.+\]/g);
+                    for (var j = 0; j < styleSetters.length; j++) {
+                        var styleSetter = styleSetters[j];
+                        var tagPrefix = "<" + styleSetter.substr(1,
+                            styleSetter.indexOf('=') - 1);
+                        var tagStyle = styleSetter.substr(1 + tagPrefix.length,
+                            styleSetter.length - 2 - tagPrefix.length);
+
+                        var firstTagIndex = content.indexOf(tagPrefix,
+                            content.indexOf(styleSetter) + styleSetter.length);
+                        content = content.substr(0, firstTagIndex + tagPrefix.length) +
+                            " style='" + tagStyle + "'" +
+                            content.substr(firstTagIndex + tagPrefix.length);
+
+                    }
+                    content = content.replace(/\[.+=.+\]/g, '');
+
                     // Render [TOC]
                     if (toc.length > 0) {
                         var tocHTML = "<div class='markdown-toc'>" +
                             GetTOC(toc) + "</div>";
                         content = content
-                            .replace(/(<p>)?\[TOC\](<\/p>)?/ig, tocHTML);
+                            .replace(/<p>\[TOC\]<\/p>/ig, tocHTML);
                     }
 
                     // Render predefined-tags
@@ -211,10 +230,10 @@ RenderSection = function (fileName, tags, callback) {
                         "page-break", "float-left", "float-right",
                         "align-left", "align-right", "align-center"];
                     var condStr = predefinedTags.join("|").replace(/\-/g, '\\-');
-                    var regExp = new RegExp("(<p>)?\\[(" + condStr + ")\\](<\\/p>)?", "g");
-                    content = content.replace(regExp, "<div class='$2'></div>");
+                    var regExp = new RegExp("<p>\\[(" + condStr + ")\\]<\\/p>", "g");
+                    content = content.replace(regExp, "<div class='$1'></div>");
 
-                    // Render Slides
+                    // Render slides
                     var targetStrs = [
                         "<hr><div class='slide'>",
                         "</div><hr><div class='slide'>",

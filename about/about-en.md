@@ -58,6 +58,7 @@
 
 ## Open Source Projects
 
+- 2017 - Contributing to a **_[Markdown Editor](https://github.com/madskristensen/MarkdownEditor)_** (**Visual Studio Extension**);
 - 2016 - Writing a **Header-Only**, **Strong-Typed**, **Compile-time**
   **_[Object Relation Mapping (ORM)](https://github.com/BOT-Man-JL/ORM-Lite)_** in Modern C++;
 - 2015 – Writing a **Lightweight, Cross-Platform C++**

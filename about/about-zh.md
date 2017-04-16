@@ -47,6 +47,7 @@
 
 ## 开源
 
+- 2017 - 参与一个 **[Markdown 编辑器](https://github.com/madskristensen/MarkdownEditor)** (**Visual Studio 插件**);
 - 2016 - 使用**现代 C++** 编写**强类型、编译时**的[对象关系映射（**ORM**）](https://github.com/BOT-Man-JL/ORM-Lite)；
 - 2015 – 为没有图形编程基础的同学设计**轻量的跨平台 C++ [图形库](https://github.com/BOT-Man-JL/EggAche-GL)**；
 - 课程作业和其他大学期间的项目 (**GitHub**：[BUPT-Projects](https://github.com/BOT-Man-JL/BUPT-Projects))；

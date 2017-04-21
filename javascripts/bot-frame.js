@@ -211,12 +211,11 @@ RenderSection = function (fileName, tags, callback) {
 
                         var firstTagIndex = content.indexOf(tagPrefix,
                             content.indexOf(styleSetter) + styleSetter.length);
-                        content = content.substr(0, firstTagIndex + tagPrefix.length) +
+                        content = content.substr(0, firstTagIndex + tagPrefix.length)
+                            .replace(styleSetter, '') +
                             " style='" + tagStyle + "'" +
                             content.substr(firstTagIndex + tagPrefix.length);
-
                     }
-                    content = content.replace(/\[.+=.+\]/g, '');
 
                     // Render [TOC]
                     if (toc.length > 0) {

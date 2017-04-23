@@ -59,6 +59,7 @@
 
                             var isWordMargin = false;
                             var isSlideMode = false;
+                            var isTocPageBreak = false;
 
                             for (var i = 0; i < styles.length; i++) {
                                 var style = styles[i];
@@ -68,6 +69,7 @@
                                     document.getElementsByClassName("headerQuoteSec")[0].classList.add('cover-subtitle');
                                     document.getElementsByTagName("header")[0].style.pageBreakAfter = "always";
                                 }
+                                else if (style == "toc-page-break") isTocPageBreak = true;
                                 else if (style == "word") isWordMargin = true;
                                 else if (style == "slide") isSlideMode = true;
                             }
@@ -81,6 +83,8 @@
                                 styleElem.innerHTML += "@page { size: 297mm 210mm; }";
                             else
                                 styleElem.innerHTML += "@page { size: 210mm 297mm; }";
+                            if (isTocPageBreak)
+                                styleElem.innerHTML += "@media print { .markdown-toc { page-break-after: always; } }";
                             document.head.appendChild(styleElem);
 
                             // Render math

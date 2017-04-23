@@ -80,6 +80,7 @@ RenderSection = function (fileName, tags, callback) {
         return (parents + destPath.substring(commonLen)) || './';
     };
 
+    // Another approach: <base href="" />
     var FixRelativePaths = function (mdSec, mdAbsPath, fixStyle) {
         // Trick: use reflection 'attrName' to access property
         // http://stackoverflow.com/questions/4244896/dynamically-access-object-property-using-variable

@@ -131,7 +131,7 @@ $$
 
 ## Region Mapping (Local Clustering)
 
-### Local Clustering
+### Local/Hierarchical Clustering
 
 - init: $cluster = \{ \{ u \} | u \in VitualNodes \}$
 - calc $w_{ab}$ matrix

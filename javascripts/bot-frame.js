@@ -107,7 +107,6 @@ RenderSection = function (fileName, tags, callback) {
                     var absPath = aElem.href;
 
                     // Get relPath
-                    //alert(location.origin + location.pathname + "\n" + absPath);
                     var relPath = GetRelPath(location.origin + location.pathname, absPath);
 
                     // Set with pattern
@@ -220,17 +219,17 @@ RenderSection = function (fileName, tags, callback) {
                     if (refs == null) refs = [];
                     for (var i = 0; i < refs.length; i++) {
                         refCount = i + 1;
-                        refs[i] = refs[i].substr(1, refs[i].length - 3);
+                        refs[i] = refs[i].substr(0, refs[i].length - 1);
                         var refHref = 'ref-' + refCount + '-' +
-                            refs[i].toLowerCase()
+                            refs[i].substr(1, refs[i].length - 2).toLowerCase()
                                 .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
                                 .replace(/^-+/g, '').replace(/-+$/g, '');
-                        content = content.replace(new RegExp("\\[" + EscapeRegExp(refs[i]) + "\\]", 'g'),
+                        content = content.replace(new RegExp(EscapeRegExp(refs[i]), 'g'),
                             '<span><a href="#' + refHref + '">[' + refCount + ']</a></span>');
                     }
 
                     // Render style setters
-                    content = content.replace(/<p>(\[.+=.+\])<\/p>/g, '$1');
+                    content = content.replace(/<p>(\[[^\].]+=[^\].]+\])<\/p>/g, '$1');
                     var styleSetters = content.match(/\[[^\].]+=[^\].]+\]/g);  // avoid ']' inside pairs
                     if (styleSetters == null) styleSetters = [];
                     for (var j = 0; j < styleSetters.length; j++) {

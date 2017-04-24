@@ -212,7 +212,7 @@ RenderSection = function (fileName, tags, callback) {
                             refText.substr(1, refText.length - 3).toLowerCase()
                                 .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
                                 .replace(/^-+/g, '').replace(/-+$/g, '');
-                        return '<span id="' + refHref + '"><a href="#' +
+                        return '<span class="reference-base" id="' + refHref + '"><a href="#' +
                             refHref + '">[' + refCount + ']</a></span>';
                     });
 
@@ -225,7 +225,7 @@ RenderSection = function (fileName, tags, callback) {
                                 .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
                                 .replace(/^-+/g, '').replace(/-+$/g, '');
                         content = content.replace(new RegExp(EscapeRegExp(refs[i]), 'g'),
-                            '<span><a href="#' + refHref + '">[' + refCount + ']</a></span>');
+                            '<span class="reference-item"><a href="#' + refHref + '">[' + refCount + ']</a></span>');
                     }
 
                     // Render style setters

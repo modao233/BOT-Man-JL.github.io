@@ -245,6 +245,22 @@ nav a:active {
         content: "#";
     }
 
+.reference-item a {
+    vertical-align: text-top;
+    font-size: 11px;
+    color: red;
+}
+
+@media print {
+    .reference-item a {
+        font-size: 6pt;
+    }
+}
+
+.reference-base a {
+    color: #333;
+}
+
 /* Comment Settings */
 
 .comment-avatar {

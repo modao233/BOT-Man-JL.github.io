@@ -199,9 +199,33 @@ RenderSection = function (fileName, tags, callback) {
 
                 if (isMd && isSingleFile) {
 
+                    // Render references
+                    var refs = content.match(/\[.*\]:/g);
+                    var refCount = 0;
+                    content = content.replace(/\[.*\]:/g, function (refText) {
+                        ++refCount;
+                        var refHref = 'ref-' + refCount + '-' +
+                            refText.substr(1, refText.length - 3).toLowerCase()
+                                .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
+                                .replace(/^-+/g, '').replace(/-+$/g, '');
+                        return '<span id="' + refHref + '"><a href="#' +
+                            refHref + '">[' + refCount + ']</a></span>';
+                    });
+
+                    for (var i = 0; i < refs.length; i++) {
+                        refCount = i + 1;
+                        refs[i] = refs[i].substr(1, refs[i].length - 3);
+                        var refHref = 'ref-' + refCount + '-' +
+                            refs[i].toLowerCase()
+                                .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
+                                .replace(/^-+/g, '').replace(/-+$/g, '');
+                        content = content.replace(new RegExp("\\[" + refs[i] + "\\]", 'g'),
+                            '<span><a href="#' + refHref + '">[' + refCount + ']</a></span>');
+                    }
+
                     // Render style setters
                     content = content.replace(/<p>(\[.+=.+\])<\/p>/g, '$1');
-                    var styleSetters = content.match(/\[.+=.+\]/g);
+                    var styleSetters = content.match(/\[^\].+=.+\]/g);  // avoid ']' inside pairs
                     if (styleSetters == null) styleSetters = [];
                     for (var j = 0; j < styleSetters.length; j++) {
                         var styleSetter = styleSetters[j];

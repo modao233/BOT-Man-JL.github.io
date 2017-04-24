@@ -173,6 +173,6 @@ $$
 - [jaccard]: P. Jaccard, Distribution de la flore alpine dans le bassin des Dranses et dans quelques régions voisines. _Bulletin de la Société Vaudoise des Sciences Naturelles_, 37(140): 241-272 (1901).
 - [connectivity count]: E. Hartuv and R. Shamir, A Clustering Algorithm based on Graph Connectivity. _Information Processing Letters_, 76(4): 175-181 (2000).
 - [connectivity shortest]: J. Edachery and A. Sen and F. J. Brandenburg, Graph Clustering Using Distance-k Cliques. _Graph Drawing_ (1999).
-- [sosial network]: S. Wasserman and K. Faust, Social Network Analysis: Methods and Application. Cambridge: Cambridge University Press (1994).
+- [social network]: S. Wasserman and K. Faust, Social Network Analysis: Methods and Application. Cambridge: Cambridge University Press (1994).
 - [k means]: J. A. Hartigan and M. A. Wong, Algorithm AS 136: A K-Means Clustering Algorithm . _Journal of the Royal Statistical Society. Series C (Applied Statistics)_, 28(1): 100-108 (1979).
 - [mcl]: S. M. van Dongen, Graph Clustering by Flow Simulation, Ph.D. Thesis. _Universiteit Utrecht, The Netherlands_ (2000).

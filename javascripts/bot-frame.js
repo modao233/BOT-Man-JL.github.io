@@ -37,8 +37,13 @@ Ajax = function (method, path, data, callback) {
 };
 
 RenderSection = function (fileName, tags, callback) {
+
+    var EscapeRegExp = function (str) {
+        return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+    };
+
     var GetSection = function (mdSource, keyword) {
-        var regex = new RegExp("<" + keyword + ">(.|\n|\r)*?</" + keyword + ">", "m");
+        var regex = new RegExp("<" + EscapeRegExp(keyword) + ">(.|\n|\r)*?</" + EscapeRegExp(keyword) + ">", "m");
         var ret = regex.exec(mdSource);
         if (ret != null)
             return ret[0].replace("<" + keyword + ">", "").replace("</" + keyword + ">", "");
@@ -212,6 +217,7 @@ RenderSection = function (fileName, tags, callback) {
                             refHref + '">[' + refCount + ']</a></span>';
                     });
 
+                    if (refs == null) refs = [];
                     for (var i = 0; i < refs.length; i++) {
                         refCount = i + 1;
                         refs[i] = refs[i].substr(1, refs[i].length - 3);
@@ -219,13 +225,13 @@ RenderSection = function (fileName, tags, callback) {
                             refs[i].toLowerCase()
                                 .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
                                 .replace(/^-+/g, '').replace(/-+$/g, '');
-                        content = content.replace(new RegExp("\\[" + refs[i] + "\\]", 'g'),
+                        content = content.replace(new RegExp("\\[" + EscapeRegExp(refs[i]) + "\\]", 'g'),
                             '<span><a href="#' + refHref + '">[' + refCount + ']</a></span>');
                     }
 
                     // Render style setters
                     content = content.replace(/<p>(\[.+=.+\])<\/p>/g, '$1');
-                    var styleSetters = content.match(/\[^\].+=.+\]/g);  // avoid ']' inside pairs
+                    var styleSetters = content.match(/\[[^\].]+=[^\].]+\]/g);  // avoid ']' inside pairs
                     if (styleSetters == null) styleSetters = [];
                     for (var j = 0; j < styleSetters.length; j++) {
                         var styleSetter = styleSetters[j];
@@ -254,7 +260,9 @@ RenderSection = function (fileName, tags, callback) {
                     var predefinedTags = [
                         "page-break", "float-left", "float-right",
                         "align-left", "align-right", "align-center"];
-                    var condStr = predefinedTags.join("|").replace(/\-/g, '\\-');
+                    var condStr = predefinedTags[0];
+                    for (var i = 1; i < predefinedTags.length; i++)
+                        condStr += "|" + EscapeRegExp(predefinedTags[i]);
                     var regExp = new RegExp("<p>\\[(" + condStr + ")\\]<\\/p>", "g");
                     content = content.replace(regExp, "<div class='$1'></div>");
 

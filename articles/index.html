@@ -55,26 +55,21 @@
 
                             // Styles
                             var stylesStr = GetSearchParam(location.search, "style");
-                            var styles = stylesStr != null ? stylesStr.split('+') : [];
-
-                            var isWordMargin = false;
-                            var isSlideMode = false;
-                            var isTocPageBreak = false;
-
-                            for (var i = 0; i < styles.length; i++) {
-                                var style = styles[i];
-                                if (style == "cover") {
-                                    // TODO: slide-cover
-                                    document.getElementsByClassName("headerTitleSec")[0].classList.add('cover-title');
-                                    document.getElementsByClassName("headerQuoteSec")[0].classList.add('cover-subtitle');
-                                    document.getElementsByTagName("header")[0].style.pageBreakAfter = "always";
-                                }
-                                else if (style == "toc-page-break") isTocPageBreak = true;
-                                else if (style == "word") isWordMargin = true;
-                                else if (style == "slide") isSlideMode = true;
-                            }
+                            var isCover = false, isTocPageBreak = false, isWordMargin = false, isSlideMode = false;
+                            ParseStyles(stylesStr, function (styleStr) {
+                                if (styleStr == "cover") isCover = true;
+                                else if (styleStr == "toc-page-break") isTocPageBreak = true;
+                                else if (styleStr == "word") isWordMargin = true;
+                                else if (styleStr == "slide") isSlideMode = true;
+                            });
 
                             var styleElem = document.createElement('style');
+                            if (isCover) {
+                                // TODO: slide-cover
+                                document.getElementsByClassName("headerTitleSec")[0].classList.add('cover-title');
+                                document.getElementsByClassName("headerQuoteSec")[0].classList.add('cover-subtitle');
+                                document.getElementsByTagName("header")[0].style.pageBreakAfter = "always";
+                            }
                             if (isWordMargin)
                                 styleElem.innerHTML += "@page { margin: 25.4mm 31.8mm; }";
                             else

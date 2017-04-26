@@ -398,3 +398,10 @@ GetSearchParam = function (searchStr, target) {
 
     return searchStr.substr(beg, end - beg);
 };
+
+ParseStyles = function (stylesStr, callback) {
+    var styles = (stylesStr != null ? stylesStr : "").split('+');
+    for (var i = 0; i < styles.length; i++) {
+        callback(styles[i]);
+    }
+}

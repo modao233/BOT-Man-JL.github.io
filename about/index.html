@@ -43,6 +43,20 @@
                 "langSec",
                 "qrCodeSec"
             ]);
+
+        // Styles
+        var stylesStr = GetSearchParam(location.search, "style");
+        var isWordMargin = false;
+        ParseStyles(stylesStr, function (styleStr) {
+            if (styleStr == "word") isWordMargin = true;
+        });
+
+        var styleElem = document.createElement('style');
+        if (isWordMargin)
+            styleElem.innerHTML += "@page { margin: 25.4mm 31.8mm; }";
+        else
+            styleElem.innerHTML += "@page { margin: 18mm 18mm; }";
+        document.head.appendChild(styleElem);
     </script>
 </body>
 </html>

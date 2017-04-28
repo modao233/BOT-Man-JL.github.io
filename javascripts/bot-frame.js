@@ -239,8 +239,23 @@ RenderSection = function (fileName, tags, callback) {
                         var tagStyle = styleSetter.substr(1 + tagPrefix.length,
                             styleSetter.length - 2 - tagPrefix.length);
 
-                        var firstTagIndex = content.indexOf(tagPrefix,
-                            content.indexOf(styleSetter) + styleSetter.length);
+                        var firstTagIndex = content.indexOf(styleSetter) + styleSetter.length;
+
+                        // Avoid prefix matches
+                        while (true) {
+                            firstTagIndex = content.indexOf(tagPrefix, firstTagIndex);
+                            if (firstTagIndex == -1) break;
+                            if (content[firstTagIndex + tagPrefix.length] == " " ||
+                                content[firstTagIndex + tagPrefix.length] == ">") {
+                                break;
+                            }
+                            else {
+                                firstTagIndex += tagPrefix.length;
+                            }
+                            console.log(content.substr(firstTagIndex));
+                        }
+
+                        if (firstTagIndex == -1) continue;
                         content = content.substr(0, firstTagIndex + tagPrefix.length)
                             .replace(styleSetter, '') +
                             " style='" + tagStyle + "'" +

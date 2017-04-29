@@ -119,23 +119,6 @@ RenderSection = function (fileName, tags, callback) {
         fixAll("IMG", "src", function (absPath, relPath) { return absPath; });
     };
 
-    var GetTOC = function (tocArray) {
-        var tocHTML = "";
-
-        var minLevel = 1024;
-        for (var i = 1; i < tocArray.length; i++)
-            minLevel = Math.min(minLevel, tocArray[i].level);
-
-        for (var i = 1; i < tocArray.length; i++) {
-            var item = tocArray[i];
-            tocHTML += "<p style='padding-left:" +
-                (item.level - minLevel) * 1.5 + "em'><a href='#" +
-                item.anchor + "'>" +
-                item.text + "</a></p>";
-        }
-        return tocHTML;
-    };
-
     Ajax("GET", encodeURI(fileName), null,
         function (mdSource) {
             if (mdSource == null) {
@@ -167,6 +150,16 @@ RenderSection = function (fileName, tags, callback) {
 
                 var secText = isSingleFile ? mdSource : GetSection(mdSource, tagName);
 
+                // Patch for Heading Numbering
+                var tocTextRegExp = /(toc|table-of-contents|目录)/g;
+                var headingIndice = null;
+                if (isMd && isSingleFile) {
+                    var headingNumberingRegExp = /(\r)?\n\[heading\-numbering\](\r)?\n(\r)?\n/g;
+                    if (secText.search(headingNumberingRegExp) != -1)
+                        headingIndice = [0, 0, 0, 0, 0, 0];
+                    secText = secText.replace(headingNumberingRegExp, '\n');
+                }
+
                 // Patch for [TOC]
                 // Ref: https://github.com/chjj/marked/issues/545
                 var toc = [];
@@ -184,11 +177,51 @@ RenderSection = function (fileName, tags, callback) {
                     if (count > 1) anchor += "_" + count;
 
                     // Ignore 'TOC heading
-                    if (anchor.replace('_', '-').search(/(toc|table-of-contents)/ig) == -1)
+                    if (anchor.search(tocTextRegExp) == -1) {
+
+                        // Add heading numbers
+                        if (headingIndice != null) {
+                            var index = level - 1;
+                            if (index < headingIndice.length && index != 0) {
+
+                                // Generate number text
+                                ++headingIndice[index];
+                                var headingNumberText = "" + headingIndice[1];
+                                for (var i = 2; i <= index; i++) {
+                                    headingNumberText += "." + headingIndice[i];
+                                }
+
+                                // Clear lower indice
+                                for (var i = index + 1; i < headingIndice.length; i++) {
+                                    headingIndice[i] = 0;
+                                }
+                                text = headingNumberText + " " + text;
+                            }
+                        }
+
+                        // Push to array
                         toc.push({ text: text, level: level, anchor: anchor });
+                    }
 
                     return '<h' + level + ' id="' + anchor + '">' +
                         text + '</h' + level + '>\n';
+                };
+
+                var GetTOC = function (tocArray) {
+                    var tocHTML = "";
+
+                    var minLevel = 1024;
+                    for (var i = 1; i < tocArray.length; i++)
+                        minLevel = Math.min(minLevel, tocArray[i].level);
+
+                    for (var i = 1; i < tocArray.length; i++) {
+                        var item = tocArray[i];
+                        tocHTML += "<p style='padding-left:" +
+                            (item.level - minLevel) * 1.5 + "em'><a href='#" +
+                            item.anchor + "'>" +
+                            item.text + "</a></p>";
+                    }
+                    return tocHTML;
                 };
 
                 // Patch for Math Support
@@ -266,11 +299,10 @@ RenderSection = function (fileName, tags, callback) {
                     if (toc.length > 0) {
                         var tocHTML = "<div class='markdown-toc'>" +
                             GetTOC(toc) + "</div>";
-                        content = content
-                            .replace(/<p>\[TOC\]<\/p>/ig, tocHTML);
+                        content = content.replace(/<p>\[TOC\]<\/p>/g, tocHTML);
                     }
 
-                    // Render predefined-tags
+                    // Render predefined style tags
                     var predefinedTags = [
                         "page-break", "float-left", "float-right",
                         "align-left", "align-right", "align-center"];

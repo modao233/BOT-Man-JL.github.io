@@ -4,7 +4,9 @@
 >
 > 在 [学习虚拟网络映射算法](/articles/?post=2017/Virtual-Network-Embedding-Study&style=cover+slide) 过程中，和图聚类算法相关的学习
 
-## TOC
+[heading-numbering]
+
+## 目录
 
 [TOC]
 

@@ -38,11 +38,11 @@
 
 - 2017 – **发表论文**
   *Clustering Based Energy-Aware Virtual Network Embedding, Xu Liu, Zhongbao Zhang, Junning Li, Sen Su*；
-- 2016 – 参加 **微软（MSRA）[菁英计划](https://studentclub.msra.cn/project/97)** 【**￥10,000 支持**】；
+- 2016 – 参加 **微软（MSRA） [菁英计划](https://studentclub.msra.cn/project/97)** 【**￥10,000 支持**】；
 - 2016 – 参加 **微软 More Personal Computing (MPC) 黑客马拉松**，开发 [*Windows* 应用](https://github.com/BOT-Man-JL/Better-Kids) 【**二等奖**】；
 - 2016 – 参加 **CareerX-清华 黑客马拉松**，开发 [*Slack* 机器人](https://github.com/xinhuaRadioLAB/HackerX_slive) 【**二等奖**】；
 - 2016 - 参加 **微软（MSRA）学生夏令营**，开发 [*Hololens* 应用](https://github.com/BOT-Man-JL/IOT-Holo-Assistant)；
-- 2016 - 为 [北京大学 国家发展研究院 中国经济研究中心](http://ccer.nsd.edu.cn) 开发和维护**数据收集分析[网站](https://github.com/ZhangYuef/Survey_Platform_ccer)** 【**￥12,000 支持**】；
+- 2016 - 为 [北京大学 国家发展研究院 中国经济研究中心](http://ccer.nsd.edu.cn) 开发和维护**数据收集 [网站](https://github.com/ZhangYuef/Survey_Platform_ccer)** 【**￥12,000 支持**】；
 - 2015 – 参加 **微软（MSRA）校园黑客马拉松**，开发 [*Windows* 应用](https://www.microsoft.com/store/apps/Random%20Master/9NBLGGH6HCP7) 【**最佳团队奖**】；
 
 ## 开源

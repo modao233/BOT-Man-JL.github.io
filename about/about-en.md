@@ -50,7 +50,7 @@
 - 2016 - Participating in **Microsoft (MSRA) Student Summer Camp**,
   building a *[HoloLens app](https://github.com/BOT-Man-JL/IOT-Holo-Assistant)*;
 - 2016 - Building and Maintaining a *[Website](https://github.com/ZhangYuef/Survey_Platform_ccer)*
-  for **_[CCER, NSD, PKU](http://ccer.nsd.edu.cn)_'s Research Project**
+  for **_[CCER, NSD, PKU](http://ccer.nsd.edu.cn)_ 's Research Project**
   [**￥10,000 support**];
 - 2015 – Participating in **Microsoft (MSRA) Campus Hackathon**, building a
   *[Windows App](https://www.microsoft.com/store/apps/Random%20Master/9NBLGGH6HCP7)*

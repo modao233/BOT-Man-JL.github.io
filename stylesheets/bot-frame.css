@@ -245,20 +245,23 @@ nav a:active {
         content: "#";
     }
 
-.reference-item a {
+.cite-ref a {
     vertical-align: text-top;
     font-size: 11px;
-    color: red;
+}
+
+.cite-note a {
+    color: #333;
 }
 
 @media print {
-    .reference-item a {
+    .cite-ref a {
         font-size: 6pt;
     }
-}
 
-.reference-base a {
-    color: #333;
+    .cite-deref {
+        display: none;
+    }
 }
 
 /* Comment Settings */

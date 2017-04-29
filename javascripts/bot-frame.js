@@ -187,15 +187,13 @@ RenderSection = function (fileName, tags, callback) {
                                 // Generate number text
                                 ++headingIndice[index];
                                 var headingNumberText = "" + headingIndice[1];
-                                for (var i = 2; i <= index; i++) {
+                                for (var i = 2; i <= index; i++)
                                     headingNumberText += "." + headingIndice[i];
-                                }
+                                text = headingNumberText + " " + text;
 
                                 // Clear lower indice
-                                for (var i = index + 1; i < headingIndice.length; i++) {
+                                for (var i = index + 1; i < headingIndice.length; i++)
                                     headingIndice[i] = 0;
-                                }
-                                text = headingNumberText + " " + text;
                             }
                         }
 
@@ -236,29 +234,50 @@ RenderSection = function (fileName, tags, callback) {
 
                 if (isMd && isSingleFile) {
 
-                    // Render references
-                    var refs = content.match(/\[.*\]:/g);
-                    var refCount = 0;
+                    // Render citation
+                    var getCiteNoteHTML = function (citeContent, noteIndex) {
+                        return '<span class="cite-note" id="cite-note-' + citeContent +
+                            '">[' + noteIndex + ']</a></span>';
+                    };
+                    var getCiteRefHTML = function (citeContent, noteIndex, refIndex) {
+                        return '<span class="cite-ref" id="cite-ref-' + citeContent + '-' + refIndex +
+                            '"><a href="#cite-note-' + citeContent + '">[' + noteIndex + ']</a></span>';
+                    };
+                    var getCiteDerefHTML = function (citeContent, refIndex) {
+                        return '<span class="cite-deref"><a href="#cite-ref-' +
+                            citeContent + '-' + refIndex + '">^</a></span>'; 
+                    };
+
+                    var cites = content.match(/\[.*\]:/g);
+                    var countCites = 0;
                     content = content.replace(/\[.*\]:/g, function (refText) {
-                        ++refCount;
-                        var refHref = 'ref-' + refCount + '-' +
-                            refText.substr(1, refText.length - 3).toLowerCase()
+                        ++countCites;
+                        var citeContent = refText.substr(1, refText.length - 3).toLowerCase()
                                 .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
-                                .replace(/^-+/g, '').replace(/-+$/g, '');
-                        return '<span class="reference-base" id="' + refHref + '"><a href="#' +
-                            refHref + '">[' + refCount + ']</a></span>';
+                            .replace(/^-+/g, '').replace(/-+$/g, '');
+                        return getCiteNoteHTML(citeContent, countCites);
                     });
 
-                    if (refs == null) refs = [];
-                    for (var i = 0; i < refs.length; i++) {
-                        refCount = i + 1;
-                        refs[i] = refs[i].substr(0, refs[i].length - 1);
-                        var refHref = 'ref-' + refCount + '-' +
-                            refs[i].substr(1, refs[i].length - 2).toLowerCase()
+                    if (cites == null) cites = [];
+                    for (var i = 0; i < cites.length; i++) {
+                        cites[i] = cites[i].substr(0, cites[i].length - 1);
+                        var citeIndex = i + 1;
+                        var citeContent = cites[i].substr(1, cites[i].length - 2).toLowerCase()
                                 .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
                                 .replace(/^-+/g, '').replace(/-+$/g, '');
-                        content = content.replace(new RegExp(EscapeRegExp(refs[i]), 'g'),
-                            '<span class="reference-item"><a href="#' + refHref + '">[' + refCount + ']</a></span>');
+
+                        var countRefs = 0;
+                        content = content.replace(new RegExp(EscapeRegExp(cites[i]), 'g'), function (refText) {
+                            ++countRefs;
+                            return getCiteRefHTML(citeContent, citeIndex, countRefs);
+                        });
+
+                        var derefHTML = " ";
+                        for (var j = 0; j < countRefs; j++) {
+                            derefHTML += getCiteDerefHTML(citeContent, j + 1) + " ";
+                        }
+                        var indexOfNote = content.indexOf(getCiteNoteHTML(citeContent, citeIndex));
+                        content = content.substr(0, indexOfNote) + derefHTML + content.substr(indexOfNote);
                     }
 
                     // Render style setters

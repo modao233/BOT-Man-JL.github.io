@@ -11,7 +11,7 @@
 - Dr. Zhongbao Zhang
 - State Key Laboratory of Networking and Switching Technology
 - March, 2016 - Now
-- **Virtual Network Embedding Algorithm** Study
+- **Virtual Network Embedding Algorithm**（虚拟网络映射算法） Study
 - Publishing a research paper
 
 ---

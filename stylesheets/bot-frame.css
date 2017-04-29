@@ -343,6 +343,15 @@ nav a:active {
 }
 
 /* Slide Settings */
+@media screen {
+    .slide {
+        border-style: solid;
+        border-width: 1px;
+        border-color: darkgrey;
+        padding: 5px;
+    }
+}
+
 @media print {
     hr {
         display: none;

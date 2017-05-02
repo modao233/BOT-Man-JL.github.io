@@ -280,6 +280,31 @@ RenderSection = function (fileName, tags, callback) {
                         content = content.substr(0, indexOfNote) + derefHTML + content.substr(indexOfNote);
                     }
 
+                    // Render reference
+                    content = content.replace(/<p>(\[[^\].]+\|\|?[^\].]+\])<\/p>/g, '$1');
+                    var countRefs = new Map();
+                    var refMap = new Map();
+                    content = content.replace(/\[[^\].]+\|\|[^\].]+\]/g, function (refText) {
+                        refText = refText.substr(1, refText.length - 2);
+                        var fragments = refText.split('||');
+
+                        var count = countRefs.get(fragments[0]);
+                        count = (count == null ? 0 : count) + 1;
+                        countRefs.set(fragments[0], count);
+                        refMap.set(fragments.join('-'), count);
+                        alert(refText);
+                        return "<span class='ref-base' id='ref-" +
+                            fragments.join('-') + "'>" + count + "</span>";
+                    });
+                    content = content.replace(/\[[^\].]+\|[^\].]+\]/g, function (refText) {
+                        refText = refText.substr(1, refText.length - 2);
+                        var fragments = refText.split('|');
+                        var count = refMap.get(fragments.join('-'), count);
+
+                        return "<span class='ref-item'><a href='#ref-" +
+                            fragments.join('-') + "'>" + count + "</a></span>";
+                    });
+
                     // Render style setters
                     content = content.replace(/<p>(\[[^\].]+=[^\].]+\])<\/p>/g, '$1');
                     var styleSetters = content.match(/\[[^\].]+=[^\].]+\]/g);  // avoid ']' inside pairs

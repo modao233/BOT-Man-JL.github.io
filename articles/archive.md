@@ -4,6 +4,7 @@
 
 #### 2017
 
+- [C++ 元编程 —— 让编译器帮你写程序](2017/Cpp-Metaprogramming)
 - [聚类算法研究](2017/Graph-Clustering-Study)
 - [Virtual Network Embedding Algorithm Study](2017/Virtual-Network-Embedding-Study)
 - [关于可扩展性的思考](2017/Thinking-Scalability)

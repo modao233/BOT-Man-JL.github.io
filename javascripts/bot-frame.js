@@ -176,6 +176,7 @@ RenderSection = function (fileName, tags, callback) {
                     anchorMap.set(anchor, count);
                     if (count > 1) anchor += "_" + count;
 
+                    var headingNumber = "";
                     // Ignore 'TOC heading
                     if (anchor.search(tocTextRegExp) == -1) {
 
@@ -186,10 +187,9 @@ RenderSection = function (fileName, tags, callback) {
 
                                 // Generate number text
                                 ++headingIndice[index];
-                                var headingNumberText = "" + headingIndice[1];
+                                headingNumber += headingIndice[1];
                                 for (var i = 2; i <= index; i++)
-                                    headingNumberText += "." + headingIndice[i];
-                                text = headingNumberText + " " + text;
+                                    headingNumber += "." + headingIndice[i];
 
                                 // Clear lower indice
                                 for (var i = index + 1; i < headingIndice.length; i++)
@@ -198,11 +198,14 @@ RenderSection = function (fileName, tags, callback) {
                         }
 
                         // Push to array
-                        toc.push({ text: text, level: level, anchor: anchor });
+                        toc.push({
+                            text: text, level: level,
+                            anchor: anchor, headingNumber: headingNumber
+                        });
                     }
 
-                    return '<h' + level + ' id="' + anchor + '">' +
-                        text + '</h' + level + '>\n';
+                    return '<h' + level + ' id="' + anchor + '">' + headingNumber +
+                        " " + text + '</h' + level + '>\n';
                 };
 
                 var GetTOC = function (tocArray) {
@@ -216,7 +219,7 @@ RenderSection = function (fileName, tags, callback) {
                         var item = tocArray[i];
                         tocHTML += "<p style='padding-left:" +
                             (item.level - minLevel) * 1.5 + "em'><a href='#" +
-                            item.anchor + "'>" +
+                            item.anchor + "'>" + item.headingNumber + " " +
                             item.text + "</a></p>";
                     }
                     return tocHTML;
@@ -245,7 +248,7 @@ RenderSection = function (fileName, tags, callback) {
                     };
                     var getCiteDerefHTML = function (citeContent, refIndex) {
                         return '<span class="cite-deref"><a href="#cite-ref-' +
-                            citeContent + '-' + refIndex + '">^</a></span>'; 
+                            citeContent + '-' + refIndex + '">^</a></span>';
                     };
 
                     var cites = content.match(/\[.*\]:/g);
@@ -253,7 +256,7 @@ RenderSection = function (fileName, tags, callback) {
                     content = content.replace(/\[.*\]:/g, function (refText) {
                         ++countCites;
                         var citeContent = refText.substr(1, refText.length - 3).toLowerCase()
-                                .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
+                            .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
                             .replace(/^-+/g, '').replace(/-+$/g, '');
                         return getCiteNoteHTML(citeContent, countCites);
                     });
@@ -263,8 +266,8 @@ RenderSection = function (fileName, tags, callback) {
                         cites[i] = cites[i].substr(0, cites[i].length - 1);
                         var citeIndex = i + 1;
                         var citeContent = cites[i].substr(1, cites[i].length - 2).toLowerCase()
-                                .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
-                                .replace(/^-+/g, '').replace(/-+$/g, '');
+                            .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
+                            .replace(/^-+/g, '').replace(/-+$/g, '');
 
                         var countRefs = 0;
                         content = content.replace(new RegExp(EscapeRegExp(cites[i]), 'g'), function (refText) {
@@ -281,9 +284,20 @@ RenderSection = function (fileName, tags, callback) {
                     }
 
                     // Render reference
-                    content = content.replace(/<p>(\[[^\].]+\|\|?[^\].]+\])<\/p>/g, '$1');
+                    // TODO: fix invalid char in anchor
                     var countRefs = new Map();
                     var refMap = new Map();
+
+                    // Ref target
+                    content = content.replace(/<p>\[[^\].]+\|\&[^\].]+\]<\/p>/g, function (refText) {
+                        var len1 = "<p>[".length;
+                        var len2 = "]</p>".length + len1;
+                        refText = refText.substr(len1, refText.length - len2);
+                        var fragments = refText.split('|&amp;');
+                        return "<div class='ref-target' id='ref-" + fragments.join('-') + "'></div>";
+                    });
+
+                    // Ref base
                     content = content.replace(/\[[^\].]+\|\|[^\].]+\]/g, function (refText) {
                         refText = refText.substr(1, refText.length - 2);
                         var fragments = refText.split('||');
@@ -292,17 +306,33 @@ RenderSection = function (fileName, tags, callback) {
                         count = (count == null ? 0 : count) + 1;
                         countRefs.set(fragments[0], count);
                         refMap.set(fragments.join('-'), count);
-                        alert(refText);
-                        return "<span class='ref-base' id='ref-" +
-                            fragments.join('-') + "'>" + count + "</span>";
-                    });
-                    content = content.replace(/\[[^\].]+\|[^\].]+\]/g, function (refText) {
-                        refText = refText.substr(1, refText.length - 2);
-                        var fragments = refText.split('|');
-                        var count = refMap.get(fragments.join('-'), count);
 
-                        return "<span class='ref-item'><a href='#ref-" +
-                            fragments.join('-') + "'>" + count + "</a></span>";
+                        return "<span class='ref-base'>" + count + "</span>";
+                    });
+
+                    // Ref item
+                    content = content.replace(/\[[^\].]+\|[^\].]+\]/g, function (refText) {
+                        var refTextNew = refText.substr(1, refText.length - 2);
+                        var fragments = refTextNew.split('|');
+
+                        var refAnchor = "", refText = "";
+                        if (fragments[0] == "sec") {
+                            for (var tocIndex = 0; tocIndex < toc.length; tocIndex++)
+                                if (toc[tocIndex].text == fragments[1]) {
+                                    refAnchor = toc[tocIndex].anchor;
+                                    refText = "&sect; " + toc[tocIndex].headingNumber;
+                                    break;
+                                }
+                        }
+                        else {
+                            var count = refMap.get(fragments.join('-'));
+                            if (count == null) return refText;
+
+                            refAnchor = "ref-" + fragments.join('-');
+                            refText = count;
+                        }
+                        return "<span class='ref-item'><a href='#" +
+                            refAnchor + "'>" + refText + "</a></span>";
                     });
 
                     // Render style setters

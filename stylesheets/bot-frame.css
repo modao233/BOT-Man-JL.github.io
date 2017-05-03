@@ -245,6 +245,8 @@ nav a:active {
         content: "#";
     }
 
+/* Ref and Cite */
+
 .cite-ref a {
     vertical-align: text-top;
     font-size: 11px;
@@ -255,6 +257,10 @@ nav a:active {
 }
 
 @media print {
+    .ref-target {
+        display: none;
+    }
+
     .cite-ref a {
         font-size: 6pt;
     }

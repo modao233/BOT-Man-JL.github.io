@@ -16,7 +16,7 @@
 
 **元编程** _(metaprogramming)_ 通过操作 **程序实体** _(program entity)_，在 **编译时** _(compile time)_ 计算出 **运行时** _(run time)_ 需要的类型和函数。
 
-一般的编程是通过直接编写 **程序** _(program)_，通过编译器 **编译** _(compile)_，产生目标代码，并用于 **运行时** 执行。与普通的编程不同，元编程则是借助语言提供的 **模板** _(template)_ 机制，通过编译器 **推导** (deduce)，在 **编译时** 生成程序。元编程经过编译器推导得到的程序，再进一步通过编译器编译，产生最终的目标代码。在 [sec|测试类型] 小节中，我们用了一个例子说明了两者的区别。
+一般的编程是通过直接编写 **程序** _(program)_，通过编译器 **编译** _(compile)_，产生目标代码，并用于 **运行时** 执行。与普通的编程不同，元编程则是借助语言提供的 **模板** _(template)_ 机制，通过编译器 **推导** (deduce)，在 **编译时** 生成程序。元编程经过编译器推导得到的程序，再进一步通过编译器编译，产生最终的目标代码。在 [sec|测试类型] 中，我们用了一个例子说明了两者的区别。
 
 因此，元编程又被成为 **两级编程** _(two-level programming)_，**生成式编程** _(generative programming)_ 或 **模板元编程** (template metaprogramming)。[cpp-pl]
 
@@ -65,6 +65,8 @@ Andrei Alexandrescu 深入研究了模板元编程的相关内容，并设计了
 
 **函数模板** 用于定义一类具有相似功能的函数，属于是泛型中对 **算法** 的抽象，在标准库中的 **函数** _(function)_ 里广泛使用。例如，我们可以通过使用 `std::max` 得到两个元素的最大值，它的一个重载可以通过代码 [code|max-template] 实现。
 
+[code|&max-template]
+
 ``` cpp
 template <typename T>
 const T &max (const T &a, const T &b) {
@@ -86,6 +88,8 @@ const T &max (const T &a, const T &b) {
 
 为了化简这个记法，C++ 11 引入了别名模板的概念。通过代码 [code|alias-template] 的模板，可以用 `VecIter<int>` 代替 `std::vector<int>::iterator`，用 `VecIter<double>` 代替 `std::vector<double>::iterator`。
 
+[code|&alias-template]
+
 ``` cpp
 template <typename T>
 using VecIter = std::vector<T>::iterator;
@@ -100,6 +104,8 @@ using VecIter = std::vector<T>::iterator;
 **变量模板** 是 C++ 14 标准中新加入的特性，它相当于是一种具有模板特性的 **常量** 定义方法。而这种常量模板可以通过 类模板中的静态数据成员 或 函数模板的返回值 实现。
 
 例如，通过代码 [code|variable-template]，可以在编译时获得不同类型的 $\pi$ 的值，即 `pi<int>` 对应 `3`，`pi<double>` 对应 `3.14159`（因编译器而异）。
+
+[code|&variable-template]
 
 ``` cpp
 template <typename T>
@@ -116,7 +122,9 @@ constexpr T pi = T(3.1415926535897932385);
 
 C++ 中的 **模板参数** _(template parameter / argument)_ 可以分为三种：非类型参数，类型参数，模板参数。其中，类型和模板 作为 **实参** _(argument)_ 传入时，已经可以确定参数的内容；而非类型的 **形参** _(parameter)_ 仅接受编译时确定的值（常量表达式）。而对于模板参数也可以当作一般的类型参数进行传递（模板也是一个类型），但单独把它提出来，可以实现对参数的参数匹配。代码 [code|template-param] 展示了这三类模板参数的各种形式。
 
-```
+[code|&template-param]
+
+``` cpp
 template <Type Val> ...
 template <Type Val = Default> ...
 template <Type... Vals> ...
@@ -135,11 +143,13 @@ template <template<Args> typename... Cs> ...
 
 代码 [code||template-param] - 三类模板参数
 
-其中，`Type` 是一个已知的给定类型，`Args` 是一系类已知的给定类型，`Default` 是三种模板参数的默认值，`...` 表示变长模板 [sec|变长模板]。
+其中，`Type` 是一个已知的给定类型，`Args` 是一系类已知的给定类型，`Default` 是三种模板参数的默认值，`...` 表示变长模板（[sec|变长模板]）。
 
 #### 变长模板
 
-在许多应用场景中，模板接受的参数可能是不定长的。所以，从 C++ 11 开始，C++ 支持了 **变成模板** _(variadic template)_。变长模板的参数叫做 **参数包** _(parameter pack)_，用 `...` 表示，可以接受 `0` 个或多个参数。代码 [code|variadic-template] 展示了如何利用变长模板，实现打印所有参数，并在参数之间加空格的功能。
+在许多应用场景中，模板接受的参数可能是不定长的。所以，从 C++ 11 开始，C++ 支持了 **变长模板** _(variadic template)_。变长模板的参数叫做 **参数包** _(parameter pack)_，用 `...` 表示，可以接受 `0` 个或多个参数。代码 [code|variadic-template] 展示了如何利用变长模板，实现打印所有参数，并在参数之间加空格的功能。
+
+[code|&variadic-template]
 
 ``` cpp
 template<typename T, typename... Ts>
@@ -168,6 +178,8 @@ PrintAll (1, .1, true, "str");  // multi params
 
 在标准库的实现中，模板特化已被广泛的应用。例如，部分 `std::vector` 的实现对 `T *` 和 `void *` 进行了特化（代码 [code|spec-vector]）；然后将所有的 `T *` 的实现 **继承** 到 `void *` 的实现上，并在公开的函数里通过强制类型转换，进行 `void *` 和 `T *` 的交互；最后这使得所有的指针的 `std::vector` 就可以共享同一份实现了，从而缩小了最终代码的体积。[cpp-pl]
 
+[code|&spec-vector]
+
 ``` cpp
 template <typename T> class vector;  // general
 template <typename T> class vector<T *>;  // partial spec
@@ -181,7 +193,7 @@ class vector<T *> : private vector<void *> { ... }
 
 代码 [code||spec-vector] - `std::vector` 的特化
 
-模板的特化，一方面常常被用于实现元编程的逻辑演算 [sec|元编程的演算规则]；另一方面可以用于实现 **编译时多态** _(compile-time polymorphism)_。
+模板的特化，一方面常常被用于实现元编程的逻辑演算（[sec|元编程的演算规则]）；另一方面可以用于实现 **编译时多态** _(compile-time polymorphism)_。
 
 ## 元编程的演算规则
 
@@ -195,6 +207,8 @@ class vector<T *> : private vector<void *> { ... }
 
 类似于 **静态断言** `static_assert`，编译时测试的对象可以是常量表达式，即编译时能得出结果的表达式。例如，代码 [code|static-assert] 中，常量 `i` 和 `j` 的值可以在编译时确定。
 
+[code|&static-assert]
+
 ``` cpp
 constexpr int i = 1;
 constexpr long j = 2;
@@ -206,6 +220,8 @@ static_assert (i + j == 3, "compile error");
 代码 [code||static-assert] - 编译时静态断言
 
 利用常量表达式，我们就可以实现对模板的条件重载，即实现模板 “变量” 功能。例如代码 [code|test-value] 演示了如何编译时利用 `isZero<Val>` 判断 `Val` 是不是 `0`。
+
+[code|&test-value]
 
 ``` cpp
 template <unsigned Val> struct _isZero {
@@ -232,6 +248,8 @@ static_assert (isZero<0>, "compile error");
 **测试类型** 的实质是利用 `type_traits` 生成常量表达式，再测试常量表达式。也就是，先生成一个测试类型的结果（常量），再对这个结果的表达式进行测试（常量表达式）。
 
 测试类型又分为两种：测试一个类型是不是某种特定的类型 和 测试一个类型是否满足某些条件。利用对类型的测试，我们可以实现针对于不同类型的模板特殊化。例如，代码 [code|test-type] 中，我们实现了一个通用的将 C 语言的基本数据结构转换为 `std::string` 的函数 `ToString`。
+
+[code|&test-type]
 
 ``` cpp
 template <typename T>
@@ -272,6 +290,8 @@ auto d = ToString (std::string {});  // not compile :-(
 
 这个例子具有代表性的体现了元编程和普通编程的不同。先看一个错误的写法（代码 [code|not-test-type]）。
 
+[code|&not-test-type]
+
 ``` cpp
 template <typename T>
 std::string ToString (T val) {
@@ -286,6 +306,8 @@ std::string ToString (T val) {
 代码 [code||not-test-type] - 编译时测试类型的错误用法
 
 假设是脚本语言，这是没有问题的：因为脚本语言没有编译的概念，所有函数的绑定都在 解释时 完成；而对于需要编译的语言，函数的绑定是在 编译时 完成的。在编译代码 [code|not-test-type] 中的函数 `ToString` 时，对于给定的类型 `T`，需要执行两次函数绑定 —— `val` 作为参数调用 `std::to_string` 和 `std::string` 的构造函数，另外执行一次静态断言 —— 判断 `!isBad<T>` 是否为 `true`。假设我们调用 `ToString ("")` 时，会生成代码 [code|not-test-type-instance]。
+
+[code|&not-test-type-instance]
 
 ``` cpp
 std::string ToString (const char *val) {
@@ -304,6 +326,8 @@ std::string ToString (const char *val) {
 #### C++ 17 的 `constexpr-if`
 
 为了使得让代码 [code|not-test-type] 风格的代码用于元编程，C++ 17 引入了 `constexpr-if`。[constexpr-if] 我们只需要把以上代码 [code|not-test-type] 中的 `if` 改为 `if constexpr` 就可以编译了。在代码 [code|test-type-constexpr] 中展示。
+
+[code|&test-type-constexpr]
 
 ``` cpp
 template <typename T>
@@ -330,6 +354,8 @@ std::string ToString (T val)
 
 代码 [code|calc-factor] 展示了如何使用 **编译时迭代** 实现编译时计算阶乘（$N!$）。
 
+[code|&calc-factor]
+
 ``` cpp
 template <unsigned N>
 constexpr unsigned _Factor () { return N * _Factor<N - 1> (); }
@@ -351,7 +377,9 @@ static_assert (Factor<4> == 24, "compile error");
 
 #### 变长模板的迭代
 
-变长模板提供了多个参数的可能，而为了遍历传入的每个参数，我们可以使用 **编译时迭代** 的方法。代码 [code|variadic-template] 可以用递归的方式实现。代码 [code|calc-factor-recursion] 除了打印所有参数，及在参数之间加空格的功能外，还能接受 0 个参数。
+变长模板提供了多个参数的可能，而为了遍历传入的每个参数，我们可以使用 **编译时迭代** 的方法。代码 [code|variadic-template] 可以用递归的方式实现。代码 [code|variadic-template-recursion] 除了打印所有参数，及在参数之间加空格的功能外，还能接受 0 个参数。
+
+[code|&variadic-template-recursion]
 
 ``` cpp
 void PrintAll () {
@@ -368,7 +396,7 @@ void PrintAll (T arg, Ts... args) {
 
 [align-center]
 
-代码 [code||calc-factor-recursion] - 变长模板打印参数（递归展开）
+代码 [code||variadic-template-recursion] - 变长模板打印参数（递归展开）
 
 ## 元编程的分类
 

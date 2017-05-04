@@ -285,6 +285,7 @@ RenderSection = function (fileName, tags, callback) {
 
                     // Render reference
                     // TODO: fix invalid char in anchor
+                    // TODO: bad ref prompt
                     var countRefs = new Map();
                     var refMap = new Map();
 
@@ -323,6 +324,7 @@ RenderSection = function (fileName, tags, callback) {
                                     refText = "&sect; " + toc[tocIndex].headingNumber;
                                     break;
                                 }
+                            return refText;
                         }
                         else {
                             var count = refMap.get(fragments.join('-'));

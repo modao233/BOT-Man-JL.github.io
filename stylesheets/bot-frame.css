@@ -247,6 +247,10 @@ nav a:active {
 
 /* Ref and Cite */
 
+.ref-item {
+    font-weight: 600;
+}
+
 .cite-ref a {
     vertical-align: text-top;
     font-size: 11px;
@@ -257,10 +261,6 @@ nav a:active {
 }
 
 @media print {
-    .ref-target {
-        display: none;
-    }
-
     .cite-ref a {
         font-size: 6pt;
     }
@@ -352,6 +352,7 @@ nav a:active {
 }
 
 /* Slide Settings */
+
 @media screen {
     .slide {
         border-style: solid;
@@ -400,6 +401,7 @@ nav a:active {
 }
 
 /* Cover Settings */
+
 @media print {
     .page-break {
         page-break-after: always;
@@ -422,6 +424,7 @@ nav a:active {
 }
 
 /* Alignment Settings */
+
 .float-left + * {
     float: left;
 }

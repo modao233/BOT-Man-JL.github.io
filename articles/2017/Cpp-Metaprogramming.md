@@ -10,6 +10,18 @@
 
 [TOC]
 
+[align-center]
+
+## [no-number] 摘要
+
+[align-center]
+
+## [no-number] 关键字
+
+[align-center]
+
+C++, 元编程, 模板, 元编程演算
+
 ## C++ 中的元编程
 
 ### 什么是元编程
@@ -136,9 +148,9 @@ template <typename|class T> ...
 template <typename|class T = Default> ...
 template <typename|class... Ts> ...
 
-template <template<Args> typename C> ...
-template <template<Args> typename C = Default> ...
-template <template<Args> typename... Cs> ...
+template <template<Args> typename|class C> ...
+template <template<Args> typename|class C = Default> ...
+template <template<Args> typename|class... Cs> ...
 ```
 
 [align-center]
@@ -205,7 +217,9 @@ class vector<T *> : private vector<void *> { ... }
 
 ### 编译时测试
 
-**编译时测试** 相当于面向过程编程中的 **选择语句** _(selection statement)_，可以实现 `if-else` / `switch` 的逻辑。编译时测试的基础是 模板的最优匹配原则 和 模板特化 —— 每次找到最适合的最特殊的模板进行匹配。
+**编译时测试** 相当于面向过程编程中的 **选择语句** _(selection statement)_，可以实现 `if-else` / `switch` 的逻辑。
+
+C++ 17 之前，编译时测试的基础是 模板的最优匹配原则 和 模板特化 —— 每次找到最适合的最特殊的模板进行匹配（[sec|测试表达式], [sec|测试类型]）；而 C++ 17 中，有人提出可以使用 `constexpr-if` 实现更方便的测试（[sec|C++ 17 的 `constexpr-if`]）。
 
 测试的对象有两种：**常量表达式** _(constexpr)_ 和 **类型**；前者通过模板特化直接实现，而后者的实现则是通过对常量表达式的测试实现。
 
@@ -354,7 +368,9 @@ std::string ToString (T val)
 
 ### 编译时迭代
 
-**编译时迭代** 和面向过程编程中的 **循环语句** _(loop statement)_ 类似，用于实现与 `for` / `while` / `do` 类似的逻辑。和普通的编程不同，元编程的演算规则属于是函数式的，不能通过一般的变量 **迭代** _(iteration)_ 实现编译时迭代，只能利用 **递归** _(recursion)_ 和 **特化** _(specialization)_ 组合实现。
+**编译时迭代** 和面向过程编程中的 **循环语句** _(loop statement)_ 类似，用于实现与 `for` / `while` / `do` 类似的逻辑。
+
+和普通的编程不同，元编程的演算规则属于是纯函数的，不能通过一般的变量 **迭代** _(iteration)_ 实现编译时迭代，只能利用 **递归** _(recursion)_ 和 **特化** _(specialization)_ 组合实现。
 
 #### 定长模板的迭代
 
@@ -418,7 +434,7 @@ static_assert (Sum (1, 2, 3) == 6, "compile error");
 
 作为元编程的最早的用途，数值计算可以用于 **编译时常数计算** 或 **优化运行时表达式计算**。
 
-编译时常数计算能让我们使用有实际意义的语言，写出编译时确定的常量；而不是直接写计算的结果（**迷之数字** _(magic number)_）或 通过运行时计算这些常数。在代码 [code|variadic-template-recursion] 的基础上，我们可以实现一个编译时计算从 $1$ 到 $N$ 之和的代码 [code|calc-sum]。
+编译时常数计算能让我们使用有实际意义的语言，写出编译时确定的常量；而不是直接写计算的结果（**迷之数字** _(magic number)_）或 通过运行时计算这些常数。在代码 [code|variadic-template-recursion] 的基础上，我们可以实现一个编译时计算从 $1$ 到 $N$ 之和的代码（代码 [code|calc-sum]）。
 
 [code|&calc-sum]
 
@@ -441,6 +457,24 @@ static_assert (SeqSum<5> == 15, "compile error");
 代码 [code||calc-sum] - 编译时计算常数
 
 最早的有关表达式计算优化的思路是 Todd Veldhuizen 提出的。[expr-template] 目前支持向量、矩阵表达式运算的库 `uBLAS` 已经加入了 `boost` 库。[boost-ublas] 利用表达式模板，我们可以实现部分求值、惰性求值、表达式化简等特性。
+
+另外，现代 C++ 还允许定义 `constexpr` 函数，用于实现常量计算。如果该函数 编译时能确定所有的参数，那么就可以在编译时计算出结果的常量。[cppref-constexpr] 例如，代码 [code|calc-factor-constexpr] 的功能和 代码 [code||calc-factor] 相同，在编译时计算阶乘。
+
+[code|&calc-factor-constexpr]
+
+``` cpp
+constexpr auto Factor (unsigned n)
+{
+    if (n <= 1) return 1;
+    else return n * Factor (n - 1);
+}
+
+static_assert (Factor (3) == 6, "compile error");
+```
+
+[align-center]
+
+代码 [code||calc-factor-constexpr] - `constexpr` 函数
 
 ### 类型推导
 
@@ -533,9 +567,13 @@ static_assert (std::is_same<
 
 ## 总结
 
-D 语言
+C++ 元编程的出现，是一个无心插柳的偶然 —— 人们发现 C++ 语言提供的模板抽象机制，能很好的被应用于元编程上。借助元编程，我们可以写出 类型安全、运行时高效 的代码。但 C++ 模板的限制，大大增加了元编程的复杂性。在 C++ 不断地演化中，新的语言特性被不断提出，这也为元编程提供更多的可能。
 
-## 参考文献
+本文仅是我对 C++ 元编程的 **个人理解**。对本文有什么问题，**欢迎斧正**。😉
+
+This article is published under MIT License &copy; 2017, BOT Man
+
+## [no-number] 参考文献
 
 - [cpp-pl]: Bjarne Stroustrup. _The C++ Programming Language (Fourth Edition)_ [M] Addison-Wesley, 2013.
 - [generic-programming]: David R. Musser, Alexander A. Stepanov. _Generic Programming_ [C] // P. Gianni. In _Symbolic and Algebraic Computation: International symposium ISSAC_, 1988: 13–25.
@@ -549,6 +587,7 @@ D 语言
 - [template-turing-complete]: Todd L. Veldhuizen. _C++ Templates are Turing Complete_ [R] Indiana University Computer Science Technical Report. 2003.
 - [cppref-SFINAE]: cppreference.com. _SFINAE_. http://en.cppreference.com/w/cpp/language/sfinae
 - [cppref-constexpr-if]: cppreference.com. _if statement_. http://en.cppreference.com/w/cpp/language/if
+- [cppref-constexpr]: cppreference.com. _constexpr specifier_. http://en.cppreference.com/w/cpp/language/constexpr
 - [expr-template]: Todd Veldhuizen. _Expression Templates_ [C] // In _C++ Report_, 1995, 7(5): 26–31.
 - [gererative-programming]: K. Czarnecki, U. Eisenecker. _Generative Programming: Methods, Tools,
 and Applications_ [M] Addison-Wesley, 2000.

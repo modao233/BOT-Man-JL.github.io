@@ -2,7 +2,7 @@
 
 > 2017/5/2
 >
-> 本文是对 C++ 元编程 相关内容的理解，为 2017 程序设计语言结课论文。
+> 本文是对 C++ 元编程 相关内容的理解和总结，为 2017 程序设计语言结课论文。
 
 [heading-numbering]
 
@@ -36,11 +36,9 @@ C++ 中的元编程是基于模板的。模板的概念最早在 1988 年，由 
 
 模板的设计初衷是用于泛型编程，进行代码生成。假设给定 $M$ 个已有的 **数据类型** _(data type)_，我们需要为每个数据类型实现 $N$ 个具有相似功能的 类 或 函数。如果不使用模板，就像 C 语言那样，我们需要编写 $M \times N$ 份代码，即分别为每种数据类型编写 $N$ 个具有相似功能的 类 或 函数；如果使用了模板，我们仅需要编写 $N$ 份代码，即编写 $N$ 个独立于具体数据类型的模板。
 
-而到了现代 C++，人们发现模板也被用于元编程中。1994 年的圣地亚哥 C++ 标准委员会会议中，Erwin Unruh 演示了一段 编译时通过错误信息计算素数 的代码。[calc-prime] 1995 年的 Todd Veldhuizen 在 C++ Report 会议上，首次提出了 C++ **模板元编程** 的概念。[using-cpp-tmp] 之后，K. Czarnecki 和 U. Eisenecker 对元编程深入研究，提出了利用纯模板实现 Lisp 解释器的方法。[gererative-programming]
+而到了现代 C++，人们发现模板也被用于元编程中。1994 年的圣地亚哥 C++ 标准委员会会议中，Erwin Unruh 演示了一段 编译时通过错误信息计算素数 的代码。[calc-prime] 1995 年的 Todd Veldhuizen 在 C++ Report 上，首次提出了 C++ **模板元编程** 的概念，并指出了其在数值计算上的应用前景。[using-cpp-tmp] 随后，Andrei Alexandrescu 深入研究了模板元编程，提出了除了数值计算之外的元编程用途，并设计了一个 C++ 的模板元编程库 —— Loki。[modern-cpp-design] 受限于 C++ 对模板本身的限制，Andrei Alexandrescu 等人有发明了 D 语言，并在 D 语言中优化了元编程的特性。[d-lang]
 
-Andrei Alexandrescu 深入研究了模板元编程的相关内容，并设计了一个 C++ 的模板元编程库 —— Loki。[modern-cpp-design] 受限于 C++ 对模板本身的限制，Andrei Alexandrescu 等人有发明了 D 语言，并在 D 语言中优化了元编程的特性。[d-lang]
-
-元编程已被广泛的应用于现代 C++ 的程序设计中。由于元编程不同于一般的编程，在程序的设计上更具有挑战性，所以收到了许多学者和工程师的广泛关注。
+元编程已被广泛的应用于现代 C++ 的程序设计中。由于元编程不同于一般的编程，在程序的设计上更具有挑战性，所以受到了许多学者和工程师的广泛关注。
 
 ## 元编程的语言支持
 
@@ -120,7 +118,9 @@ constexpr T pi = T(3.1415926535897932385);
 
 #### 模板参数的分类
 
-C++ 中的 **模板参数** _(template parameter / argument)_ 可以分为三种：非类型参数，类型参数，模板参数。其中，类型和模板 作为 **实参** _(argument)_ 传入时，已经可以确定参数的内容；而非类型的 **形参** _(parameter)_ 仅接受编译时确定的值（常量表达式）。而对于模板参数也可以当作一般的类型参数进行传递（模板也是一个类型），但单独把它提出来，可以实现对参数的参数匹配。代码 [code|template-param] 展示了这三类模板参数的各种形式。
+C++ 中的 **模板参数** _(template parameter / argument)_ 可以分为三种：值参数，类型参数，模板参数。[cppref-template-param]
+
+其中，类型和模板 作为 **实参** _(argument)_ 传入时，已经可以确定参数的内容；而值类型的 **形参** _(parameter)_ 仅接受编译时确定的值（常量表达式）。而对于模板也可以当作一般的类型参数进行传递（模板也是一个类型），但单独把它提出来，可以实现对参数模板的参数类型匹配。代码 [code|template-param] 展示了这三类模板参数的各种形式。
 
 [code|&template-param]
 
@@ -195,17 +195,21 @@ class vector<T *> : private vector<void *> { ... }
 
 模板的特化，一方面常常被用于实现元编程的逻辑演算（[sec|元编程的演算规则]）；另一方面可以用于实现 **编译时多态** _(compile-time polymorphism)_。
 
-## 元编程的演算规则
+## 元编程的基本演算
 
-和普通编程不一样，C++ 的模板机制仅仅提供了 **纯函数** _(pure functional)_ 的方法，即不支持变量，而且所有的模板推导必须能在编译时完成。这些限制使得元编程的难度大大增加，但是我们可以使用 **编译时测试** _(compile-time test)_ 和 **编译时迭代** _(compile-time iteration)_ 的方法进行模板推导。由于 C++ 中的模板是图灵完备的 [template-turing-complete]，我们可以利用这两种编译时 **演算规则** _(calculus rule)_，实现完整的元编程。
+和普通编程不一样，C++ 的模板机制仅仅提供了 **纯函数** _(pure functional)_ 的方法，即不支持变量，而且所有的模板推导必须能在编译时完成。这些限制使得元编程的难度大大增加，但是 C++ 中提供的模板是图灵完备的 [template-turing-complete]，即我们可以使用模板实现元编程。
+
+元编程基本的编译时 **演算规则** _(calculus rule)_ 有两种：**编译时测试** _(compile-time test)_ 和 **编译时迭代** _(compile-time iteration)_，分别对应了 **控制结构** _(control structure)_ 中的 **选择** _(selection)_ 和 **迭代** _(iteration)_。基于这两种基本的演算方法，我们可以组合出复杂的结构，从而实现完整的元编程。
 
 ### 编译时测试
 
-**编译时测试** 相当于面向过程编程中的 **选择语句** _(selection statement)_，可以实现 `if-else` / `switch` 的逻辑。编译时测试的对象有两种：**常量表达式** _(constexpr)_ 和 **类型**。而后者的实现则是通过前者的测试完成。
+**编译时测试** 相当于面向过程编程中的 **选择语句** _(selection statement)_，可以实现 `if-else` / `switch` 的逻辑。编译时测试的基础是 模板的最优匹配原则 和 模板特化 —— 每次找到最适合的最特殊的模板进行匹配。
 
-#### 测试常量表达式
+测试的对象有两种：**常量表达式** _(constexpr)_ 和 **类型**；前者通过模板特化直接实现，而后者的实现则是通过对常量表达式的测试实现。
 
-类似于 **静态断言** `static_assert`，编译时测试的对象可以是常量表达式，即编译时能得出结果的表达式。例如，代码 [code|static-assert] 中，常量 `i` 和 `j` 的值可以在编译时确定。
+#### 测试表达式
+
+类似于 **静态断言** `static_assert`，编译时测试的对象可以是 常量表达式，即编译时能得出结果的表达式。例如，代码 [code|static-assert] 中，常量 `i` 和 `j` 的值可以在编译时确定。
 
 [code|&static-assert]
 
@@ -219,7 +223,7 @@ static_assert (i + j == 3, "compile error");
 
 代码 [code||static-assert] - 编译时静态断言
 
-利用常量表达式，我们就可以实现对模板的条件重载，即实现模板 “变量” 功能。例如代码 [code|test-value] 演示了如何编译时利用 `isZero<Val>` 判断 `Val` 是不是 `0`。
+利用常量表达式，我们就可以实现对模板的条件重载，即重载为满足条件的那个模板。例如代码 [code|test-value] 演示了如何编译时利用 `isZero<Val>` 判断 `Val` 是不是 `0`。
 
 [code|&test-value]
 
@@ -286,9 +290,9 @@ auto d = ToString (std::string {});  // not compile :-(
 
 代码 [code||test-type] - 编译时测试类型
 
-首先，我们定义了三个 **变量模板**：`isNum`，`isStr`，`isBad`，分别对应了三个判断类型是否匹配的 **谓词** _(predicate)_；这里使用了 `type_tratis` 中的 `std::is_arithmetic` 和 `std::is_same` 模板。然后重载函数 `ToString`，分别对应了数值类型，C 风格字符串和非法类型（不能转化为 `std::string`）。最后，在前两个重载中，分别调用 `std::to_string` 和 `std::string` 的构造函数；对于第三种情况，直接通过 `static_assert` 编译报错。
+首先，我们定义了三个 **变量模板**：`isNum`，`isStr`，`isBad`，分别对应了三个判断类型是否匹配的 **谓词** _(predicate)_；这里使用了 `type_tratis` 中的 `std::is_arithmetic` 和 `std::is_same` 模板，并把对应的 `value` 转化为常量表达式。然后利用 **SFINAE** _(Substitution Failure Is Not An Error)_ 规则 [SFINAE]（这里直接使用了 `type_traits` 中的 `std::enable_if`），重载函数 `ToString`，分别对应了数值类型，C 风格字符串和非法类型（不能转化为 `std::string`）。最后，在前两个重载中，分别调用 `std::to_string` 和 `std::string` 的构造函数；对于第三种情况，直接通过 `static_assert` 编译报错。
 
-这个例子具有代表性的体现了元编程和普通编程的不同。先看一个错误的写法（代码 [code|not-test-type]）。
+这个例子具有代表性的体现了元编程和普通编程的不同。代码 [code|not-test-type] 是一个错误的写法。
 
 [code|&not-test-type]
 
@@ -305,7 +309,7 @@ std::string ToString (T val) {
 
 代码 [code||not-test-type] - 编译时测试类型的错误用法
 
-假设是脚本语言，这是没有问题的：因为脚本语言没有编译的概念，所有函数的绑定都在 解释时 完成；而对于需要编译的语言，函数的绑定是在 编译时 完成的。在编译代码 [code|not-test-type] 中的函数 `ToString` 时，对于给定的类型 `T`，需要执行两次函数绑定 —— `val` 作为参数调用 `std::to_string` 和 `std::string` 的构造函数，另外执行一次静态断言 —— 判断 `!isBad<T>` 是否为 `true`。假设我们调用 `ToString ("")` 时，会生成代码 [code|not-test-type-instance]。
+假设是脚本语言，这是没有问题的：因为脚本语言没有编译的概念，所有函数的绑定都在 **解释时** 完成；而对于需要编译的语言，函数的绑定是在 **编译时** 完成的。在编译代码 [code|not-test-type] 中的函数 `ToString` 时，对于给定的类型 `T`，需要执行两次函数绑定 —— `val` 作为参数调用 `std::to_string` 和 `std::string` 的构造函数，另外执行一次静态断言 —— 判断 `!isBad<T>` 是否为 `true`。假设我们调用 `ToString ("")` 时，会生成代码 [code|not-test-type-instance]。
 
 [code|&not-test-type-instance]
 
@@ -350,7 +354,7 @@ std::string ToString (T val)
 
 **编译时迭代** 和面向过程编程中的 **循环语句** _(loop statement)_ 类似，用于实现与 `for` / `while` / `do` 类似的逻辑。和普通的编程不同，元编程的演算规则属于是函数式的，不能通过一般的变量 **迭代** _(iteration)_ 实现编译时迭代，只能利用 **递归** _(recursion)_ 和 **特化** _(specialization)_ 组合实现。
 
-#### 简单的迭代
+#### 定长模板的迭代
 
 代码 [code|calc-factor] 展示了如何使用 **编译时迭代** 实现编译时计算阶乘（$N!$）。
 
@@ -377,73 +381,149 @@ static_assert (Factor<4> == 24, "compile error");
 
 #### 变长模板的迭代
 
-变长模板提供了多个参数的可能，而为了遍历传入的每个参数，我们可以使用 **编译时迭代** 的方法。代码 [code|variadic-template] 可以用递归的方式实现。代码 [code|variadic-template-recursion] 除了打印所有参数，及在参数之间加空格的功能外，还能接受 0 个参数。
+变长模板提供了多个参数的可能，而为了遍历传入的每个参数，我们可以使用 **编译时迭代** 的方法实现元程序中的循环结构。代码 [code|variadic-template-recursion] 实现了对参数基本数据类型求和的功能。
 
 [code|&variadic-template-recursion]
 
 ``` cpp
-void PrintAll () {
-    std::cout << std::endl;
+template <typename T>
+constexpr auto Sum () {
+    return T (0);
 }
 
-template<typename T, typename... Ts>
-void PrintAll (T arg, Ts... args) {
-    std::cout << arg;
-    if (sizeof... (args)) std::cout << " ";
-    PrintAll (args...);
+template <typename T, typename... Ts>
+constexpr auto Sum (T arg, Ts... args) {
+    return arg + Sum<T> (args...);
 }
+
+static_assert (Sum (1) == 1, "compile error");
+static_assert (Sum (1, 2, 3) == 6, "compile error");
 ```
 
 [align-center]
 
 代码 [code||variadic-template-recursion] - 变长模板打印参数（递归展开）
 
-## 元编程的分类
+## 元编程的基本用途
 
-### 常数推导
+利用元编程，我们可以很方便的设计出 **类型安全** _(type safe)_、**运行时高效** _(runtime effective)_ 的程序。到现在，元编程已被广泛的应用于 C++ 的编程实践中。例如，Todd Veldhuizen 提出了使用元编程的方法构造 **表达式模板** _(expression template)_，使用惰性求值和表达式优化的方法，提升向量计算的运行速度 [expr-template]；K. Czarnecki 和 U. Eisenecker 对元编程深入研究，提出了利用纯模板实现 Lisp 解释器的方法 [gererative-programming]；BOT Man 利用元编程，设计了一个类型安全、运行时高效 **对象关系映射** _(object-relation mapping, ORM)_ [naive-orm] [better-orm]。
+
+尽管元编程的应用场景各不相同，但是归根到底，各种应用场景相当于是对其基本用途的组合。元编程的三大基本用途分别是：**数值计算** _(numeric computation)_、**类型推导** _(type deduction)_ 和 **代码生成** _(code generation)_。
+
+例如，在 BOT Man 设计的 ORM 中，使用了 类型推导 和 代码生成 的功能：根据 **对象** _(object)_ 在 C++ 中的类型，推导出对应的 **关系** _(relation)_ 中元组各个字段的类型；将对 C++ 对象的操作，映射到对应的数据库语句上，并生成相应的代码。另外，BOT Man 还利用元编程的方法，改进表达式系统、优化模板匹配失败的报错等。[naive-orm] [better-orm]
+
+### 数值计算
+
+作为元编程的最早的用途，数值计算可以用于 **编译时常数计算** 或 **优化运行时表达式计算**。
+
+编译时常数计算能让我们使用有实际意义的语言，写出编译时确定的常量；而不是直接写计算的结果（**迷之数字** _(magic number)_）或 通过运行时计算这些常数。在代码 [code|variadic-template-recursion] 的基础上，我们可以实现一个编译时计算从 $1$ 到 $N$ 之和的代码 [code|calc-sum]。
+
+[code|&calc-sum]
+
+``` cpp
+template <std::size_t... I>
+constexpr auto _SeqSum (std::index_sequence<I...>)
+{
+    return Sum (I...) + sizeof... (I);
+}
+
+template <std::size_t... N>
+constexpr auto SeqSum = _SeqSum (std::make_index_sequence<N> {});
+
+static_assert (SeqSum<3> == 6, "compile error");
+static_assert (SeqSum<5> == 15, "compile error");
+```
+
+[align-center]
+
+代码 [code||calc-sum] - 编译时计算常数
+
+最早的有关表达式计算优化的思路是 Todd Veldhuizen 提出的。[expr-template] 目前支持向量、矩阵表达式运算的库 `uBLAS` 已经加入了 `boost` 库。[boost-ublas] 利用表达式模板，我们可以实现部分求值、惰性求值、表达式化简等特性。
 
 ### 类型推导
 
+除了最基本的数值计算之外，我们还可以利用元编程进行任意类型之间的相互推导。在 **领域特定语言** _(domain-specific language)_ 和 C++ 语言原生结合时，类型推导可以帮助我们将这些语言中的类型，转化为 C++ 的类型。例如，BOT Man 提出了一种能编译时进行 SQL 语言元组类型推导的方法。
+
+在 C++ 中，所有的基本数据类型都不能为 `NULL`；而在 SQL 中，有的字段是允许为 `NULL` 的，所以我们在 C++ 中使用 `std::optional` 容器存储可以为空的字段。当我们通过 `outer-join` 拼接得到的元组，所有的字段都可以为 `NULL`。所以，ORM 中需要一种方法能把一个 可能含有 `std::optional` 字段的元组，先将原元组中不带有 `std::optional` 的字段转换为 `std::optional<T>`，再拼接为新元组。
+
+[code|&orm-to-nullable]
+
+``` cpp
+template <typename T> struct TypeToNullable {
+    using type = std::optional<T>;
+};
+template <typename T> struct TypeToNullable <std::optional<T>> {
+    using type = std::optional<T>;
+};
+
+template <typename... Args>
+auto TupleToNullable (const std::tuple<Args...> &) {
+    return std::tuple<typename TypeToNullable<Args>::type...> {};
+}
+
+auto t1 = std::make_tuple (std::optional<int> {}, int {});
+auto t2 = TupleToNullable (t1);
+static_assert (!std::is_same<
+               std::tuple_element_t<0, decltype (t1)>,
+               std::tuple_element_t<1, decltype (t1)>
+>::value, "compile error");
+static_assert (std::is_same<
+               std::tuple_element_t<0, decltype (t2)>,
+               std::tuple_element_t<1, decltype (t2)>
+>::value, "compile error");
+```
+
+[align-center]
+
+代码 [code||orm-to-nullable] - 编译时计算常数
+
+代码 [code|orm-to-nullable] 中，首先定义了 `TypeToNullable` 并对 `std::optional<T>` 进行特化，作用是将带有 `std::optional` 和 不带 `std::optional` 的类型自动转换为带有 `std::optional` 的版本；然后利用 `TupleToNullable` 拆解元组中的所有类型（转化为参数包），并把所有类型传入 `TypeToNullable`，并将结果组装为新的元组。[better-orm]
+
 ### 代码生成
 
-## C++ 元编程的应用实例 —— 设计一个 ORM
+和泛型编程一样，元编程也常常被用于代码的生成。但是和简单的泛型编程不同，元编程生成的代码往往是通过 **编译时测试** 和 **编译时迭代** 的演算推导出来的。例如，[sec|测试类型] 中的代码 [code|test-type] 就是一个为 C 语言基本类型生成 `std::string` 的程序。
 
-BOT Man 利用元编程设计了一个 **对象关系映射** _(object-relation mapping, ORM)_。[naive-orm] [better-orm]
+## C++ 元编程的主要难点
 
-## C++ 元编程的不足
+尽管元编程的好处有很多，但是 C++ 语言设计层面上的限制给元编程增加了难度。这些难点主要可以分为三类：**设计时** _(design-time)_、编译时、运行时。
 
-### 调试代码 (debugging)
+### 编写时
 
-- 实例化
-- 动态调试
+- 可读性 (readability)
+- 设计时检查 (design-time checking)
+  - 概念 (concept)
+  - 契约 (constract)
 
-### 代码膨胀 (code bloat)
+### 编译时
 
-- 死代码 (dead code) 链接时优化
-- 冗余运算 (redundant calculations) 设计时优化
+- 实例化错误 (instantiation error)
+- 代码膨胀 (code bloat)
+  - 冗余运算 (redundant calculation) - 设计时优化
+  - 死代码 (dead code) - 链接时优化
 
-### 缺少编程时检查 (programming-time checking)
+### 运行时
 
-- 概念 (concept)
-- 契约 (constract)
-- 其他语言的接口 (interface)
+- 调试代码 (debugging)
 
 ## 总结
 
 ## 参考文献
 
 - [cpp-pl]: Bjarne Stroustrup. _The C++ Programming Language (Fourth Edition)_ [M] Addison-Wesley, 2013.
-- [cpp-evo]: Bjarne Stroustrup: _The Design and Evolution of C++_ [M] Addison-Wesley, 1994.
 - [generic-programming]: David R. Musser, Alexander A. Stepanov. _Generic Programming_ [C] // P. Gianni. In _Symbolic and Algebraic Computation: International symposium ISSAC_, 1988: 13–25.
+- [cpp-evo]: Bjarne Stroustrup: _The Design and Evolution of C++_ [M] Addison-Wesley, 1994.
 - [calc-prime]: Erwin Unruh. _Primzahlen Original_. http://www.erwin-unruh.de/primorig.html
-- [using-cpp-tmp]: Todd Veldhuizen. _Using C++ template metaprograms_ [C] // In _C++ Report_, 1995: 36-43.
-- [gererative-programming]: K. Czarnecki, U. Eisenecker. _Generative Programming: Methods, Tools,
-and Applications_ [M] Addison-Wesley, 2000.
+- [using-cpp-tmp]: Todd Veldhuizen. _Using C++ template metaprograms_ [C] // In _C++ Report_, 1995, 7(4): 36-43.
 - [modern-cpp-design]: Andrei Alexandrescu. _Modern C++ Design_ [M] Addison-Wesley, 2001.
 - [d-lang]: D Language Foundation. _Home - D Programming Language_. https://dlang.org/
 - [cppref-template]: cppreference.com. _Templates_. http://en.cppreference.com/w/cpp/language/templates
 - [cppref-template-param]: cppreference.com. _Template parameters and template arguments_. http://en.cppreference.com/w/cpp/language/template_parameters
+- [template-turing-complete]: Todd L. Veldhuizen. _C++ Templates are Turing Complete_ [R] Indiana University Computer Science Technical Report. 2003.
+- [SFINAE]: cppreference.com. _SFINAE_. http://en.cppreference.com/w/cpp/language/sfinae
 - [constexpr-if]: cppreference.com. _if statement_. http://en.cppreference.com/w/cpp/language/if
+- [expr-template]: Todd Veldhuizen. _Expression Templates_ [C] // In _C++ Report_, 1995, 7(5): 26–31.
+- [gererative-programming]: K. Czarnecki, U. Eisenecker. _Generative Programming: Methods, Tools,
+and Applications_ [M] Addison-Wesley, 2000.
 - [naive-orm]: BOT Man JL. _How to Design a Naive C++ ORM_. https://bot-man-jl.github.io/articles/?post=2016/How-to-Design-a-Naive-Cpp-ORM
 - [better-orm]: BOT Man JL. _How to Design a Better C++ ORM_. https://bot-man-jl.github.io/articles/?post=2016/How-to-Design-a-Better-Cpp-ORM
-- [template-turing-complete]: Todd L. Veldhuizen. _C++ Templates are Turing Complete_ [R] Indiana University Computer Science Technical Report. 2003.
+- [boost-ublas]: Boost Org. _uBLAS_. https://github.com/boostorg/ublas

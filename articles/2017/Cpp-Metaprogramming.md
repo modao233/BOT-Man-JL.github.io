@@ -32,7 +32,7 @@
 
 ### C++ 元编程的历史
 
-C++ 中的元编程是基于模板的。模板的概念最早在 1988 年，由 David R. Musser 和 Alexander A. Stepanov 提出 [generic-programming]，并最早应用于 C++ 程序设计语言。Alexander A. Stepanov 在 C++ 之父的邀请下，参与了 C++ **标准模板库** _(STL)_ （简称 标准库） 的设计。[cpp-evo]
+C++ 中的元编程是基于模板的。模板的概念最早在 1988 年，由 David R. Musser 和 Alexander A. Stepanov 提出 [generic-programming]，并最早应用于 C++ 程序设计语言。Alexander A. Stepanov 等人在 C++ 之父的邀请下，参与了 C++ **标准模板库** _(Standard Template Library, STL)_ （简称 标准库） 的设计。[cpp-evo]
 
 模板的设计初衷是用于泛型编程，进行代码生成。假设给定 $M$ 个已有的 **数据类型** _(data type)_，我们需要为每个数据类型实现 $N$ 个具有相似功能的 类 或 函数。如果不使用模板，就像 C 语言那样，我们需要编写 $M \times N$ 份代码，即分别为每种数据类型编写 $N$ 个具有相似功能的 类 或 函数；如果使用了模板，我们仅需要编写 $N$ 份代码，即编写 $N$ 个独立于具体数据类型的模板。
 
@@ -116,6 +116,8 @@ constexpr T pi = T(3.1415926535897932385);
 
 ### C++ 中的模板参数
 
+在普通的编程中，编译器的 **编译** 能根据传入的参数的个数和类型，将被调用的 **函数**（包括成员函数）**绑定** _(binding)_ 到具体的函数重载上；而元编程中，编译器的 **推导** 也是根据传入的参数的个数和类型，将 **模板**（所有类型的模板）**实例化** _(instantiation)_ 到具体的模板重载上。
+
 #### 模板参数的分类
 
 C++ 中的 **模板参数** _(template parameter / argument)_ 可以分为三种：值参数，类型参数，模板参数。[cppref-template-param]
@@ -176,7 +178,7 @@ PrintAll (1, .1, true, "str");  // multi params
 
 **模板特化** _(template specialization)_ 是重载 给定了全部模板参数取值的模板代码（完全特化）或 给定了部分模板参数取值的模板代码（部分特化）的方法。C++ 规定，对所有模板支持完全特化；而仅有 **类模板** 支持部分特化。（函数模板的部分特化可以通过函数的重载实现）
 
-在标准库的实现中，模板特化已被广泛的应用。例如，部分 `std::vector` 的实现对 `T *` 和 `void *` 进行了特化（代码 [code|spec-vector]）；然后将所有的 `T *` 的实现 **继承** 到 `void *` 的实现上，并在公开的函数里通过强制类型转换，进行 `void *` 和 `T *` 的交互；最后这使得所有的指针的 `std::vector` 就可以共享同一份实现了，从而缩小了最终代码的体积。[cpp-pl]
+在标准库的实现中，模板特化已被广泛的应用。例如，Bjarne Stroustrup 提出可以在 `std::vector` 的实现中，对 `T *` 和 `void *` 进行了特化（代码 [code|spec-vector]）；然后将所有的 `T *` 的实现 **继承** 到 `void *` 的实现上，并在公开的函数里通过强制类型转换，进行 `void *` 和 `T *` 的交互；最后这使得所有的指针的 `std::vector` 就可以共享同一份实现了，从而缩小最终代码的体积。[cpp-pl]
 
 [code|&spec-vector]
 
@@ -290,7 +292,7 @@ auto d = ToString (std::string {});  // not compile :-(
 
 代码 [code||test-type] - 编译时测试类型
 
-首先，我们定义了三个 **变量模板**：`isNum`，`isStr`，`isBad`，分别对应了三个判断类型是否匹配的 **谓词** _(predicate)_；这里使用了 `type_tratis` 中的 `std::is_arithmetic` 和 `std::is_same` 模板，并把对应的 `value` 转化为常量表达式。然后利用 **SFINAE** _(Substitution Failure Is Not An Error)_ 规则 [SFINAE]（这里直接使用了 `type_traits` 中的 `std::enable_if`），重载函数 `ToString`，分别对应了数值类型，C 风格字符串和非法类型（不能转化为 `std::string`）。最后，在前两个重载中，分别调用 `std::to_string` 和 `std::string` 的构造函数；对于第三种情况，直接通过 `static_assert` 编译报错。
+首先，我们定义了三个 **变量模板**：`isNum`，`isStr`，`isBad`，分别对应了三个判断类型是否匹配的 **谓词** _(predicate)_；这里使用了 `type_tratis` 中的 `std::is_arithmetic` 和 `std::is_same` 模板，并把对应的 `value` 转化为常量表达式。然后利用 **SFINAE** _(Substitution Failure Is Not An Error)_ 规则 [cppref-SFINAE]（这里直接使用了 `type_traits` 中的 `std::enable_if`），重载函数 `ToString`，分别对应了数值类型，C 风格字符串和非法类型（不能转化为 `std::string`）。最后，在前两个重载中，分别调用 `std::to_string` 和 `std::string` 的构造函数；对于第三种情况，直接通过 `static_assert` 编译报错。
 
 这个例子具有代表性的体现了元编程和普通编程的不同。代码 [code|not-test-type] 是一个错误的写法。
 
@@ -329,7 +331,7 @@ std::string ToString (const char *val) {
 
 #### C++ 17 的 `constexpr-if`
 
-为了使得让代码 [code|not-test-type] 风格的代码用于元编程，C++ 17 引入了 `constexpr-if`。[constexpr-if] 我们只需要把以上代码 [code|not-test-type] 中的 `if` 改为 `if constexpr` 就可以编译了。在代码 [code|test-type-constexpr] 中展示。
+为了使得让代码 [code|not-test-type] 风格的代码用于元编程，C++ 17 引入了 `constexpr-if`。[cppref-constexpr-if] 我们只需要把以上代码 [code|not-test-type] 中的 `if` 改为 `if constexpr` 就可以编译了。在代码 [code|test-type-constexpr] 中展示。
 
 [code|&test-type-constexpr]
 
@@ -485,27 +487,53 @@ static_assert (std::is_same<
 
 ## C++ 元编程的主要难点
 
-尽管元编程的好处有很多，但是 C++ 语言设计层面上的限制给元编程增加了难度。这些难点主要可以分为三类：**设计时** _(design-time)_、编译时、运行时。
+尽管元编程的好处有很多，但是 C++ 语言设计层面上没有专门考虑元编程的相关问题。所以这些限制给元编程增加了难度。我们认为元编程的主要难点可以分为三类：**设计时** _(design-time)_、编译时、运行时。
 
-### 编写时
+### 设计时
 
-- 可读性 (readability)
-- 设计时检查 (design-time checking)
-  - 概念 (concept)
-  - 契约 (constract)
+#### 复杂性
+
+由于元编程的语言层面上的限制较大，所以那些利用了很多 **编译时测试** 和 **编译时迭代** 技巧的代码，**可读性** _(readability)_ 比较差。另外，为了实现设计出编译时能完成的演算，相较于一般的 C++，其 **可写性** _(writability)_ 也不是很好。
+
+#### 实例化检查
+
+在编译时，模板的实例化 和 函数的绑定 不同：前者对传入的参数是什么，没有太多的限制；而后者则根据函数的声明，确定了应该传入参数的类型。而对于模板实参内容的检查，则是在实例化的过程中完成的。（[sec|实例化错误]）所以，在设计程序时，程序员往往会因为没有足够的警告，犯一些低级错误。
+
+因此，Bjarne Stroustrup 等人提出了在语言层面上，给模板上引入 **概念** _(concept)_。[cpp-pl] 利用概念，我们可以对传入的参数加上 **限制**，即只有满足特定限制的类型才能作为参数传入模板。[cppref-concept] 例如，模板 `std::max` （代码 [code|max-template]）只能接受支持运算符 `<` 的类型。
+
+但是由于各种原因，这个语言特性一直没有能正式加入 C++ 标准。尽管现在没有在语言上实现概念，我们仍可以通过 **静态断言** 等方法，实现对概念的检查。（[sec|实例化错误]）
+
+目前许多高级的 **集成开发环境** _(Integrated Development Environment, IDE)_（例如，Microsoft Visual Studio）支持了智能提示的功能，可以辅助用户进行实例化检查。[visual-studio]
 
 ### 编译时
 
-- 实例化错误 (instantiation error)
-- 代码膨胀 (code bloat)
-  - 冗余运算 (redundant calculation) - 设计时优化
-  - 死代码 (dead code) - 链接时优化
+#### 实例化错误
+
+模板在实例化时，需要对实参执行的 **操作** _(operation)_ 和 **函数** _(function)_ 进行绑定。如果在绑定的过程中，没有匹配的操作（或函数），编译就会报错。[sec|设计时检查] 提到，如果语言支持了概念或者契约，就可以在设计代码的时候避免这个问题。例如，传入一个 `const` 的对象，而操作（或函数）要求改变对象的状态，这是不允许的，编译会报错。
+
+当模板的调用层数很大的时候，尽管编译器会提示每一层实例化的状态，但是这些报错信息会非常复杂，很难让人较快的发现问题的所在。例如，一个库要求用户给传入的类定义一个成员函数 `fn`，并在库的实现中调用 `fn`；如果用户没有定义 `fn`，那么编译器实例化到库的实现时，就会报错找不到成员函数 `fn`，同时会把实例化的每一步的状态提示出来。因编译器而异，这些提示信息由于信息过多，用户很难察觉到问题所在。
+
+为了解决这个问题，BOT Man 提出了一种 **短路编译** _(short-cut compiling)_ 的方法，能让基于元编程的库，给用户提供更人性化的编译时报错。具体方法是，在调用需要的操作（或函数）之前，先检查是否有对应的操作（或函数）；如果没有，就通过短路的方法停止编译，并使用 **静态断言** 提供报错信息。[better-orm]
+
+#### 代码膨胀
+
+由于模板会对所有不同模板实参进行一次实例化，所以当参数的种类很多的时候，很可能会发生 **代码膨胀** _(code bloat)_，即产生很多无用的代码。
+
+在元编程中，我们很多时候只关心推导的结果，而不是过程。例如，[sec|数值计算] 的代码 [code|calc-sum] 中，我们只关心最后的 `SeqSum<3> == 6`，而不需要中间过程中产生的临时模板。但是在 `N` 很大的时候，类似这样的运算会产生很多临时模板。好在编译器为我们解决了这个问题，那些临时模板被认为是 **死代码** _(dead code)_，即不被执行的代码，在 **链接时** _(link-time)_ 编译器会移除这些无用代码，所以最终的目标代码不会包含它们。
+
+还有另一种情况，我们展开的代码都是有效代码，即都是被执行的，但是又由于需要的参数的类型繁多，最后的代码体积仍然很大。在 [sec|模板特化] 中介绍了，Bjarne Stroustrup 提出了一种 **设计时** 消除 **冗余运算** _(redundant calculation)_ 的方法，用于缩小模板实例体积。具体思路是，将不同参数实例化得到的模板的 **相同部分** 抽象为一个 **基类** _(base class)_，然后 “继承” 并 “重载” 每种参数情况的 **不同部分**，从而实现更多代码的共享。
 
 ### 运行时
 
-- 调试代码 (debugging)
+元编程在运行时主要的难点在于：对模板代码的 **调试** _(debugging)_。
+
+许多调试器都支持了  **断点** _(breakpoint)_ 的功能，即用户在代码的某一条语句上设置断点，当程序运行到断点位置时，暂停程序的运行，并导出所有的运行时信息。而许多的模板实例共享同一个模板代码，如果在模板代码上设置断点，所有的实例运行到断点位置都会暂停。例如，`std::vector<int>` 和 `std::vector<double>` 共享同一模板代码，在 `std::vector<T>` 上的断点同时对这两份实例生效。然而这只是最简单的情况。
+
+假设我们需要调试的是一段通过很多次的 编译时测试（[sec|编译时测试]）和 编译时迭代（[sec|编译时迭代]）展开的代码，即这段代码是各个模板的拼接生成的；那么，对这段生成的代码的调试会变得非常的复杂 —— 实际过程中需要不断地在各个模板间来回切换。
 
 ## 总结
+
+D 语言
 
 ## 参考文献
 
@@ -519,11 +547,13 @@ static_assert (std::is_same<
 - [cppref-template]: cppreference.com. _Templates_. http://en.cppreference.com/w/cpp/language/templates
 - [cppref-template-param]: cppreference.com. _Template parameters and template arguments_. http://en.cppreference.com/w/cpp/language/template_parameters
 - [template-turing-complete]: Todd L. Veldhuizen. _C++ Templates are Turing Complete_ [R] Indiana University Computer Science Technical Report. 2003.
-- [SFINAE]: cppreference.com. _SFINAE_. http://en.cppreference.com/w/cpp/language/sfinae
-- [constexpr-if]: cppreference.com. _if statement_. http://en.cppreference.com/w/cpp/language/if
+- [cppref-SFINAE]: cppreference.com. _SFINAE_. http://en.cppreference.com/w/cpp/language/sfinae
+- [cppref-constexpr-if]: cppreference.com. _if statement_. http://en.cppreference.com/w/cpp/language/if
 - [expr-template]: Todd Veldhuizen. _Expression Templates_ [C] // In _C++ Report_, 1995, 7(5): 26–31.
 - [gererative-programming]: K. Czarnecki, U. Eisenecker. _Generative Programming: Methods, Tools,
 and Applications_ [M] Addison-Wesley, 2000.
 - [naive-orm]: BOT Man JL. _How to Design a Naive C++ ORM_. https://bot-man-jl.github.io/articles/?post=2016/How-to-Design-a-Naive-Cpp-ORM
 - [better-orm]: BOT Man JL. _How to Design a Better C++ ORM_. https://bot-man-jl.github.io/articles/?post=2016/How-to-Design-a-Better-Cpp-ORM
 - [boost-ublas]: Boost Org. _uBLAS_. https://github.com/boostorg/ublas
+- [visual-studio]: Microsoft. Visual Studio. https://www.visualstudio.com
+- [cppref-concept]: cppreference.com. _Constraints and concepts_. http://en.cppreference.com/w/cpp/language/constraints

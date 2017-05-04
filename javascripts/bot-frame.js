@@ -324,7 +324,7 @@ RenderSection = function (fileName, tags, callback) {
                                     refText = "&sect; " + toc[tocIndex].headingNumber;
                                     break;
                                 }
-                            return refText;
+                            if (tocIndex == toc.length) return refText;
                         }
                         else {
                             var count = refMap.get(fragments.join('-'));

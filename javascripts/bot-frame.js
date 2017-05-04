@@ -166,9 +166,15 @@ RenderSection = function (fileName, tags, callback) {
                 var renderer = new marked.Renderer();
                 var anchorMap = new Map();
                 renderer.heading = function (text, level, raw) {
-                    var anchor = this.options.headerPrefix +
-                        raw.toLowerCase().replace(/[^\w\u4E00-\u9FFF]+/g, '-')
-                            .replace(/^-+/g, '').replace(/-+$/g, '');
+
+                    // Support [no-number]
+                    var noNumber = raw.indexOf('[no-number]') != -1;
+                    text = text.replace(/\[no-number\][\s]?/g, '');
+                    raw = raw.replace(/\[no-number\]/g, '');
+
+                    var anchor = raw.toLowerCase()
+                        .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
+                        .replace(/^-+/g, '').replace(/-+$/g, '');
 
                     // Fix duplicate ID issue
                     var count = anchorMap.get(anchor);
@@ -181,7 +187,7 @@ RenderSection = function (fileName, tags, callback) {
                     if (anchor.search(tocTextRegExp) == -1) {
 
                         // Add heading numbers
-                        if (headingIndice != null) {
+                        if (headingIndice != null && !noNumber) {
                             var index = level - 1;
                             if (index < headingIndice.length && index != 0) {
 
@@ -195,6 +201,7 @@ RenderSection = function (fileName, tags, callback) {
                                 for (var i = index + 1; i < headingIndice.length; i++)
                                     headingIndice[i] = 0;
                             }
+                            headingNumber += " ";
                         }
 
                         // Push to array
@@ -205,7 +212,7 @@ RenderSection = function (fileName, tags, callback) {
                     }
 
                     return '<h' + level + ' id="' + anchor + '">' + headingNumber +
-                        " " + text + '</h' + level + '>\n';
+                        text + '</h' + level + '>\n';
                 };
 
                 var GetTOC = function (tocArray) {
@@ -219,7 +226,7 @@ RenderSection = function (fileName, tags, callback) {
                         var item = tocArray[i];
                         tocHTML += "<p style='padding-left:" +
                             (item.level - minLevel) * 1.5 + "em'><a href='#" +
-                            item.anchor + "'>" + item.headingNumber + " " +
+                            item.anchor + "'>" + item.headingNumber +
                             item.text + "</a></p>";
                     }
                     return tocHTML;

@@ -295,7 +295,6 @@ RenderSection = function (fileName, tags, callback) {
 
                     // Render reference
                     // TODO: fix invalid char in anchor
-                    // TODO: bad ref prompt
                     var countRefs = new Map();
                     var refMap = new Map();
 
@@ -326,19 +325,26 @@ RenderSection = function (fileName, tags, callback) {
                         var refTextNew = refText.substr(1, refText.length - 2);
                         var fragments = refTextNew.split('|');
 
-                        var refAnchor = "", refText = "";
+                        var refAnchor = "";
                         if (fragments[0] == "sec") {
-                            for (var tocIndex = 0; tocIndex < toc.length; tocIndex++)
+                            var tocIndex = 0;
+                            for (; tocIndex < toc.length; tocIndex++)
                                 if (toc[tocIndex].text == fragments[1]) {
                                     refAnchor = toc[tocIndex].anchor;
                                     refText = "&sect; " + toc[tocIndex].headingNumber;
                                     break;
                                 }
-                            if (tocIndex == toc.length) return refText;
+                            if (tocIndex == toc.length) {
+                                alert("Invalid refText: " + refText);
+                                return refText;
+                            }
                         }
                         else {
                             var count = refMap.get(fragments.join('-'));
-                            if (count == null) return refText;
+                            if (count == null) {
+                                alert("Invalid refText: " + refText);
+                                return refText;
+                            }
 
                             refAnchor = "ref-" + fragments.join('-');
                             refText = count;

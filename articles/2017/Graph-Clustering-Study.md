@@ -6,7 +6,7 @@
 
 [heading-numbering]
 
-## 目录
+## [no-toc] [no-number] 目录
 
 [TOC]
 
@@ -166,7 +166,7 @@ $$
 - 其次，根据计算出的相似度，我们提出了 **虚拟网络节点的聚类算法**；
 - 最后，根据聚类的结果，把同一个簇上的节点映射到同一个物理域上。
 
-## 参考文献
+## [no-number] 参考文献
 
 - [clustering survey]: Satu Elisa Schaeffer, Graph clustering. _Computer Science Review_, 1(1): 27-64 (2007).
 - [community structure]: M. Girvan, M. E. J. Newman, Community structure in social and biological networks. _Proceedings of the National Academy of Sciences of the United States of America_, 99(12): 8271–8276 (2002).

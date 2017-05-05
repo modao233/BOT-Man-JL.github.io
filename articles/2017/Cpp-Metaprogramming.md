@@ -6,17 +6,17 @@
 
 [heading-numbering]
 
-## 目录
+## [no-number] [no-toc] 目录
 
 [TOC]
 
 [align-center]
 
-## [no-number] 摘要
+## [no-number] [no-toc] 摘要
 
 [align-center]
 
-## [no-number] 关键字
+## [no-number] [no-toc] 关键字
 
 [align-center]
 

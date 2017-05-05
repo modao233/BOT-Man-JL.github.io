@@ -151,7 +151,6 @@ RenderSection = function (fileName, tags, callback) {
                 var secText = isSingleFile ? mdSource : GetSection(mdSource, tagName);
 
                 // Patch for Heading Numbering
-                var tocTextRegExp = /(toc|table-of-contents|目录)/g;
                 var headingIndice = null;
                 if (isMd && isSingleFile) {
                     var headingNumberingRegExp = /(\r)?\n\[heading\-numbering\](\r)?\n(\r)?\n/g;
@@ -169,47 +168,51 @@ RenderSection = function (fileName, tags, callback) {
 
                     // Support [no-number]
                     var noNumber = raw.indexOf('[no-number]') != -1;
-                    text = text.replace(/\[no-number\][\s]?/g, '');
-                    raw = raw.replace(/\[no-number\]/g, '');
+                    var regExpNoNumber = /[\s]*\[no-number\][\s]*/g;
+                    text = text.replace(regExpNoNumber, '');
+                    raw = raw.replace(regExpNoNumber, '');
 
+                    // Support [no-toc]
+                    var noToc = raw.indexOf('[no-toc]') != -1;
+                    var regExpNoToc = /[\s]*\[no-toc\][\s]*/g;
+                    text = text.replace(regExpNoToc, '');
+                    raw = raw.replace(regExpNoToc, '');
+
+                    // Set anchor
                     var anchor = raw.toLowerCase()
                         .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
                         .replace(/^-+/g, '').replace(/-+$/g, '');
 
-                    // Fix duplicate ID issue
                     var count = anchorMap.get(anchor);
                     count = (count == null ? 0 : count) + 1;
                     anchorMap.set(anchor, count);
                     if (count > 1) anchor += "_" + count;
 
+                    // Add heading numbers
                     var headingNumber = "";
-                    // Ignore 'TOC heading
-                    if (anchor.search(tocTextRegExp) == -1) {
+                    if (headingIndice != null && !noNumber) {
+                        var index = level - 1;
+                        if (index < headingIndice.length && index != 0) {
 
-                        // Add heading numbers
-                        if (headingIndice != null && !noNumber) {
-                            var index = level - 1;
-                            if (index < headingIndice.length && index != 0) {
+                            // Generate number text
+                            ++headingIndice[index];
+                            headingNumber += headingIndice[1];
+                            for (var i = 2; i <= index; i++)
+                                headingNumber += "." + headingIndice[i];
 
-                                // Generate number text
-                                ++headingIndice[index];
-                                headingNumber += headingIndice[1];
-                                for (var i = 2; i <= index; i++)
-                                    headingNumber += "." + headingIndice[i];
-
-                                // Clear lower indice
-                                for (var i = index + 1; i < headingIndice.length; i++)
-                                    headingIndice[i] = 0;
-                            }
-                            headingNumber += " ";
+                            // Clear lower indice
+                            for (var i = index + 1; i < headingIndice.length; i++)
+                                headingIndice[i] = 0;
                         }
+                        headingNumber += " ";
+                    }
 
-                        // Push to array
+                    // Add to TOC
+                    if (!noToc)
                         toc.push({
                             text: text, level: level,
                             anchor: anchor, headingNumber: headingNumber
                         });
-                    }
 
                     return '<h' + level + ' id="' + anchor + '">' + headingNumber +
                         text + '</h' + level + '>\n';

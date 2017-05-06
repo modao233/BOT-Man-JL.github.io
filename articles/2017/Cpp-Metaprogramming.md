@@ -62,9 +62,7 @@ C++ 元编程 / 模板编程 / 元编程演算 / 元编程用途 / 元编程实�
 
 其中，类模板 和 函数模板 在 C++ 的早期版本已经引入，而 别名模板 和 变量模板 则分别在 C++ 11 和 C++ 14 引入。前两者能产生新的类型，属于 **类型构造器** _(type constructor)_；而后两者仅是语言提供的简化记法，属于 **语法糖** _(syntactic sugar)_。
 
-**类模板** 用于定义一类具有相似功能的类，属于是泛型中对 **类型** 的抽象，在标准库中的 **容器** _(container)_ 里广泛使用。例如，我们经常使用的 `std::vector` 就是一个类模板。如果我们需要一个存储 `int` 类型的动态数组，就可以使用 `std::vector<int>`。
-
-**函数模板** 用于定义一类具有相似功能的函数，属于是泛型中对 **算法** 的抽象，在标准库中的 **函数** _(function)_ 里广泛使用。例如，`std::sort` 用于给一组数据进行排序，通过数据元素的 `<` 运算定义一个偏序关系，再根据这个偏序关系进行排序。
+**类模板** 和 **函数模板** 分别用于定义一类具有相似功能的 **类** 和 **函数** _(function)_，是泛型中对 **类型** 和 **算法** 的抽象。在标准库中，**容器** _(container)_ 和 **函数** 分别是 **类模板** 和 **函数模板** 的应用。
 
 **别名模板** 是 C++ 11 引入的模板类型，提供了一种具有模板特性的 **类型别名** _(type alias)_ 的简记方法。这类模板只能用于简记 已知类型，并不产生新的类型。例如，C++ 14 中的 `std::enable_if_t<T>` 等价于 `typename std::enable_if<T>::type`。尽管这类模板不能构造新的类型，但可以增加程序的可读性（[sec|复杂性]）。
 
@@ -72,88 +70,19 @@ C++ 元编程 / 模板编程 / 元编程演算 / 元编程用途 / 元编程实�
 
 ### C++ 中的模板参数
 
-在普通的编程中，编译器的 **编译** 是根据传入的参数的个数和类型，将被调用的 **函数** **绑定** _(binding)_ 到具体的函数重载上；而在元编程中，编译器的 **推导** 也是根据传入的参数的个数和类型，将 **模板**（所有类型的模板）**实例化** _(instantiation)_ 到具体的模板重载上。由于两者具有相似性，所以他们的参数 **重载** _(overload)_ 规则也是相似的（不同点在于，函数不能重载无参数的情况）。
+C++ 中的 **模板参数** _(template parameter / argument)_ 可以分为三种：值参数，类型参数，模板参数。[cppref-template-param]（**函数参数** _(function parameter)_ 仅有 值类型 一种）其中，类型 和 模板 作为 **实参** _(argument)_ 传入时，已经可以确定参数的内容；而 值类型的 **形参** _(parameter)_ 仅接受编译时确定的值（常量表达式）。
 
-C++ 中的 **模板参数** _(template parameter / argument)_ 可以分为三种：值参数，类型参数，模板参数。[cppref-template-param] 而 **函数参数** _(function parameter)_ 仅有 值类型 一种。
+尽管 模板 也可以当作一般的 类型 进行传递（模板也是一个类型），但之所以单独提出来，是因为它可以实现对传入模板的参数匹配。[sec|类型推导] 的例子（代码 [code|orm-to-nullable]）使用 `std::tuple` 作为参数，然后通过匹配的方法，提取 `std::tuple` 内部的变长参数。
 
-其中，类型 和 模板 作为 **实参** _(argument)_ 传入时，已经可以确定参数的内容；而 值类型的 **形参** _(parameter)_ 仅接受编译时确定的值（常量表达式）。
+从 C++ 11 开始，C++ 支持了 **变长模板** _(variadic template)_，即模板参数的个数可以是不确定的（三种模板参数都有变长形式）。标准库中的 **元组** _(tuple)_ —— `std::tuple` 就是变长模板的一个应用（元组的 **类型参数** 是不定长的，可以用 `template<typename... Ts> ...` 匹配）。
 
-尽管 模板 也可以当作一般的 类型 进行传递（模板也是一个类型），但之所以单独提出来，是因为它可以实现对传入模板的参数匹配。[sec|类型推导] 的例子（代码 [code|orm-to-nullable]）使用 `std::tuple` 作为参数，然后通过匹配的方法，提取 `std::tuple` 内部的变长参数（[sec|变长模板]）。
+### 模板的重载和绑定 —— 特化和实例化
 
-[code|&template-param]
+**特化** _(specialization)_ 相当于是模板的 **重载** _(overload)_，类似于函数的重载，即给出 全部模板参数取值（完全特化）或 部分模板参数取值（部分特化）。C++ 规定，**所有模板** 支持完全特化；而仅有 **类模板** 支持部分特化。（**函数模板** 的部分特化可以通过 函数重载 实现）
 
-``` cpp
-template <Type Val> ...
-template <Type Val = Default> ...
-template <Type... Vals> ...
-template <auto Val> ...  // C++ 17
+**特化** 常常被用于 [sec|元编程的基本演算] 介绍的元编程的逻辑演算。另外，它还可以用于优化元编程代码，避免代码膨胀（在 [sec|代码膨胀] 给出了一个实例）。
 
-template <typename|class T> ...
-template <typename|class T = Default> ...
-template <typename|class... Ts> ...
-
-template <template<Args> typename|class C> ...
-template <template<Args> typename|class C = Default> ...
-template <template<Args> typename|class... Cs> ...
-```
-
-[align-center]
-
-代码 [code||template-param] - 三类模板参数
-
-代码 [code|template-param] 展示了这三类模板参数的各种形式。其中，`Type` 是一个已知的给定类型，`Args` 是一系类已知的给定类型，`Default` 是三种模板参数的默认值，参数中的 `...` 表示变长模板（[sec|变长模板]）。
-
-#### 变长模板
-
-在许多应用场景中，模板的参数长度可能是不定的。所以，从 C++ 11 开始，C++ 支持了 **变长模板** _(variadic template)_。变长模板的参数叫做 **参数包** _(parameter pack)_，用 `...` 表示，可以接受 `0` 个或多个参数。代码 [code|variadic-template] 展示了如何利用变长模板，实现打印所有参数，并在参数之间加空格的功能。
-
-[code|&variadic-template]
-
-``` cpp
-template<typename T, typename... Ts>
-void PrintAll (T arg, Ts... args) {
-    std::cout << arg;
-    int dummy[sizeof...(Ts) + 1] = { 0,
-        (std::cout << " " << args, 0)... };
-    std::cout << std::endl;
-}
-
-PrintAll (0);  // one param
-PrintAll (1, .1, true, "str");  // multi params
-
-// Print:
-// 0
-// 1 .1 true str
-```
-
-[align-center]
-
-代码 [code||variadic-template] - 变长模板打印参数（直接展开）
-
-变长模板的最广泛的应用是，标准库中的 **元组** _(tuple)_ —— `std::tuple`。因为元组的类型参数是不定长的，所以我们可以用 `template<typename... Ts> ...` 匹配任意长的参数。
-
-#### 模板特化
-
-**模板特化** _(template specialization)_ 是显式定义一个重载，给出 全部模板参数取值（完全特化）或 部分模板参数取值（部分特化）的方法。C++ 规定，**所有模板** 支持完全特化；而仅有 **类模板** 支持部分特化。（**函数模板** 的部分特化可以通过函数的重载实现）
-
-在标准库的实现中，模板特化已被广泛的应用。例如，Bjarne Stroustrup 提出可以在 `std::vector` 的实现中，对 `T *` 和 `void *` 进行了特化（代码 [code|spec-vector]）；然后将所有的 `T *` 的实现 **继承** 到 `void *` 的实现上，并在公开的函数里通过强制类型转换，进行 `void *` 和 `T *` 的交互；最后这使得所有的指针的 `std::vector` 就可以共享同一份实现了，从而避免 **代码膨胀**（[sec|代码膨胀]）。[cpp-pl]
-
-[code|&spec-vector]
-
-``` cpp
-template <typename T> class vector;  // general
-template <typename T> class vector<T *>;  // partial spec
-template <> class vector<void *>;  // complete spec
-
-template <typename T>
-class vector<T *> : private vector<void *> { ... }
-```
-
-[align-center]
-
-代码 [code||spec-vector] - `std::vector` 的特化
-
-模板的特化，一方面常常被用于实现元编程的逻辑演算（[sec|元编程的基本演算]）；另一方面可以用于实现 **编译时多态** _(compile-time polymorphism)_。**编译时多态** 是在编译时根据不同的类型，**静态发配** _(static dispatch)_ 到不同的实现上。它和面向对象编程中的 **运行时多态** _(runtime polymorphism)_ 不同，因为后者是通过对象的 **虚函数** _(virtual function)_ 机制，进行 **动态发配** _(dynamic dispatch)_。[cpp-pl]
+**实例化** _(instantiation)_ 相当于是模板的 **绑定** _(binding)_，类似于函数的绑定，是编译器根据参数的个数和类型，判断使用哪个模板具体的重载。由于函数和模板的重载具有相似性，所以他们的参数 **重载规则** _(overloading rule)_ 也是相似的。
 
 ## 元编程的基本演算
 
@@ -165,7 +94,7 @@ class vector<T *> : private vector<void *> { ... }
 
 **编译时测试** 相当于面向过程编程中的 **选择语句** _(selection statement)_，可以实现 `if-else` / `switch` 的选择逻辑。
 
-C++ 17 之前，编译时测试是通过 模板的实例化原则 和 模板特化 实现的（[sec|C++ 中的模板参数]）—— 每次找到最特殊的模板进行匹配（[sec|测试表达式]; [sec|测试类型]）；而 C++ 17 提出了使用 `constexpr-if` 的编译时测试方法（[sec|C++ 17 的 `constexpr-if`]）。
+在 C++ 17 之前，编译时测试是通过模板的 实例化 和 特化 实现的（[sec|模板的重载和绑定 —— 特化和实例化]）—— 每次找到最特殊的模板进行匹配（[sec|测试表达式]; [sec|测试类型]）；而 C++ 17 提出了使用 `constexpr-if` 的编译时测试方法（[sec|C++ 17 的 `constexpr-if`]）。
 
 #### 测试表达式
 
@@ -195,9 +124,11 @@ static_assert (isZero<0>, "compile error");
 
 #### 测试类型
 
-在元编程的很多应用场景中，我们需要对类型进行测试，即对不同的类型实现不同的功能。而常见的测试类型又分为两种：判断一个类型 **是否为特定的类型** 和 **是否满足某些条件**。前者可以通过对模板的特化（[sec|模板特化]）直接实现；后者的测试可以通过 测试表达式（[sec|测试表达式]）间接完成的，即利用 C++ 11 的 `type_traits` 判断条件是否满足，计算出对应的常量表达式，再测试常量表达式。
+在元编程的很多应用场景中，我们需要对类型进行测试，即对不同的类型实现不同的功能。而常见的测试类型又分为两种：判断一个类型 **是否为特定的类型** 和 **是否满足某些条件**。前者可以通过对模板的 **特化**（[sec|模板的重载和绑定 —— 特化和实例化]）直接实现；后者的测试可以通过 **测试表达式**（[sec|测试表达式]）间接完成的，即利用 C++ 11 的 `type_traits` 判断条件是否满足，计算出对应的常量表达式，再测试常量表达式。
 
 **是否为特定的类型** 的判断，类似于代码 [code|test-value]，将 `unsigned Val` 改为 `typename Type`；并把传入的模板参数（[sec|C++ 中的模板参数]）由 值参数 改为 类型参数，根据最优原则进行匹配。
+
+代码 [code|test-type] 展示了对 **是否满足某些条件** 的判断，实现了一个通用的将 C 语言的基本类型数据，转换为 `std::string` 的函数 `ToString` 的功能。首先，我们定义三个 **变量模板** `isNum`，`isStr`，`isBad`，分别对应了三个类型条件的 **谓词** _(predicate)_（这里使用了 `type_tratis` 中的 `std::is_arithmetic` 和 `std::is_same`）。接着，根据 **SFINAE** _(Substitution Failure Is Not An Error)_ 规则 [cppref-SFINAE]（这里直接使用了 `type_traits` 中的 `std::enable_if`），重载函数 `ToString`，分别对应了数值、C 风格字符串和非法类型。最后，在前两个重载中，分别调用 `std::to_string` 和 `std::string` 的构造函数；在最后一种情况中，直接使用 `static_assert` 编译报错。
 
 [code|&test-type]
 
@@ -236,9 +167,9 @@ auto d = ToString (std::string {});  // not compile :-(
 
 代码 [code||test-type] - 编译时测试类型
 
-代码 [code|test-type] 展示了对 **是否满足某些条件** 的判断，实现了一个通用的将 C 语言的基本类型数据，转换为 `std::string` 的函数 `ToString` 的功能。首先，我们定义三个 **变量模板** `isNum`，`isStr`，`isBad`，分别对应了三个类型条件的 **谓词** _(predicate)_（这里使用了 `type_tratis` 中的 `std::is_arithmetic` 和 `std::is_same`）。接着，根据 **SFINAE** _(Substitution Failure Is Not An Error)_ 规则 [cppref-SFINAE]（这里直接使用了 `type_traits` 中的 `std::enable_if`），重载函数 `ToString`，分别对应了数值、C 风格字符串和非法类型。最后，在前两个重载中，分别调用 `std::to_string` 和 `std::string` 的构造函数；在最后一种情况中，直接使用 `static_assert` 编译报错。
+#### 一个错误的实例
 
-代码 [code|not-test-type] 是一个错误的写法，很代表性的体现了元编程和普通编程的不同之处。
+代码 [code|not-test-type] 是 代码 [code|test-type] 一个 **错误的写法**，很代表性的体现了元编程和普通编程的不同之处（[sec|什么是元编程]）。
 
 [code|&not-test-type]
 
@@ -255,7 +186,9 @@ std::string ToString (T val) {
 
 代码 [code||not-test-type] - 编译时测试类型的错误用法
 
-假设是脚本语言，这是没有问题的：因为脚本语言没有编译的概念，所有函数的绑定都在 **运行时** 完成；而对于需要编译的语言，函数的绑定是在 **编译时** 完成的。代码 [code|not-test-type] 中的错误在于：编译代码的函数 `ToString` 时，对于给定的类型 `T`，需要执行两次函数绑定 —— `val` 作为参数分别调用 `std::to_string (val)` 和 `std::string (val)`，再进行一次静态断言 —— 判断 `!isBad<T>` 是否为 `true`。
+假设是脚本语言，这段代码是没有问题的：因为脚本语言没有编译的概念，所有函数的绑定都在 **运行时** 完成；而对于需要编译的语言，函数的绑定是在 **编译时** 完成的。代码 [code|not-test-type] 中的错误在于：编译代码的函数 `ToString` 时，对于给定的类型 `T`，需要执行两次函数绑定 —— `val` 作为参数分别调用 `std::to_string (val)` 和 `std::string (val)`，再进行一次静态断言 —— 判断 `!isBad<T>` 是否为 `true`。
+
+假设我们调用 `ToString ("str")` 时，会生成代码 [code|not-test-type-instance]。编译这段代码时，`std::string (val)` 可以正确的重载到 `const char *` 为参数的构造函数；但是 `std::to_string (val)` 并不能找到正确的重载。所以这段代码是不能被编译的。
 
 [code|&not-test-type-instance]
 
@@ -270,8 +203,6 @@ std::string ToString (const char *val) {
 [align-center]
 
 代码 [code||not-test-type-instance] - 编译时测试类型的错误用法的一个实例
-
-假设我们调用 `ToString ("str")` 时，会生成代码 [code|not-test-type-instance]。编译这段代码时，`std::string (val)` 可以正确的重载到 `const char *` 为参数的构造函数；但是 `std::to_string (val)` 并不能找到正确的重载。所以这段代码是不能被编译的。
 
 #### C++ 17 的 `constexpr-if`
 
@@ -300,7 +231,7 @@ std::string ToString (T val)
 
 **编译时迭代** 和面向过程编程中的 **循环语句** _(loop statement)_ 类似，用于实现与 `for` / `while` / `do` 类似的循环逻辑。
 
-和普通的编程不同，元编程的演算规则是纯函数的，不能通过 变量迭代 实现编译时迭代，只能用 **递归** _(recursion)_ 和 **特化** _(specialization)_ 组合实现。
+和普通的编程不同，元编程的演算规则是纯函数的，不能通过 变量迭代 实现编译时迭代，只能用 **递归** _(recursion)_ 和 **特化**（[sec|模板的重载和绑定 —— 特化和实例化]）组合实现。一般思路是：提供两类重载 —— 一类接受 **任意参数**，函数内部 **递归** 调用自己；另一类是前者的 **模板特化** 或 **函数重载**，函数直接返回结果，相当于 **递归终止条件**。它们的重载条件可以是 表达式 或 类型（[sec|编译时测试]）。
 
 #### 定长模板的迭代
 
@@ -329,9 +260,9 @@ static_assert (Factor<4> == 24, "compile error");
 
 #### 变长模板的迭代
 
-变长模板提供了多个参数的可能（[sec|变长模板]），而为了遍历传入的每个参数，我们可以使用 **编译时迭代** 循环结构。代码 [code|variadic-template-recursion] 实现了对参数基本数据类型求和的功能。函数 `Sum` 有两个重载：一个是对没有参数的情况，一个是对参数个数至少为 `1` 的情况。和定长模板的迭代类似（[sec|定长模板的迭代]），这里也是通过 **递归** 调用实现参数遍历。
+变长模板提供了未知参数个数的可能；而为了遍历传入的每个参数，我们可以使用 **编译时迭代** 实现循环遍历。代码 [code|calc-sum] 实现了对参数基本数据类型求和的功能。函数 `Sum` 有两个重载：一个是对没有参数的情况，一个是对参数个数至少为 `1` 的情况。和定长模板的迭代类似（[sec|定长模板的迭代]），这里也是通过 **递归** 调用实现参数遍历。
 
-[code|&variadic-template-recursion]
+[code|&calc-sum]
 
 ``` cpp
 template <typename T>
@@ -350,7 +281,7 @@ static_assert (Sum (1, 2, 3) == 6, "compile error");
 
 [align-center]
 
-代码 [code||variadic-template-recursion] - 变长模板打印参数（递归展开）
+代码 [code||calc-sum] - 编译时迭代计算和（$\Sigma$）
 
 ## 元编程的基本用途
 
@@ -364,55 +295,17 @@ static_assert (Sum (1, 2, 3) == 6, "compile error");
 
 作为元编程的最早的用途，数值计算可以用于 **编译时常数计算** 和 **优化运行时表达式计算**。
 
-**编译时常数计算** 能让我们使用程序设计语言，写编译时确定的常量；而不是直接写计算的结果（**迷之数字** _(magic number)_）或 在运行时计算这些常数。在代码 [code|variadic-template-recursion] 的基础上，我们可以实现一个编译时计算从 $1$ 到 $N$ 之和的代码（代码 [code|calc-sum]，使用 `std::index_sequence` 展开数列 `0, 1, ..., N - 1`）。
+**编译时常数计算** 能让我们使用程序设计语言，写编译时确定的常量；而不是直接写计算的结果（**迷之数字** _(magic number)_）或 在运行时计算这些常数。例如，[sec|编译时迭代] 的两个例子（代码 [code|calc-factor], [code|calc-sum]）都是编译时对常数的计算。
 
-[code|&calc-sum]
-
-``` cpp
-template <std::size_t... I>
-constexpr auto _SeqSum (std::index_sequence<I...>)
-{
-    // Sum (I...) == 0 + 1 + ... + (N - 1)
-    // sizeof... (I) == N
-    return Sum (I...) + sizeof... (I);
-}
-
-template <std::size_t... N>
-constexpr auto SeqSum = _SeqSum (std::make_index_sequence<N> {});
-
-static_assert (SeqSum<3> == 6, "compile error");
-static_assert (SeqSum<5> == 15, "compile error");
-```
-
-[align-center]
-
-代码 [code||calc-sum] - 编译时计算常数
+除了模板，现代 C++ 还允许定义 `constexpr` 函数，用于实现常量计算。（如果该函数在编译时能确定所有的参数，那么就可以在编译时计算出结果的常量。）[cppref-constexpr]
 
 最早的有关元编程 **优化表达式计算** 的思路是 Todd Veldhuizen 提出的。[expr-template] 利用表达式模板，我们可以实现部分求值、惰性求值、表达式化简等特性。
 
-另外，现代 C++ 还允许定义 `constexpr` 函数，用于实现常量计算。（如果该函数在编译时能确定所有的参数，那么就可以在编译时计算出结果的常量。[cppref-constexpr] 例如，代码 [code|calc-factor-constexpr] 能实现和 代码 [code||calc-factor] 相同的功能 —— 编译时计算阶乘。）
-
-[code|&calc-factor-constexpr]
-
-``` cpp
-constexpr auto Factor (unsigned n)
-{
-    if (n <= 1) return 1;
-    else return n * Factor (n - 1);
-}
-
-static_assert (Factor (3) == 6, "compile error");
-```
-
-[align-center]
-
-代码 [code||calc-factor-constexpr] - `constexpr` 函数
-
 ### 类型推导
 
-除了基本的数值计算之外，我们还可以利用元编程进行任意类型之间的相互推导。在 **领域特定语言** _(domain-specific language)_ 和 C++ 语言原生结合时，类型推导可以帮助我们将这些语言中的类型，转化为 C++ 的类型，并保证类型安全。例如，BOT Man 提出了一种能编译时进行 SQL 语言元组类型推导的方法。
+除了基本的数值计算之外，我们还可以利用元编程进行任意类型之间的相互推导。在 **领域特定语言** _(domain-specific language)_ 和 C++ 语言原生结合时，类型推导可以帮助我们将这些语言中的类型，转化为 C++ 的类型，并保证类型安全。
 
-C++ 所有的数据类型都不能为 `NULL`；而 SQL 的字段是允许为 `NULL` 的，所以我们可以在 C++ 中使用 `std::optional` 容器存储可以为空的字段。当我们通过 `outer-join` 拼接得到的元组，这使得所有的字段都可以为 `NULL`。所以 ORM 需要一种方法能把一个 可能含有 `std::optional` 字段的元组，先将原元组中不带有 `std::optional` 的字段转换为 `std::optional<T>`，再拼接为新元组。
+例如，BOT Man 提出了一种能编译时进行 SQL 语言元组类型推导的方法。C++ 所有的数据类型都不能为 `NULL`；而 SQL 的字段是允许为 `NULL` 的，所以我们可以在 C++ 中使用 `std::optional` 容器存储可以为空的字段。当我们通过 `outer-join` 拼接得到的元组，这使得所有的字段都可以为 `NULL`。所以 ORM 需要一种方法能把一个 可能含有 `std::optional` 字段的元组，先将原元组中不带有 `std::optional` 的字段转换为 `std::optional<T>`，再拼接为新元组。
 
 [code|&orm-to-nullable]
 
@@ -443,61 +336,74 @@ static_assert (std::is_same<
 
 [align-center]
 
-代码 [code||orm-to-nullable] - 编译时计算常数
+代码 [code||orm-to-nullable] - 类型推导
 
-代码 [code|orm-to-nullable] 首先定义了 `TypeToNullable` 并对 `std::optional<T>` 进行特化，作用是将带有 `std::optional` 和 不带 `std::optional` 的类型自动转换为带有 `std::optional` 的版本。然后利用 `TupleToNullable` 拆解元组中的所有类型（转化为参数包；[sec|变长模板]），并把所有类型传入 `TypeToNullable`，并将结果组装为新的元组。[better-orm]
+代码 [code|orm-to-nullable] 首先定义了 `TypeToNullable` 并对 `std::optional<T>` 进行特化，作用是将带有 `std::optional` 和 不带 `std::optional` 的类型自动转换为带有 `std::optional` 的版本。然后利用 `TupleToNullable` 拆解元组中的所有类型（转化为参数包；[sec|C++ 中的模板参数]），并把所有类型传入 `TypeToNullable`，并将结果组装为新的元组。[better-orm]
 
 ### 代码生成
 
-和泛型编程一样，元编程也常常被用于代码的生成。但是和简单的泛型编程不同，元编程生成的代码往往是通过 **编译时测试** 和 **编译时迭代** 的演算推导出来的。例如，[sec|测试类型] 中的代码 [code|test-type] 就是一个将 C 语言基本类型转化为 `std::string` 的代码的生成代码。
+和泛型编程一样，元编程也常常被用于代码的生成。但是和简单的泛型编程不同，元编程生成的代码往往是通过 **编译时测试** 和 **编译时迭代** 的演算推导出来的。例如，[sec|测试类型] 中的代码 [code|test-type] 和 代码 [code|not-test-type] 就是一个将 C 语言基本类型转化为 `std::string` 的代码的生成代码。
 
 ## 元编程的主要难点
 
-尽管元编程的好处有很多，但是 C++ 语言设计层面上没有专门考虑元编程的相关问题。所以这些限制给元编程增加了难度。我们认为元编程的主要难点可以分为三类：**设计时** _(design-time)_、**编译时**、**运行时**。
+尽管元编程的好处有很多，但是 C++ 语言设计层面上没有专门考虑元编程的相关问题。所以这些限制给元编程增加了难度。我们认为元编程的主要难点可以分为三类：**编译前** _(design-time)_、**编译时**、**运行时**。
 
-### 设计时
+### 编译前
 
 #### 复杂性
 
 由于元编程的语言层面上的限制较大，所以那些利用了很多 **编译时测试** 和 **编译时迭代** 技巧的代码，**可读性** _(readability)_ 都比较差。另外，由于设计出编译时能完成的演算也是很困难的，相较于一般的 C++ 程序，其 **可写性** _(writability)_ 也不是很好。
 
-现代 C++ 也不断地增加语言的特性，致力于降低元编程的复杂性。例如，**别名模板** 提供了对模板中的类型的简记方法，**变量模板** 提供了对模板中常量的简记方法，都增强可读性（[sec|C++ 中的模板类型]）；C++ 17 的 `constexpr-if` 提供了 **编译时测试** 的新写法，增强可写性（[sec|C++ 17 的 `constexpr-if`]）。
+现代 C++ 也不断地增加语言的特性，致力于降低元编程的复杂性。例如，[sec|C++ 中的模板类型] 的 **别名模板** 提供了对模板中的类型的简记方法，**变量模板** 提供了对模板中常量的简记方法，都增强可读性；C++ 17 的 `constexpr-if`（[sec|C++ 17 的 `constexpr-if`]）提供了 **编译时测试** 的新写法，增强可写性。
 
 #### 实例化检查
 
-在编译时，模板的实例化 和 函数的绑定 不同：前者对传入的参数是什么，没有太多的限制；而后者则根据函数的声明，确定了应该传入参数的类型。而对于模板实参内容的检查，则是在实例化的过程中完成的。（[sec|实例化错误]）所以，在设计程序时，程序员往往会因为没有足够的警告，犯一些低级错误。
+如 [sec|模板的重载和绑定 —— 特化和实例化] 描述的，模板的实例化 和 函数的绑定 不同：前者对传入的参数是什么，没有太多的限制；而后者则根据函数的声明，确定了应该传入参数的类型。而对于模板实参内容的检查，则是在实例化的过程中完成的（[sec|实例化错误]）。所以，在编译前，程序员往往会因为没有足够的警告，犯一些低级错误。
 
-因此，Bjarne Stroustrup 等人提出了在语言层面上，给模板上引入 **概念** _(concept)_。[cpp-pl] 利用概念，我们可以对传入的参数加上 **限制**，即只有满足特定限制的类型才能作为参数传入模板。[cppref-concept] 例如，模板 `std::max` 只能接受支持运算符 `<` 的类型。
+因此，Bjarne Stroustrup 等人提出了在 **语言层面** 上，给模板上引入 **概念** _(concept)_。[cpp-pl] 利用概念，我们可以对传入的参数加上 **限制**，即只有满足特定限制的类型才能作为参数传入模板。[cppref-concept] 例如，模板 `std::max` 只能接受支持运算符 `<` 的类型。
 
-但是由于各种原因，这个语言特性一直没有能正式加入 C++ 标准。尽管现在没有在语言上实现概念，我们仍可以通过 **静态断言** 等方法，实现对概念的检查。（[sec|实例化错误]）
+但是由于各种原因，这个语言特性一直没有能正式加入 C++ 标准。尽管现在没有在语言上实现概念，我们仍可以通过 **编译时测试** 和 **静态断言** 等方法（[sec|测试类型]），实现对概念的检查。
 
-目前许多高级的 **集成开发环境** _(Integrated Development Environment, IDE)_（例如，Microsoft Visual Studio）支持了智能提示的功能，可以辅助用户进行实例化检查。[visual-studio]
+目前许多高级的 **集成开发环境** _(Integrated Development Environment, IDE)_（例如，Microsoft Visual Studio）支持了智能提示的功能，可以辅助用户进行检查。[visual-studio]
 
 ### 编译时
 
 #### 实例化错误
 
-模板在实例化时，需要对实参执行的 **操作** _(operation)_ 和 **函数** _(function)_ 进行绑定。如果在绑定的过程中，没有匹配的操作（或函数），编译就会报错。[sec|实例化检查] 提到，如果语言支持了概念或者契约，就可以在设计代码的时候避免这个问题。例如，传入一个 `const` 的对象，而操作（或函数）要求改变对象的状态，这是不允许的，编译会报错。
+如 [sec|模板的重载和绑定 —— 特化和实例化] 描述的，模板在实例化时，需要对实参执行的 **操作** _(operation)_ 和 **函数** _(function)_ 进行绑定。如果在绑定的过程中，没有匹配的操作（或函数），编译就会报错。当模板的调用层数很大的时候，尽管编译器会提示每一层实例化的状态，但是这些报错信息会非常复杂，很难让人较快的发现问题的所在。例如，一个模板要求用户给传入的类定义一个成员函数 `fn`，并在模板的实现中调用 `fn`。如果用户没有定义 `fn`，那么模板的实现在实例化时，就会报错 找不到成员函数 `fn`，同时会把实例化的每一步的状态提示出来。
 
-当模板的调用层数很大的时候，尽管编译器会提示每一层实例化的状态，但是这些报错信息会非常复杂，很难让人较快的发现问题的所在。例如，一个库要求用户给传入的类定义一个成员函数 `fn`，并在库的实现中调用 `fn`；如果用户没有定义 `fn`，那么编译器实例化到库的实现时，就会报错找不到成员函数 `fn`，同时会把实例化的每一步的状态提示出来。因编译器而异，这些提示信息由于信息过多，用户很难察觉到问题所在。
-
-为了解决这个问题，BOT Man 提出了一种 **短路编译** _(short-circuit compiling)_ 的方法，能让基于元编程的库，给用户提供更人性化的编译时报错。具体方法是，在调用需要的操作（或函数）之前，先检查是否有对应的操作（或函数）；如果没有，就通过短路的方法停止编译，并使用 **静态断言** 提供报错信息。[better-orm]
+为了解决这个问题，BOT Man 描述过一种 **短路编译** _(short-circuit compiling)_ 的方法，能让基于元编程的库，给用户提供更人性化的编译时报错。具体方法是，在调用需要的操作（或函数）之前，先检查是否有对应的操作（或函数）；如果没有，就通过短路的方法停止编译，并使用 **静态断言** 提供报错信息。[better-orm]
 
 #### 代码膨胀
 
-由于模板会对所有不同模板实参进行一次实例化，所以当参数的种类很多的时候，很可能会发生 **代码膨胀** _(code bloat)_，即产生体积巨大的代码。这些代码可以分为两种：**死代码**  _(dead code)_ 和 **有效代码** _(effective code)_。
+由于模板会对所有不同模板实参都进行一次实例化，所以当参数的组合很多的时候，很可能会发生 **代码膨胀** _(code bloat)_，即产生体积巨大的代码。这些代码可以分为两种：**死代码**  _(dead code)_ 和 **有效代码** _(effective code)_。
 
-在元编程中，我们很多时候只关心推导的结果，而不是过程。例如，[sec|数值计算] 的代码 [code|calc-sum] 中，我们只关心最后的 `SeqSum<3> == 6`，而不需要中间过程中产生的临时模板。但是在 `N` 很大的时候，类似这样的运算会产生很多临时模板。这些临时模板是 **死代码**，即不被执行的代码。而编译器会自动优化最终的代码生成，在 **链接时** _(link-time)_ 移除这些无用代码，使得最终的目标代码不会包含它们。
+在元编程中，我们很多时候只关心推导的结果，而不是过程。例如，[sec|定长模板的迭代] 的代码 [code|calc-factor] 中，我们只关心最后的 `Factor<4> == 24`，而不需要中间过程中产生的临时模板。但是在 `N` 很大的时候，编译会产生很多临时模板。这些临时模板是 **死代码**，即不被执行的代码。所以，编译器会自动优化最终的代码生成，在 **链接时** _(link-time)_ 移除这些无用代码，使得最终的目标代码不会包含它们。
 
-另一种情况下，我们展开的代码都是 **有效代码**，即都是被执行的，但是又由于需要的参数的类型繁多，最后的代码体积仍然很大。编译器很难优化这些代码，所以程序员应该在设计时编码代码膨胀。在 [sec|模板特化] 中介绍了，Bjarne Stroustrup 提出了一种 **设计时** 消除 **冗余运算** _(redundant calculation)_ 的方法，用于缩小模板实例体积。具体思路是，将不同参数实例化得到的模板的 **相同部分** 抽象为一个 **基类** _(base class)_，然后 “继承” 并 “重载” 每种参数情况的 **不同部分**，从而实现更多代码的共享。
+另一种情况下，我们展开的代码都是 **有效代码**，即都是被执行的，但是又由于需要的参数的类型繁多，最后的代码体积仍然很大。编译器很难优化这些代码，所以程序员应该在设计时编码代码膨胀。Bjarne Stroustrup 提出了一种消除 **冗余运算** _(redundant calculation)_ 的方法，用于缩小模板实例体积。具体思路是，将不同参数实例化得到的模板的 **相同部分** 抽象为一个 **基类** _(base class)_，然后 “继承” 并 “重载” 每种参数情况的 **不同部分**，从而实现更多代码的共享。
+
+例如，在 `std::vector` 的实现中，对 `T *` 和 `void *` 进行了特化（[sec|模板的重载和绑定 —— 特化和实例化]，见代码 [code|spec-vector]）；然后将所有的 `T *` 的实现 **继承** 到 `void *` 的实现上，并在公开的函数里通过强制类型转换，进行 `void *` 和 `T *` 的相互转换；最后这使得所有的指针的 `std::vector` 就可以共享同一份实现，从而避免了代码膨胀。[cpp-pl]
+
+[code|&spec-vector]
+
+``` cpp
+template <typename T> class vector;  // general
+template <typename T> class vector<T *>;  // partial spec
+template <> class vector<void *>;  // complete spec
+
+template <typename T>
+class vector<T *> : private vector<void *> { ... }
+```
+
+[align-center]
+
+代码 [code||spec-vector] - 特化 `std::vector` 避免代码膨胀
 
 ### 运行时
 
 元编程在运行时主要的难点在于：对模板代码的 **调试** _(debugging)_。
 
-许多调试器都支持了  **断点** _(breakpoint)_ 的功能，即用户在代码的某一条语句上设置断点，当程序运行到断点位置时，暂停程序的运行，并导出所有的运行时信息。而许多的模板实例共享同一个模板代码，如果在模板代码上设置断点，所有的实例运行到断点位置都会暂停。例如，`std::vector<int>` 和 `std::vector<double>` 共享同一模板代码，在 `std::vector<T>` 上的断点同时对这两份实例生效。然而这只是最简单的情况。
-
-假设我们需要调试的是一段通过很多次的 编译时测试（[sec|编译时测试]）和 编译时迭代（[sec|编译时迭代]）展开的代码，即这段代码是各个模板的拼接生成的；那么，对这段生成的代码的调试会变得非常的复杂 —— 实际过程中需要不断地在各个模板间来回切换。
+假设我们需要调试的是一段通过很多次的 编译时测试（[sec|编译时测试]）和 编译时迭代（[sec|编译时迭代]）展开的代码，即这段代码是各个模板的拼接生成的（而且展开的层数很多）；那么，对这段生成的代码的调试会变得非常的复杂 —— 需要不断地在各个模板的 **实例** _(instance)_ 间来回切换。这种情景下，调试人员很难把问题定位到展开后的代码上。
 
 ## 总结
 
@@ -506,8 +412,6 @@ C++ 元编程的出现，是一个无心插柳的偶然 —— 人们发现 C++ 
 本文主要内容是我对 C++ 元编程的 **个人理解**。对本文有什么问题，**欢迎斧正**。😉
 
 This article is published under MIT License &copy; 2017, BOT Man
-
-[page-break]
 
 ## [no-number] 参考文献
 

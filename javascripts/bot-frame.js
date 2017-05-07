@@ -119,6 +119,12 @@ RenderSection = function (fileName, tags, callback) {
         fixAll("IMG", "src", function (absPath, relPath) { return absPath; });
     };
 
+    var FixAnchorText = function (text) {
+        return text.toLowerCase()
+            .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
+            .replace(/^-+/g, '').replace(/-+$/g, '');
+    };
+
     Ajax("GET", encodeURI(fileName), null,
         function (mdSource) {
             if (mdSource == null) {
@@ -179,10 +185,7 @@ RenderSection = function (fileName, tags, callback) {
                     raw = raw.replace(regExpNoToc, '');
 
                     // Set anchor
-                    var anchor = raw.toLowerCase()
-                        .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
-                        .replace(/^-+/g, '').replace(/-+$/g, '');
-
+                    var anchor = FixAnchorText(raw);
                     var count = anchorMap.get(anchor);
                     count = (count == null ? 0 : count) + 1;
                     anchorMap.set(anchor, count);
@@ -265,9 +268,7 @@ RenderSection = function (fileName, tags, callback) {
                     var countCites = 0;
                     content = content.replace(/\[.*\]:/g, function (refText) {
                         ++countCites;
-                        var citeContent = refText.substr(1, refText.length - 3).toLowerCase()
-                            .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
-                            .replace(/^-+/g, '').replace(/-+$/g, '');
+                        var citeContent = FixAnchorText (refText.substr(1, refText.length - 3));
                         return getCiteNoteHTML(citeContent, countCites);
                     });
 
@@ -275,9 +276,7 @@ RenderSection = function (fileName, tags, callback) {
                     for (var i = 0; i < cites.length; i++) {
                         cites[i] = cites[i].substr(0, cites[i].length - 1);
                         var citeIndex = i + 1;
-                        var citeContent = cites[i].substr(1, cites[i].length - 2).toLowerCase()
-                            .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
-                            .replace(/^-+/g, '').replace(/-+$/g, '');
+                        var citeContent = FixAnchorText (cites[i].substr(1, cites[i].length - 2));
 
                         var countRefs = 0;
                         content = content.replace(new RegExp(EscapeRegExp(cites[i]), 'g'), function (refText) {
@@ -294,8 +293,6 @@ RenderSection = function (fileName, tags, callback) {
                     }
 
                     // Render reference
-                    // TODO: fix invalid char in anchor
-                    var countRefs = new Map();
                     var refMap = new Map();
 
                     // Ref target
@@ -304,10 +301,12 @@ RenderSection = function (fileName, tags, callback) {
                         var len2 = "]</p>".length + len1;
                         refText = refText.substr(len1, refText.length - len2);
                         var fragments = refText.split('|&amp;');
-                        return "<div class='ref-target' id='ref-" + fragments.join('-') + "'></div>";
+                        return "<div class='ref-target' id='ref-" +
+                            FixAnchorText (fragments.join('-')) + "'></div>";
                     });
 
                     // Ref base
+                    var countRefs = new Map();
                     content = content.replace(/\[[^\].]+\|\|[^\].]+\]/g, function (refText) {
                         refText = refText.substr(1, refText.length - 2);
                         var fragments = refText.split('||');
@@ -315,7 +314,7 @@ RenderSection = function (fileName, tags, callback) {
                         var count = countRefs.get(fragments[0]);
                         count = (count == null ? 0 : count) + 1;
                         countRefs.set(fragments[0], count);
-                        refMap.set(fragments.join('-'), count);
+                        refMap.set(FixAnchorText (fragments.join('-')), count);
 
                         return "<span class='ref-base'>" + count + "</span>";
                     });
@@ -340,13 +339,14 @@ RenderSection = function (fileName, tags, callback) {
                             }
                         }
                         else {
-                            var count = refMap.get(fragments.join('-'));
+                            refAnchor = FixAnchorText (fragments.join('-'));
+                            var count = refMap.get(refAnchor);
                             if (count == null) {
                                 alert("Invalid refText: " + refText);
                                 return refText;
                             }
 
-                            refAnchor = "ref-" + fragments.join('-');
+                            refAnchor = "ref-" + refAnchor;
                             refText = count;
                         }
                         return "<span class='ref-item'><a href='#" +

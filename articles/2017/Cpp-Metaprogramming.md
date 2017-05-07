@@ -62,11 +62,9 @@ C++ 元编程 / 模板编程 / 元编程演算 / 元编程用途 / 元编程实�
 
 其中，类模板 和 函数模板 在 C++ 的早期版本已经引入，而 别名模板 和 变量模板 则分别在 C++ 11 和 C++ 14 引入。前两者能产生新的类型，属于 **类型构造器** _(type constructor)_；而后两者仅是语言提供的简化记法，属于 **语法糖** _(syntactic sugar)_。
 
-**类模板** 和 **函数模板** 分别用于定义一类具有相似功能的 **类** 和 **函数** _(function)_，是泛型中对 **类型** 和 **算法** 的抽象。在标准库中，**容器** _(container)_ 和 **函数** 分别是 **类模板** 和 **函数模板** 的应用。
+**类模板** 和 **函数模板** 分别用于定义具有相似功能的 **类** 和 **函数** _(function)_，是泛型中对 **类型** 和 **算法** 的抽象。在标准库中，**容器** _(container)_ 和 **函数** 都是 **类模板** 和 **函数模板** 的应用。
 
-**别名模板** 是 C++ 11 引入的模板类型，提供了一种具有模板特性的 **类型别名** _(type alias)_ 的简记方法。这类模板只能用于简记 已知类型，并不产生新的类型。例如，C++ 14 中的 `std::enable_if_t<T>` 等价于 `typename std::enable_if<T>::type`。尽管这类模板不能构造新的类型，但可以增加程序的可读性（[sec|复杂性]）。
-
-**变量模板** 是 C++ 14 标准中新加入的特性，它相当于是一种具有模板特性的 **常量** _(constant)_ 的定义方法。在 C++ 14 之前，这种常量模板可以通过 类模板中的静态数据成员 或 函数模板的返回值 实现。通过使用这类模板，我们可以简化程序，降低程序的复杂性（[sec|复杂性]）。
+**别名模板** 和 **变量模板** 分别提供了具有模板特性的 **类型别名** _(type alias)_ 和 **常量** _(constant)_ 的简记方法。前者只能用于简记 已知类型，并不产生新的类型；后者则可以通过 函数模板返回值 等方法实现。尽管这两类模板不是必须的，但可以增加程序的可读性（[sec|复杂性]）。例如，C++ 14 中的 **别名模板** `std::enable_if_t<T>` 等价于 `typename std::enable_if<T>::type`。
 
 ### C++ 中的模板参数
 
@@ -78,9 +76,7 @@ C++ 中的 **模板参数** _(template parameter / argument)_ 可以分为三种
 
 ### 模板的重载和绑定 —— 特化和实例化
 
-**特化** _(specialization)_ 相当于是模板的 **重载** _(overload)_，类似于函数的重载，即给出 全部模板参数取值（完全特化）或 部分模板参数取值（部分特化）。C++ 规定，**所有模板** 支持完全特化；而仅有 **类模板** 支持部分特化。（**函数模板** 的部分特化可以通过 函数重载 实现）
-
-**特化** 常常被用于 [sec|元编程的基本演算] 介绍的元编程的逻辑演算。另外，它还可以用于优化元编程代码，避免代码膨胀（在 [sec|代码膨胀] 给出了一个实例）。
+**特化** _(specialization)_ 相当于是模板的 **重载** _(overload)_，类似于函数的重载，即给出 全部模板参数取值（完全特化）或 部分模板参数取值（部分特化）。C++ 规定，**所有模板** 支持完全特化；而仅有 **类模板** 支持部分特化。（**函数模板** 的部分特化可以通过 函数重载 实现）模板的特化常常被用于 [sec|元编程的基本演算] 介绍的元编程的逻辑演算。另外，特化还可以用于优化元编程代码，避免代码膨胀（在 [sec|代码膨胀] 给出了一个实例）。
 
 **实例化** _(instantiation)_ 相当于是模板的 **绑定** _(binding)_，类似于函数的绑定，是编译器根据参数的个数和类型，判断使用哪个模板具体的重载。由于函数和模板的重载具有相似性，所以他们的参数 **重载规则** _(overloading rule)_ 也是相似的。
 
@@ -94,7 +90,7 @@ C++ 中的 **模板参数** _(template parameter / argument)_ 可以分为三种
 
 **编译时测试** 相当于面向过程编程中的 **选择语句** _(selection statement)_，可以实现 `if-else` / `switch` 的选择逻辑。
 
-在 C++ 17 之前，编译时测试是通过模板的 实例化 和 特化 实现的（[sec|模板的重载和绑定 —— 特化和实例化]）—— 每次找到最特殊的模板进行匹配（[sec|测试表达式]; [sec|测试类型]）；而 C++ 17 提出了使用 `constexpr-if` 的编译时测试方法（[sec|C++ 17 的 `constexpr-if`]）。
+在 C++ 17 之前，编译时测试是通过模板的 实例化 和 特化 实现的（[sec|模板的重载和绑定 —— 特化和实例化]）—— 每次找到最特殊的模板进行匹配（[sec|测试表达式]; [sec|测试类型]）；而 C++ 17 提出了使用 `constexpr-if` 的编译时测试方法（[sec|使用 `if` 进行编译时测试]）。
 
 #### 测试表达式
 
@@ -167,7 +163,7 @@ auto d = ToString (std::string {});  // not compile :-(
 
 代码 [code||test-type] - 编译时测试类型
 
-#### 一个错误的实例
+#### 使用 `if` 进行编译时测试
 
 代码 [code|not-test-type] 是 代码 [code|test-type] 一个 **错误的写法**，很代表性的体现了元编程和普通编程的不同之处（[sec|什么是元编程]）。
 
@@ -186,46 +182,9 @@ std::string ToString (T val) {
 
 代码 [code||not-test-type] - 编译时测试类型的错误用法
 
-假设是脚本语言，这段代码是没有问题的：因为脚本语言没有编译的概念，所有函数的绑定都在 **运行时** 完成；而对于需要编译的语言，函数的绑定是在 **编译时** 完成的。代码 [code|not-test-type] 中的错误在于：编译代码的函数 `ToString` 时，对于给定的类型 `T`，需要执行两次函数绑定 —— `val` 作为参数分别调用 `std::to_string (val)` 和 `std::string (val)`，再进行一次静态断言 —— 判断 `!isBad<T>` 是否为 `true`。
+代码 [code|not-test-type] 中的错误在于：编译代码的函数 `ToString` 时，对于给定的类型 `T`，需要执行两次函数绑定 —— `val` 作为参数分别调用 `std::to_string (val)` 和 `std::string (val)`，再进行一次静态断言 —— 判断 `!isBad<T>` 是否为 `true`。例如，我们调用 `ToString ("str")`，在编译这段代码时，`std::string (val)` 可以正确的重载到 `const char *` 为参数的构造函数；但是 `std::to_string (val)` 并不能找到正确的重载。所以这段代码是不能被编译的。
 
-假设我们调用 `ToString ("str")` 时，会生成代码 [code|not-test-type-instance]。编译这段代码时，`std::string (val)` 可以正确的重载到 `const char *` 为参数的构造函数；但是 `std::to_string (val)` 并不能找到正确的重载。所以这段代码是不能被编译的。
-
-[code|&not-test-type-instance]
-
-``` cpp
-std::string ToString (const char *val) {
-    if (false) return std::to_string (val);  // no valid overload
-    else if (true) return std::string (val);
-    else static_assert (true, "neither arithmetic nor string");
-}
-```
-
-[align-center]
-
-代码 [code||not-test-type-instance] - 编译时测试类型的错误用法的一个实例
-
-#### C++ 17 的 `constexpr-if`
-
-为了使得让代码 [code|not-test-type] 风格的代码用于元编程，C++ 17 引入了 `constexpr-if`。[cppref-constexpr-if] 我们只需要把以上代码 [code|not-test-type] 中的 `if` 改为 `if constexpr` 就可以编译了。在代码 [code|test-type-constexpr] 中展示。
-
-[code|&test-type-constexpr]
-
-``` cpp
-template <typename T>
-std::string ToString (T val)
-{
-    static_assert (!isBad<T>, "neither arithmetic nor string");
-
-    if constexpr (isNum<T>) return std::to_string (val);
-    else if constexpr (isStr<T>) return std::string (val);
-}
-```
-
-[align-center]
-
-代码 [code||test-type-constexpr] - `constexpr-if` 的用法
-
-`constexpr-if` 的引入一方面大大降低元编程的逻辑难度，另一方面提高了模板代码的可读性（[sec|复杂性]）。
+假设是脚本语言，这段代码是没有问题的：因为脚本语言没有编译的概念，所有函数的绑定都在 **运行时** 完成；而对于需要编译的语言，函数的绑定是在 **编译时** 完成的。为了使得让代码 [code|not-test-type] 风格的代码用于元编程，C++ 17 引入了 `constexpr-if`。[cppref-constexpr-if] 我们只需要把以上代码 [code|not-test-type] 中的 `if` 改为 `if constexpr` 就可以编译了。`constexpr-if` 的引入让模板测试更加直观，提高了模板代码的可读性（[sec|复杂性]）。
 
 ### 编译时迭代
 
@@ -285,11 +244,11 @@ static_assert (Sum (1, 2, 3) == 6, "compile error");
 
 ## 元编程的基本用途
 
-利用元编程，我们可以很方便的设计出 **类型安全** _(type safe)_、**运行时高效** _(runtime effective)_ 的程序。到现在，元编程已被广泛的应用于 C++ 的编程实践中。例如，Todd Veldhuizen 提出了使用元编程的方法构造 **表达式模板** _(expression template)_，使用惰性求值和表达式优化的方法，提升向量计算的运行速度 [expr-template]；K. Czarnecki 和 U. Eisenecker 对元编程深入研究，提出了利用纯模板实现 Lisp 解释器的方法 [gererative-programming]；BOT Man 利用元编程，设计了一个类型安全、运行时高效 **对象关系映射** _(object-relation mapping, ORM)_ [naive-orm] [better-orm]。
+利用元编程，我们可以很方便的设计出 **类型安全** _(type safe)_、**运行时高效** _(runtime effective)_ 的程序。到现在，元编程已被广泛的应用于 C++ 的编程实践中。例如，Todd Veldhuizen 提出了使用元编程的方法构造 **表达式模板** _(expression template)_，使用惰性求值和表达式优化的方法，提升向量计算的运行速度 [expr-template]；K. Czarnecki 和 U. Eisenecker 对元编程深入研究，提出了利用纯模板实现 Lisp 解释器的方法 [gererative-programming]。
 
 尽管元编程的应用场景各不相同，但是归根到底，元编程的基本用途有三种：**数值计算** _(numeric computation)_、**类型推导** _(type deduction)_ 和 **代码生成** _(code generation)_。
 
-复杂的用途，是对这三种基本用途的组合。例如，在 BOT Man 设计的 ORM 中，主要使用了 类型推导 和 代码生成 的功能。分别应用在：根据 **对象** _(object)_ 在 C++ 中的类型，推导出对应数据库 **关系** _(relation)_ 中元组各个字段的类型；将对 C++ 对象的操作，映射到对应的数据库语句上，并生成相应的代码。另外，BOT Man 还利用元编程的方法，优化了模板匹配失败的报错（[sec|实例化错误]）。[naive-orm] [better-orm]
+复杂的用途，是对这三种基本用途的组合。例如，在 BOT Man 设计的 **对象关系映射** _(object-relation mapping, ORM)_ 中，主要使用了 类型推导 和 代码生成 的功能。即，根据 **对象** _(object)_ 在 C++ 中的类型，推导出对应数据库 **关系** _(relation)_ 中元组各个字段的类型；将对 C++ 对象的操作，映射到对应的数据库语句上，并生成相应的代码。另外，BOT Man 还利用元编程的方法，优化了模板匹配失败的报错（[sec|实例化错误]）。[naive-orm] [better-orm]
 
 ### 数值计算
 
@@ -346,35 +305,23 @@ static_assert (std::is_same<
 
 ## 元编程的主要难点
 
-尽管元编程的好处有很多，但是 C++ 语言设计层面上没有专门考虑元编程的相关问题。所以这些限制给元编程增加了难度。我们认为元编程的主要难点可以分为三类：**编译前** _(design-time)_、**编译时**、**运行时**。
+由于 C++ 语言设计层面上没有专门考虑元编程的相关问题，所以实际元编程难度较大。
 
-### 编译前
-
-#### 复杂性
+### 复杂性
 
 由于元编程的语言层面上的限制较大，所以那些利用了很多 **编译时测试** 和 **编译时迭代** 技巧的代码，**可读性** _(readability)_ 都比较差。另外，由于设计出编译时能完成的演算也是很困难的，相较于一般的 C++ 程序，其 **可写性** _(writability)_ 也不是很好。
 
-现代 C++ 也不断地增加语言的特性，致力于降低元编程的复杂性。例如，[sec|C++ 中的模板类型] 的 **别名模板** 提供了对模板中的类型的简记方法，**变量模板** 提供了对模板中常量的简记方法，都增强可读性；C++ 17 的 `constexpr-if`（[sec|C++ 17 的 `constexpr-if`]）提供了 **编译时测试** 的新写法，增强可写性。
+现代 C++ 也不断地增加语言的特性，致力于降低元编程的复杂性。例如，[sec|C++ 中的模板类型] 的 **别名模板** 提供了对模板中的类型的简记方法，**变量模板** 提供了对模板中常量的简记方法，都增强可读性；C++ 17 的 `constexpr-if`（[sec|使用 `if` 进行编译时测试]）提供了 **编译时测试** 的新写法，增强可写性。
 
-#### 实例化检查
+### 实例化错误
 
-如 [sec|模板的重载和绑定 —— 特化和实例化] 描述的，模板的实例化 和 函数的绑定 不同：前者对传入的参数是什么，没有太多的限制；而后者则根据函数的声明，确定了应该传入参数的类型。而对于模板实参内容的检查，则是在实例化的过程中完成的（[sec|实例化错误]）。所以，在编译前，程序员往往会因为没有足够的警告，犯一些低级错误。
+如 [sec|模板的重载和绑定 —— 特化和实例化] 描述的，模板的实例化 和 函数的绑定 不同：前者对传入的参数是什么，没有太多的限制；而后者则根据函数的声明，确定了应该传入参数的类型。而对于模板实参内容的检查，则是在实例化的过程中完成的（[sec|实例化错误]）。所以，程序的设计者在编译前，很难发现实例化时可能产生的错误。
 
-因此，Bjarne Stroustrup 等人提出了在 **语言层面** 上，给模板上引入 **概念** _(concept)_。[cpp-pl] 利用概念，我们可以对传入的参数加上 **限制**，即只有满足特定限制的类型才能作为参数传入模板。[cppref-concept] 例如，模板 `std::max` 只能接受支持运算符 `<` 的类型。
+Bjarne Stroustrup 等人提出了在 **语言层面** 上，给模板上引入 **概念** _(concept)_。[cpp-pl] 利用概念，我们可以对传入的参数加上 **限制** _(constraint)_，即只有满足特定限制的类型才能作为参数传入模板。[cppref-concept] 例如，模板 `std::max` 限制接受支持运算符 `<` 的类型传入。但是由于各种原因，这个语言特性一直没有能正式加入 C++ 标准。尽管现在没有在语言上实现，我们仍可以通过 **编译时测试** 和 **静态断言** 等方法（[sec|测试类型]）实现检查。
 
-但是由于各种原因，这个语言特性一直没有能正式加入 C++ 标准。尽管现在没有在语言上实现概念，我们仍可以通过 **编译时测试** 和 **静态断言** 等方法（[sec|测试类型]），实现对概念的检查。
+另外，当实例化出错，而模板的调用层数很大时，尽管编译器会提示每一层实例化的状态，但是这些报错包含了很多的无用信息，很难让人较快的发现问题所在。BOT Man 提出了一种 **短路编译** _(short-circuit compiling)_ 的方法，能让基于元编程的 **库** _(library)_，给用户提供更人性化的编译时报错。具体方法是，在调用需要的操作（或函数）之前，先检查是否有对应的操作（或函数）；如果没有，就通过短路的方法停止编译，并使用 **静态断言** 提供报错信息。[better-orm] Paul Fultz II 提出了一种更通用的优化报错信息的方法。 [fit-lib]
 
-目前许多高级的 **集成开发环境** _(Integrated Development Environment, IDE)_（例如，Microsoft Visual Studio）支持了智能提示的功能，可以辅助用户进行检查。[visual-studio]
-
-### 编译时
-
-#### 实例化错误
-
-如 [sec|模板的重载和绑定 —— 特化和实例化] 描述的，模板在实例化时，需要对实参执行的 **操作** _(operation)_ 和 **函数** _(function)_ 进行绑定。如果在绑定的过程中，没有匹配的操作（或函数），编译就会报错。当模板的调用层数很大的时候，尽管编译器会提示每一层实例化的状态，但是这些报错信息会非常复杂，很难让人较快的发现问题的所在。例如，一个模板要求用户给传入的类定义一个成员函数 `fn`，并在模板的实现中调用 `fn`。如果用户没有定义 `fn`，那么模板的实现在实例化时，就会报错 找不到成员函数 `fn`，同时会把实例化的每一步的状态提示出来。
-
-为了解决这个问题，BOT Man 描述过一种 **短路编译** _(short-circuit compiling)_ 的方法，能让基于元编程的库，给用户提供更人性化的编译时报错。具体方法是，在调用需要的操作（或函数）之前，先检查是否有对应的操作（或函数）；如果没有，就通过短路的方法停止编译，并使用 **静态断言** 提供报错信息。[better-orm]
-
-#### 代码膨胀
+### 代码膨胀
 
 由于模板会对所有不同模板实参都进行一次实例化，所以当参数的组合很多的时候，很可能会发生 **代码膨胀** _(code bloat)_，即产生体积巨大的代码。这些代码可以分为两种：**死代码**  _(dead code)_ 和 **有效代码** _(effective code)_。
 
@@ -399,11 +346,9 @@ class vector<T *> : private vector<void *> { ... }
 
 代码 [code||spec-vector] - 特化 `std::vector` 避免代码膨胀
 
-### 运行时
+### 调试模板
 
-元编程在运行时主要的难点在于：对模板代码的 **调试** _(debugging)_。
-
-假设我们需要调试的是一段通过很多次的 编译时测试（[sec|编译时测试]）和 编译时迭代（[sec|编译时迭代]）展开的代码，即这段代码是各个模板的拼接生成的（而且展开的层数很多）；那么，对这段生成的代码的调试会变得非常的复杂 —— 需要不断地在各个模板的 **实例** _(instance)_ 间来回切换。这种情景下，调试人员很难把问题定位到展开后的代码上。
+元编程在运行时主要的难点在于：对模板代码的 **调试** _(debugging)_。如果我们需要调试的是一段通过很多次的 **编译时测试**（[sec|编译时测试]）和 **编译时迭代**（[sec|编译时迭代]）展开的代码，即这段代码是各个模板的拼接生成的（而且展开的层数很多）；那么，调试时需要不断地在各个模板的 **实例** _(instance)_ 间来回切换。这种情景下，调试人员很难把具体的问题定位到展开后的代码上。
 
 ## 总结
 
@@ -433,5 +378,5 @@ This article is published under MIT License &copy; 2017, BOT Man
 and Applications_ [M] Addison-Wesley, 2000.
 - [naive-orm]: BOT Man JL. _How to Design a Naive C++ ORM_. https://bot-man-jl.github.io/articles/?post=2016/How-to-Design-a-Naive-Cpp-ORM
 - [better-orm]: BOT Man JL. _How to Design a Better C++ ORM_. https://bot-man-jl.github.io/articles/?post=2016/How-to-Design-a-Better-Cpp-ORM
-- [visual-studio]: Microsoft. Visual Studio. https://www.visualstudio.com
 - [cppref-concept]: cppreference.com. _Constraints and concepts_. http://en.cppreference.com/w/cpp/language/constraints
+- [fit-lib]: Paul Fultz II. _Goodbye metaprogramming, and hello functional: Living in a post-metaprogramming era in C++ (MODERN GENERIC PROGRAMMING)_ [C] // In _C++ Now_, 2016.

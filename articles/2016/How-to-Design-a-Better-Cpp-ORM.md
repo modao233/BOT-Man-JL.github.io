@@ -11,7 +11,7 @@
 关于这个设计的代码和样例 😊：
 https://github.com/BOT-Man-JL/ORM-Lite/tree/v1.1
 
-## [no-toc] TOC
+## [toc-heading] TOC
 
 [TOC]
 

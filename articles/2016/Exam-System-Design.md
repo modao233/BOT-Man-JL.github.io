@@ -4,7 +4,7 @@
 >
 > 本文及 [12306 技术分析](/articles/?post=2016/12306-Architecture) 为 2016-2017 网络存储结课论文。
 
-## [no-toc] TOC
+## [toc-heading] TOC
 
 [TOC]
 

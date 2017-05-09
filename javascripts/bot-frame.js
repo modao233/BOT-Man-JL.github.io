@@ -172,18 +172,12 @@ RenderSection = function (fileName, tags, callback) {
                 var anchorMap = new Map();
                 renderer.heading = function (text, level, raw) {
 
-                    var checkTag = function (tagName) {
-                        var hasTag = raw.indexOf('[' + tagName + ']') != -1;
-                        var regExpCheck = new regExp(
-                            '[\\s]*\\[' + EscapeRegExp(tagName) + '\\][\\s]*', 'g');
-                        text = text.replace(regExpCheck, '');
-                        raw = raw.replace(regExpCheck, '');
-                        return hasTag;
-                    };
+                    var noNumber = raw.indexOf('[no-number]') != -1;
+                    var noToc = raw.indexOf('[no-toc]') != -1;
+                    var tocHeading = raw.indexOf('[toc-heading]') != -1;
 
-                    var noNumber = checkTag('no-number');
-                    var noToc = checkTag('no-toc');
-                    var tocHeading = checkTag('toc-heading');
+                    text = text.replace(/[\s]*\[.+\][\s]*/g, '');
+                    raw = raw.replace(/[\s]*\[.+\][\s]*/g, '');
 
                     // Set anchor
                     var anchor = FixAnchorText(raw);

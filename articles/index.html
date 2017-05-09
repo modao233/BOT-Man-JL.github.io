@@ -55,10 +55,12 @@
 
                             // Styles
                             var stylesStr = GetSearchParam(location.search, "style");
-                            var isCover = false, isTocPageBreak = false, isWordMargin = false, isSlideMode = false;
+                            var isCover = false, isTocPageBreak = false, isNoToc = false,
+                                isWordMargin = false, isSlideMode = false;
                             ParseStyles(stylesStr, function (styleStr) {
                                 if (styleStr == "cover") isCover = true;
                                 else if (styleStr == "toc-page-break") isTocPageBreak = true;
+                                else if (styleStr == "no-toc") isNoToc = true;
                                 else if (styleStr == "word") isWordMargin = true;
                                 else if (styleStr == "slide") isSlideMode = true;
                             });
@@ -80,6 +82,8 @@
                                 styleElem.innerHTML += "@page { size: 210mm 297mm; }";
                             if (isTocPageBreak)
                                 styleElem.innerHTML += "@media print { .markdown-toc { page-break-after: always; } }";
+                            if (isNoToc)
+                                styleElem.innerHTML += "@media print { .markdown-toc { display: none; } .toc-heading { display: none; } }";
                             document.head.appendChild(styleElem);
 
                             // Render math

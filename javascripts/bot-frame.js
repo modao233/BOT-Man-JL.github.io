@@ -172,17 +172,18 @@ RenderSection = function (fileName, tags, callback) {
                 var anchorMap = new Map();
                 renderer.heading = function (text, level, raw) {
 
-                    // Support [no-number]
-                    var noNumber = raw.indexOf('[no-number]') != -1;
-                    var regExpNoNumber = /[\s]*\[no-number\][\s]*/g;
-                    text = text.replace(regExpNoNumber, '');
-                    raw = raw.replace(regExpNoNumber, '');
+                    var checkTag = function (tagName) {
+                        var hasTag = raw.indexOf('[' + tagName + ']') != -1;
+                        var regExpCheck = new regExp(
+                            '[\\s]*\\[' + EscapeRegExp(tagName) + '\\][\\s]*', 'g');
+                        text = text.replace(regExpCheck, '');
+                        raw = raw.replace(regExpCheck, '');
+                        return hasTag;
+                    };
 
-                    // Support [no-toc]
-                    var noToc = raw.indexOf('[no-toc]') != -1;
-                    var regExpNoToc = /[\s]*\[no-toc\][\s]*/g;
-                    text = text.replace(regExpNoToc, '');
-                    raw = raw.replace(regExpNoToc, '');
+                    var noNumber = checkTag('no-number');
+                    var noToc = checkTag('no-toc');
+                    var tocHeading = checkTag('toc-heading');
 
                     // Set anchor
                     var anchor = FixAnchorText(raw);
@@ -211,14 +212,16 @@ RenderSection = function (fileName, tags, callback) {
                     }
 
                     // Add to TOC
-                    if (!noToc)
+                    if (!noToc && !tocHeading)
                         toc.push({
                             text: text, level: level,
                             anchor: anchor, headingNumber: headingNumber
                         });
 
-                    return '<h' + level + ' id="' + anchor + '">' + headingNumber +
-                        text + '</h' + level + '>\n';
+                    return '<h' + level +
+                        (tocHeading ? ' class="toc-heading"' : '') +
+                        ' id="' + anchor + '">' + headingNumber + text +
+                        '</h' + level + '>\n';
                 };
 
                 var GetTOC = function (tocArray) {

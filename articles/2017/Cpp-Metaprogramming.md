@@ -14,7 +14,7 @@
 
 ## [no-number] [no-toc] 摘要
 
-随着 C++ 新标准的不断更新，“C++ 越来越像一门新的语言了” [cpp-pl]。元编程作为一种新兴的编程方式，受到了越来越多的广泛关注。本文结合已有文献和个人实践，对有关 C++ 元编程进行了系统的分析。本文首先介绍了 C++ 元编程中的相关概念和背景，然后利用科学的方法分析了元编程的 **演算规则**、**基本应用** 和实践过程中的 **主要难点**，最后提出了对 C++ 元编程发展的 **展望**。
+随着标准的不断更新，C++ 得到了极大的完善和补充。元编程作为一种新兴的编程方式，受到了越来越多的广泛关注。结合已有文献和个人实践，对有关 C++ 元编程进行了系统的分析。首先介绍了 C++ 元编程中的相关概念和背景，然后利用科学的方法分析了元编程的 **演算规则**、**基本应用** 和实践过程中的 **主要难点**，最后提出了对 C++ 元编程发展的 **展望**。
 
 [align-center]
 
@@ -320,7 +320,7 @@ static_assert (std::is_same<
 
 另一种情况下，展开的代码都是 **有效代码**，即都是被执行的，但是又由于需要的参数的类型繁多，最后的代码体积仍然很大。编译器很难优化这些代码，所以程序员应该在 **设计时编码代码膨胀**。Bjarne Stroustrup 提出了一种消除 **冗余运算** _(redundant calculation)_ 的方法，用于缩小模板实例体积。具体思路是，将不同参数实例化得到的模板的 **相同部分** 抽象为一个 **基类** _(base class)_，然后 “继承” 并 “重载” 每种参数情况的 **不同部分**，从而实现更多代码的共享。
 
-例如，在 `std::vector` 的实现中，对 `T *` 和 `void *` 进行了特化（代码 [code|spec-vector]）；然后将所有的 `T *` 的实现 **继承** 到 `void *` 的实现上，并在公开的函数里通过强制类型转换，进行 `void *` 和 `T *` 的相互转换；最后这使得所有的指针的 `std::vector` 就可以共享同一份实现，从而避免了代码膨胀。[cpp-pl]
+例如，在 `std::vector` 的实现中，对 `T *` 和 `void *` 进行了特化；然后将所有的 `T *` 的实现 **继承** 到 `void *` 的实现上，并在公开的函数里通过强制类型转换，进行 `void *` 和 `T *` 的相互转换；最后这使得所有的指针的 `std::vector` 就可以共享同一份实现，从而避免了代码膨胀。（代码 [code|spec-vector]）[cpp-pl]
 
 [code|&spec-vector]
 
@@ -330,7 +330,15 @@ template <typename T> class vector<T *>;  // partial spec
 template <> class vector<void *>;  // complete spec
 
 template <typename T>
-class vector<T *> : private vector<void *> { ... }
+class vector<T *> : private vector<void *>
+{
+    using Base = Vector<void∗>;
+public:
+    T∗& operator[] (int i) {
+        return reinterpret_cast<T∗&>(Base::operator[] (i));
+    }
+    ...
+}
 ```
 
 [align-center]
@@ -354,20 +362,20 @@ This article is published under MIT License &copy; 2017, BOT Man
 - [cpp-pl]: Bjarne Stroustrup. _The C++ Programming Language (Fourth Edition)_ [M] Addison-Wesley, 2013.
 - [generic-programming]: David R. Musser, Alexander A. Stepanov. _Generic Programming_ [C] // P. Gianni. In _Symbolic and Algebraic Computation: International symposium ISSAC_, 1988: 13–25.
 - [cpp-evo]: Bjarne Stroustrup: _The Design and Evolution of C++_ [M] Addison-Wesley, 1994.
-- [calc-prime]: Erwin Unruh. _Primzahlen Original_. http://www.erwin-unruh.de/primorig.html
-- [using-cpp-tmp]: Todd Veldhuizen. _Using C++ template metaprograms_ [C] // In _C++ Report_, 1995, 7(4): 36-43.
+- [calc-prime]: Erwin Unruh. _Primzahlen Original_ [EB/OL] http://www.erwin-unruh.de/primorig.html
+- [using-cpp-tmp]: Todd Veldhuizen. _Using C++ template metaprograms_ [C] // S. B. Lippman. In _C++ Report_, 1995, 7(4): 36-43.
 - [modern-cpp-design]: Andrei Alexandrescu. _Modern C++ Design_ [M] Addison-Wesley, 2001.
-- [d-lang]: D Language Foundation. _Home - D Programming Language_. https://dlang.org/
-- [cppref-constexpr]: cppreference.com. _constexpr specifier_. http://en.cppreference.com/w/cpp/language/constexpr
-- [cppref-template]: cppreference.com. _Templates_. http://en.cppreference.com/w/cpp/language/templates
-- [cppref-template-param]: cppreference.com. _Template parameters and template arguments_. http://en.cppreference.com/w/cpp/language/template_parameters
-- [template-turing-complete]: Todd L. Veldhuizen. _C++ Templates are Turing Complete_ [R] Indiana University Computer Science Technical Report. 2003.
-- [cppref-SFINAE]: cppreference.com. _SFINAE_. http://en.cppreference.com/w/cpp/language/sfinae
-- [cppref-constexpr-if]: cppreference.com. _if statement_. http://en.cppreference.com/w/cpp/language/if
-- [expr-template]: Todd Veldhuizen. _Expression Templates_ [C] // In _C++ Report_, 1995, 7(5): 26–31.
+- [d-lang]: D Language Foundation. _Home - D Programming Language_ [EB/OL] https://dlang.org/
+- [cppref-constexpr]: cppreference.com. _constexpr specifier_ [EB/OL] http://en.cppreference.com/w/cpp/language/constexpr
+- [cppref-template]: cppreference.com. _Templates_ [EB/OL] http://en.cppreference.com/w/cpp/language/templates
+- [cppref-template-param]: cppreference.com. _Template parameters and template arguments_ [EB/OL] http://en.cppreference.com/w/cpp/language/template_parameters
+- [template-turing-complete]: Todd L. Veldhuizen. _C++ Templates are Turing Complete_ [J] Indiana University Computer Science Technical Report. 2003.
+- [cppref-SFINAE]: cppreference.com. _SFINAE_ [EB/OL] http://en.cppreference.com/w/cpp/language/sfinae
+- [cppref-constexpr-if]: cppreference.com. _if statement_ [EB/OL] http://en.cppreference.com/w/cpp/language/if
+- [expr-template]: Todd Veldhuizen. _Expression Templates_ [C] // S. B. Lippman. In _C++ Report_, 1995, 7(5): 26–31.
 - [gererative-programming]: K. Czarnecki, U. Eisenecker. _Generative Programming: Methods, Tools,
 and Applications_ [M] Addison-Wesley, 2000.
-- [naive-orm]: BOT Man JL. _How to Design a Naive C++ ORM_. https://bot-man-jl.github.io/articles/?post=2016/How-to-Design-a-Naive-Cpp-ORM
-- [better-orm]: BOT Man JL. _How to Design a Better C++ ORM_. https://bot-man-jl.github.io/articles/?post=2016/How-to-Design-a-Better-Cpp-ORM
-- [cppref-concept]: cppreference.com. _Constraints and concepts_. http://en.cppreference.com/w/cpp/language/constraints
-- [fit-lib]: Paul Fultz II. _Goodbye metaprogramming, and hello functional: Living in a post-metaprogramming era in C++ (MODERN GENERIC PROGRAMMING)_ [C] // In _C++ Now_, 2016.
+- [naive-orm]: BOT Man JL. _How to Design a Naive C++ ORM_ [EB/OL] https://bot-man-jl.github.io/articles/?post=2016/How-to-Design-a-Naive-Cpp-ORM
+- [better-orm]: BOT Man JL. _How to Design a Better C++ ORM_ [EB/OL] https://bot-man-jl.github.io/articles/?post=2016/How-to-Design-a-Better-Cpp-ORM
+- [cppref-concept]: cppreference.com. _Constraints and concepts_ [EB/OL] http://en.cppreference.com/w/cpp/language/constraints
+- [fit-lib]: Paul Fultz II. _Goodbye metaprogramming, and hello functional: Living in a post-metaprogramming era in C++_ [EB/OL] https://github.com/boostcon/cppnow_presentations_2016/raw/master/03_friday/goodbye_metaprogramming_and_hello_functional_living_in_a_post_metaprogramming_era_in_cpp.pdf

@@ -20,6 +20,7 @@
 - Data Structure Visualization http://cs.usfca.edu/~galles/visualization/Algorithms.html
 - 台灣之胱泌尿科診所-老培 http://blog.sina.com.cn/u/3899626091
 - Day To Night - Fine Art http://www.stephenwilkes.com/fine-art/day-to-night
+- Windows Subsystem of Linux Blog https://blogs.msdn.microsoft.com/wsl/
 - Windows 10 update history http://windows.microsoft.com/en-us/windows-10/update-history-windows-10
 - Dona Sarkar Blog https://blogs.windows.com/windowsexperience/author/dona-sarkar/
 - Surface 3 update history https://www.microsoft.com/surface/en-us/support/install-update-activate/surface-3-update-history?os=windows-10

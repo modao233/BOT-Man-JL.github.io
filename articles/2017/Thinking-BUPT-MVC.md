@@ -1,8 +1,8 @@
 ﻿# 关于北邮教材 MVC 的思考
 
-> 2017/6/2
+> 2017/6/3
 >
-> 郭芙在风陵渡口说过：你是大侠，我也是大侠，大侠也未免太多了吧。
+> 郭芙在风陵渡口说过：“你是大侠，我也是大侠，大侠也未免太多了吧。”
 
 [heading-numbering]
 
@@ -53,8 +53,6 @@ MVC 架构模式的基本处理流程为：
 ## 为什么要思考 MVC
 
 因为这个学期开了一门 **软件工程** 的课，教材里的 MVC（因为是北邮教材里出现的，故简记为 **B-MVC**）和传统的 MVC 不大一样。图 [graph|b-mvc-architecture] 展示了 B-MVC 的架构，图 [graph|b-mvc-example] 展示了 B-MVC 的一个示例。
-
-> 当然，软件工程里并没有绝对的好坏，所以这里不评判这两类 MVC 之间的优劣，只是对这两类设计的可复用性和可扩展性进行简单的分析。
 
 [graph|&b-mvc-architecture]
 
@@ -182,11 +180,33 @@ B-MVC 架构图除了定义 MVC 之外，还定义了 用户界面层-控制器�
 
 ## 更好的设计
 
-为了解决 B-MVC 存在的诸多问题，参考了 C# 的 WPF 技术，设计了一种基于 View Manager（视图管理器）的 MVC 架构模式。核心思想是：
+B-MVC 的问题核心在于 **view 过厚，而 controller 过薄**。而 MVC 通过引入 controller 解决了这个问题 —— 将系统事件响应逻辑写在 controller 上，让 view 专注于界面的显示。基于 MVC，界面设计者可以很方便的设计用户界面，而不需要关心如何处理其背后的业务逻辑。
 
-- 引入 View Manager，避免 controller 直接依赖于 view
+### 一般的 MVC
+
+针对于 [sec|界面循环依赖] 描述的问题，我们可以把 controller 作为主动层，view 作为被动层，避免 view 之间的直接依赖。（图 [graph|no-view-manager]）核心思想是：
+
 - 为 view 上的系统事件定义回调函数，用户输入时，调用回调函数
 - 通过依赖注入，将 controller 的系统事件响应函数绑定到具体的 view 上
+
+[graph|&no-view-manager]
+
+[align-center]
+
+[img=max-width:80%]
+
+![No View Manager](Thinking-BUPT-MVC/no-view-manager.svg)
+
+[align-center]
+
+图 [graph||no-view-manager] - MVC
+
+### 基于视图管理器的 MVC
+
+[sec|一般的 MVC] 提出的方法，尽管解决了 B-MVC 带来的问题，但导致了 controller 对 view 的直接依赖。所以，这里设计了一种基于 View Manager（视图管理器）的 MVC 架构模式。核心思想是：
+
+- 对 view 的依赖注入在 View Manager 中完成
+- controller 不需要关心 View Manager 的具体实现，只依赖于其接口
 
 [graph|&view-manager]
 
@@ -224,9 +244,15 @@ B-MVC 架构图除了定义 MVC 之外，还定义了 用户界面层-控制器�
 
 图 [graph||view-manager-complicated] - 基于视图管理器的 MVC 的可扩展性
 
-## 总结
+## 写在最后
 
+> 郭芙在风陵渡口说过：“你是大侠，我也是大侠，大侠也未免太多了吧。”
 
+软件架构模式并没有绝对的好坏，所以这里不评判这 MVC 和 B-MVC 之间的优劣，只是对这两类设计的 可复用性 和 可扩展性 进行简单的分析。
+
+对本文有什么问题，**欢迎斧正**。😉
+
+This article is published under MIT License &copy; 2017, BOT Man
 
 ## 参考文献 [no-number]
 

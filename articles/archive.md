@@ -4,24 +4,25 @@
 
 #### 2017
 
+- [关于 北邮教材 MVC 的思考](2017/Thinking-BUPT-MVC)
 - [浅谈 C++ 元编程](2017/Cpp-Metaprogramming)
-- [聚类算法研究](2017/Graph-Clustering-Study)
-- [Virtual Network Embedding Algorithm Study](2017/Virtual-Network-Embedding-Study)
-- [关于可扩展性的思考](2017/Thinking-Scalability)
+- [图聚类 算法研究](2017/Graph-Clustering-Study)
+- [虚拟网络映射 算法研究](2017/Virtual-Network-Embedding-Study)
+- [关于 可扩展性 的思考](2017/Thinking-Scalability)
 
 #### 2016
 
 - [全国性在线考试系统设计](2016/Exam-System-Design)
 - [12306 技术分析](2016/12306-Architecture)
-- [如何设计一个 更好 的 C++ ORM](2016/How-to-Design-a-Better-Cpp-ORM)
-- [如何设计一个 简单 的 C++ ORM](2016/How-to-Design-a-Naive-Cpp-ORM)
+- [如何设计一个 更好的 C++ ORM](2016/How-to-Design-a-Better-Cpp-ORM)
+- [如何设计一个 简单的 C++ ORM](2016/How-to-Design-a-Naive-Cpp-ORM)
 
 ## 生活 / Life
 
 #### 2017
 
 - [如何使用英文搜索](2017/How-to-Search-English)
-- [我们学习，都在学什么](2017/Thinking-College)
+- [~~我们学习，都在学什么~~](2017/Thinking-College)
 
 #### 2016
 

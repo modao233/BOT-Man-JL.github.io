@@ -4,7 +4,6 @@
 
 #### 2017
 
-- [关于 北邮教材 MVC 的思考](2017/Thinking-BUPT-MVC)
 - [浅谈 C++ 元编程](2017/Cpp-Metaprogramming)
 - [图聚类 算法研究](2017/Graph-Clustering-Study)
 - [虚拟网络映射 算法研究](2017/Virtual-Network-Embedding-Study)

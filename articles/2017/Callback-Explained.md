@@ -24,7 +24,7 @@
 
 图片来源：[Dobiasd @ Github](https://github.com/Dobiasd/articles/blob/master/programming_language_learning_curves/javascript.png)
 
-> 推荐的阅读顺序：[sec|什么是回调函数] 概念 -> [sec|生活中的回调函数] 举例 -> [sec|什么是回调函数] 概念
+> 推荐的阅读顺序：[sec|什么是回调函数] 概念 -> [sec|生活中的回调函数] 举例 -> [sec|什么是回调函数] 概念 -> [sec|编程中的回调函数] 代码
 
 ## 什么是回调函数
 
@@ -157,7 +157,7 @@ signal (SIGINT, block_interrupt);
 - 同步方式 通过 **参数传递** 的方法（例如 `qsort`）传递回调函数；调用者可以 直接使用传入的参数，进而完成回调
 - 异步方式 通过 **注册** 的方式（例如 `signal`）告知调用者，并 **存储回调函数**；调用者在调用时刻 `T` 取出回调函数，从而完成回调
 
-## 写在最后
+## [no-number] 写在最后
 
 本文仅是我对回调函数的一些理解。如果有什么问题，望**不吝赐教**。😄
 

@@ -260,6 +260,11 @@ nav a:active {
     }
 }
 
+.cite-sec + ul {
+    list-style: none;
+    padding-left: 0;
+}
+
 /* Comment Settings */
 
 .comment-avatar {

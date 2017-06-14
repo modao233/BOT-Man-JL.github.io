@@ -285,8 +285,9 @@ RenderSection = function (fileName, tags, callback) {
                         for (var j = 0; j < countRefs; j++) {
                             derefHTML += getCiteDerefHTML(citeContent, j + 1) + " ";
                         }
-                        var indexOfNote = content.indexOf(getCiteNoteHTML(citeContent, citeIndex));
-                        content = content.substr(0, indexOfNote) + derefHTML + content.substr(indexOfNote);
+                        var noteStr = getCiteNoteHTML(citeContent, citeIndex);
+                        var indexToInsert = content.indexOf(noteStr) + noteStr.length;
+                        content = content.substr(0, indexToInsert) + derefHTML + content.substr(indexToInsert);
                     }
 
                     // Render reference
@@ -394,7 +395,9 @@ RenderSection = function (fileName, tags, callback) {
                     // Render predefined style tags
                     var predefinedTags = [
                         "page-break", "float-left", "float-right",
-                        "align-left", "align-right", "align-center"];
+                        "align-left", "align-right", "align-center",
+                        "cite-sec"
+                    ];
                     var condStr = predefinedTags[0];
                     for (var i = 1; i < predefinedTags.length; i++)
                         condStr += "|" + EscapeRegExp(predefinedTags[i]);

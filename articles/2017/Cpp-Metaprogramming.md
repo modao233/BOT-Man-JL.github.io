@@ -320,7 +320,7 @@ static_assert (std::is_same<
 
 另一种情况下，展开的代码都是 **有效代码**，即都是被执行的，但是又由于需要的参数的类型繁多，最后的代码体积仍然很大。编译器很难优化这些代码，所以程序员应该在 **设计时编码代码膨胀**。Bjarne Stroustrup 提出了一种消除 **冗余运算** _(redundant calculation)_ 的方法，用于缩小模板实例体积。具体思路是，将不同参数实例化得到的模板的 **相同部分** 抽象为一个 **基类** _(base class)_，然后 “继承” 并 “重载” 每种参数情况的 **不同部分**，从而实现更多代码的共享。
 
-例如，在 `std::vector` 的实现中，对 `T *` 和 `void *` 进行了特化；然后将所有的 `T *` 的实现 **继承** 到 `void *` 的实现上，并在公开的函数里通过强制类型转换，进行 `void *` 和 `T *` 的相互转换；最后这使得所有的指针的 `std::vector` 就可以共享同一份实现，从而避免了代码膨胀。（代码 [code|spec-vector]）[cpp-pl]
+例如，在 `std::vector` 的实现中，对 `T *` 和 `void *` 进行了特化；然后将所有的 `T *` 的实现 **继承** 到 `void *` 的实现上，并在公开的函数里通过强制类型转换，进行 `void *` 和 `T *` 的相互转换；最后这使得所有的指针的 `std::vector` 就可以共享同一份实现，从而避免了代码膨胀。（代码 [code|spec-vector]）
 
 [code|&spec-vector]
 
@@ -343,7 +343,7 @@ public:
 
 [align-center]
 
-代码 [code||spec-vector] - 特化 `std::vector` 避免代码膨胀
+代码 [code||spec-vector] - 特化 `std::vector` 避免代码膨胀 [cpp-pl]
 
 ### 调试模板
 
@@ -358,6 +358,8 @@ C++ 元编程的出现，是一个无心插柳的偶然 —— 人们发现 C++ 
 This article is published under MIT License &copy; 2017, BOT Man
 
 ## [no-number] 参考文献
+
+[cite-sec]
 
 - [cpp-pl]: Bjarne Stroustrup. _The C++ Programming Language (Fourth Edition)_ [M] Addison-Wesley, 2013.
 - [generic-programming]: David R. Musser, Alexander A. Stepanov. _Generic Programming_ [C] // P. Gianni. In _Symbolic and Algebraic Computation: International symposium ISSAC_, 1988: 13–25.

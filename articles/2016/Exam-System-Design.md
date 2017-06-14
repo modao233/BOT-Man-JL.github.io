@@ -275,6 +275,8 @@
 
 ## 5. 参考文献
 
+[cite-sec]
+
 - [website-architecture]: 李智慧. 大型网站技术架构 核心原理与案例分析. 电子工业出版社，2013，ISBN 9787121212000.
 - [12306-architecture]: 朱建生，王明哲，杨立鹏，阎志远，张志强. 12306 互联网售票系统的架构优化及演进. 铁路计算机应用，2015，24（11）：1-4.
 - [vmware-vsphere]: VMware. vSphere and vSphere with Operations Management. https://www.vmware.com/products/vsphere.html

@@ -165,21 +165,23 @@ nav a:active {
     text-shadow: 0 0 5px orange;
 }
 
+/* Loading Prompt Settings */
+
+.promptSec {
+    padding-bottom: 20px;
+}
+
 /* Home Page Settings */
 
 .homeSec {
     text-align: center;
 }
 
-    .homeSec a {
-        font-size: 72px;
+    .homeSec a:hover,
+    .homeSec a:active {
+        text-shadow: 0 0 15px orange;
+        text-decoration: none;
     }
-
-        .homeSec a:hover,
-        .homeSec a:active {
-            text-shadow: 0 0 15px orange;
-            text-decoration: none;
-        }
 
 /* Articles Page Settings */
 

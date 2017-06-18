@@ -31,16 +31,12 @@ BOT Man JL, 2017
 
 <homeSec>
 
-## Welcome to My Home Page 🏠
+## Welcome to my Home Page 🏠
 
-[📝](/articles/)
+# [📝 ~/articles](/articles/)
 
-👆 **~/articles**
+# [😊 ~/about](/about/)
 
-[😊](/about/)
-
-👆 **~/about**
-
-## Happy Coding ~
+### Happy Coding ~
 
 </homeSec>

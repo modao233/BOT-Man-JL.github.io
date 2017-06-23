@@ -125,6 +125,302 @@ RenderSection = function (fileName, tags, callback) {
             .replace(/^-+/g, '').replace(/-+$/g, '');
     };
 
+    var RenderFlavoredMarkdown = function (mdText) {
+
+        // Patch for Heading Numbering
+        var headingIndice = null;
+        {
+            var headingNumberingRegExp = /(\r)?\n\[heading\-numbering\](\r)?\n(\r)?\n/g;
+            if (mdText.search(headingNumberingRegExp) != -1)
+                headingIndice = [0, 0, 0, 0, 0, 0];
+            mdText = mdText.replace(headingNumberingRegExp, '\n');
+        }
+
+        // Patch for [TOC]
+        var GetTOC = function (tocArray) {
+            var tocHTML = "";
+
+            var minLevel = 1024;
+            for (var i = 1; i < tocArray.length; i++)
+                minLevel = Math.min(minLevel, tocArray[i].level);
+
+            for (var i = 1; i < tocArray.length; i++) {
+                var item = tocArray[i];
+                tocHTML += "<p style='padding-left:" +
+                    (item.level - minLevel) * 1.5 + "em'><a href='#" +
+                    item.anchor + "'>" + item.headingNumber +
+                    item.text + "</a></p>";
+            }
+            return tocHTML;
+        };
+
+        // Ref: https://github.com/chjj/marked/issues/545
+        var toc = [];
+        var renderer = new marked.Renderer();
+        var anchorMap = new Map();
+        renderer.heading = function (text, level, raw) {
+
+            var noNumber = raw.indexOf('[no-number]') != -1;
+            var noToc = raw.indexOf('[no-toc]') != -1;
+            var tocHeading = raw.indexOf('[toc-heading]') != -1;
+
+            text = text.replace(/[\s]*\[.+\][\s]*/g, '');
+            raw = raw.replace(/[\s]*\[.+\][\s]*/g, '');
+
+            // Set anchor
+            var anchor = FixAnchorText(raw);
+            var count = anchorMap.get(anchor);
+            count = (count == null ? 0 : count) + 1;
+            anchorMap.set(anchor, count);
+            if (count > 1) anchor += "_" + count;
+
+            // Add heading numbers
+            var headingNumber = "";
+            if (headingIndice != null && !noNumber) {
+                var index = level - 1;
+                if (index < headingIndice.length && index != 0) {
+
+                    // Generate number text
+                    ++headingIndice[index];
+                    headingNumber += headingIndice[1];
+                    for (var i = 2; i <= index; i++)
+                        headingNumber += "." + headingIndice[i];
+
+                    // Clear lower indice
+                    for (var i = index + 1; i < headingIndice.length; i++)
+                        headingIndice[i] = 0;
+                }
+                headingNumber += " ";
+            }
+
+            // Add to TOC
+            if (!noToc && !tocHeading)
+                toc.push({
+                    text: text, level: level,
+                    anchor: anchor, headingNumber: headingNumber
+                });
+
+            return '<h' + level +
+                (tocHeading ? ' class="toc-heading"' : '') +
+                ' id="' + anchor + '">' + headingNumber + text +
+                '</h' + level + '>\n';
+        };
+
+        // Patch for Math Support
+        // Ref: https://github.com/ViktorQvarfordt/marked
+        marked.setOptions({
+            renderer: renderer,
+            mathDelimiters: [
+                ['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend'
+            ]
+        });
+        var mdHtml = marked(mdText);
+
+        // Render citation
+        {
+            var getCiteNoteHTML = function (citeContent, noteIndex) {
+                return '<span class="cite-note" id="cite-note-' + citeContent +
+                    '">[' + noteIndex + ']</a></span>';
+            };
+            var getCiteRefHTML = function (citeContent, noteIndex, refIndex) {
+                return '<span class="cite-ref" id="cite-ref-' + citeContent + '-' + refIndex +
+                    '"><a href="#cite-note-' + citeContent + '">[' + noteIndex + ']</a></span>';
+            };
+            var getCiteDerefHTML = function (citeContent, refIndex) {
+                return '<span class="cite-deref"><a href="#cite-ref-' +
+                    citeContent + '-' + refIndex + '">^</a></span>';
+            };
+
+            var cites = mdHtml.match(/\[.*\]:/g);
+            var countCites = 0;
+            mdHtml = mdHtml.replace(/\[.*\]:/g, function (refText) {
+                ++countCites;
+                var citeContent = FixAnchorText(refText.substr(1, refText.length - 3));
+                return getCiteNoteHTML(citeContent, countCites);
+            });
+
+            if (cites == null) cites = [];
+            for (var i = 0; i < cites.length; i++) {
+                cites[i] = cites[i].substr(0, cites[i].length - 1);
+                var citeIndex = i + 1;
+                var citeContent = FixAnchorText(cites[i].substr(1, cites[i].length - 2));
+
+                var countRefs = 0;
+                mdHtml = mdHtml.replace(new RegExp(EscapeRegExp(cites[i]), 'g'), function (refText) {
+                    ++countRefs;
+                    return getCiteRefHTML(citeContent, citeIndex, countRefs);
+                });
+
+                var derefHTML = " ";
+                for (var j = 0; j < countRefs; j++) {
+                    derefHTML += getCiteDerefHTML(citeContent, j + 1) + " ";
+                }
+                var noteStr = getCiteNoteHTML(citeContent, citeIndex);
+                var indexToInsert = mdHtml.indexOf(noteStr) + noteStr.length;
+                mdHtml = mdHtml.substr(0, indexToInsert) + derefHTML + mdHtml.substr(indexToInsert);
+            }
+        }
+
+        // Render reference
+        {
+            var refMap = new Map();
+
+            // Ref target
+            mdHtml = mdHtml.replace(/<p>\[[^\].]+\|\&[^\].]+\]<\/p>/g, function (refText) {
+                var len1 = "<p>[".length;
+                var len2 = "]</p>".length + len1;
+                refText = refText.substr(len1, refText.length - len2);
+                var fragments = refText.split('|&amp;');
+                return "<div class='ref-target' id='ref-" +
+                    FixAnchorText(fragments.join('-')) + "'></div>";
+            });
+
+            // Ref base
+            var countRefs = new Map();
+            mdHtml = mdHtml.replace(/\[[^\].]+\|\|[^\].]+\]/g, function (refText) {
+                refText = refText.substr(1, refText.length - 2);
+                var fragments = refText.split('||');
+
+                var count = countRefs.get(fragments[0]);
+                count = (count == null ? 0 : count) + 1;
+                countRefs.set(fragments[0], count);
+                refMap.set(FixAnchorText(fragments.join('-')), count);
+
+                return "<span class='ref-base'>" + count + "</span>";
+            });
+
+            // Ref item
+            mdHtml = mdHtml.replace(/\[[^\].]+\|[^\].]+\]/g, function (refText) {
+                var refTextNew = refText.substr(1, refText.length - 2);
+                var fragments = refTextNew.split('|');
+
+                var refAnchor = "";
+                if (fragments[0] == "sec") {
+                    var tocIndex = 0;
+                    for (; tocIndex < toc.length; tocIndex++)
+                        if (toc[tocIndex].text == fragments[1]) {
+                            refAnchor = toc[tocIndex].anchor;
+                            refText = "&sect; " + toc[tocIndex].headingNumber;
+                            break;
+                        }
+                    if (tocIndex == toc.length) {
+                        alert("Invalid refText: " + refText);
+                        return refText;
+                    }
+                }
+                else {
+                    refAnchor = FixAnchorText(fragments.join('-'));
+                    var count = refMap.get(refAnchor);
+                    if (count == null) {
+                        alert("Invalid refText: " + refText);
+                        return refText;
+                    }
+
+                    refAnchor = "ref-" + refAnchor;
+                    refText = count;
+                }
+                return "<span class='ref-item'><a href='#" +
+                    refAnchor + "'>" + refText + "</a></span>";
+            });
+        }
+
+        // Render style setters
+        {
+            mdHtml = mdHtml.replace(/<p>(\[[^\].]+=[^\].]+\])<\/p>/g, '$1');
+            var styleSetters = mdHtml.match(/\[[^\].]+=[^\].]+\]/g);  // avoid ']' inside pairs
+            if (styleSetters == null) styleSetters = [];
+            for (var j = 0; j < styleSetters.length; j++) {
+                var styleSetter = styleSetters[j];
+                var tagPrefix = "<" + styleSetter.substr(1,
+                    styleSetter.indexOf('=') - 1);
+                var tagStyle = styleSetter.substr(1 + tagPrefix.length,
+                    styleSetter.length - 2 - tagPrefix.length);
+
+                var firstTagIndex = mdHtml.indexOf(styleSetter) + styleSetter.length;
+
+                // Avoid prefix matches
+                while (true) {
+                    firstTagIndex = mdHtml.indexOf(tagPrefix, firstTagIndex);
+                    if (firstTagIndex == -1) break;
+                    if (mdHtml[firstTagIndex + tagPrefix.length] == " " ||
+                        mdHtml[firstTagIndex + tagPrefix.length] == ">") {
+                        break;
+                    }
+                    else {
+                        firstTagIndex += tagPrefix.length;
+                    }
+                    console.log(mdHtml.substr(firstTagIndex));
+                }
+
+                if (firstTagIndex == -1) continue;
+                mdHtml = mdHtml.substr(0, firstTagIndex + tagPrefix.length)
+                    .replace(styleSetter, '') +
+                    " style='" + tagStyle + "'" +
+                    mdHtml.substr(firstTagIndex + tagPrefix.length);
+            }
+        }
+
+        // Render [TOC]
+        {
+            if (toc.length > 0) {
+                var tocHTML = "<div class='markdown-toc'>" +
+                    GetTOC(toc) + "</div>";
+                mdHtml = mdHtml.replace(/<p>\[TOC\]<\/p>/g, tocHTML);
+            }
+        }
+
+        // Render predefined style tags
+        {
+            var predefinedTags = [
+                "page-break", "float-left", "float-right",
+                "align-left", "align-right", "align-center",
+                "cite-sec"
+            ];
+            var condStr = predefinedTags[0];
+            for (var i = 1; i < predefinedTags.length; i++)
+                condStr += "|" + EscapeRegExp(predefinedTags[i]);
+            var regExp = new RegExp("<p>\\[(" + condStr + ")\\]<\\/p>", "g");
+            mdHtml = mdHtml.replace(regExp, "<div class='$1'></div>");
+        }
+
+        // Render slides
+        {
+            var targetStrs = [
+                "<hr><div class='slide'>",
+                "</div><hr><div class='slide'>",
+                "</div><hr>"
+            ];
+            var newContent = "";
+            var curIndex = mdHtml.indexOf("<hr>"), preIndex = 0;
+            var step = "<hr>".length;
+            while (true) {
+                if (curIndex != -1)
+                    newContent += mdHtml.substr(preIndex, curIndex - preIndex);
+                var nxtIndex = mdHtml.indexOf("<hr>", curIndex + step);
+                if (nxtIndex != -1) {
+                    if (preIndex == 0)
+                        newContent += targetStrs[0];
+                    else
+                        newContent += targetStrs[1];
+                }
+                else {
+                    if (preIndex == 0)
+                        newContent += "<hr>";
+                    else
+                        newContent += targetStrs[2];
+                    newContent += mdHtml.substr(curIndex + step);
+                    break;
+                }
+                preIndex = curIndex + step;
+                curIndex = nxtIndex;
+            }
+            if (curIndex != -1)
+                mdHtml = newContent;
+        }
+
+        return mdHtml;
+    };
+
     Ajax("GET", encodeURI(fileName), null,
         function (mdSource) {
             if (mdSource == null) {
@@ -154,288 +450,10 @@ RenderSection = function (fileName, tags, callback) {
                 if (tag.fixStyle != null)
                     fixStyle = tag.fixStyle;
 
-                var secText = isSingleFile ? mdSource : GetSection(mdSource, tagName);
-
-                // Patch for Heading Numbering
-                var headingIndice = null;
-                if (isMd && isSingleFile) {
-                    var headingNumberingRegExp = /(\r)?\n\[heading\-numbering\](\r)?\n(\r)?\n/g;
-                    if (secText.search(headingNumberingRegExp) != -1)
-                        headingIndice = [0, 0, 0, 0, 0, 0];
-                    secText = secText.replace(headingNumberingRegExp, '\n');
-                }
-
-                // Patch for [TOC]
-                // Ref: https://github.com/chjj/marked/issues/545
-                var toc = [];
-                var renderer = new marked.Renderer();
-                var anchorMap = new Map();
-                renderer.heading = function (text, level, raw) {
-
-                    var noNumber = raw.indexOf('[no-number]') != -1;
-                    var noToc = raw.indexOf('[no-toc]') != -1;
-                    var tocHeading = raw.indexOf('[toc-heading]') != -1;
-
-                    text = text.replace(/[\s]*\[.+\][\s]*/g, '');
-                    raw = raw.replace(/[\s]*\[.+\][\s]*/g, '');
-
-                    // Set anchor
-                    var anchor = FixAnchorText(raw);
-                    var count = anchorMap.get(anchor);
-                    count = (count == null ? 0 : count) + 1;
-                    anchorMap.set(anchor, count);
-                    if (count > 1) anchor += "_" + count;
-
-                    // Add heading numbers
-                    var headingNumber = "";
-                    if (headingIndice != null && !noNumber) {
-                        var index = level - 1;
-                        if (index < headingIndice.length && index != 0) {
-
-                            // Generate number text
-                            ++headingIndice[index];
-                            headingNumber += headingIndice[1];
-                            for (var i = 2; i <= index; i++)
-                                headingNumber += "." + headingIndice[i];
-
-                            // Clear lower indice
-                            for (var i = index + 1; i < headingIndice.length; i++)
-                                headingIndice[i] = 0;
-                        }
-                        headingNumber += " ";
-                    }
-
-                    // Add to TOC
-                    if (!noToc && !tocHeading)
-                        toc.push({
-                            text: text, level: level,
-                            anchor: anchor, headingNumber: headingNumber
-                        });
-
-                    return '<h' + level +
-                        (tocHeading ? ' class="toc-heading"' : '') +
-                        ' id="' + anchor + '">' + headingNumber + text +
-                        '</h' + level + '>\n';
-                };
-
-                var GetTOC = function (tocArray) {
-                    var tocHTML = "";
-
-                    var minLevel = 1024;
-                    for (var i = 1; i < tocArray.length; i++)
-                        minLevel = Math.min(minLevel, tocArray[i].level);
-
-                    for (var i = 1; i < tocArray.length; i++) {
-                        var item = tocArray[i];
-                        tocHTML += "<p style='padding-left:" +
-                            (item.level - minLevel) * 1.5 + "em'><a href='#" +
-                            item.anchor + "'>" + item.headingNumber +
-                            item.text + "</a></p>";
-                    }
-                    return tocHTML;
-                };
-
-                // Patch for Math Support
-                marked.setOptions({
-                    renderer: renderer,
-                    mathDelimiters: [
-                        ['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend'
-                    ]
-                });
-
-                var content = isMd ? marked(secText) : secText;
-
-                if (isMd && isSingleFile) {
-
-                    // Render citation
-                    var getCiteNoteHTML = function (citeContent, noteIndex) {
-                        return '<span class="cite-note" id="cite-note-' + citeContent +
-                            '">[' + noteIndex + ']</a></span>';
-                    };
-                    var getCiteRefHTML = function (citeContent, noteIndex, refIndex) {
-                        return '<span class="cite-ref" id="cite-ref-' + citeContent + '-' + refIndex +
-                            '"><a href="#cite-note-' + citeContent + '">[' + noteIndex + ']</a></span>';
-                    };
-                    var getCiteDerefHTML = function (citeContent, refIndex) {
-                        return '<span class="cite-deref"><a href="#cite-ref-' +
-                            citeContent + '-' + refIndex + '">^</a></span>';
-                    };
-
-                    var cites = content.match(/\[.*\]:/g);
-                    var countCites = 0;
-                    content = content.replace(/\[.*\]:/g, function (refText) {
-                        ++countCites;
-                        var citeContent = FixAnchorText (refText.substr(1, refText.length - 3));
-                        return getCiteNoteHTML(citeContent, countCites);
-                    });
-
-                    if (cites == null) cites = [];
-                    for (var i = 0; i < cites.length; i++) {
-                        cites[i] = cites[i].substr(0, cites[i].length - 1);
-                        var citeIndex = i + 1;
-                        var citeContent = FixAnchorText (cites[i].substr(1, cites[i].length - 2));
-
-                        var countRefs = 0;
-                        content = content.replace(new RegExp(EscapeRegExp(cites[i]), 'g'), function (refText) {
-                            ++countRefs;
-                            return getCiteRefHTML(citeContent, citeIndex, countRefs);
-                        });
-
-                        var derefHTML = " ";
-                        for (var j = 0; j < countRefs; j++) {
-                            derefHTML += getCiteDerefHTML(citeContent, j + 1) + " ";
-                        }
-                        var noteStr = getCiteNoteHTML(citeContent, citeIndex);
-                        var indexToInsert = content.indexOf(noteStr) + noteStr.length;
-                        content = content.substr(0, indexToInsert) + derefHTML + content.substr(indexToInsert);
-                    }
-
-                    // Render reference
-                    var refMap = new Map();
-
-                    // Ref target
-                    content = content.replace(/<p>\[[^\].]+\|\&[^\].]+\]<\/p>/g, function (refText) {
-                        var len1 = "<p>[".length;
-                        var len2 = "]</p>".length + len1;
-                        refText = refText.substr(len1, refText.length - len2);
-                        var fragments = refText.split('|&amp;');
-                        return "<div class='ref-target' id='ref-" +
-                            FixAnchorText (fragments.join('-')) + "'></div>";
-                    });
-
-                    // Ref base
-                    var countRefs = new Map();
-                    content = content.replace(/\[[^\].]+\|\|[^\].]+\]/g, function (refText) {
-                        refText = refText.substr(1, refText.length - 2);
-                        var fragments = refText.split('||');
-
-                        var count = countRefs.get(fragments[0]);
-                        count = (count == null ? 0 : count) + 1;
-                        countRefs.set(fragments[0], count);
-                        refMap.set(FixAnchorText (fragments.join('-')), count);
-
-                        return "<span class='ref-base'>" + count + "</span>";
-                    });
-
-                    // Ref item
-                    content = content.replace(/\[[^\].]+\|[^\].]+\]/g, function (refText) {
-                        var refTextNew = refText.substr(1, refText.length - 2);
-                        var fragments = refTextNew.split('|');
-
-                        var refAnchor = "";
-                        if (fragments[0] == "sec") {
-                            var tocIndex = 0;
-                            for (; tocIndex < toc.length; tocIndex++)
-                                if (toc[tocIndex].text == fragments[1]) {
-                                    refAnchor = toc[tocIndex].anchor;
-                                    refText = "&sect; " + toc[tocIndex].headingNumber;
-                                    break;
-                                }
-                            if (tocIndex == toc.length) {
-                                alert("Invalid refText: " + refText);
-                                return refText;
-                            }
-                        }
-                        else {
-                            refAnchor = FixAnchorText (fragments.join('-'));
-                            var count = refMap.get(refAnchor);
-                            if (count == null) {
-                                alert("Invalid refText: " + refText);
-                                return refText;
-                            }
-
-                            refAnchor = "ref-" + refAnchor;
-                            refText = count;
-                        }
-                        return "<span class='ref-item'><a href='#" +
-                            refAnchor + "'>" + refText + "</a></span>";
-                    });
-
-                    // Render style setters
-                    content = content.replace(/<p>(\[[^\].]+=[^\].]+\])<\/p>/g, '$1');
-                    var styleSetters = content.match(/\[[^\].]+=[^\].]+\]/g);  // avoid ']' inside pairs
-                    if (styleSetters == null) styleSetters = [];
-                    for (var j = 0; j < styleSetters.length; j++) {
-                        var styleSetter = styleSetters[j];
-                        var tagPrefix = "<" + styleSetter.substr(1,
-                            styleSetter.indexOf('=') - 1);
-                        var tagStyle = styleSetter.substr(1 + tagPrefix.length,
-                            styleSetter.length - 2 - tagPrefix.length);
-
-                        var firstTagIndex = content.indexOf(styleSetter) + styleSetter.length;
-
-                        // Avoid prefix matches
-                        while (true) {
-                            firstTagIndex = content.indexOf(tagPrefix, firstTagIndex);
-                            if (firstTagIndex == -1) break;
-                            if (content[firstTagIndex + tagPrefix.length] == " " ||
-                                content[firstTagIndex + tagPrefix.length] == ">") {
-                                break;
-                            }
-                            else {
-                                firstTagIndex += tagPrefix.length;
-                            }
-                            console.log(content.substr(firstTagIndex));
-                        }
-
-                        if (firstTagIndex == -1) continue;
-                        content = content.substr(0, firstTagIndex + tagPrefix.length)
-                            .replace(styleSetter, '') +
-                            " style='" + tagStyle + "'" +
-                            content.substr(firstTagIndex + tagPrefix.length);
-                    }
-
-                    // Render [TOC]
-                    if (toc.length > 0) {
-                        var tocHTML = "<div class='markdown-toc'>" +
-                            GetTOC(toc) + "</div>";
-                        content = content.replace(/<p>\[TOC\]<\/p>/g, tocHTML);
-                    }
-
-                    // Render predefined style tags
-                    var predefinedTags = [
-                        "page-break", "float-left", "float-right",
-                        "align-left", "align-right", "align-center",
-                        "cite-sec"
-                    ];
-                    var condStr = predefinedTags[0];
-                    for (var i = 1; i < predefinedTags.length; i++)
-                        condStr += "|" + EscapeRegExp(predefinedTags[i]);
-                    var regExp = new RegExp("<p>\\[(" + condStr + ")\\]<\\/p>", "g");
-                    content = content.replace(regExp, "<div class='$1'></div>");
-
-                    // Render slides
-                    var targetStrs = [
-                        "<hr><div class='slide'>",
-                        "</div><hr><div class='slide'>",
-                        "</div><hr>"
-                    ];
-                    var newContent = "";
-                    var curIndex = content.indexOf("<hr>"), preIndex = 0;
-                    var step = "<hr>".length;
-                    while (true) {
-                        if (curIndex != -1)
-                            newContent += content.substr(preIndex, curIndex - preIndex);
-                        var nxtIndex = content.indexOf("<hr>", curIndex + step);
-                        if (nxtIndex != -1) {
-                            if (preIndex == 0)
-                                newContent += targetStrs[0];
-                            else
-                                newContent += targetStrs[1];
-                        }
-                        else {
-                            if (preIndex == 0)
-                                newContent += "<hr>";
-                            else
-                                newContent += targetStrs[2];
-                            newContent += content.substr(curIndex + step);
-                            break;
-                        }
-                        preIndex = curIndex + step;
-                        curIndex = nxtIndex;
-                    }
-                    if (curIndex != -1)
-                        content = newContent;
+                var content = isSingleFile ? mdSource : GetSection(mdSource, tagName);
+                if (isMd) {
+                    if (isSingleFile) content = RenderFlavoredMarkdown(content);
+                    else content = marked(content);
                 }
 
                 // Fill content and Fix paths

@@ -42,90 +42,12 @@ RenderSection = function (fileName, tags, callback) {
         return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
     };
 
-    var GetSection = function (mdSource, keyword) {
-        var regex = new RegExp("<" + EscapeRegExp(keyword) + ">(.|\n|\r)*?</" + EscapeRegExp(keyword) + ">", "m");
-        var ret = regex.exec(mdSource);
-        if (ret != null)
-            return ret[0].replace("<" + keyword + ">", "").replace("</" + keyword + ">", "");
-        else
-            return "";  // Ignore Not Found Sections
-    };
-
-    var GetAbsPath = function (fileName) {
-        // Trick: set and then get 'href' to find the absolute path of fileName
-        // http://stackoverflow.com/questions/2639070/get-the-full-uri-from-the-href-property-of-a-link
-        var aElem = document.createElement("A");
-        aElem.href = fileName;
-
-        // NOT Same Origin File
-        if (aElem.href.indexOf(location.origin) == -1)
-            return null;
-
-        // Get absPath (including ending '/')
-        return aElem.href.substr(0, aElem.href.lastIndexOf("/") + 1);
-    };
-
-    var GetRelPath = function (basePath, destPath) {
-        var commonLen = 0;
-        for (; commonLen < basePath.length || commonLen < destPath.length; commonLen++)
-            if (basePath[commonLen] != destPath[commonLen])
-                break;
-
-        for (; commonLen > 0; commonLen--)
-            if (basePath[commonLen - 1] == '/')
-                break;
-
-        // Case: Contains Relationship
-        if (commonLen >= basePath.length || commonLen >= destPath.length)
-            commonLen = Math.min(basePath.length, destPath.length);
-
-        var parents = basePath.substring(commonLen)
-            .replace(/[^\/]*$/, '').replace(/.*?\//g, '../');
-
-        return (parents + destPath.substring(commonLen)) || './';
-    };
-
-    // Another approach: <base href="" />
-    var FixRelativePaths = function (mdSec, mdAbsPath, fixStyle) {
-        // Trick: use reflection 'attrName' to access property
-        // http://stackoverflow.com/questions/4244896/dynamically-access-object-property-using-variable
-        var fixAll = function (tagName, attrName, fixStyle) {
-            var elems = mdSec.getElementsByTagName(tagName);
-            for (var j = 0; j < elems.length; j++) {
-                // Store original literal of attr
-                var rawSrc = elems[j].getAttribute(attrName);
-                var src = elems[j][attrName];
-
-                if (src.indexOf(location.origin) != -1 &&  // Same Origin
-                    rawSrc.indexOf(location.origin) == -1 &&  // Relative Path
-                    rawSrc[0] != "/" &&  // NOT Root-Relative Path
-                    rawSrc[0] != "#")  // NOT Hash
-                {
-                    // Get absPath
-                    var aElem = document.createElement("A");
-                    aElem.href = mdAbsPath + rawSrc;
-                    var absPath = aElem.href;
-
-                    // Get relPath
-                    var relPath = GetRelPath(location.origin + location.pathname, absPath);
-
-                    // Set with pattern
-                    elems[j][attrName] = fixStyle(absPath, relPath);
-                }
-            }
-        };
-
-        fixAll("A", "href", fixStyle);
-        fixAll("IMG", "src", function (absPath, relPath) { return absPath; });
-    };
-
-    var FixAnchorText = function (text) {
-        return text.toLowerCase()
-            .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
-            .replace(/^-+/g, '').replace(/-+$/g, '');
-    };
-
     var RenderFlavoredMarkdown = function (mdText) {
+        var FixAnchorText = function (text) {
+            return text.toLowerCase()
+                .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
+                .replace(/^-+/g, '').replace(/-+$/g, '');
+        };
 
         // Patch for Heading Numbering
         var headingIndice = null;
@@ -419,6 +341,83 @@ RenderSection = function (fileName, tags, callback) {
         }
 
         return mdHtml;
+    };
+
+    var GetAbsPath = function (fileName) {
+        // Trick: set and then get 'href' to find the absolute path of fileName
+        // http://stackoverflow.com/questions/2639070/get-the-full-uri-from-the-href-property-of-a-link
+        var aElem = document.createElement("A");
+        aElem.href = fileName;
+
+        // NOT Same Origin File
+        if (aElem.href.indexOf(location.origin) == -1)
+            return null;
+
+        // Get absPath (including ending '/')
+        return aElem.href.substr(0, aElem.href.lastIndexOf("/") + 1);
+    };
+
+    var GetRelPath = function (basePath, destPath) {
+        var commonLen = 0;
+        for (; commonLen < basePath.length || commonLen < destPath.length; commonLen++)
+            if (basePath[commonLen] != destPath[commonLen])
+                break;
+
+        for (; commonLen > 0; commonLen--)
+            if (basePath[commonLen - 1] == '/')
+                break;
+
+        // Case: Contains Relationship
+        if (commonLen >= basePath.length || commonLen >= destPath.length)
+            commonLen = Math.min(basePath.length, destPath.length);
+
+        var parents = basePath.substring(commonLen)
+            .replace(/[^\/]*$/, '').replace(/.*?\//g, '../');
+
+        return (parents + destPath.substring(commonLen)) || './';
+    };
+
+    // Another approach: <base href="" />
+    var FixRelativePaths = function (mdSec, mdAbsPath, fixStyle) {
+        // Trick: use reflection 'attrName' to access property
+        // http://stackoverflow.com/questions/4244896/dynamically-access-object-property-using-variable
+        var fixAll = function (tagName, attrName, fixStyle) {
+            var elems = mdSec.getElementsByTagName(tagName);
+            for (var j = 0; j < elems.length; j++) {
+                // Store original literal of attr
+                var rawSrc = elems[j].getAttribute(attrName);
+                var src = elems[j][attrName];
+
+                if (src.indexOf(location.origin) != -1 &&  // Same Origin
+                    rawSrc.indexOf(location.origin) == -1 &&  // Relative Path
+                    rawSrc[0] != "/" &&  // NOT Root-Relative Path
+                    rawSrc[0] != "#")  // NOT Hash
+                {
+                    // Get absPath
+                    var aElem = document.createElement("A");
+                    aElem.href = mdAbsPath + rawSrc;
+                    var absPath = aElem.href;
+
+                    // Get relPath
+                    var relPath = GetRelPath(location.origin + location.pathname, absPath);
+
+                    // Set with pattern
+                    elems[j][attrName] = fixStyle(absPath, relPath);
+                }
+            }
+        };
+
+        fixAll("A", "href", fixStyle);
+        fixAll("IMG", "src", function (absPath, relPath) { return absPath; });
+    };
+
+    var GetSection = function (mdSource, keyword) {
+        var regex = new RegExp("<" + EscapeRegExp(keyword) + ">(.|\n|\r)*?</" + EscapeRegExp(keyword) + ">", "m");
+        var ret = regex.exec(mdSource);
+        if (ret != null)
+            return ret[0].replace("<" + keyword + ">", "").replace("</" + keyword + ">", "");
+        else
+            return "";  // Ignore Not Found Sections
     };
 
     Ajax("GET", encodeURI(fileName), null,

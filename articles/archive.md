@@ -4,6 +4,7 @@
 
 #### 2017
 
+- [设计模式学习笔记](2017/Design-Patterns-Notes)
 - [如何优雅的把 命令行界面 Hack 到 Qt 界面](2017/Hack-Qt-GUI)
 - [如何浅显的解释 回调函数](2017/Callback-Explained)
 - [浅谈 C++ 元编程](2017/Cpp-Metaprogramming)

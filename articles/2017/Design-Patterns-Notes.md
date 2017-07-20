@@ -1,8 +1,14 @@
-# Design Patterns Notes
+ï»¿# Design Patterns Notes
 
 > 2017/7
 >
-> Encapsulate the concept that varies. ¡ª¡ª GOF
+> Encapsulate the concept that varies. â€”â€” GOF
+
+[heading-numbering]
+
+## [no-toc] [no-number] TOC
+
+[TOC]
 
 ## Golden Rules
 

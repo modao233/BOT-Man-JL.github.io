@@ -32,9 +32,10 @@
 #### Process
 
 - **Client 1** create **Concrete Factory**
-- **Client 1** pass **Abstract Factory** to **Client 2**
+- **Client 1** pass **Concrete Factory** as **Abstract Factory** to **Client 2**
 - **Client 2** call methods of **Abstract Factory**
-- **Client 2** retrieve **Abstract Product**
+- **Concrete Factory** create **Concrete Product** family
+- **Client 2** retrieve **Abstract Product** in the same family
 
 #### Info Hidden
 
@@ -44,7 +45,7 @@
 
 #### Uses
 
-- Cross-platform solutions
+- Cross-platform solutions (different platform with different family of component)
 
 ### Builder
 
@@ -71,6 +72,33 @@
 
 #### Uses
 
-- Format conversion
-- Parse syntax-tree
+- Format conversion (the same structure vs. different target)
+- Parse syntax-tree (the same tranversal vs. different outcome)
 
+### Factory Method
+
+> Defer to subclass to instantiate its concrete product
+
+#### Roles
+
+- **Abstract Creator** create **Abstract Product**
+- **Concrete Creator** create **Concrete Product**
+
+#### Process
+
+- **Client** call factory method of **Abstract Creator**
+- **Abstract Creator** delegate instantiation to **Concrete Creator**
+- **Concrete Creator** create creator-specific **Concrete Product**
+- **Client** retrieve **Abstract Product**
+
+#### Info Hidden
+
+- **Abstract Creator** not know **Concrete Product**
+- **Client** not know **Concrete Creator**
+- **Client** not know **Concrete Product**
+
+#### Uses
+
+- Creating event handler
+  - (different component create component-specific handler)
+  - (different handler know how to handle the same event on different component)

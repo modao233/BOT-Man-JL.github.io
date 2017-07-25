@@ -35,6 +35,8 @@
 - **Client 1** pass **Concrete Factory** as **Abstract Factory** to **Client 2**
 - **Client 2** call methods of **Abstract Factory**
 - **Concrete Factory** create **Concrete Product** family
+  - by using **Factory Method** (subclassing, compile-time)
+  - by using **Prototype** (composition, runtime)
 - **Client 2** retrieve **Abstract Product** in the same family
 
 #### Info Hidden
@@ -77,7 +79,7 @@
 
 ### Factory Method
 
-> Defer to subclass to instantiate its concrete product
+> Subclass to defer instantiation of concrete product
 
 #### Roles
 
@@ -87,8 +89,8 @@
 #### Process
 
 - **Client** call factory method of **Abstract Creator**
-- **Abstract Creator** delegate instantiation to **Concrete Creator**
-- **Concrete Creator** create creator-specific **Concrete Product**
+- **Abstract Creator** defer instantiation to **Concrete Creator**
+- **Concrete Creator** create subclass-specific **Concrete Product**
 - **Client** retrieve **Abstract Product**
 
 #### Info Hidden
@@ -102,3 +104,30 @@
 - Creating event handler
   - (different component create component-specific handler)
   - (different handler know how to handle the same event on different component)
+
+### Prototype
+
+> Prototype to clone new product
+
+#### Roles
+
+- **Abstract Prototype** delegate clone to **Concrete Prototype**
+
+#### Process
+
+- **Client** call clone method of **Abstract Prototype**
+- **Abstract Prototype** defer construction to **Concrete Prototype**
+- **Concrete Prototype** clone itself and initialize the copy
+- **Client** retrieve **Abstract Prototype**
+
+#### Info Hidden
+
+- **Abstract Prototype** not know **Concrete Prototype**
+- **Client** not know **Concrete Prototype**
+
+#### Uses
+
+- Palette
+  - (clone prototype on the palette to create component)
+  - (clone composited or decorated component)
+- Registry with key (clone prototype on manager to create component)

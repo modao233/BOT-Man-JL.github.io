@@ -22,7 +22,7 @@
 
 ### Abstract Factory
 
-> Abstract creation of a family of products
+> Abstract the creation of a **family** of product
 
 #### Roles
 
@@ -51,7 +51,7 @@
 
 ### Builder
 
-> Seperate construction from representation
+> Seperate **construction** from **representation**
 
 #### Roles
 
@@ -79,7 +79,7 @@
 
 ### Factory Method
 
-> Subclass to defer instantiation of concrete product
+> Subclass to **defer instantiation** of concrete product
 
 #### Roles
 
@@ -107,7 +107,7 @@
 
 ### Prototype
 
-> Prototype to clone new product
+> Prototype to **clone** new product
 
 #### Roles
 
@@ -131,3 +131,26 @@
   - (clone prototype on the palette to create component)
   - (clone composited or decorated component)
 - Registry with key (clone prototype on manager to create component)
+
+### Singleton
+
+> **Single** instance with global access
+
+#### Roles
+
+- **Singleton** define the interface of `Instance`
+- **Singleton Subclass** represent various product
+
+#### Process
+
+- **Client** call `Instance` of **Singleton**
+- **Singleton** construct instance of **Singleton** / **Singleton Subclass**
+- **Client** retieve instance of **Singleton**
+
+#### Info Hidden
+
+- Client not know **Singleton Subclass**
+
+#### Uses
+
+- XXX manager (manage resources)

@@ -6,7 +6,7 @@
 
 [heading-numbering]
 
-## [toc-heading] [no-number] TOC
+## [no-toc] [no-number] TOC
 
 [TOC]
 

@@ -6,7 +6,7 @@
 
 [heading-numbering]
 
-## [no-number] [toc-heading] 目录
+## [no-number] [no-toc] 目录
 
 [TOC]
 

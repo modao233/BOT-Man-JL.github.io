@@ -165,16 +165,6 @@ nav a:active {
     text-shadow: 0 0 5px orange;
 }
 
-/* Articles Page Settings */
-
-.contentSec > *:first-child {
-    margin-top: 20px;
-}
-
-.headerQuoteSec blockquote {
-    padding: 0 0 0 15px;
-}
-
 /* TOC Settings */
 
 .markdown-toc p {

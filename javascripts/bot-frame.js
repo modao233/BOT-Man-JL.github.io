@@ -1,13 +1,20 @@
 ﻿/*
 	Modules for GitHub Page :-)
-	BOT Man, 2016 (MIT License)
+
+    - GetSearchParam
+    - FileLoader
+    - ConfigLoader
+    - LoadLayout
+    - LoadStyle
+
+	BOT Man, 2017 (MIT License)
 */
 
 function GetSearchParam(target) {
     var searchStr = document.location.search;
 
     var beg = searchStr.indexOf(target);
-    if (beg == -1) return "";
+    if (beg == -1) return '';
 
     beg += target.length + 1;
     var end = searchStr.indexOf('&', beg);
@@ -34,7 +41,7 @@ FileLoader.prototype.loading = function (filename) {
 };
 
 FileLoader.prototype.failed = function (filename) {
-    if (document && document.title) document.title = "Loading Failed";
+    if (document && document.title) document.title = 'Loading Failed';
     return '<p>Loading <a href="' + filename + '"><em>' +
         filename + '</em></a> <strong>Failed</strong> 😅</p>' +
         '<p>👉👉👉 <a href="javascript:void(0)" onclick="location.reload();">' +
@@ -120,7 +127,7 @@ function LoadLayout(filename, callback) {
 
         } catch (e) {
             promptState('Bad JSON format in <em>' + filename + '</em> 😑');
-            document.title = "Loading Failed";
+            document.title = 'Loading Failed';
         }
     });
 }
@@ -129,30 +136,30 @@ function LoadStyle() {
     var isCover = false, isTocPageBreak = false,
         isWordMargin = false, isSlideMode = false;
 
-    var styles = GetSearchParam("style").split('+');
+    var styles = GetSearchParam('style').split('+');
     for (var i = 0; i < styles.length; i++) {
-        if (styles[i] == "cover") isCover = true;
-        else if (styles[i] == "toc-page-break") isTocPageBreak = true;
-        else if (styles[i] == "word") isWordMargin = true;
-        else if (styles[i] == "slide") isSlideMode = true;
+        if (styles[i] == 'cover') isCover = true;
+        else if (styles[i] == 'toc-page-break') isTocPageBreak = true;
+        else if (styles[i] == 'word') isWordMargin = true;
+        else if (styles[i] == 'slide') isSlideMode = true;
     }
 
     var styleElem = document.createElement('style');
     if (isCover) {
         // TODO: slide-cover
-        document.getElementsByClassName("headerTitleSec")[0].classList.add('cover-title');
-        document.getElementsByClassName("headerQuoteSec")[0].classList.add('cover-subtitle');
-        document.getElementsByTagName("header")[0].style.pageBreakAfter = "always";
+        document.getElementsByClassName('headerTitleSec')[0].classList.add('cover-title');
+        document.getElementsByClassName('headerQuoteSec')[0].classList.add('cover-subtitle');
+        document.getElementsByTagName('header')[0].style.pageBreakAfter = 'always';
     }
     if (isWordMargin)
-        styleElem.innerHTML += "@page { margin: 25.4mm 31.8mm; }";
+        styleElem.innerHTML += '@page { margin: 25.4mm 31.8mm; }';
     else
-        styleElem.innerHTML += "@page { margin: 15mm 15mm; }";
+        styleElem.innerHTML += '@page { margin: 15mm 15mm; }';
     if (isSlideMode)
-        styleElem.innerHTML += "@page { size: 297mm 210mm; }";
+        styleElem.innerHTML += '@page { size: 297mm 210mm; }';
     else
-        styleElem.innerHTML += "@page { size: 210mm 297mm; }";
+        styleElem.innerHTML += '@page { size: 210mm 297mm; }';
     if (isTocPageBreak)
-        styleElem.innerHTML += "@media print { .markdown-toc { page-break-after: always; } }";
+        styleElem.innerHTML += '@media print { .markdown-toc { page-break-after: always; } }';
     document.head.appendChild(styleElem);
 }

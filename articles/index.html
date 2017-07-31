@@ -53,9 +53,9 @@
             if (curElem < childLen) {
                 content = mdSec.childNodes[curElem].innerHTML;
                 dstSec.innerHTML +=
-                    "<" + mdSec.childNodes[curElem].tagName + ">" +
+                    '<' + mdSec.childNodes[curElem].tagName + '>' +
                     content +
-                    "</" + mdSec.childNodes[curElem].tagName + ">";
+                    '</' + mdSec.childNodes[curElem].tagName + '>';
                 mdSec.removeChild(mdSec.childNodes[curElem]);
             }
             return content;
@@ -64,7 +64,7 @@
         function GetAbsPath(filename) {
             // Trick: set and then get 'href' to find the absolute path of filename
             // http://stackoverflow.com/questions/2639070/get-the-full-uri-from-the-href-property-of-a-link
-            var aElem = document.createElement("A");
+            var aElem = document.createElement('A');
             aElem.href = filename;
 
             // NOT Same Origin File
@@ -72,7 +72,7 @@
                 return null;
 
             // Get absPath (including ending '/')
-            return aElem.href.substr(0, aElem.href.lastIndexOf("/") + 1);
+            return aElem.href.substr(0, aElem.href.lastIndexOf('/') + 1);
         }
 
         function GetRelPath(basePath, destPath) {
@@ -107,11 +107,11 @@
 
                     if (src.indexOf(location.origin) != -1 &&  // Same Origin
                         rawSrc.indexOf(location.origin) == -1 &&  // Relative Path
-                        rawSrc[0] != "/" &&  // NOT Root-Relative Path
-                        rawSrc[0] != "#")  // NOT Hash
+                        rawSrc[0] != '/' &&  // NOT Root-Relative Path
+                        rawSrc[0] != '#')  // NOT Hash
                     {
                         // Get absPath
-                        var aElem = document.createElement("A");
+                        var aElem = document.createElement('A');
                         aElem.href = mdAbsPath + rawSrc;
                         var absPath = aElem.href;
 
@@ -124,15 +124,15 @@
                 }
             }
 
-            fixAll("A", "href");
-            fixAll("IMG", "src");
+            fixAll('A', 'href');
+            fixAll('IMG', 'src');
         }
 
-        var post = GetSearchParam("post");
-        if (post == "") {
+        var post = GetSearchParam('post');
+        if (post == '') {
             if (location.hash != null && location.hash.length > 1) {
                 // Compatible with legacy hash routing
-                location = "./?post=" + location.hash.substr(1);
+                location = './?post=' + location.hash.substr(1);
             }
             else {
                 LoadLayout('archive.md', function (md, title) {
@@ -163,9 +163,9 @@
 
                 // Move elements to left pane
                 var titleStr = MoveFirstElement(
-                    document.getElementsByClassName("headerTitleSec")[0]);
+                    document.getElementsByClassName('headerTitleSec')[0]);
                 MoveFirstElement(
-                    document.getElementsByClassName("headerQuoteSec")[0]);
+                    document.getElementsByClassName('headerQuoteSec')[0]);
 
                 // Style
                 LoadStyle();  // depend on MoveFirstElement
@@ -173,13 +173,13 @@
                 // Render math
                 renderMathInElement(mdSec, {
                     delimiters: [
-                        { left: "$$", right: "$$", display: true },
-                        { left: "\\[", right: "\\]", display: true },
-                        { left: "$", right: "$", display: false },
-                        { left: "\\(", right: "\\)", display: false }
+                        { left: '$$', right: '$$', display: true },
+                        { left: '\\[', right: '\\]', display: true },
+                        { left: '$', right: '$', display: false },
+                        { left: '\\(', right: '\\)', display: false }
                     ],
                     ignoredTags: [
-                        "script", "noscript", "style", "textarea", "pre", "code"
+                        'script', 'noscript', 'style', 'textarea', 'pre', 'code'
                     ]
                 });
 

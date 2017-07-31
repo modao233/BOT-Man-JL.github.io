@@ -4,9 +4,21 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width">
-    <title class="homeTitleSec">Loading...</title>
+    <title>Loading...</title>
     <link rel="stylesheet" href="/stylesheets/github-markdown.css">
     <link rel="stylesheet" href="/stylesheets/bot-frame.css">
+    <style>
+        .markdown-body {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+            .markdown-body a:hover,
+            .markdown-body a:active {
+                text-shadow: 0 0 15px orange;
+                text-decoration: none;
+            }
+    </style>
 </head>
 <body>
     <div class="wrapper">
@@ -14,23 +26,19 @@
             <nav class="navSec"></nav>
             <div class="contactSec"></div>
         </header>
-        <section class="markdown-body">
-            <div class="promptSec"></div>
-            <div class="homeSec"></div>
-        </section>
+        <section class="markdown-body"></section>
         <footer class="footerSec"></footer>
     </div>
     <script src="/javascripts/marked.js"></script>
+    <script src="/javascripts/bot-mark.js"></script>
     <script src="/javascripts/bot-frame.js"></script>
     <script>
-        RenderSectionWithPrompt("/assets.md", "promptSec",
-            [
-                "navSec",
-                "footerSec",
-                "contactSec",
-                "homeSec",
-                { tagName: "homeTitleSec", isMd: false }
-            ]);
+        LoadLayout('/static/welcome.md', function (md, title) {
+            var renderer = new MarkdownRenderer();
+            document.getElementsByClassName('markdown-body')[0]
+                .innerHTML = renderer.marked(md);
+            title('Home');
+        });
     </script>
 </body>
 </html>

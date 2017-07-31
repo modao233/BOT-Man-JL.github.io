@@ -1,6 +1,4 @@
-﻿<aboutSec>
-
-## Education
+﻿## Education
 
 #### 2014.9 - Now (Graduate: 2018.6)
 
@@ -55,17 +53,3 @@
   for those who have no knowledge of GUI;
 - An archive of [Coursework/Misc Projects](https://github.com/BOT-Man-JL/BUPT-Projects)
   those I built in college;
-
-</aboutSec>
-
-<langSec>
-
-EN | [中文](?lang=zh)
-
-</langSec>
-
-<qrCodeSec>
-
-![QRCode](qrCode.svg)
-
-</qrCodeSec>

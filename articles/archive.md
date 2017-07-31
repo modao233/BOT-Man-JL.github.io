@@ -1,6 +1,4 @@
-﻿<archiveSec>
-
-## 思考 / Thinking
+﻿## 思考 / Thinking
 
 #### 2017
 
@@ -43,5 +41,3 @@
 
 - [搜集的哲言](misc/Quotes)
 - [书签](misc/Bookmarks)
-
-</archiveSec>

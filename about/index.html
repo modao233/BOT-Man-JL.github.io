@@ -7,56 +7,103 @@
     <title class="aboutTitleSec">Loading...</title>
     <link rel="stylesheet" href="/stylesheets/github-markdown.css">
     <link rel="stylesheet" href="/stylesheets/bot-frame.css">
+    <style>
+        /* lang */
+        .langSec {
+            text-align: right;
+        }
+
+        @media print {
+            .langSec {
+                display: none;
+            }
+        }
+
+        /* qrCode */
+        .qrCodeSec {
+            text-align: right;
+            float: right;
+        }
+
+        @media screen {
+            .qrCodeSec {
+                display: none;
+            }
+        }
+
+        /* prompt */
+        .markdown-body {
+            padding-bottom: 20px;
+        }
+
+        @media print {
+            .markdown-body {
+                padding-bottom: 0;
+            }
+        }
+
+        /* print */
+        @media print {
+            .aboutSec {
+                column-count: 2;
+                padding-top: 0;
+                padding-bottom: 0;
+            }
+
+            .contactSec > *:first-child {
+                margin-top: 0;
+            }
+
+            .contactSec > *:last-child {
+                margin-bottom: 20px;
+            }
+
+            .aboutSec > *:first-child {
+                margin-top: 0;
+            }
+
+            .aboutSec > *:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        @page {
+            margin: 18mm 18mm;
+        }
+    </style>
 </head>
 <body>
-    <div class="qrCodeSec"></div>
+    <div class="qrCodeSec"><img src="qrcode.svg" /></div>
     <div class="wrapper">
         <header>
             <nav class="navSec"></nav>
             <div class="contactSec"></div>
         </header>
-        <section class="markdown-body">
-            <div class="promptSec"></div>
-            <div class="langSec"></div>
-            <div class="aboutSec"></div>
-        </section>
+        <section class="markdown-body"></section>
         <footer class="footerSec"></footer>
     </div>
     <script src="/javascripts/marked.js"></script>
+    <script src="/javascripts/bot-mark.js"></script>
     <script src="/javascripts/bot-frame.js"></script>
     <script>
-        RenderSectionWithPrompt("/assets.md", "promptSec",
-            [
-                "navSec",
-                "footerSec",
-                "contactSec",
-                { tagName: "aboutTitleSec", isMd: false }
-            ]);
+        var lang = GetSearchParam("lang");
+        if (lang == "") lang = "en";
 
-        // Retrieve language (en/zh)
-        var lang = GetSearchParam(location.search, "lang");
-        if (lang == null) lang = "en";
+        LoadLayout('about-' + lang + '.md', function (md, title) {
+            var mdHtml = '<div class="langSec">';
+            if (lang != 'en')
+                mdHtml += '<a href="?lang=en">EN</a> | 中文';
+            else if (lang != 'zh')
+                mdHtml += 'EN | <a href="?lang=zh">中文</a>';
 
-        RenderSectionWithPrompt("about-" + lang + ".md", "promptSec",
-            [
-                "aboutSec",
-                "langSec",
-                "qrCodeSec"
-            ]);
+            mdHtml += '</div><div class="aboutSec">';
+            var renderer = new MarkdownRenderer();
+            mdHtml += renderer.marked(md) + '</div>';
 
-        // Styles
-        var stylesStr = GetSearchParam(location.search, "style");
-        var isWordMargin = false;
-        ParseStyles(stylesStr, function (styleStr) {
-            if (styleStr == "word") isWordMargin = true;
+            document.getElementsByClassName('markdown-body')[0]
+                .innerHTML = mdHtml;
+            title('About');
         });
-
-        var styleElem = document.createElement('style');
-        if (isWordMargin)
-            styleElem.innerHTML += "@page { margin: 25.4mm 31.8mm; }";
-        else
-            styleElem.innerHTML += "@page { margin: 18mm 18mm; }";
-        document.head.appendChild(styleElem);
     </script>
 </body>
 </html>

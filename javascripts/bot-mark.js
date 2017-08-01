@@ -323,10 +323,6 @@ MarkdownRenderer.prototype.render = function (mdText) {
     return mdHtml;
 };
 
-MarkdownRenderer.prototype.marked = function (mdText) {
-    return marked(mdText);
-};
-
 if (typeof module !== 'undefined' && typeof exports === 'object') {
     module.exports = MarkdownRenderer;
 }

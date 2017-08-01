@@ -209,14 +209,20 @@ MarkdownRenderer.prototype.renderKeywordTags = function (mdHtml) {
 };
 
 MarkdownRenderer.prototype.renderStyleSetters = function (mdHtml) {
+    var len1 = '<p>['.length;
+    var len2 = ']</p>'.length + len1;
+
     var styleSetters = mdHtml.match(/<p>\[[^\].]+=[^\].]+\]<\/p>/g);  // avoid ']' inside pairs
     if (styleSetters == null) styleSetters = [];
+
     for (var j = 0; j < styleSetters.length; j++) {
         var styleSetter = styleSetters[j];
-        var tagPrefix = '<' + styleSetter.substr(1,
-            styleSetter.indexOf('=') - 1);
-        var tagStyle = styleSetter.substr(1 + tagPrefix.length,
-            styleSetter.length - 2 - tagPrefix.length);
+        var tagPrefix = '<' + styleSetter.substr(len1,
+            styleSetter.indexOf('=') - len1);
+        var tagStyle = styleSetter.substr(1 + styleSetter.indexOf('='),
+            styleSetter.length - len2 - tagPrefix.length);
+        alert(tagPrefix);
+        alert(tagStyle);
 
         var firstTagIndex = mdHtml.indexOf(styleSetter) + styleSetter.length;
 
@@ -229,16 +235,13 @@ MarkdownRenderer.prototype.renderStyleSetters = function (mdHtml) {
                 break;
             }
             else {
-                firstTagIndex += tagPrefix.length;
+                firstTagIndex += tagPrefix.length;  // find next
             }
-            console.log(mdHtml.substr(firstTagIndex));
         }
 
-        if (firstTagIndex == -1) continue;
-        mdHtml = mdHtml.substr(0, firstTagIndex + tagPrefix.length)
-            .replace(styleSetter, '') +
-            ' style="' + tagStyle + '"' +
-            mdHtml.substr(firstTagIndex + tagPrefix.length);
+        if (firstTagIndex == -1) continue;  // not found
+        mdHtml = mdHtml.substr(0, firstTagIndex + tagPrefix.length).replace(styleSetter, '') +
+            ' style="' + tagStyle + '"' + mdHtml.substr(firstTagIndex + tagPrefix.length);
     }
     return mdHtml;
 };

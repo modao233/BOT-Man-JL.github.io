@@ -85,7 +85,7 @@
 
             mdHtml += '</div><div class="aboutSec">';
             var renderer = new MarkdownRenderer();
-            mdHtml += renderer.marked(md) + '</div>';
+            mdHtml += renderer.render(md) + '</div>';
 
             document.getElementsByClassName('markdown-body')[0]
                 .innerHTML = mdHtml;

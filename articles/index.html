@@ -170,8 +170,7 @@
             else {
                 LoadLayout('archive.md', function (md, title) {
                     var renderer = new MarkdownRenderer();
-                    var mdSec = document.getElementsByClassName('markdown-body')[0];
-                    mdSec.innerHTML = renderer.marked(md);
+                    mdSec.innerHTML = renderer.render(md);
 
                     var anchors = mdSec.getElementsByTagName('A');
                     for (var j = 0; j < anchors.length; j++) {

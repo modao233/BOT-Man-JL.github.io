@@ -221,8 +221,6 @@ MarkdownRenderer.prototype.renderStyleSetters = function (mdHtml) {
             styleSetter.indexOf('=') - len1);
         var tagStyle = styleSetter.substr(1 + styleSetter.indexOf('='),
             styleSetter.length - len2 - tagPrefix.length);
-        alert(tagPrefix);
-        alert(tagStyle);
 
         var firstTagIndex = mdHtml.indexOf(styleSetter) + styleSetter.length;
 

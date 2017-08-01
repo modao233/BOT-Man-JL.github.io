@@ -5,7 +5,6 @@
     - FileLoader
     - ConfigLoader
     - LoadLayout
-    - LoadStyle
 
 	BOT Man, 2017 (MIT License)
 */
@@ -101,7 +100,7 @@ ConfigLoader.prototype.footer = function (config) {
 
 function LoadLayout(filename, callback) {
     var configLoader = new ConfigLoader();
-    function loadPart(config, sec) {
+    function loadSec(config, sec) {
         document.getElementsByClassName(sec + 'Sec')[0]
             .innerHTML = configLoader[sec](config);
     }
@@ -115,9 +114,9 @@ function LoadLayout(filename, callback) {
         try {
             config = JSON.parse(config);
 
-            loadPart(config, 'nav');
-            loadPart(config, 'contact');
-            loadPart(config, 'footer');
+            loadSec(config, 'nav');
+            loadSec(config, 'contact');
+            loadSec(config, 'footer');
 
             (new FileLoader()).loadFile(filename, promptState, function (text) {
                 if (callback) callback(text, function (title) {
@@ -130,36 +129,4 @@ function LoadLayout(filename, callback) {
             document.title = 'Loading Failed';
         }
     });
-}
-
-function LoadStyle() {
-    var isCover = false, isTocPageBreak = false,
-        isWordMargin = false, isSlideMode = false;
-
-    var styles = GetSearchParam('style').split('+');
-    for (var i = 0; i < styles.length; i++) {
-        if (styles[i] == 'cover') isCover = true;
-        else if (styles[i] == 'toc-page-break') isTocPageBreak = true;
-        else if (styles[i] == 'word') isWordMargin = true;
-        else if (styles[i] == 'slide') isSlideMode = true;
-    }
-
-    var styleElem = document.createElement('style');
-    if (isCover) {
-        // TODO: slide-cover
-        document.getElementsByClassName('headerTitleSec')[0].classList.add('cover-title');
-        document.getElementsByClassName('headerQuoteSec')[0].classList.add('cover-subtitle');
-        document.getElementsByTagName('header')[0].style.pageBreakAfter = 'always';
-    }
-    if (isWordMargin)
-        styleElem.innerHTML += '@page { margin: 25.4mm 31.8mm; }';
-    else
-        styleElem.innerHTML += '@page { margin: 15mm 15mm; }';
-    if (isSlideMode)
-        styleElem.innerHTML += '@page { size: 297mm 210mm; }';
-    else
-        styleElem.innerHTML += '@page { size: 210mm 297mm; }';
-    if (isTocPageBreak)
-        styleElem.innerHTML += '@media print { .markdown-toc { page-break-after: always; } }';
-    document.head.appendChild(styleElem);
 }

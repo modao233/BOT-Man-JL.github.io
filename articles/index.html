@@ -61,6 +61,39 @@
             return content;
         }
 
+        // Load style from '?style, and add style tag to document
+        function LoadStyle() {
+            var isCover = false, isTocPageBreak = false,
+                isWordMargin = false, isSlideMode = false;
+
+            var styles = GetSearchParam('style').split('+');
+            for (var i = 0; i < styles.length; i++) {
+                if (styles[i] == 'cover') isCover = true;
+                else if (styles[i] == 'toc-page-break') isTocPageBreak = true;
+                else if (styles[i] == 'word') isWordMargin = true;
+                else if (styles[i] == 'slide') isSlideMode = true;
+            }
+
+            var styleElem = document.createElement('style');
+            if (isCover) {
+                // TODO: slide-cover
+                document.getElementsByClassName('headerTitleSec')[0].classList.add('cover-title');
+                document.getElementsByClassName('headerQuoteSec')[0].classList.add('cover-subtitle');
+                document.getElementsByTagName('header')[0].style.pageBreakAfter = 'always';
+            }
+            if (isWordMargin)
+                styleElem.innerHTML += '@page { margin: 25.4mm 31.8mm; }';
+            else
+                styleElem.innerHTML += '@page { margin: 15mm 15mm; }';
+            if (isSlideMode)
+                styleElem.innerHTML += '@page { size: 297mm 210mm; }';
+            else
+                styleElem.innerHTML += '@page { size: 210mm 297mm; }';
+            if (isTocPageBreak)
+                styleElem.innerHTML += '@media print { .markdown-toc { page-break-after: always; } }';
+            document.head.appendChild(styleElem);
+        }
+
         function GetAbsPath(filename) {
             // Trick: set and then get 'href' to find the absolute path of filename
             // http://stackoverflow.com/questions/2639070/get-the-full-uri-from-the-href-property-of-a-link
@@ -150,6 +183,10 @@
             }
         }
         else {
+            // Hide contact section
+            var contactSec = document.getElementsByClassName('contactSec')[0];
+            contactSec.style.display = 'none';
+
             LoadLayout(post + '.md', function (md, title) {
                 var renderer = new MarkdownRenderer();
                 mdSec.innerHTML = renderer.render(md);
@@ -158,7 +195,6 @@
                 FixRelativePaths(GetAbsPath(post));
 
                 // Remove contact section
-                var contactSec = document.getElementsByClassName('contactSec')[0];
                 contactSec.parentElement.removeChild(contactSec);
 
                 // Move elements to left pane
@@ -168,7 +204,7 @@
                     document.getElementsByClassName('headerQuoteSec')[0]);
 
                 // Style
-                LoadStyle();  // depend on MoveFirstElement
+                LoadStyle();
 
                 // Render math
                 renderMathInElement(mdSec, {

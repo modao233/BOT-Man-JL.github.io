@@ -9,9 +9,12 @@
     <link rel="stylesheet" href="/stylesheets/bot-frame.css">
     <style>
         .markdown-body {
-            text-align: center;
             padding: 20px 0;
         }
+
+            .markdown-body blockquote {
+                border-left: none;
+            }
 
             .markdown-body a:hover,
             .markdown-body a:active {
@@ -33,10 +36,10 @@
     <script src="/javascripts/bot-mark.js"></script>
     <script src="/javascripts/bot-frame.js"></script>
     <script>
-        LoadLayout('/static/welcome.md', function (md, title) {
+        LoadLayout('/static/home.md', function (md, title) {
             var renderer = new MarkdownRenderer();
             document.getElementsByClassName('markdown-body')[0]
-                .innerHTML = renderer.marked(md);
+                .innerHTML = renderer.render(md);
             title('Home');
         });
     </script>

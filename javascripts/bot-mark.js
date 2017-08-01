@@ -1,7 +1,7 @@
 ﻿/*
 	BOT-Mark - a BOT Man flavored Markdown renderer :-)
 
-    - https://github.com/BOT-Man-JL/BOT-Mark
+    - https://github.com/BOT-Man-JL/BOT-Man-JL.github.io
     - based on marked (Christopher Jeffrey, https://github.com/chjj/marked)
     - with math patch (ViktorQvarfordt, https://github.com/ViktorQvarfordt/marked)
 

@@ -213,7 +213,7 @@ hr {
 }
 
 @media screen {
-    .slide {
+    .markdown-slide {
         box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.16), 0px 2px 10px 0px rgba(0,0,0,0.12);
         padding: 5px;
         margin: 20px 0;
@@ -221,35 +221,35 @@ hr {
 }
 
 @media print {
-    .slide {
+    .markdown-slide {
         page-break-before: always;
     }
 
-        .slide h1 {
+        .markdown-slide h1 {
             font-size: 44pt;
         }
 
-        .slide h2 {
+        .markdown-slide h2 {
             font-size: 40pt;
         }
 
-        .slide h3 {
+        .markdown-slide h3 {
             font-size: 36pt;
         }
 
-        .slide h4 {
+        .markdown-slide h4 {
             font-size: 32pt;
         }
 
-        .slide p, .slide ul, .slide ol, .slide table, .slide pre, .slide dl {
+        .markdown-slide p, .markdown-slide ul, .markdown-slide ol, .markdown-slide table, .markdown-slide pre, .markdown-slide dl {
             font-size: 28pt;
         }
 
-        .slide blockquote {
+        .markdown-slide blockquote {
             display: none;
         }
 
-        .slide img {
+        .markdown-slide img {
             max-height: 170mm;
         }
 }

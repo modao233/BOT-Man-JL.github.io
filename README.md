@@ -6,7 +6,7 @@
 
 - pure **JavaScript**, do everything in your browser
 - **responsive** page design (_desktop_, _mobile_ and _print_)
-- rendering **BOT Mark**
+- rendering **BOT Mark** (detailed in following section)
   - `[TOC]`
   - number headings
   - LaTeX math (powered by KaTeX)

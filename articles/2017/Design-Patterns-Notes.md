@@ -130,7 +130,7 @@
 - Palette
   - (clone prototype on the palette to create component)
   - (clone composited or decorated component)
-- Registry with key (clone prototype on manager to create component)
+- Registry with key (dependency lookup, clone prototype in manager to create component)
 
 ### Singleton
 
@@ -153,4 +153,35 @@
 
 #### Uses
 
-- XXX manager (manage resources)
+- XXX manager (manage shared resources)
+- Dependency lookup (store dependency objects)
+
+## Structural Patterns
+
+### Adapter
+
+> **Convert** existing **interface** to expected
+
+#### Roles
+
+- **Target** define the expected new interface
+- **Adaptee** expose the existing interface
+- **Adapter** show **Target**'s interface, delegate to **Adaptee**
+  - public inherit the interface of **Target**
+  - private inherit the implementation of / compose an instance of **Adaptee**
+
+#### Process
+
+- **Client** call methods of **Target** on **Adapter**
+- **Adapter** defer request to **Adaptee**
+
+#### Info Hidden
+
+- **Client** not know **Adaptee**
+- **Target** and **Adaptee** not know **Adapter**
+- **Target** and **Adaptee** not know each other
+
+#### Uses
+
+- Mix alternative library to existing toolkit (different interface)
+- View model (convert models to what views expect)

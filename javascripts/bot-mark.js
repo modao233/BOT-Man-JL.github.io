@@ -153,8 +153,7 @@ MarkdownRenderer.prototype.renderReference = function (mdHtml, tocArray) {
         var fragments = text.split('||');
         fragments[0] = that.anchor(fragments[0]);
 
-        var count = countRefs.get(fragments[0]);
-        count = (count == null ? 0 : count) + 1;
+        var count = (countRefs.get(fragments[0]) || 0) + 1;
         countRefs.set(fragments[0], count);
 
         fragments[1] = that.anchor(fragments[1]);
@@ -238,9 +237,7 @@ MarkdownRenderer.prototype.renderKeywordTags = function (mdHtml) {
 MarkdownRenderer.prototype.renderStyleSetters = function (mdHtml) {
     var len1 = '<p>['.length;
     var len2 = ']</p>'.length + len1;
-
-    var styleSetters = mdHtml.match(/<p>\[[^\].]+=[^\].]+\]<\/p>/g);  // avoid ']' inside pairs
-    if (styleSetters == null) styleSetters = [];
+    var styleSetters = mdHtml.match(/<p>\[[^\].]+=[^\].]+\]<\/p>/g) || [];  // avoid ']' inside pairs
 
     for (var j = 0; j < styleSetters.length; j++) {
         var styleSetter = styleSetters[j];
@@ -298,8 +295,7 @@ MarkdownRenderer.prototype.render = function (mdText) {
 
         // Set anchor
         var anchor = that.anchor(raw);
-        var count = anchorMap.get(anchor);
-        count = (count == null ? 0 : count) + 1;
+        var count = (anchorMap.get(anchor) || 0) + 1;
         anchorMap.set(anchor, count);
         if (count > 1) anchor += '_' + count;
 

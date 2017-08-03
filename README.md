@@ -78,6 +78,11 @@ Add links to your articles without `.md` extension.
 
 - BOT Frame will resolve the correct path to **relative _links_ and _images_** for each article. If a link or image works/shows correctly in your markdown editor, it can work/show on your blog as well.
 - BOT Frame will **move first two elements** (recommending a heading and a quoteblock) to left pane, and remove existing contact section.
+- Article page supports **print style** setting by adding `style=STYLE1+STYLE2` to query string.
+  - `cover` => print left pane as a single cover page
+  - `toc-page-break` => page break after TOC
+  - `word` => use _Office Word_ default page margin (recommend Chrome)
+  - `slide` => use landscape A4 paper (recommend Chrome)
 
 ## BOT Mark
 
@@ -85,7 +90,10 @@ Add links to your articles without `.md` extension.
 
 ### Specs
 
-Original markdown spec follows [chjj `marked`](https://github.com/chjj/marked), here we list the additional specs of _BOT Mark_ below.
+Original markdown spec follows [chjj `marked`](https://github.com/chjj/marked).
+Here we list the additional specs of _BOT Mark_:
+
+> `<p>...</p>` means `...` must be surrounded by blank lines.
 
 - heading numbering setting
   - `<p>[heading-numbering]</p>` => auto numbering headings
@@ -94,6 +102,9 @@ Original markdown spec follows [chjj `marked`](https://github.com/chjj/marked), 
   - `[no-toc]` => not add this heading to TOC
 - TOC
   - `<p>[TOC]</p>` => TOC list
+- LaTeX math (powered by [`KaTeX`](https://github.com/Khan/KaTeX))
+  - `$$...$$`, `\[...\]` => block display math
+  - `$...$`, `\(...\)` => inline display math
 - citation
   - `[...]:` (note) => `^^^ [i]`
   - `[...]` (reference) => `[i]` (superscript)
@@ -102,14 +113,14 @@ Original markdown spec follows [chjj `marked`](https://github.com/chjj/marked), 
   - `[...|...]` (item) => `i` (target index)
   - `[sec|...]` (item) => `§ NUMBER/TEXT` (section)
 - slide
-  - `---` / `<hr>` / `</hr>` => slide wrapper
+  - `---` or `<hr>` or `<hr/>` => slide wrapper
   - slide wrapper would seperate article into slides
 - keyword
   - set next element's style (excluding keywords / style setters)
   - `<p>[page-break]</p>` => page break when print
   - `<p>[float-left]</p>`, `<p>[float-right]</p>` => float
   - `<p>[align-left]</p>`, `<p>[align-right]</p>`, `<p>[align-center]</p>` => alignment
-  - `cite-sec` => citation style
+  - `<p>[cite-sec]</p>` => citation style
 - style setter
   - `<p>[TAG=STYLE]</p>`
   - set next TAG's (if present) style to STYLE
@@ -146,7 +157,7 @@ Original markdown spec follows [chjj `marked`](https://github.com/chjj/marked), 
 
 #### `MarkdownRenderer.prototype.mathTags`
 
-- `[ ['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend' ]`
+- `[ ['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'] ]`
 - specify LaTeX math tag pairs
 - https://github.com/ViktorQvarfordt/marked
 
@@ -209,9 +220,9 @@ Original markdown spec follows [chjj `marked`](https://github.com/chjj/marked), 
 
 ``` json
 [
-    'page-break', 'float-left', 'float-right',
-    'align-left', 'align-right', 'align-center',
-    'cite-sec'
+    "page-break", "float-left", "float-right",
+    "align-left", "align-right", "align-center",
+    "cite-sec"
 ]
 ```
 

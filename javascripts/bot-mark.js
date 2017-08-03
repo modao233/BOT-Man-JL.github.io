@@ -70,7 +70,7 @@ MarkdownRenderer.prototype.renderToc = function (mdHtml, tocArray) {
 // Patch for math support
 // Ref: https://github.com/ViktorQvarfordt/marked
 MarkdownRenderer.prototype.mathTags = [
-    ['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend'
+    ['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$']
 ];
 
 // citation

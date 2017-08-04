@@ -185,3 +185,33 @@
 
 - Mix alternative library to existing toolkit (different interface)
 - View model (convert models to what views expect)
+
+### Bridge
+
+> Decouple **abstraction** from **implementation** to vary **independently**
+
+#### Roles
+
+- **Abstraction** define client expected interface
+- **Refinded Abstraction** extend **Abstraction** by subclassing
+- **Abstract Implementor** provide operation primitives for **Abstraction**
+- **Concrete Implementor** define implementation of operations
+
+#### Process
+
+- **Client** call methods of **Abstraction** (or **Refinded Abstraction**)
+- **Abstraction** defer request to **Abstract Implementor**
+- **Abstract Implementor** let **Concrete Implementor** do specific operation
+
+#### Info Hidden
+
+- **Client** not know and not dependend on **Concrete Implementor**
+- **Abstraction** not know **Concrete Implementor**
+- **Abstract Implementor** not know **Concrete Implementor**
+- **Abstract Implementor** and **Concrete Implementor** not know **Abstraction**
+
+#### Uses
+
+- Cross-platform solutions (the same abstraction component with different platform implementation)
+- Dynamic select optimal implementation (determine according to environment status)
+- Implementation + memory management (all instances share the same implemenation)

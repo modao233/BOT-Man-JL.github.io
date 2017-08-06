@@ -1,4 +1,8 @@
-﻿## Education
+﻿[not-print]
+
+> [我的中文简历](/articles/?post=misc/CV-zh&style=two-column) 👈👈👈
+
+## Education
 
 #### 2014.9 - 2018.6
 

@@ -1,4 +1,8 @@
-﻿## 教育
+﻿[not-print]
+
+> [English version of my CV](/articles/?post=misc/CV-en&style=two-column) 👈👈👈
+
+## 教育
 
 #### 2014.9 - 2018.6
 

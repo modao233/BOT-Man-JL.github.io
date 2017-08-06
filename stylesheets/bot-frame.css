@@ -259,11 +259,15 @@ hr {
         }
 }
 
-/* Page break Settings */
+/* Print Settings */
 
 @media print {
     .page-break {
         page-break-after: always;
+    }
+
+    .not-print + * {
+        display: none;
     }
 }
 

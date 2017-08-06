@@ -220,7 +220,7 @@ MarkdownRenderer.prototype.renderSlides = function (mdHtml) {
 MarkdownRenderer.prototype.keywordTags = [
     'page-break', 'float-left', 'float-right',
     'align-left', 'align-right', 'align-center',
-    'cite-sec'
+    'cite-sec', 'not-print'
 ];
 
 MarkdownRenderer.prototype.renderKeywordTags = function (mdHtml) {

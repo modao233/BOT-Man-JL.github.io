@@ -1,10 +1,10 @@
 ﻿## Education
 
-#### 2014.9 - Now (Graduate: 2018.6)
+#### 2014.9 - 2018.6
 
 - Beijing University of Posts and Telecommunications (**BUPT**)
 - Majoring in **Computer Science**
-- GPA: 8.61/10.00; **Ranking: 20%**
+- GPA: 8.6/10.0; **Ranking: 10%**
 
 #### 2016.3 - 2017.4
 
@@ -22,15 +22,18 @@
   - **Modern C++** (Advanced)
   - **C#** (Experienced)
   - **C** (Experienced)
-  - JavaScript (Basic)
+  - **JavaScript** (Experienced)
   - Java (Basic)
 - Solution stacks:
   - **Universal Windows App** (Advanced)
   - **Win32 App** (Experienced)
-  - **ASP.NET** MVC (Experienced)
+  - **ASP.NET MVC** (Experienced)
+  - **Node.js** (Experienced)
   - Web Frontend (Basic)
   - WPF App (Basic)
   - **Editing Video** (using *Sony Vegas*) (Experienced)
+
+[page-break]
 
 ## Experience
 

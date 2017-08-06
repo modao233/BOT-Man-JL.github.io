@@ -106,14 +106,6 @@ section {
         border-top: 1px solid #e5e5e5;
         border-width: 1px 0;
     }
-
-    .markdown-body > *:first-child {
-        margin-top: 0;
-    }
-
-    .markdown-body > *:last-child {
-        margin-bottom: 0;
-    }
 }
 
 /* 480P Layout */

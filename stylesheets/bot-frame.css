@@ -97,9 +97,22 @@ section {
         position: static;
     }
 
+    header {
+        margin-bottom: 20px;
+    }
+
     footer {
+        margin-top: 20px;
         border-top: 1px solid #e5e5e5;
         border-width: 1px 0;
+    }
+
+    .markdown-body > *:first-child {
+        margin-top: 0;
+    }
+
+    .markdown-body > *:last-child {
+        margin-bottom: 0;
     }
 }
 
@@ -254,26 +267,11 @@ hr {
         }
 }
 
-/* Cover Settings */
+/* Page break Settings */
 
 @media print {
     .page-break {
         page-break-after: always;
-    }
-
-    .cover-title, .cover-subtitle {
-        position: absolute;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-    }
-
-    .cover-title {
-        top: 30%;
-    }
-
-    .cover-subtitle {
-        top: 60%;
     }
 }
 

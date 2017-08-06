@@ -10,12 +10,23 @@
     <!-- Math Support -->
     <link rel="stylesheet" href="/stylesheets/katex.min.css">
     <style>
-        .markdown-body > *:first-child {
-            margin-top: 20px;
-        }
-
         .headerQuoteSec blockquote {
             padding: 0 0 0 15px;
+        }
+
+        .cover-title, .cover-subtitle {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .cover-title {
+            top: 30%;
+        }
+
+        .cover-subtitle {
+            top: 60%;
         }
     </style>
 </head>
@@ -39,8 +50,9 @@
     <script>
         var mdSec = document.getElementsByClassName('markdown-body')[0];
 
-        // Move First Element from 'mdSec to 'dstSec, and return innerHTML
-        function MoveFirstElement(dstSec) {
+        // Move first element from 'mdSec to 'dstSec if matching 'tagName
+        // Return innerHTML of the element
+        function MoveFirstElement(dstSec, tagName) {
             var childLen = mdSec.childNodes.length;
             var curElem = 0;
 
@@ -49,48 +61,42 @@
                 mdSec.childNodes[curElem].nodeType != 1)
                 curElem++;
 
-            var content = null;
-            if (curElem < childLen) {
-                content = mdSec.childNodes[curElem].innerHTML;
-                dstSec.innerHTML +=
-                    '<' + mdSec.childNodes[curElem].tagName + '>' +
-                    content +
-                    '</' + mdSec.childNodes[curElem].tagName + '>';
-                mdSec.removeChild(mdSec.childNodes[curElem]);
-            }
+            if (curElem >= childLen) return null;
+            if (tagName && mdSec.childNodes[curElem].tagName.toUpperCase() != tagName.toUpperCase())
+                return null;
+
+            var content = mdSec.childNodes[curElem].innerHTML;
+            dstSec.innerHTML += '<' + tagName + '>' + content + '</' + tagName + '>';
+            mdSec.removeChild(mdSec.childNodes[curElem]);
             return content;
         }
 
         // Load style from '?style, and add style tag to document
         function LoadStyle() {
-            var isCover = false, isTocPageBreak = false,
-                isWordMargin = false, isSlideMode = false;
-
-            var styles = GetSearchParam('style').split('+');
-            for (var i = 0; i < styles.length; i++) {
-                if (styles[i] == 'cover') isCover = true;
-                else if (styles[i] == 'toc-page-break') isTocPageBreak = true;
-                else if (styles[i] == 'word') isWordMargin = true;
-                else if (styles[i] == 'slide') isSlideMode = true;
-            }
+            var styles = {};
+            var stylesParam = GetSearchParam('style').split('+');
+            for (var i = 0; i < stylesParam.length; i++)
+                styles[stylesParam[i]] = true;
 
             var styleElem = document.createElement('style');
-            if (isCover) {
+            if (styles['cover']) {
                 // TODO: slide-cover
                 document.getElementsByClassName('headerTitleSec')[0].classList.add('cover-title');
                 document.getElementsByClassName('headerQuoteSec')[0].classList.add('cover-subtitle');
                 document.getElementsByTagName('header')[0].style.pageBreakAfter = 'always';
             }
-            if (isWordMargin)
+            if (styles['word'])
                 styleElem.innerHTML += '@page { margin: 25.4mm 31.8mm; }';
             else
                 styleElem.innerHTML += '@page { margin: 15mm 15mm; }';
-            if (isSlideMode)
+            if (styles['slide'])
                 styleElem.innerHTML += '@page { size: 297mm 210mm; }';
             else
                 styleElem.innerHTML += '@page { size: 210mm 297mm; }';
-            if (isTocPageBreak)
+            if (styles['toc-page-break'])
                 styleElem.innerHTML += '@media print { .markdown-toc { page-break-after: always; } }';
+            if (styles['two-column'])
+                styleElem.innerHTML += '@media print { .markdown-body { column-count: 2; } }';
             document.head.appendChild(styleElem);
         }
 
@@ -190,17 +196,20 @@
                 var renderer = new MarkdownRenderer();
                 mdSec.innerHTML = renderer.render(md);
 
-                // Set base
+                // Fix anchor/img relative paths
                 FixRelativePaths(GetAbsPath(post));
 
-                // Remove contact section
-                contactSec.parentElement.removeChild(contactSec);
-
-                // Move elements to left pane
-                var titleStr = MoveFirstElement(
-                    document.getElementsByClassName('headerTitleSec')[0]);
-                MoveFirstElement(
-                    document.getElementsByClassName('headerQuoteSec')[0]);
+                // Detect title and handle contactSec
+                var titleStr =
+                    MoveFirstElement(document.getElementsByClassName('headerTitleSec')[0], 'h1');
+                if (titleStr) {
+                    MoveFirstElement(document.getElementsByClassName('headerQuoteSec')[0]);
+                    contactSec.parentElement.removeChild(contactSec);
+                }
+                else {
+                    titleStr = post.substr(post.lastIndexOf('/') + 1);  // filename
+                    contactSec.style.display = 'block';
+                }
 
                 // Style
                 LoadStyle();

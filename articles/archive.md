@@ -1,4 +1,8 @@
-﻿## 思考 / Thinking
+﻿- [搜集的哲言](misc/Quotes)
+- [搜集的书签](misc/Bookmarks)
+- [My CV](misc/CV-en) | [我的简历](misc/CV-zh)
+
+## 思考 / Thinking
 
 #### 2017
 
@@ -36,8 +40,3 @@
 
 - [无hack，不青春](2015/MS-Campus-Hackathon)
 - [Week 44](2015/Week-44)
-
-## 收藏 / Collection
-
-- [搜集的哲言](misc/Quotes)
-- [书签](misc/Bookmarks)

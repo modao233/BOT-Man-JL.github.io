@@ -19,7 +19,6 @@
 
 - Write  `static/config.json` for your basic info
 - Design `static/home.md` as your home page
-- Write  `about/about-[en/zh].md` as your resume
 - Replace articles in `articles/` with yours
 - Write  `articles/archive` as the content table of your articles
 - Update `favicon.ico` as your icon
@@ -55,8 +54,7 @@ Set `name`, `github`, `email`, (`phone`), `pages` (navigation), `footer` to your
   },
   "pages": {
     "🏠": "/",
-    "📝": "/articles/",
-    "😊": "/about/"
+    "📝": "/articles/"
   },
   "footer": [
     "<a href='https://xxx.github.io'>https://xxx.github.io</a>",
@@ -77,12 +75,13 @@ Add links to your articles without `.md` extension.
 ### articles/xxx.md
 
 - BOT Frame will resolve the correct path to **relative _links_ and _images_** for each article. If a link or image works/shows correctly in your markdown editor, it can work/show on your blog as well.
-- BOT Frame will **move first two elements** (recommending a heading and a quoteblock) to left pane, and remove existing contact section.
+- BOT Frame will **move first two elements** (a H1 heading and a blockquote) to left pane, and remove existing contact section.
 - Article page supports **print style** setting by adding `style=STYLE1+STYLE2` to query string.
   - `cover` => print left pane as a single cover page
-  - `toc-page-break` => page break after TOC
   - `word` => use _Office Word_ default page margin (recommend Chrome)
   - `slide` => use landscape A4 paper (recommend Chrome)
+  - `toc-page-break` => page break after TOC
+  - `two-column` => two column style (except left pane)
 
 ## BOT Mark
 

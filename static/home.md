@@ -18,4 +18,4 @@
 
 [align-center]
 
-# [📝 ~/articles](/articles/) | [😊 ~/about](/about/)
+# [📝 ~/articles](/articles/)

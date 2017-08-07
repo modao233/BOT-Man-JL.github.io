@@ -1,6 +1,8 @@
 ﻿[not-print]
 
-> [English version of my CV](/articles/?post=misc/CV-en&style=two-column) 👈👈👈
+[float-right]
+
+[EN](/articles/?post=misc/CV-en&style=two-column) | 中文
 
 ## 教育
 

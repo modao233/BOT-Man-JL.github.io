@@ -116,6 +116,7 @@ Here we list the additional specs of _BOT Mark_:
   - slide wrapper would seperate article into slides
 - keyword
   - set next element's style (excluding keywords / style setters)
+  - adjacent tags will be merged (still affect next valid element)
   - `<p>[page-break]</p>` => page break when print
   - `<p>[float-left]</p>`, `<p>[float-right]</p>` => float
   - `<p>[align-left]</p>`, `<p>[align-right]</p>`, `<p>[align-center]</p>` => alignment

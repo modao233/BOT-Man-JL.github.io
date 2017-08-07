@@ -231,7 +231,10 @@ MarkdownRenderer.prototype.renderKeywordTags = function (mdHtml) {
         condStr += '|' + this.keywordTags[i];
 
     var regExp = new RegExp('<p>\\[(' + condStr + ')\\]<\\/p>', 'g');
-    return mdHtml.replace(regExp, '<div class="$1"></div>');
+    mdHtml = mdHtml.replace(regExp, '<div class="$1"></div>');
+
+    // Merge adjacent tags
+    return mdHtml.replace(/"><\/div>[\r\n]*<div class="/g, ' ');
 };
 
 MarkdownRenderer.prototype.renderStyleSetters = function (mdHtml) {

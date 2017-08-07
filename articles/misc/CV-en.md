@@ -1,6 +1,8 @@
 ﻿[not-print]
 
-> [我的中文简历](/articles/?post=misc/CV-zh&style=two-column) 👈👈👈
+[float-right]
+
+EN | [中文](/articles/?post=misc/CV-zh&style=two-column)
 
 ## Education
 

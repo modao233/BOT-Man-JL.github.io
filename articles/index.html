@@ -48,11 +48,25 @@
     <script src="/javascripts/katex.min.js"></script>
     <script src="/javascripts/auto-render.min.js"></script>
     <script>
+        // Retrieve search string
+        function getSearchString(target) {
+            var searchStr = document.location.search;
+
+            var beg = searchStr.indexOf(target);
+            if (beg == -1) return '';
+
+            beg += target.length + 1;
+            var end = searchStr.indexOf('&', beg);
+            if (end == -1) end = searchStr.length;
+
+            return searchStr.substr(beg, end - beg);
+        }
+
         var mdSec = document.getElementsByClassName('markdown-body')[0];
 
         // Move first element from 'mdSec to 'dstSec if matching 'tagName
         // Return innerHTML of the element
-        function MoveFirstElement(dstSec, tagName) {
+        function moveFirstElement(dstSec, tagName) {
             var childLen = mdSec.childNodes.length;
             var curElem = 0;
 
@@ -71,10 +85,25 @@
             return content;
         }
 
+        // Render LaTeX math inside 'mdSec
+        function renderMath() {
+            renderMathInElement(mdSec, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '\\[', right: '\\]', display: true },
+                    { left: '$', right: '$', display: false },
+                    { left: '\\(', right: '\\)', display: false }
+                ],
+                ignoredTags: [
+                    'script', 'noscript', 'style', 'textarea', 'pre', 'code'
+                ]
+            });
+        }
+
         // Load style from '?style, and add style tag to document
-        function LoadStyle() {
+        function loadPrintStyle() {
             var styles = {};
-            var stylesParam = GetSearchParam('style').split('+');
+            var stylesParam = getSearchString('style').split('+');
             for (var i = 0; i < stylesParam.length; i++)
                 styles[stylesParam[i]] = true;
 
@@ -100,52 +129,54 @@
             document.head.appendChild(styleElem);
         }
 
-        function GetAbsPath(filename) {
-            // Trick: set and then get 'href' to find the absolute path of filename
-            // http://stackoverflow.com/questions/2639070/get-the-full-uri-from-the-href-property-of-a-link
-            var aElem = document.createElement('A');
-            aElem.href = filename;
+        // Fix relative paths inside 'mdSec according to 'filename
+        function fixMarkdownPaths(filename) {
 
-            // NOT Same Origin File
-            if (aElem.href.indexOf(location.origin) == -1)
-                return null;
+            function getAbsPath(filename) {
+                // Trick: set and then get 'href' to find the absolute path of filename
+                // http://stackoverflow.com/questions/2639070/get-the-full-uri-from-the-href-property-of-a-link
+                var aElem = document.createElement('A');
+                aElem.href = filename;
 
-            // Get absPath (including ending '/')
-            return aElem.href.substr(0, aElem.href.lastIndexOf('/') + 1);
-        }
+                // NOT Same Origin File
+                if (aElem.href.indexOf(location.origin) == -1)
+                    return null;
 
-        function GetRelPath(basePath, destPath) {
-            var commonLen = 0;
-            for (; commonLen < basePath.length || commonLen < destPath.length; commonLen++)
-                if (basePath[commonLen] != destPath[commonLen])
-                    break;
+                // Get absPath (including ending '/')
+                return aElem.href.substr(0, aElem.href.lastIndexOf('/') + 1);
+            }
 
-            for (; commonLen > 0; commonLen--)
-                if (basePath[commonLen - 1] == '/')
-                    break;
+            function getRelPath(basePath, destPath) {
+                var commonLen = 0;
+                for (; commonLen < basePath.length || commonLen < destPath.length; commonLen++)
+                    if (basePath[commonLen] != destPath[commonLen])
+                        break;
 
-            // Case: Contains Relationship
-            if (commonLen >= basePath.length || commonLen >= destPath.length)
-                commonLen = Math.min(basePath.length, destPath.length);
+                for (; commonLen > 0; commonLen--)
+                    if (basePath[commonLen - 1] == '/')
+                        break;
 
-            var parents = basePath.substring(commonLen)
-                .replace(/[^\/]*$/, '').replace(/.*?\//g, '../');
+                // Case: Contains Relationship
+                if (commonLen >= basePath.length || commonLen >= destPath.length)
+                    commonLen = Math.min(basePath.length, destPath.length);
 
-            return (parents + destPath.substring(commonLen)) || './';
-        }
+                var parents = basePath.substring(commonLen)
+                    .replace(/[^\/]*$/, '').replace(/.*?\//g, '../');
 
-        function FixRelativePaths(mdAbsPath) {
-            // Trick: use reflection 'attrName' to access property
-            // http://stackoverflow.com/questions/4244896/dynamically-access-object-property-using-variable
-            function fixAll(tagName, attrName) {
+                return (parents + destPath.substring(commonLen)) || './';
+            }
+
+            var mdAbsPath = getAbsPath(filename);
+
+            function fixAll(tagName, attrName, fix) {
                 var elems = mdSec.getElementsByTagName(tagName);
                 for (var j = 0; j < elems.length; j++) {
-                    // Store original literal of attr
-                    var rawSrc = elems[j].getAttribute(attrName);
-                    var src = elems[j][attrName];
+
+                    var rawSrc = elems[j].getAttribute(attrName);  // original literal
+                    var src = elems[j][attrName];  // parsed source path
 
                     if (src.indexOf(location.origin) != -1 &&  // Same Origin
-                        rawSrc.indexOf(location.origin) == -1 &&  // Relative Path
+                        rawSrc.indexOf(location.origin) == -1 &&  // NOT Absolute Path
                         rawSrc[0] != '/' &&  // NOT Root-Relative Path
                         rawSrc[0] != '#')  // NOT Hash
                     {
@@ -155,34 +186,45 @@
                         var absPath = aElem.href;
 
                         // Get relPath
-                        var relPath = GetRelPath(location.origin + location.pathname, absPath);
+                        var relPath = getRelPath(location.origin + location.pathname, absPath);
 
                         // Set with pattern
-                        elems[j][attrName] = absPath;
+                        elems[j][attrName] = fix(relPath);
                     }
                 }
             }
 
-            fixAll('A', 'href');
-            fixAll('IMG', 'src');
+            fixAll('A', 'href', function (relPath) {
+                var mdExtension = '.md';
+                if (relPath.substr(relPath.length - mdExtension.length) == mdExtension)
+                    relPath = './?post=' + relPath.substr(0, relPath.length - mdExtension.length);
+                return relPath;
+            });
+            fixAll('IMG', 'src', function (relPath) { return relPath; });
         }
 
-        var post = GetSearchParam('post');
+        // LoadLayout Wrapper
+        function loadMarkdown(filename, done) {
+            loadLayout(filename, function (md, title) {
+                var renderer = new MarkdownRenderer();
+                mdSec.innerHTML = renderer.render(md);
+
+                // fix relative paths before done
+                fixMarkdownPaths(filename);
+
+                // callback (pass title setter)
+                if (done) done(title);
+            });
+        }
+
+        var post = getSearchString('post');
         if (post == '') {
             if (location.hash != null && location.hash.length > 1) {
                 // Compatible with legacy hash routing
                 location = './?post=' + location.hash.substr(1);
             }
             else {
-                LoadLayout('archive.md', function (md, title) {
-                    var renderer = new MarkdownRenderer();
-                    mdSec.innerHTML = renderer.render(md);
-
-                    var anchors = mdSec.getElementsByTagName('A');
-                    for (var j = 0; j < anchors.length; j++) {
-                        var raw = anchors[j].getAttribute('href');  // literal
-                        anchors[j].href = './?post=' + raw;
-                    }
+                loadMarkdown('archive.md', function (title) {
                     title('Articles');
                 });
             }
@@ -192,18 +234,12 @@
             var contactSec = document.getElementsByClassName('contactSec')[0];
             contactSec.style.display = 'none';
 
-            LoadLayout(post + '.md', function (md, title) {
-                var renderer = new MarkdownRenderer();
-                mdSec.innerHTML = renderer.render(md);
-
-                // Fix anchor/img relative paths
-                FixRelativePaths(GetAbsPath(post));
-
+            loadMarkdown(post + '.md', function (title) {
                 // Detect title and handle contactSec
                 var titleStr =
-                    MoveFirstElement(document.getElementsByClassName('headerTitleSec')[0], 'h1');
+                    moveFirstElement(document.getElementsByClassName('headerTitleSec')[0], 'h1');
                 if (titleStr) {
-                    MoveFirstElement(document.getElementsByClassName('headerQuoteSec')[0]);
+                    moveFirstElement(document.getElementsByClassName('headerQuoteSec')[0]);
                     contactSec.parentElement.removeChild(contactSec);
                 }
                 else {
@@ -211,22 +247,8 @@
                     contactSec.style.display = 'block';
                 }
 
-                // Style
-                LoadStyle();
-
-                // Render math
-                renderMathInElement(mdSec, {
-                    delimiters: [
-                        { left: '$$', right: '$$', display: true },
-                        { left: '\\[', right: '\\]', display: true },
-                        { left: '$', right: '$', display: false },
-                        { left: '\\(', right: '\\)', display: false }
-                    ],
-                    ignoredTags: [
-                        'script', 'noscript', 'style', 'textarea', 'pre', 'code'
-                    ]
-                });
-
+                renderMath();
+                loadPrintStyle();
                 title(titleStr);
             });
         }

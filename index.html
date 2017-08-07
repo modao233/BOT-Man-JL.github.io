@@ -36,7 +36,7 @@
     <script src="/javascripts/bot-mark.js"></script>
     <script src="/javascripts/bot-frame.js"></script>
     <script>
-        LoadLayout('/static/home.md', function (md, title) {
+        loadLayout('/static/home.md', function (md, title) {
             var renderer = new MarkdownRenderer();
             document.getElementsByClassName('markdown-body')[0]
                 .innerHTML = renderer.render(md);

@@ -2,7 +2,7 @@
 
 [float-right]
 
-[EN](/articles/?post=misc/CV-en&style=two-column) | 中文
+[EN](CV-en.md) | 中文
 
 ## 教育
 

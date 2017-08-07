@@ -63,25 +63,25 @@ Set `name`, `github`, `email`, (`phone`), `pages` (navigation), `footer` to your
 }
 ```
 
-### [articles/archive.md](articles/archive.md)
+### Articles Page
 
-Add links to your articles without `.md` extension.
-
-``` markdown
-- [file_in_articles_folder](xxx)
-- [file_in_articles_2017_folder](2017/xxx)
-```
-
-### articles/xxx.md
-
-- BOT Frame will resolve the correct path to **relative _links_ and _images_** for each article. If a link or image works/shows correctly in your markdown editor, it can work/show on your blog as well.
-- BOT Frame will **move first two elements** (a H1 heading and a blockquote) to left pane, and remove existing contact section.
-- Article page supports **print style** setting by adding `style=STYLE1+STYLE2` to query string.
+- BOT Frame will detect if the page is an **_article_ or _archive_ page**.
+  - without `post` query string => load [articles/archive.md](articles/archive.md) as an _archive_
+  - with a `post` query string => add extension `.md` to `post`, and load that file as an _article_
+- BOT Frame will resolve correct paths for **relative _articles_ and _images_**.
+  - _articles_ => relative markdown file path that ending with `.md`
+  - _miscellaneous_ => relative file path that NOT ending with `.md`
+  - _images_ => relative image path inside `<img>` tags
+- BOT Frame will detect **article title** of a markdown file.
+  - starting with `H1` _heading_ => set heading text as title, move first two elements of article to left pane, and remove contact section
+  - NOT starting with `H1` => set filename as title, and keep contact section
+- Article page supports **print style** setting by adding `style=STYLES` to query string.
   - `cover` => print left pane as a single cover page
   - `word` => use _Office Word_ default page margin (recommend Chrome)
   - `slide` => use landscape A4 paper (recommend Chrome)
   - `toc-page-break` => page break after TOC
   - `two-column` => two column style (except left pane)
+  - `STYLES` <= style strings concatenated by `+`
 
 ## BOT Mark
 

@@ -1,26 +1,8 @@
 ﻿/*
-	Modules for GitHub Page :-)
-
-    - GetSearchParam
-    - FileLoader
-    - ConfigLoader
-    - LoadLayout
+	loadLayout module for GitHub Page :-)
 
 	BOT Man, 2017 (MIT License)
 */
-
-function GetSearchParam(target) {
-    var searchStr = document.location.search;
-
-    var beg = searchStr.indexOf(target);
-    if (beg == -1) return '';
-
-    beg += target.length + 1;
-    var end = searchStr.indexOf('&', beg);
-    if (end == -1) end = searchStr.length;
-
-    return searchStr.substr(beg, end - beg);
-}
 
 function FileLoader() { }
 
@@ -98,7 +80,7 @@ ConfigLoader.prototype.footer = function (config) {
     return footerHtml;
 };
 
-function LoadLayout(filename, callback) {
+function loadLayout(filename, callback) {
     var configLoader = new ConfigLoader();
     function loadSec(config, sec) {
         document.getElementsByClassName(sec + 'Sec')[0]
@@ -129,4 +111,8 @@ function LoadLayout(filename, callback) {
             document.title = 'Loading Failed';
         }
     });
+}
+
+if (typeof module !== 'undefined' && typeof exports === 'object') {
+    module.exports = loadLayout;
 }

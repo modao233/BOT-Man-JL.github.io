@@ -1,6 +1,6 @@
-﻿[align-center]
+﻿[float-right]
 
-[关于 BOT Frame](../README.md)
+> [关于 BOT Frame](../README.md)
 
 ## 思考 | Thinking
 

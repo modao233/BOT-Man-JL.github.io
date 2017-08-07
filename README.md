@@ -17,11 +17,11 @@
 
 ## Get Started
 
-- Write  `static/config.json` for your basic info
-- Design `static/home.md` as your home page
+- Write [static/config.json](static/config.json) for your basic info
+- Design [static/home.md](static/home.md) as your home page
 - Replace articles in `articles/` with yours
-- Write  `articles/archive` as the content table of your articles
-- Update `favicon.ico` as your icon
+- Write [articles/archive.md](articles/archive.md) as the content table of your articles
+- Update [favicon.ico](favicon.ico) as your icon
 - Upload to your _GitHub Pages repository_
 - Enjoy it 😉
 

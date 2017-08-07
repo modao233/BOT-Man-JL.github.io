@@ -25,6 +25,14 @@ MarkdownRenderer.prototype._escapeRegExp = function (text) {
     return text.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
 };
 
+MarkdownRenderer.prototype._isInTag = function (mdHtml, tagName, pos) {
+    var prevOpen = mdHtml.lastIndexOf('<' + tagName + '>', pos);
+    var prevClose = mdHtml.lastIndexOf('</' + tagName + '>', pos);
+    var nextOpen = mdHtml.indexOf('<' + tagName + '>', pos); if (nextOpen == -1) nextOpen = mdHtml.length;
+    var nextClose = mdHtml.indexOf('</' + tagName + '>', pos); if (nextClose == -1) nextClose = mdHtml.length;
+    return prevClose < prevOpen && nextClose < nextOpen;
+};
+
 MarkdownRenderer.prototype.anchor = function (text) {
     return text.toLowerCase()
         .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
@@ -96,7 +104,11 @@ MarkdownRenderer.prototype.renderCitation = function (mdHtml) {
 
     // Render Note
     var noteIndex = 0;
-    mdHtml = mdHtml.replace(/\[.*\]:/g, function (text) {
+    mdHtml = mdHtml.replace(/\[.*\]:/g, function (text, pos) {
+        // Escape in <code> and <pre>
+        if (that._isInTag(mdHtml, 'code', pos) || that._isInTag(mdHtml, 'pre', pos))
+            return text;
+
         citeTags.push(text.substr(0, text.length - 1));
         var anchor = that.anchor(text.substr(1, text.length - 3));
         return that.citeNote(anchor, ++noteIndex);
@@ -163,7 +175,11 @@ MarkdownRenderer.prototype.renderReference = function (mdHtml, tocArray) {
     });
 
     // Ref entry (or section)
-    mdHtml = mdHtml.replace(/\[[^\].]+\|[^\].]+\]/g, function (text) {
+    mdHtml = mdHtml.replace(/\[[^\].]+\|[^\].]+\]/g, function (text, pos) {
+        // Escape in <code> and <pre>
+        if (that._isInTag(mdHtml, 'code', pos) || that._isInTag(mdHtml, 'pre', pos))
+            return text;
+
         var fragments = text.substr(1, text.length - 2).split('|');
         fragments[0] = that.anchor(fragments[0]);
 

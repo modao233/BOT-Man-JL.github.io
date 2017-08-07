@@ -26,9 +26,9 @@ MarkdownRenderer.prototype._escapeRegExp = function (text) {
 };
 
 MarkdownRenderer.prototype._isInTag = function (mdHtml, tagName, pos) {
-    var prevOpen = mdHtml.lastIndexOf('<' + tagName + '>', pos);
+    var prevOpen = mdHtml.lastIndexOf('<' + tagName, pos);
     var prevClose = mdHtml.lastIndexOf('</' + tagName + '>', pos);
-    var nextOpen = mdHtml.indexOf('<' + tagName + '>', pos); if (nextOpen == -1) nextOpen = mdHtml.length;
+    var nextOpen = mdHtml.indexOf('<' + tagName, pos); if (nextOpen == -1) nextOpen = mdHtml.length;
     var nextClose = mdHtml.indexOf('</' + tagName + '>', pos); if (nextClose == -1) nextClose = mdHtml.length;
     return prevClose < prevOpen && nextClose < nextOpen;
 };
@@ -121,7 +121,11 @@ MarkdownRenderer.prototype.renderCitation = function (mdHtml) {
         // Render Ref
         var refIndex = 0;
         var derefHTML = ' ';  // Use RegExp to construct global replacement
-        mdHtml = mdHtml.replace(new RegExp(that._escapeRegExp(citeTags[i]), 'g'), function () {
+        mdHtml = mdHtml.replace(new RegExp(that._escapeRegExp(citeTags[i]), 'g'), function (text, pos) {
+            // Escape in <code> and <pre>
+            if (that._isInTag(mdHtml, 'code', pos) || that._isInTag(mdHtml, 'pre', pos))
+                return text;
+
             derefHTML += that.citeDeref(anchor, ++refIndex) + ' ';
             return that.citeRef(anchor, noteIndex, refIndex);
         });

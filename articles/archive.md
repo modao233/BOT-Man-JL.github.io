@@ -1,8 +1,8 @@
-﻿- [搜集的哲言](misc/Quotes.md)
-- [搜集的书签](misc/Bookmarks.md)
-- [My CV](misc/CV-en.md) | [我的简历](misc/CV-zh.md)
+﻿[align-center]
 
-## 思考 / Thinking
+[关于 BOT Frame](../README.md)
+
+## 思考 | Thinking
 
 #### 2017
 
@@ -21,7 +21,7 @@
 - [如何设计一个 更好的 C++ ORM](2016/How-to-Design-a-Better-Cpp-ORM.md)
 - [如何设计一个 简单的 C++ ORM](2016/How-to-Design-a-Naive-Cpp-ORM.md)
 
-## 生活 / Life
+## 生活 | Life
 
 #### 2017
 
@@ -40,3 +40,9 @@
 
 - [无hack，不青春](2015/MS-Campus-Hackathon.md)
 - [Week 44](2015/Week-44.md)
+
+## 其他 | Miscellaneous
+
+- [搜集的哲言](misc/Quotes.md)
+- [搜集的书签](misc/Bookmarks.md)
+- [My CV](misc/CV-en.md) | [我的简历](misc/CV-zh.md)

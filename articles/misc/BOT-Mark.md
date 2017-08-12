@@ -1,12 +1,12 @@
 ﻿# BOT Mark
 
-> BOT Mark is a BOT Man flavored Markdown renderer.
+> BOT Mark is a BOT Man flavored Markdown specification.
 
 [align-center]
 
 ## [Live Demo](BOT-Mark-Demo.md)
 
-Click [**HERE**](https://BOT-Man-JL.github.io/articles/?post=misc/BOT-Mark-Demo) if you are from `GitHub.com`...
+Click **[HERE](https://BOT-Man-JL.github.io/articles/?post=misc/BOT-Mark-Demo)** if you are from `GitHub.com`...
 
 ## Specs
 

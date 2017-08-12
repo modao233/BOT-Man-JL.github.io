@@ -1,12 +1,12 @@
 ﻿# BOT Frame
 
-> **BOT Frame** is a **pure browser-rendering Blog Framework** for *GitHub Pages*, based on **BOT Mark**.
+> BOT Frame is a **pure browser-rendering** Blog Framework for _GitHub Pages_, based on [BOT Mark](articles/misc/BOT-Mark.md).
 
 ## Features
 
 - pure **JavaScript**, pure **browser-rendering** in your browser
 - **responsive** page design (_desktop_, _mobile_ and _print_)
-- Support [BOT Mark](articles/misc/BOT-Mark.md)
+- Support _**[BOT Mark](articles/misc/BOT-Mark.md)**_ 👈
   - `[TOC]`
   - number headings
   - LaTeX math (powered by KaTeX)

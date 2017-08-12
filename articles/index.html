@@ -50,7 +50,7 @@
     <script>
         // Retrieve search string
         function getSearchString(target) {
-            var searchStr = document.location.search;
+            var searchStr = location.search;
 
             var beg = searchStr.indexOf(target);
             if (beg == -1) return '';
@@ -80,7 +80,7 @@
                 return null;
 
             var content = mdSec.childNodes[curElem].innerHTML;
-            dstSec.innerHTML += '<' + tagName + '>' + content + '</' + tagName + '>';
+            dstSec.innerHTML = '<' + tagName + '>' + content + '</' + tagName + '>';
             mdSec.removeChild(mdSec.childNodes[curElem]);
             return content;
         }
@@ -203,38 +203,31 @@
             fixAll('IMG', 'src', function (relPath) { return relPath; });
         }
 
-        // LoadLayout Wrapper
-        function loadMarkdown(filename, done) {
-            loadLayout(filename, function (md, title) {
-                var renderer = new MarkdownRenderer();
-                mdSec.innerHTML = renderer.render(md);
-
-                // fix relative paths before done
-                fixMarkdownPaths(filename);
-
-                // callback (pass title setter)
-                if (done) done(title);
-            });
-        }
-
         var post = getSearchString('post');
         if (post == '') {
             if (location.hash != null && location.hash.length > 1) {
                 // Compatible with legacy hash routing
-                location = './?post=' + location.hash.substr(1);
+                window.location = './?post=' + location.hash.substr(1);
             }
             else {
-                loadMarkdown('archive.md', function (title) {
-                    title('Articles');
-                });
+                // Goto archive page by default
+                post = 'archive';
             }
         }
-        else {
+
+        if (post != '') {
+            var renderer = new MarkdownRenderer();
+
             // Hide contact section
             var contactSec = document.getElementsByClassName('contactSec')[0];
             contactSec.style.display = 'none';
 
-            loadMarkdown(post + '.md', function (title) {
+            loadLayout(post + '.md', function (md, title) {
+                mdSec.innerHTML = renderer.render(md);
+
+                // fix relative paths before done
+                fixMarkdownPaths(post);
+
                 // Detect title and handle contactSec
                 var titleStr =
                     moveFirstElement(document.getElementsByClassName('headerTitleSec')[0], 'h1');
@@ -252,6 +245,54 @@
                 title(titleStr);
             });
         }
+
+        // Support Drag and Drop files
+        function allowDropFiles() {
+            if (!window.File || !window.FileList || !window.FileReader) return;
+
+            // Drop then read files
+            window.addEventListener('drop', function (evt) {
+                evt.stopPropagation();
+                evt.preventDefault();
+
+                var files = evt.dataTransfer.files;
+                if (files.length == 0) return;
+
+                var file = files[0];
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    mdSec.innerHTML = renderer.render(e.target.result);
+
+                    var headerTitleSec = document.getElementsByClassName('headerTitleSec')[0];
+                    var headerQuoteSec = document.getElementsByClassName('headerQuoteSec')[0];
+
+                    var titleStr = moveFirstElement(headerTitleSec, 'h1');
+                    if (titleStr) {
+                        moveFirstElement(headerQuoteSec);
+                    }
+                    else {
+                        titleStr =
+                            file.name.substr(0, file.name.lastIndexOf('.md')) + ' | Preview';
+                        headerTitleSec.innerHTML = '<h1>' + titleStr + '</h1>';
+                        headerQuoteSec.innerHTML = '';
+                    }
+                    renderMath();
+                    document.title = titleStr;
+                };
+
+                // Read in the image file as a data URL.
+                reader.readAsText(file);
+            });
+
+            // Dragover effect
+            window.addEventListener('dragover', function (evt) {
+                evt.stopPropagation();
+                evt.preventDefault();
+                evt.dataTransfer.dropEffect = 'copy';
+            });
+        }
+        allowDropFiles();
     </script>
 </body>
 </html>

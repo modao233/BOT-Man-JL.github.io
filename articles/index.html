@@ -247,8 +247,13 @@
         }
 
         // Support Drag and Drop files
-        function allowDropFiles() {
-            if (!window.File || !window.FileList || !window.FileReader) return;
+        if (window.File && window.FileList && window.FileReader) {
+            // Dragover effect
+            window.addEventListener('dragover', function (evt) {
+                evt.stopPropagation();
+                evt.preventDefault();
+                evt.dataTransfer.dropEffect = 'copy';
+            });
 
             // Drop then read files
             window.addEventListener('drop', function (evt) {
@@ -280,19 +285,9 @@
                     renderMath();
                     document.title = titleStr;
                 };
-
-                // Read in the image file as a data URL.
                 reader.readAsText(file);
             });
-
-            // Dragover effect
-            window.addEventListener('dragover', function (evt) {
-                evt.stopPropagation();
-                evt.preventDefault();
-                evt.dataTransfer.dropEffect = 'copy';
-            });
         }
-        allowDropFiles();
     </script>
 </body>
 </html>

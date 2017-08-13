@@ -269,6 +269,10 @@
                 reader.onload = function (e) {
                     mdSec.innerHTML = renderer.render(e.target.result);
 
+                    // Hide contact section if it still exists
+                    var contactSec = document.getElementsByClassName('contactSec')[0];
+                    if (contactSec) contactSec.style.display = 'none';
+
                     var headerTitleSec = document.getElementsByClassName('headerTitleSec')[0];
                     var headerQuoteSec = document.getElementsByClassName('headerQuoteSec')[0];
 
@@ -278,12 +282,12 @@
                     }
                     else {
                         titleStr =
-                            file.name.substr(0, file.name.lastIndexOf('.md')) + ' | Preview';
+                            file.name.substr(0, file.name.lastIndexOf('.md'));
                         headerTitleSec.innerHTML = '<h1>' + titleStr + '</h1>';
-                        headerQuoteSec.innerHTML = '';
+                        headerQuoteSec.innerHTML = new Date().toLocaleDateString();
                     }
                     renderMath();
-                    document.title = titleStr;
+                    document.title = titleStr + ' | Preview';
                 };
                 reader.readAsText(file);
             });

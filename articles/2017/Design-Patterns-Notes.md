@@ -214,4 +214,31 @@
 
 - Cross-platform solutions (the same abstraction component with different platform implementation)
 - Dynamic select optimal implementation (determine according to environment status)
-- Implementation + memory management (all instances share the same implemenation)
+- Implementation with memory management (all instances share the same implemenation)
+
+### Composite
+
+> Define part-whole interface with uniform operation
+
+#### [no-toc] Roles
+
+- **Component** define interface for both composite and primitive
+- **Primitive** define leaf component
+- **Composite** define composition of components
+
+#### [no-toc] Process
+
+- **Client** call methods of **Component**
+- **Primitive** handle request directly
+- **Composite** defer request to **Component** and perform additional operations
+
+#### [no-toc] Info Hidden
+
+- **Client** not know **Primitive** and **Composite** (when requesting)
+- **Component** not know **Primitive** and **Composite** (sometimes know **Abstract Composite**)
+- **Primitive** and **Composite** not know each other
+
+#### [no-toc] Uses
+
+- GUI component (handle composite and primitive uniformly)
+- Tasks (one task can contain others)

@@ -218,7 +218,7 @@
 
 ### Composite
 
-> Define part-whole interface with uniform operation
+> Define **part-whole interface** with **uniform** operation
 
 #### [no-toc] Roles
 
@@ -230,15 +230,46 @@
 
 - **Client** call methods of **Component**
 - **Primitive** handle request directly
-- **Composite** defer request to **Component** and perform additional operations
+- **Composite** defer request to **Component** (and perform additional operations)
 
 #### [no-toc] Info Hidden
 
 - **Client** not know **Primitive** and **Composite** (when requesting)
-- **Component** not know **Primitive** and **Composite** (sometimes know **Abstract Composite**)
+- **Component** not know **Primitive** and **Composite** (sometimes know **Abstract Composite** to refer to parent)
 - **Primitive** and **Composite** not know each other
 
 #### [no-toc] Uses
 
 - GUI component (handle composite and primitive uniformly)
 - Tasks (one task can contain others)
+- Focus on **object aggregation** (vs Decorator)
+
+### Decorator
+
+> **Attach responsiblity** from outside without changing interface and implementation
+
+#### [no-toc] Roles
+
+- **Abstract Component** define uniform interface
+- **Concrete Component** define component entity
+- **Abstract Decorator** define interface that conform to **Abstract Component** (optional)
+- **Concrete Decorator** define additional responsibility
+
+#### [no-toc] Process
+
+- **Client** establish concrete decorated **Abstract Component**
+- **Client** call methods of **Abstract Component**
+- **Concrete Component** handle request as normal
+- **Concrete Decorator** defer request to **Abstract Component** and perform additional operations
+
+#### [no-toc] Info Hidden
+
+- **Client** and **Abstract Component** not know **Concrete Component** and **Decorator**
+- **Concrete Component** and **Decorator** not know each other
+
+#### [no-toc] Uses
+
+- GUI component (adding border and scrollbar to a view)
+- Pipeline operation (encoding and encrypting before writing to file)
+- Focus on **adding responsibility** (vs Composite)
+- Chain operations **outside** (vs Strategy)

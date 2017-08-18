@@ -75,7 +75,7 @@
 #### [no-toc] Uses
 
 - Format conversion (the same structure vs. different target)
-- Parse syntax-tree (the same tranversal vs. different outcome)
+- Parser (the same token flow vs. different syntax tree)
 
 ### Factory Method
 
@@ -271,5 +271,28 @@
 
 - GUI component (adding border and scrollbar to a view)
 - Pipeline operation (encoding and encrypting before writing to file)
-- Focus on **adding responsibility** (vs Composite)
+- Focus on **adding responsibility** and **degenerate single composition** (vs Composite)
 - Chain operations **outside** (vs Strategy)
+
+### Facade
+
+> **Encapsulate** subsystems into a **high-level interface**
+
+#### [no-toc] Roles
+
+- **Facade** define client-interested interface
+- **Subsystem** define actual bussiness
+
+#### [no-toc] Process
+
+- **Client** call methods of **Facade** or **Subsystem** (directly)
+- **Facade** defer actual works to **Subsystem**
+
+#### Info Hidden
+
+- **Subsystem** not know **Facade**
+
+#### [no-toc] Uses
+
+- Compiler's `compile` interface (hide lexer / parser details)
+- Large systems (define layers by layered facades)

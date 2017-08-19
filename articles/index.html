@@ -14,19 +14,21 @@
             padding: 0 0 0 15px;
         }
 
-        .cover-title, .cover-subtitle {
-            position: absolute;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-        }
+        @media print {
+            .cover-title, .cover-subtitle {
+                position: absolute;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+            }
 
-        .cover-title {
-            top: 30%;
-        }
+            .cover-title {
+                top: 30%;
+            }
 
-        .cover-subtitle {
-            top: 60%;
+            .cover-subtitle {
+                top: 60%;
+            }
         }
     </style>
 </head>
@@ -76,8 +78,9 @@
                 curElem++;
 
             if (curElem >= childLen) return null;
-            if (tagName && mdSec.childNodes[curElem].tagName.toUpperCase() != tagName.toUpperCase())
+            if (tagName && mdSec.childNodes[curElem].tagName.toLowerCase() != tagName.toLowerCase())
                 return null;
+            tagName = mdSec.childNodes[curElem].tagName;
 
             var content = mdSec.childNodes[curElem].innerHTML;
             dstSec.innerHTML = '<' + tagName + '>' + content + '</' + tagName + '>';
@@ -139,7 +142,7 @@
                 aElem.href = filename;
 
                 // NOT Same Origin File
-                if (aElem.href.indexOf(location.origin) == -1)
+                if (aElem.href.toLowerCase().indexOf(location.origin.toLowerCase()) == -1)
                     return null;
 
                 // Get absPath (including ending '/')
@@ -175,8 +178,8 @@
                     var rawSrc = elems[j].getAttribute(attrName);  // original literal
                     var src = elems[j][attrName];  // parsed source path
 
-                    if (src.indexOf(location.origin) != -1 &&  // Same Origin
-                        rawSrc.indexOf(location.origin) == -1 &&  // NOT Absolute Path
+                    if (src.toLowerCase().indexOf(location.origin.toLowerCase()) != -1 &&  // Same Origin
+                        rawSrc.toLowerCase().indexOf(location.origin.toLowerCase()) == -1 &&  // NOT Absolute Path
                         rawSrc[0] != '/' &&  // NOT Root-Relative Path
                         rawSrc[0] != '#')  // NOT Hash
                     {

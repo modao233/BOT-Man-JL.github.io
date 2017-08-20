@@ -63,6 +63,11 @@ Here we list the additional specs of _BOT Mark_:
 - `function (level, headingNumber, anchor, text) => html`
 - render heading to `html`
 
+### `MarkdownRenderer.prototype.renderHeading`
+
+- `function (mdHtml, tocArray) => mdHtml`
+- render headings and patch tocArray
+
 ### `MarkdownRenderer.prototype.toc`
 
 - `function (level, headingNumber, anchor, text) => html`

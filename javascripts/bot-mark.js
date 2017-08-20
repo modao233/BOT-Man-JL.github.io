@@ -48,6 +48,73 @@ MarkdownRenderer.prototype.heading = function (level, headingNumber, anchor, tex
         headingNumber + text + '</h' + level + '>\n';
 };
 
+MarkdownRenderer.prototype.renderHeading = function (mdHtml, headingArr) {
+    var that = this;
+
+    // Check heading-numbering
+    var hasHeadingNumbering = false;
+    mdHtml = mdHtml.replace(/<p>\[heading-numbering\]<\/p>/g, function () {
+        hasHeadingNumbering = true;
+        return '';
+    });
+
+    // Set headings
+    var anchorMap = {};
+    var headingIndice = [0, 0, 0, 0, 0, 0];
+    var headingIndex = 0;
+    mdHtml = mdHtml.replace(/<h1>HEADING_PLACEHOLDER<\/h1>/g, function () {
+        var thisHeading = headingArr[headingIndex++];
+
+        // Check additional flags
+        thisHeading.noNumber = !hasHeadingNumbering;
+        thisHeading.noToc = false;
+        thisHeading.text = thisHeading.text.replace(/[\s]*\[([^\].]+)\][\s]*/g, function (text, flag) {
+            if (flag == 'no-number') {
+                thisHeading.noNumber = true;
+                return '';
+            }
+            if (flag == 'no-toc') {
+                thisHeading.noToc = true;
+                return '';
+            }
+            return text;
+        });
+        thisHeading.raw = thisHeading.raw.replace(/[\s]*\[no-number\][\s]*/g, '');
+        thisHeading.raw = thisHeading.raw.replace(/[\s]*\[no-toc\][\s]*/g, '');
+
+        // Set anchor
+        var anchor = that.anchor(thisHeading.raw);
+        var count = (anchorMap[anchor] || 0) + 1;
+        anchorMap[anchor] = count;
+        if (count > 1) anchor += '_' + count;
+        thisHeading.anchor = anchor;
+
+        // Add heading numbers
+        var headingNumber = '';
+        if (!thisHeading.noNumber) {
+            var index = thisHeading.level - 1;
+            if (index < headingIndice.length && index != 0) {
+                // Increase index
+                ++headingIndice[index];
+
+                // Set higher indice
+                headingNumber += headingIndice[1];
+                for (var i = 2; i <= index; i++)
+                    headingNumber += '.' + headingIndice[i];
+
+                // Clear lower indice
+                for (var i = index + 1; i < headingIndice.length; i++)
+                    headingIndice[i] = 0;
+            }
+        }
+        thisHeading.headingNumber = headingNumber;
+
+        return that.heading(thisHeading.level,
+            thisHeading.headingNumber, thisHeading.anchor, thisHeading.text);
+    });
+    return mdHtml;
+};
+
 MarkdownRenderer.prototype.toc = function (level, headingNumber, anchor, text) {
     if (headingNumber != '') headingNumber += ' ';
     return '<p style="padding-left:' + level * 1.5 + 'em"><a href="#' +
@@ -56,17 +123,19 @@ MarkdownRenderer.prototype.toc = function (level, headingNumber, anchor, text) {
 
 MarkdownRenderer.prototype.tocTags = ['<div class="markdown-toc">', '</div>'];
 
-MarkdownRenderer.prototype.renderToc = function (mdHtml, tocArray) {
+MarkdownRenderer.prototype.renderToc = function (mdHtml, headingArr) {
     // omit first toc item (H1 heading)
     var minLevel = 1024;
-    for (var i = 1; i < tocArray.length; i++)
-        minLevel = Math.min(minLevel, tocArray[i].level);
+    for (var i = 1; i < headingArr.length; i++)
+        minLevel = Math.min(minLevel, headingArr[i].level);
 
     var tocHtml = this.tocTags[0];
-    for (var i = 1; i < tocArray.length; i++) {
-        var item = tocArray[i];
-        tocHtml += this.toc(item.level - minLevel,
-            item.headingNumber, item.anchor, item.text);
+    for (var i = 1; i < headingArr.length; i++) {
+        var thisHeading = headingArr[i];
+        if (thisHeading.noToc) continue;
+
+        tocHtml += this.toc(thisHeading.level - minLevel,
+            thisHeading.headingNumber, thisHeading.anchor, thisHeading.text);
     }
     tocHtml += this.tocTags[1];
 
@@ -156,24 +225,24 @@ MarkdownRenderer.prototype.refSection = function (anchor, text) {
         anchor + '">&sect; ' + text + '</a></span>';
 };
 
-MarkdownRenderer.prototype.renderReference = function (mdHtml, tocArray) {
+MarkdownRenderer.prototype.renderReference = function (mdHtml, headingArr) {
     var that = this;
-    var indexMap = new Map();
-    var countRefs = new Map();
+    var indexMap = {};
 
     // Ref target
     var len1 = '<p>['.length;
     var len2 = ']</p>'.length + len1;
+    var countRefs = {};
     mdHtml = mdHtml.replace(/<p>\[[^\].]+\|\|[^\].]+\]<\/p>/g, function (text) {
         text = text.substr(len1, text.length - len2);
         var fragments = text.split('||');
         fragments[0] = that.anchor(fragments[0]);
 
-        var count = (countRefs.get(fragments[0]) || 0) + 1;
-        countRefs.set(fragments[0], count);
+        var count = (countRefs[fragments[0]] || 0) + 1;
+        countRefs[fragments[0]] = count;
 
         fragments[1] = that.anchor(fragments[1]);
-        indexMap.set(fragments.join('|'), count);
+        indexMap[fragments.join('|')] = count;
 
         return that.refTarget(fragments[0], fragments[1]);
     });
@@ -188,17 +257,18 @@ MarkdownRenderer.prototype.renderReference = function (mdHtml, tocArray) {
         fragments[0] = that.anchor(fragments[0]);
 
         if (fragments[0] == 'sec') {
-            for (var i = 0; i < tocArray.length; i++)
-                if (tocArray[i].text == fragments[1]) {
-                    var txt = tocArray[i].headingNumber;
-                    if (txt == '') txt = tocArray[i].text;
-                    return that.refSection(tocArray[i].anchor, txt);
+            for (var i = 0; i < headingArr.length; i++)
+                if (headingArr[i].text == fragments[1]) {
+                    return that.refSection(headingArr[i].anchor,
+                        headingArr[i].noNumber ?
+                            headingArr[i].text :
+                            headingArr[i].headingNumber);
                 }
         }
         else {
             fragments[1] = that.anchor(fragments[1]);
-            var index = indexMap.get(fragments.join('|'));
-            if (index != null) {
+            var index = indexMap[fragments.join('|')];
+            if (index) {
                 return that.refItem(fragments[0], fragments[1], index);
             }
         }
@@ -219,7 +289,7 @@ MarkdownRenderer.prototype.slideTags = ['<div class="markdown-slide">', '</div>'
 MarkdownRenderer.prototype.renderSlides = function (mdHtml) {
     var that = this;
     var matchHr = mdHtml.match(/<hr\/?>/g);
-    if (matchHr == null) return mdHtml;
+    if (!matchHr) return mdHtml;
 
     var count = 0;
     mdHtml = mdHtml.replace(/<hr\/?>/g, function () {
@@ -294,60 +364,15 @@ MarkdownRenderer.prototype.renderStyleSetters = function (mdHtml) {
 // render function
 
 MarkdownRenderer.prototype.render = function (mdText) {
-    var that = this;
-
-    // Check heading numbering
-    var headingIndice = null;
-    var headingNumberingRegExp = /(\r)?\n\[heading\-numbering\](\r)?\n(\r)?\n/g;
-    if (mdText.search(headingNumberingRegExp) != -1)
-        headingIndice = [0, 0, 0, 0, 0, 0];
-    mdText = mdText.replace(headingNumberingRegExp, '\n');
 
     // Patch for TOC support
     // Ref: https://github.com/chjj/marked/issues/545
+
+    var headingArr = [];
     var renderer = new marked.Renderer();
-    var tocArray = [];
-    var anchorMap = new Map();
     renderer.heading = function (text, level, raw) {
-
-        var noNumber = raw.indexOf('[no-number]') != -1;
-        var noToc = raw.indexOf('[no-toc]') != -1;
-
-        text = text.replace(/[\s]*\[.+\][\s]*/g, '');
-        raw = raw.replace(/[\s]*\[.+\][\s]*/g, '');
-
-        // Set anchor
-        var anchor = that.anchor(raw);
-        var count = (anchorMap.get(anchor) || 0) + 1;
-        anchorMap.set(anchor, count);
-        if (count > 1) anchor += '_' + count;
-
-        // Add heading numbers
-        var headingNumber = '';
-        if (headingIndice != null && !noNumber) {
-            var index = level - 1;
-            if (index < headingIndice.length && index != 0) {
-
-                // Generate number text
-                ++headingIndice[index];
-                headingNumber += headingIndice[1];
-                for (var i = 2; i <= index; i++)
-                    headingNumber += '.' + headingIndice[i];
-
-                // Clear lower indice
-                for (var i = index + 1; i < headingIndice.length; i++)
-                    headingIndice[i] = 0;
-            }
-        }
-
-        // Add to TOC
-        if (!noToc)
-            tocArray.push({
-                text: text, level: level, anchor: anchor,
-                headingNumber: headingNumber
-            });
-
-        return that.heading(level, headingNumber, anchor, text);
+        headingArr.push({ text: text, level: level, raw: raw });
+        return '<h1>HEADING_PLACEHOLDER</h1>';
     };
 
     var mdHtml = marked(mdText, {
@@ -355,9 +380,11 @@ MarkdownRenderer.prototype.render = function (mdText) {
         mathDelimiters: this.mathTags
     });
 
-    mdHtml = this.renderToc(mdHtml, tocArray);
+    // in/out: headingArr
+    mdHtml = this.renderHeading(mdHtml, headingArr);
+    mdHtml = this.renderToc(mdHtml, headingArr);
     mdHtml = this.renderCitation(mdHtml);
-    mdHtml = this.renderReference(mdHtml, tocArray);
+    mdHtml = this.renderReference(mdHtml, headingArr);
     mdHtml = this.renderSlides(mdHtml);
     mdHtml = this.renderKeywordTags(mdHtml);
     mdHtml = this.renderStyleSetters(mdHtml);

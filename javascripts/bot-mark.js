@@ -71,16 +71,16 @@ MarkdownRenderer.prototype.renderHeading = function (mdHtml, headingArr) {
         thisHeading.text = thisHeading.text.replace(/[\s]*\[([^\].]+)\][\s]*/g, function (text, flag) {
             if (flag == 'no-number') {
                 thisHeading.noNumber = true;
+                thisHeading.raw = thisHeading.raw.replace(/[\s]*\[no-number\][\s]*/g, '');
                 return '';
             }
             if (flag == 'no-toc') {
                 thisHeading.noToc = true;
+                thisHeading.raw = thisHeading.raw.replace(/[\s]*\[no-toc\][\s]*/g, '');
                 return '';
             }
             return text;
         });
-        thisHeading.raw = thisHeading.raw.replace(/[\s]*\[no-number\][\s]*/g, '');
-        thisHeading.raw = thisHeading.raw.replace(/[\s]*\[no-toc\][\s]*/g, '');
 
         // Set anchor
         var anchor = that.anchor(thisHeading.raw);
@@ -149,6 +149,9 @@ MarkdownRenderer.prototype.renderToc = function (mdHtml, headingArr) {
 MarkdownRenderer.prototype.mathTags = [
     ['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$']
 ];
+
+// Math support could be implemented by KaTeX
+// https://github.com/Khan/KaTeX
 
 // citation
 

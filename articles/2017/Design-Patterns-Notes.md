@@ -288,7 +288,7 @@
 - **Client** call methods of **Facade** or **Subsystem** (directly)
 - **Facade** defer actual works to **Subsystem**
 
-#### Info Hidden
+#### [no-toc] Info Hidden
 
 - **Subsystem** not know **Facade**
 
@@ -296,3 +296,28 @@
 
 - Compiler's `compile` interface (hide lexer / parser details)
 - Large systems (define layers by layered facades)
+
+### Flyweight
+
+> **Share** substantial **fine-grained objects**
+
+#### [no-toc] Roles
+
+- **Abstract Flyweight** define flyweight interface accepting extrinsic state
+- **Concrete Flyweight** define sharable flyweight, storing intrinsic state
+- **Flyweight Factory** create and manage flyweight object
+
+#### [no-toc] Process
+
+- **Client** retrieve **Abstract Flyweight** from **Flyweight Factory**
+- **Client** store and compute extrinsic state and pass to **Abstract Flyweight**
+- **Concrete Flyweight** combine intrinsic and extrinsic state to work
+
+#### [no-toc] Info Hidden
+
+- **Abstract Flyweight** not know **Concrete Flyweight**
+
+#### [no-toc] Uses
+
+- GUI component (sharing bitmap and style)
+- State and Strategy object (retrieve by key)

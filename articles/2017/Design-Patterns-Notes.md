@@ -321,3 +321,36 @@
 
 - GUI component (sharing bitmap and style)
 - State and Strategy object (retrieve by key)
+
+### Proxy
+
+> **Intercept access** by proxy in the same interface
+
+#### [no-toc] Roles
+
+- **Abstract Subject** define uniform interface
+- **Concrete Subject** define concrete object
+- **Proxy** act like a **Abstract Subject** and intercept request to **Concrete Subject**
+
+#### [no-toc] Process
+
+- **Client** call methods of **Abstract Subject**
+- **Concrete Subject** handle request as normal
+- **Proxy** defer request to another **Abstract Subject** under its control
+
+#### [no-toc] Info Hidden
+
+- **Client** and **Abstract Subject** not know **Concrete Subject** and **Proxy**
+- **Concrete Subject** not know **Proxy**
+- **Proxy** may know **Concrete Subject** or not
+
+#### [no-toc] Uses
+
+- Remote calling (remote proxy, have **not Concrete Subject** property)
+- Optimize expensive action (virtual proxy, **may** have **Concrete Subject**)
+  - Lazy loading
+  - Copy on Write
+- Access control (protection proxy, have **Concrete Subject**)
+  - Permission control
+  - Read/Write Lock
+- Smart pointer (resource management, have **Concrete Subject**)

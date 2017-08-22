@@ -49,34 +49,6 @@
 
 - Cross-platform solutions (different platform with different family of component)
 
-### Builder
-
-> Seperate **construction** from **representation**
-
-#### [no-toc] Roles
-
-- **Director** use the same construction process
-- **Abstract Builder** handle the same build commands
-- **Concrete Builder** build different products
-- **Concrete Product** have different internal representations
-
-#### [no-toc] Process
-
-- **Client** create **Director** and **Concrete Builder**
-- **Client** config **Director** with **Concrete Builder**
-- **Director** call methods of **Abstract Builder**
-- **Client** retrieve **Concrete Product** from **Concrete Builder**
-
-#### [no-toc] Info Hidden
-
-- **Director** not know **Concrete Builder**
-- **Director** not know **Concrete Product**
-
-#### [no-toc] Uses
-
-- Format conversion (the same structure vs. different target)
-- Parser (the same token flow vs. different syntax tree)
-
 ### Factory Method
 
 > Subclass to **defer instantiation** of concrete product
@@ -132,6 +104,34 @@
   - (clone composited or decorated component)
 - Registry with key (dependency lookup, clone prototype in manager to create component)
 
+### Builder
+
+> Seperate **construction** from **representation**
+
+#### [no-toc] Roles
+
+- **Director** use the same construction process
+- **Abstract Builder** handle the same build commands
+- **Concrete Builder** build different products
+- **Concrete Product** have different internal representations
+
+#### [no-toc] Process
+
+- **Client** create **Director** and **Concrete Builder**
+- **Client** config **Director** with **Concrete Builder**
+- **Director** call methods of **Abstract Builder**
+- **Client** retrieve **Concrete Product** from **Concrete Builder**
+
+#### [no-toc] Info Hidden
+
+- **Director** not know **Concrete Builder**
+- **Director** not know **Concrete Product**
+
+#### [no-toc] Uses
+
+- Format conversion (the same structure vs. different target)
+- Parser (the same token flow vs. different syntax tree)
+
 ### Singleton
 
 > **Single** instance with global access
@@ -185,6 +185,7 @@
 
 - Mix alternative library to existing toolkit (different interface)
 - View model (convert models to what views expect)
+- Focus on adapting **existing incompatible** interface (vs. [sec|Bridge] Bridge)
 
 ### Bridge
 
@@ -215,6 +216,7 @@
 - Cross-platform solutions (the same abstraction component with different platform implementation)
 - Dynamic select optimal implementation (determine according to environment status)
 - Implementation with memory management (all instances share the same implemenation)
+- Focus on providing **stable abstraction** interface and varying **evoluating implementation** (vs. [sec|Adapter] Adapter)
 
 ### Composite
 
@@ -242,7 +244,7 @@
 
 - GUI component (handle composite and primitive uniformly)
 - Tasks (one task can contain others)
-- Focus on **object aggregation** (vs Decorator)
+- Focus on **object aggregation** (vs. [sec|Decorator] Decorator)
 
 ### Decorator
 
@@ -271,8 +273,43 @@
 
 - GUI component (adding border and scrollbar to a view)
 - Pipeline operation (encoding and encrypting before writing to file)
-- Focus on **adding responsibility** and **degenerate single composition** (vs Composite)
-- Chain operations **outside** (vs Strategy)
+- Focus on **adding responsibility** (vs. [sec|Composite] Composite, **degenerate** composition)
+- Focus on **dynamically** adding responsibility **recursively** (vs. [sec|Proxy] Proxy)
+- Chain operations **outside** (vs. Strategy)
+
+### Proxy
+
+> **Intercept access** by proxy in the same interface
+
+#### [no-toc] Roles
+
+- **Abstract Subject** define uniform interface
+- **Concrete Subject** define concrete object
+- **Proxy** act like a **Abstract Subject** and intercept request to **Concrete Subject**
+
+#### [no-toc] Process
+
+- **Client** call methods of **Abstract Subject**
+- **Concrete Subject** handle request as normal
+- **Proxy** defer request to another **Abstract Subject** under its control
+
+#### [no-toc] Info Hidden
+
+- **Client** and **Abstract Subject** not know **Concrete Subject** and **Proxy**
+- **Concrete Subject** not know **Proxy**
+- **Proxy** may know **Concrete Subject** or not
+
+#### [no-toc] Uses
+
+- Remote calling (remote proxy, **not** keep reference to **Concrete Subject**)
+- Optimize expensive action (virtual proxy, **may** keep reference to **Concrete Subject**)
+  - Lazy loading
+  - Copy on Write
+- Access control (protection proxy, keep reference to **Concrete Subject**)
+  - Restricted access
+  - Read/Write Lock
+- Smart pointer (resource management, keep reference to **Concrete Subject**)
+- Focus on **intercepting** access in simple relation (vs. [sec|Decorator] Decorator)
 
 ### Facade
 
@@ -321,36 +358,3 @@
 
 - GUI component (sharing bitmap and style)
 - State and Strategy object (retrieve by key)
-
-### Proxy
-
-> **Intercept access** by proxy in the same interface
-
-#### [no-toc] Roles
-
-- **Abstract Subject** define uniform interface
-- **Concrete Subject** define concrete object
-- **Proxy** act like a **Abstract Subject** and intercept request to **Concrete Subject**
-
-#### [no-toc] Process
-
-- **Client** call methods of **Abstract Subject**
-- **Concrete Subject** handle request as normal
-- **Proxy** defer request to another **Abstract Subject** under its control
-
-#### [no-toc] Info Hidden
-
-- **Client** and **Abstract Subject** not know **Concrete Subject** and **Proxy**
-- **Concrete Subject** not know **Proxy**
-- **Proxy** may know **Concrete Subject** or not
-
-#### [no-toc] Uses
-
-- Remote calling (remote proxy, have **not Concrete Subject** property)
-- Optimize expensive action (virtual proxy, **may** have **Concrete Subject**)
-  - Lazy loading
-  - Copy on Write
-- Access control (protection proxy, have **Concrete Subject**)
-  - Permission control
-  - Read/Write Lock
-- Smart pointer (resource management, have **Concrete Subject**)

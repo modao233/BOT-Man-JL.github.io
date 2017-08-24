@@ -175,17 +175,16 @@ testFunction[key](request, rule);
 
 ``` javascript
 function testOldKey(request, rule, key) {
-    let isPass = true;
+    let pass = true;
     const targets = rule.value.split(rule.splitor);
     for (const target of targets) {
-        isPass = testFunction[key](request, target);  // *
+        pass = testFunction[key](request, target);  // *
 
         // Short circuit
-        if (isPass && !rule.and) break;  // One Pass
-        if (!isPass && rule.and) break;  // One Failed
+        if (pass && !rule.and) break;
+        if (!pass && rule.and) break;
     }
-    if (rule.not) isPass = !isPass;
-    return isPass;
+    return rule.not ? !pass : pass;
 }
 ```
 
@@ -225,17 +224,16 @@ else
 ``` javascript
 function testWrapper(testFunction) {
     return function (request, rule) {
-        let isPass = true;
+        let pass = true;
         const targets = rule.value.split(rule.splitor);
         for (const target of targets) {
-            isPass = testFunction(request, target);  // *
+            pass = testFunction(request, target);  // *
 
             // Short circuit
-            if (isPass && !rule.and) break;  // One Pass
-            if (!isPass && rule.and) break;  // One Failed
+            if (pass && !rule.and) break;
+            if (!pass && rule.and) break;
         }
-        if (rule.not) isPass = !isPass;
-        return isPass;
+        return rule.not ? !pass : pass;
     };
 }
 ```
@@ -254,6 +252,12 @@ function testWrapper(testFunction) {
 - 倒用 **装饰器** 模式，暴露一个 **更通用的接口**，让实现处理 **自己的细节**
 - 针对配置格式的专门处理方法从 **客户端层** 降到 **配置处理层**（消除 `isOldKey`）
 - 旧服务、新服务（甚至未来更多服务）的规则对 **客户端** 完全 **透明**
+
+![Glass Wall](Improve-Flexibility/glass-wall.jpg)
+
+## 声明
+
+所有代码均与实际代码不同，仅用于描述问题。
 
 本文主要内容是我的 **个人理解**。对本文有什么问题，**欢迎斧正**。😉
 

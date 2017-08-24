@@ -1,7 +1,7 @@
 ﻿{
   "name": "BOT Man JL",
   "contact": {
-    "name": "李俊宁 | BOT Man",
+    "name": "BOT Man | John Lee",
     "github": {
       "text": "BOT-Man-JL @ GitHub",
       "link": "https://github.com/BOT-Man-JL",
@@ -11,11 +11,6 @@
       "text": "g123nn@hotmail.com",
       "link": "mailto:g123nn@hotmail.com",
       "img": "/static/email.svg"
-    },
-    "phone": {
-      "text": "+86-18401695768",
-      "link": "tel:+86-18401695768",
-      "img": "/static/phone.svg"
     }
   },
   "pages": {

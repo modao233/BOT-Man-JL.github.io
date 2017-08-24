@@ -1,4 +1,4 @@
-﻿[float-right]
+﻿[align-right]
 
 > 关于 [BOT Frame](../README.md) | [BOT Mark](misc/BOT-Mark.md)
 

@@ -26,6 +26,7 @@
 
 #### 2017
 
+- [简单的思考生活](2017/Thinking-Life.md)
 - [如何使用英文搜索](2017/How-to-Search-English.md)
 - [~~我们学习，都在学什么~~](2017/Thinking-College.md)
 

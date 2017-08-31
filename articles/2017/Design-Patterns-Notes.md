@@ -322,7 +322,7 @@
 
 #### [no-toc] Process
 
-- **Client** call methods of **Facade** or **Subsystem** (directly)
+- **Client** call methods of **Facade** (or **Subsystem** directly)
 - **Facade** defer actual works to **Subsystem**
 
 #### [no-toc] Info Hidden
@@ -358,3 +358,32 @@
 
 - GUI component (sharing bitmap and style)
 - State and Strategy object (retrieve by key)
+
+## Behavioral Patterns
+
+### Chain of Responsibility
+
+> **Chain handlers** to decouple sender from handler
+
+#### [no-toc] Roles
+
+- **Abstract Handler** define handling interface
+- **Concrete Handler** handle request or forward to successor
+
+#### [no-toc] Process
+
+- **Client** call methods of **Abstract Handler**
+- **Concrete Handler**
+  - handle what it can handle
+  - forward what it can't handle
+
+#### [no-toc] Info Hidden
+
+- **Client** not know **Concrete Handler**
+- **Client** not know who actually handle the request
+- **Concrete Handler** not know its **Concrete Handler** successor
+
+#### [no-toc] Uses
+
+- Handling user event (only handle what it can, and forward what it can't)
+- Handling redraw event (only draw what is in its context)

@@ -6,7 +6,7 @@
 
 #### 2017
 
-- [两个提高 可扩展性 的途径](2017/Improve-Flexibility.md)
+- [两个提高 服务灵活性 的途径](2017/Improve-Flexibility.md)
 - [设计模式学习笔记](2017/Design-Patterns-Notes.md)
 - [如何优雅的把 命令行界面 Hack 到 Qt 界面](2017/Hack-Qt-GUI.md)
 - [如何浅显的解释 回调函数](2017/Callback-Explained.md)

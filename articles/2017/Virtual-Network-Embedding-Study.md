@@ -72,7 +72,7 @@
 
 ## Our Works - Coordination
 
-**Clustering Based**（基于聚类的） Energy-Aware Virtual Network Embedding, _Xu Liu, Zhongbao Zhang, Junning Li, Sen Su_
+[**Clustering Based**（基于聚类的） Energy-Aware Virtual Network Embedding](http://journals.sagepub.com/doi/full/10.1177/1550147717726714), _Xu Liu, Zhongbao Zhang, **Junning Li**, Sen Su_
 
 [align-center]
 

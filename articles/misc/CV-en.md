@@ -42,7 +42,7 @@ EN | [中文](CV-zh.md)
 
 - 2017 - Internship at **QQ Browser** group in **Tencent**, developing _[back-end services](http://go.browser.qq.com/)_ | **Node.js**;
 - 2017 - Building a _[music transcription app](https://github.com/YuJianghao/YouPu)_ [(DEMO)](https://bot-man-jl.github.io/YouPu) in _College Innovation Project_ | **Music Theory, Machine Learning**;
-- 2017 – Publishing [research paper](https://bot-man-jl.github.io/articles/?post=2017/Virtual-Network-Embedding-Study) _Clustering Based Energy-Aware Virtual Network Embedding_ with Dr. Zhongbao Zhang | **Graph Clustering, Virtual Network Embedding**;
+- 2017 – Publishing research paper [_Clustering Based Energy-Aware Virtual Network Embedding_](http://journals.sagepub.com/doi/full/10.1177/1550147717726714) with Dr. Zhongbao Zhang | **Graph Clustering, Virtual Network Embedding**;
 - 2016 – Joining in _[Microsoft (MSRA) Elites Plan](https://studentclub.msra.cn/project/97)_;
 - 2016 – Building a _[kid education app](https://github.com/BOT-Man-JL/Better-Kids)_ in _Microsoft More Personal Computing Hackathon_ | **Microsoft Cognitive Services**;
 - 2016 – Building a _[speech helper BOT](https://github.com/xinhuaRadioLAB/HackerX_slive)_ in _CareerX-Tsinghua Hackathon_ | **Slack BOT, Office add-in**;

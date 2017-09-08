@@ -40,19 +40,19 @@ EN | [中文](CV-zh.md)
 
 ## Experience
 
-- 2017 - Internship at **QQ Browser** group in **Tencent**, developing _[back-end services](http://go.browser.qq.com/)_ | **Node.js**;
-- 2017 - Building a _[music transcription app](https://github.com/YuJianghao/YouPu)_ [(DEMO)](https://bot-man-jl.github.io/YouPu) in _College Innovation Project_ | **Music Theory, Machine Learning**;
+- 2017 - Internship at **QQ Browser** group in **Tencent**, developing _back-end services_ | **Node.js**;
+- 2017 - Building a [_music transcription app_](https://github.com/YuJianghao/YouPu) [(DEMO)](https://bot-man-jl.github.io/YouPu) in _College Innovation Project_ | **Music Theory, Machine Learning**;
 - 2017 – Publishing research paper [_Clustering Based Energy-Aware Virtual Network Embedding_](http://journals.sagepub.com/doi/full/10.1177/1550147717726714) with Dr. Zhongbao Zhang | **Graph Clustering, Virtual Network Embedding**;
-- 2016 – Joining in _[Microsoft (MSRA) Elites Plan](https://studentclub.msra.cn/project/97)_;
-- 2016 – Building a _[kid education app](https://github.com/BOT-Man-JL/Better-Kids)_ in _Microsoft More Personal Computing Hackathon_ | **Microsoft Cognitive Services**;
-- 2016 – Building a _[speech helper BOT](https://github.com/xinhuaRadioLAB/HackerX_slive)_ in _CareerX-Tsinghua Hackathon_ | **Slack BOT, Office add-in**;
-- 2016 - Building a _[mixed reality IOT assistant](https://github.com/BOT-Man-JL/IOT-Holo-Assistant)_ in _Microsoft (MSRA) Student Summer Camp_ | **Microsoft HoloLens, Unity 3D**;
-- 2016 - Building & Maintaining a _[data collecting website](https://github.com/ZhangYuef/Survey_Platform_ccer)_ for _CCER, PKU_ | **ASP.NET core**;
-- 2015 – Building a _[choice making app](https://www.microsoft.com/store/apps/Random%20Master/9NBLGGH6HCP7)_ in _Microsoft (MSRA) Campus Hackathon_ | **Microsoft Cortana, NLP**;
+- 2016 – Joining in [_Microsoft (MSRA) Elites Plan_](https://studentclub.msra.cn/project/97);
+- 2016 – Building a [_kid education app_](https://github.com/BOT-Man-JL/Better-Kids) in _Microsoft More Personal Computing Hackathon_ | **Microsoft Cognitive Services**;
+- 2016 – Building a [_speech helper BOT_](https://github.com/xinhuaRadioLAB/HackerX_slive) in _CareerX-Tsinghua Hackathon_ | **Slack BOT, Office add-in**;
+- 2016 - Building a [_mixed reality IOT assistant_](https://github.com/BOT-Man-JL/IOT-Holo-Assistant) in _Microsoft (MSRA) Student Summer Camp_ | **Microsoft HoloLens, Unity 3D**;
+- 2016 - Building & Maintaining a [_data collecting website_](https://github.com/ZhangYuef/Survey_Platform_ccer) for _CCER, PKU_ | **ASP.NET core**;
+- 2015 – Building a [_choice making app_](https://www.microsoft.com/store/apps/Random%20Master/9NBLGGH6HCP7) in _Microsoft (MSRA) Campus Hackathon_ | **Microsoft Cortana, NLP**;
 
 ## Open Source
 
-- 2017 - Contributing to a _[Markdown Editor](https://github.com/madskristensen/MarkdownEditor)_ on Visual Studio;
-- 2016 - Designing a **Strong-Typed**, **Compile-time** _[Object Relation Mapping (ORM)](https://github.com/BOT-Man-JL/ORM-Lite)_ in **Modern C++**;
-- 2015 – Designing a **Lightweight, Cross-Platform C++** _[Graphics (GUI) Library](https://github.com/BOT-Man-JL/EggAche-GL)_, dedicated to those who have no knowledge of GUI;
+- 2017 - Contributing to a [_Markdown Editor_](https://github.com/madskristensen/MarkdownEditor) on Visual Studio;
+- 2016 - Designing a **Strong-Typed**, **Compile-time** [_Object Relation Mapping (ORM)_](https://github.com/BOT-Man-JL/ORM-Lite) in **Modern C++**;
+- 2015 – Designing a **Lightweight, Cross-Platform C++** [_Graphics (GUI) Library_](https://github.com/BOT-Man-JL/EggAche-GL), dedicated to those who have no knowledge of GUI;
 - [Coursework Projects](https://github.com/BOT-Man-JL/BUPT-Projects) that I built in college;

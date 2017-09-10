@@ -1,0 +1,257 @@
+﻿# Node 单元测试的 Mock 总结
+
+> 2017/9/9
+>
+> 走出舒适区 —— Sharpen your teeth.
+
+[heading-numbering]
+
+## TOC [no-number] [no-toc]
+
+[TOC]
+
+## 为什么
+
+最近花了两周时间敲完了一个 _Node_ 包（重构前 C++ 版本近 10k 行），然后完成了这个模块几百个 case 的单元测试。
+
+而在设计单元测试时，需要重写一些不属于自己代码的关键模块（暴露相同的接口，替换为自己的实现），从而避免外部依赖导致的 **副作用** _(side effect)_。例如，需要依赖于一些读写数据库、发起 HTTP 请求资源的代码，我们可以通过 **模拟** _(Mock)_ 模块的接口，实现一套简单的逻辑。
+
+而 Node 主要使用 JavaScript 作为编程语言，拥有 **脚本语言动态性** 的优势。借助这个特性，我们可以方便的编写模块接口的 Mock 代码。
+
+## Module 的设计模式
+
+根据 [Node.js 设计模式](https://www.nodejsdesignpatterns.com/) 总结，_Node_ 中的模块定义的模式大致可以分为四种。
+
+> 所有代码载自 [Node.js 设计模式](https://www.nodejsdesignpatterns.com/)
+
+### 导出名字
+
+相对于定义一个 **名字空间**，然后将 **相似的功能** 挂载到同一个名字空间底下。这种方法和 _CommonJS_ 的 `exports` 兼容。
+
+``` javascript
+//file logger.js
+exports.info = function(message) {
+    console.log('info: ' + message);
+};
+exports.verbose = function(message) {
+    console.log('verbose: ' + message);
+};
+
+//file main.js
+var logger = require('./logger');
+logger.info('This is an informational message');
+logger.verbose('This is a verbose message');
+```
+
+### 导出函数
+
+如果模块比较简单，只有 **单一的功能**，那么可以导出为一个函数。
+
+``` javascript
+//file logger.js
+module.exports = function(message) {
+    console.log('info: ' + message);
+};
+
+//file main.js
+var logger = require('./logger');
+logger('This is an informational message');
+```
+
+### 导出构造函数
+
+可以将模块封装为一个 **类**，然后导出类的构造函数。（导出 `class` 同理）
+
+> `prototype` 和 `constructor` 参考：
+>
+> - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Inheritance_and_the_prototype_chain
+> - http://www.haorooms.com/post/js_constructor_pro
+
+``` javascript
+//file logger.js
+function Logger(name) {
+    this.name = name;
+};
+Logger.prototype.info = function(message) {
+    this.log('info: ' + message);
+};
+Logger.prototype.verbose = function(message) {
+    this.log('verbose: ' + message);
+};
+module.exports = Logger;
+
+//file logger.js
+var Logger = require('./logger');
+var dbLogger = new Logger('DB');
+dbLogger.info('This is an informational message');
+var accessLogger = new Logger('ACCESS');
+accessLogger.verbose('This is a verbose message');
+```
+
+### 导出对象实例
+
+可以通过导出一个 **对象实例**，实现 _Node_ 中的 _Singleton_ 模式。
+
+``` javascript
+//file logger.js
+function Logger(name) {
+    this.count = 0;
+    this.name = name;
+};
+Logger.prototype.log = function(message) {
+    this.count++;
+    console.log('[' + this.name + '] ' + message);
+};
+module.exports = new Logger('DEFAULT');
+
+//file main.js
+var logger = require('./logger');
+logger.log('This is an informational message');
+```
+
+## 依赖 Module 的方式
+
+软件工程中，常见的模块之间常见的依赖方式有：
+
+- **硬编码** _(hardcoded)_
+  - 在代码中，**直接指定** 依赖的模块
+- **依赖注入** _(dependency injection)_
+  - 由模块外部的 **调用者传入** 模块内部需要的依赖
+- **依赖查找** _(dependency lookup)_
+  - 定义一个统一的 **资源管理器**，通过服务定位的方式，查找依赖
+  - 可以通过 **硬编码** 或 **依赖注入** 的方式访问 **资源管理器**
+
+## Mock 的方法
+
+**单元测试** 常常使用 **白盒测试** 的方法，目标是构造测试用例，尽可能覆盖模块的所有 **路径**（**黑盒测试** 则是尽可能覆盖所有 **等价类**）。
+
+Mock 被依赖模块时，我们需要在测试我们自己代码之前，完成依赖的修改；并在测试结束后，完成依赖的恢复，避免污染其它地方对同一模块的依赖。（当然，我们只需要覆盖 **被测试代码**，不需要知道被依赖模块如何实现）
+
+以流行的 [Mocha 测试框架](http://mochajs.org/) 为例（测试前执行 `before`，测试后执行 `after`），测试 Mock 流程为：
+
+``` javascript
+before(function() {
+    // Mock
+});
+
+describe(caseName, function() {
+    // Test
+});
+
+after(function() {
+    // Restore
+});
+```
+
+我们针对
+
+- **依赖模块** 的三种方式
+- **被依赖模块** 四种导出模式
+
+设计不同的 Mock 具体方法。
+
+### 硬编码 - 导出名字
+
+只需要替换 **被测试代码** 里使用的、名字空间下的对应属性。
+
+``` javascript
+const depModule = require('./depModule');
+const _func = depModule.func;
+
+before(function() {
+    // Mock
+    depModule.func = function () { ... };
+});
+
+after(function() {
+    // Restore
+    depModule.func = _func;
+});
+```
+
+### 硬编码 - 导出函数
+
+> 目前，针对这种情况，我没有想出较好的 Mock 方法。。。😔
+
+**欢迎大家指教**。🙃
+
+### 硬编码 - 导出构造函数
+
+只需要替换 **被测试代码** 里使用的、类的方法（prototype 的属性）。
+
+``` javascript
+const depModule = require('./depModule');
+const proto = depModule.prototype;
+const _func = proto.func;
+
+before(function() {
+    // Mock
+    proto.func = function () { ... };
+});
+
+after(function() {
+    // Restore
+    proto.func = _func;
+});
+```
+
+即使 **被测试代码** 里的使用的 `depModule` 对象已经实例化，修改 `depModule.prototype` 的方法也可以实现对接口的模拟。
+
+### 硬编码 - 导出对象实例
+
+由于对象已经被初始化，所以我们不能修改对象本身。但是可以修改对象的、我们需要访问的属性。
+
+#### 重载 对象本身 的属性
+
+``` javascript
+const depModule = require('./depModule');
+
+before(function() {
+    // Mock
+    depModule.func = function () { ... };
+});
+
+after(function() {
+    // Restore
+    delete depModule.func;
+});
+```
+
+修改对象本身的属性，不需要递归的检查 prototype 链，就可以找到 **被测试代码** 里调用的属性。
+
+#### 修改 `__proto__` 的属性
+
+``` javascript
+const depModule = require('./depModule');
+const proto = Object.getPrototypeOf(depModule);
+const _func = proto.func;
+
+before(function() {
+    // Mock
+    proto.func = function () { ... };
+});
+
+after(function() {
+    // Restore
+    proto.func = _func;
+});
+```
+
+> 其中，`Object.getPrototypeOf(depModule)` 等价于
+> - [`depModule.constructor.prototype`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/constructor)（基于已经良好定义 `constructor` 的假设）
+> - [`depModule.__proto__`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/proto)（标准还未定义，但 V8 支持）
+
+### 非硬编码 - 依赖注入、依赖查找
+
+对于非硬编码的依赖，情况就非常简单了：我们可以通过
+
+- 传入 Mock 后的依赖实例（依赖注入)
+- 替换 Mock 后的依赖资源，并在测试结束后恢复（依赖查找）
+
+分别实现灵活的 Mock。
+
+## [no-toc] [no-number]
+
+本文是我学习 Node 测试时的 **个人理解**。对本文有什么问题，**欢迎斧正**。😉
+
+This article is published under MIT License &copy; 2017, BOT Man

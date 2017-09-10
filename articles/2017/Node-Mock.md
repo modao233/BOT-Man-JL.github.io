@@ -2,7 +2,7 @@
 
 > 2017/9/9
 >
-> 走出舒适区 —— Sharpen your teeth.
+> 走出舒适区，and sharpen your teeth.
 
 [heading-numbering]
 
@@ -12,7 +12,7 @@
 
 ## 为什么
 
-最近花了两周时间敲完了一个 _Node_ 包（重构前 C++ 版本近 10k 行），然后完成了这个模块几百个 case 的单元测试。
+最近花了两周时间敲完了一个 Node 包（重构前 C++ 版本近 10k 行），然后完成了这个模块几百个 case 的单元测试。
 
 而在设计单元测试时，需要重写一些不属于自己代码的关键模块（暴露相同的接口，替换为自己的实现），从而避免外部依赖导致的 **副作用** _(side effect)_。例如，需要依赖于一些读写数据库、发起 HTTP 请求资源的代码，我们可以通过 **模拟** _(Mock)_ 模块的接口，实现一套简单的逻辑。
 
@@ -20,7 +20,7 @@
 
 ## Module 的设计模式
 
-根据 [Node.js 设计模式](https://www.nodejsdesignpatterns.com/) 总结，_Node_ 中的模块定义的模式大致可以分为四种。
+根据 [Node.js 设计模式](https://www.nodejsdesignpatterns.com/) 总结，Node 中的模块定义的模式大致可以分为四种。
 
 > 所有代码载自 [Node.js 设计模式](https://www.nodejsdesignpatterns.com/)
 
@@ -29,7 +29,7 @@
 相对于定义一个 **名字空间**，然后将 **相似的功能** 挂载到同一个名字空间底下。这种方法和 _CommonJS_ 的 `exports` 兼容。
 
 ``` javascript
-//file logger.js
+// file logger.js
 exports.info = function(message) {
     console.log('info: ' + message);
 };
@@ -37,7 +37,7 @@ exports.verbose = function(message) {
     console.log('verbose: ' + message);
 };
 
-//file main.js
+// file main.js
 var logger = require('./logger');
 logger.info('This is an informational message');
 logger.verbose('This is a verbose message');
@@ -48,12 +48,12 @@ logger.verbose('This is a verbose message');
 如果模块比较简单，只有 **单一的功能**，那么可以导出为一个函数。
 
 ``` javascript
-//file logger.js
+// file logger.js
 module.exports = function(message) {
     console.log('info: ' + message);
 };
 
-//file main.js
+// file main.js
 var logger = require('./logger');
 logger('This is an informational message');
 ```
@@ -68,7 +68,7 @@ logger('This is an informational message');
 > - http://www.haorooms.com/post/js_constructor_pro
 
 ``` javascript
-//file logger.js
+// file logger.js
 function Logger(name) {
     this.name = name;
 };
@@ -80,7 +80,7 @@ Logger.prototype.verbose = function(message) {
 };
 module.exports = Logger;
 
-//file logger.js
+// file logger.js
 var Logger = require('./logger');
 var dbLogger = new Logger('DB');
 dbLogger.info('This is an informational message');
@@ -90,10 +90,10 @@ accessLogger.verbose('This is a verbose message');
 
 ### 导出对象实例
 
-可以通过导出一个 **对象实例**，实现 _Node_ 中的 _Singleton_ 模式。
+可以通过导出一个 **对象实例**，实现 Node 中的 _Singleton_ 模式。
 
 ``` javascript
-//file logger.js
+// file logger.js
 function Logger(name) {
     this.count = 0;
     this.name = name;
@@ -104,7 +104,7 @@ Logger.prototype.log = function(message) {
 };
 module.exports = new Logger('DEFAULT');
 
-//file main.js
+// file main.js
 var logger = require('./logger');
 logger.log('This is an informational message');
 ```
@@ -152,7 +152,7 @@ after(function() {
 
 ### 硬编码 - 导出名字
 
-只需要替换 **被测试代码** 里使用的、名字空间下的对应属性。
+这种情况最简单：只需要 **替换** 被测试代码里使用的、**名字空间下的方法**。
 
 ``` javascript
 const depModule = require('./depModule');
@@ -169,15 +169,9 @@ after(function() {
 });
 ```
 
-### 硬编码 - 导出函数
-
-> 目前，针对这种情况，我没有想出较好的 Mock 方法。。。😔
-
-**欢迎大家指教**。🙃
-
 ### 硬编码 - 导出构造函数
 
-只需要替换 **被测试代码** 里使用的、类的方法（prototype 的属性）。
+这种情况稍微复杂一些：需要 **替换** 被测试代码里使用的、**类的方法**（`prototype` 的属性）。
 
 ``` javascript
 const depModule = require('./depModule');
@@ -195,13 +189,15 @@ after(function() {
 });
 ```
 
-即使 **被测试代码** 里的使用的 `depModule` 对象已经实例化，修改 `depModule.prototype` 的方法也可以实现对接口的模拟。
+即使被测试代码里使用的 `depModule` 对象已经实例化，修改 `depModule.prototype` 的属性，可以在递归检查 `prototype` 链时实现 Mock —— 不需要重新加载被测试代码的模块。
 
 ### 硬编码 - 导出对象实例
 
-由于对象已经被初始化，所以我们不能修改对象本身。但是可以修改对象的、我们需要访问的属性。
+由于对象已经被初始化，所以我们不能修改对象本身。但是可以修改对象的、我们需要访问的方法。
 
-#### 重载 对象本身 的属性
+#### 重载 对象本身 的方法
+
+**添加** 被测试代码里使用的、**对象本身的方法**（非 `prototype` 属性）：被测试代码在调用对应方法时，不需要递归检查 `prototype` 链。
 
 ``` javascript
 const depModule = require('./depModule');
@@ -217,9 +213,9 @@ after(function() {
 });
 ```
 
-修改对象本身的属性，不需要递归的检查 prototype 链，就可以找到 **被测试代码** 里调用的属性。
-
 #### 修改 `__proto__` 的属性
+
+和 [sec|硬编码 - 导出构造函数] 类似，通过 **替换** 被测试代码里使用的、**类的方法** 实现。不同的是：这里需要利用 `Object.getPrototypeOf` 定位到对应的 `prototype` 对象。
 
 ``` javascript
 const depModule = require('./depModule');
@@ -238,15 +234,76 @@ after(function() {
 ```
 
 > 其中，`Object.getPrototypeOf(depModule)` 等价于
-> - [`depModule.constructor.prototype`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/constructor)（基于已经良好定义 `constructor` 的假设）
-> - [`depModule.__proto__`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/proto)（标准还未定义，但 V8 支持）
+> - [`depModule.constructor.prototype`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/constructor)（不一定满足，基于已经良好定义 `constructor` 的假设）
+> - [`depModule.__proto__`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/proto)（标准还未定义，但 Node 支持）
+
+### 硬编码 - 导出函数
+
+这种情况最为复杂：**不能动态修改** 一个定义好的 **函数内部代码**。
+
+但是 Node 为我们提供了 **对模块的操作**。基于这些操作，我们可以
+
+- 动态的修改模块导出的内容（`module.exports`）
+- 强制过期模块缓存，强制下次使用时重新加载（`require.cache`）
+
+被依赖模块（`adder.js`）导出一个累加两数的函数：
+
+``` javascript
+// file adder.js
+module.exports = function (a, b) {
+    return a + b;
+};
+```
+
+被测试模块（`add-one.js`）导出一个使用 `adder` 加一的函数：
+
+``` javascript
+// file add-one.js
+const adder = require('./adder');
+
+module.exports = function (num) {
+    return adder(num, 1);
+};
+```
+
+测试代码（`test.js`）模拟 `adder` 取相反数进行测试：
+
+``` javascript
+// file test.js
+const _depModule = require('./adder');
+const depCache = require.cache[require.resolve('./adder')];
+
+before(function () {
+    // Mock
+    depCache.exports = function (a, b) {
+        return 0 - a - b;
+    };
+    // Force to reload next time
+    delete require.cache[require.resolve('./add-one')];
+});
+
+describe('Test:', function () {
+    it('should pass', function () {
+        assert(require('./add-one')(5) == -6);
+    });
+});
+
+after(function () {
+    // Restore
+    depCache.exports = _depModule;
+    // Force to reload next time
+    delete require.cache[require.resolve('./add-one')];
+});
+```
+
+当代码进入测试前、离开测试后，`adder` 仍是正常的两数相加函数。
 
 ### 非硬编码 - 依赖注入、依赖查找
 
 对于非硬编码的依赖，情况就非常简单了：我们可以通过
 
-- 传入 Mock 后的依赖实例（依赖注入)
-- 替换 Mock 后的依赖资源，并在测试结束后恢复（依赖查找）
+- **传入** Mock 后的依赖实例（依赖注入)
+- **替换** Mock 后的依赖资源，并在测试结束后 **恢复**（依赖查找）
 
 分别实现灵活的 Mock。
 

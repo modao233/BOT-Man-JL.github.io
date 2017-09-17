@@ -1,6 +1,6 @@
 ﻿# Design Patterns Notes
 
-> 2017/7
+> 2017/7 - 9
 >
 > Encapsulate the concept that varies. —— GOF
 
@@ -31,19 +31,17 @@
 
 #### [no-toc] Process
 
-- **Client 1** create **Concrete Factory**
-- **Client 1** pass **Concrete Factory** as **Abstract Factory** to **Client 2**
-- **Client 2** call methods of **Abstract Factory**
+- **Client** call methods of **Abstract Factory**
 - **Concrete Factory** create **Concrete Product** family
   - by using **Factory Method** (subclassing, compile-time)
   - by using **Prototype** (composition, runtime)
-- **Client 2** retrieve **Abstract Product** in the same family
+- **Client** retrieve **Abstract Product** in the same family
 
 #### [no-toc] Info Hidden
 
 - **Abstract Factory** not know **Concrete Product**
-- **Client 2** not know **Concrete Factory**
-- **Client 2** not know **Concrete Product**
+- **Client** not know **Concrete Factory**
+- **Client** not know **Concrete Product**
 
 #### [no-toc] Uses
 
@@ -130,7 +128,7 @@
 #### [no-toc] Uses
 
 - Format conversion (the same structure vs. different target)
-- Parser (the same token flow vs. different syntax tree)
+- Parser (the same token flow vs. different abstract syntax tree)
 
 ### Singleton
 
@@ -244,6 +242,7 @@
 
 - GUI component (handle composite and primitive uniformly)
 - Tasks (one task can contain others)
+- Abstract syntax tree (with different gramma component)
 - Focus on **object aggregation** (vs. [sec|Decorator] Decorator)
 
 ### Decorator
@@ -361,6 +360,37 @@
 
 ## Behavioral Patterns
 
+### Command
+
+> **Encapsulate request** to decouple sender from handler
+
+#### [no-toc] Roles
+
+- **Abstract Command** define handling interface
+- **Concrete Command** store receiver and its action
+- **Invoker** issue request (async with **Client**)
+- **Receiver** actually handle request
+
+#### [no-toc] Process
+
+- **Client** create **Concrete Command** with **Receiver**
+- **Client** config **Invoker** with **Concrete Command**
+- **Invoker** call methods of **Abstract Command**
+- **Concrete Command** delegate handling to **Receiver**
+
+#### [no-toc] Info Hidden
+
+- **Abstract Command** not know **Invoker** and **Receiver**
+- **Invoker** not know **Concrete Command**
+- **Receiver** not know **Abstract** and **Concrete Command**
+
+#### [no-toc] Uses
+
+- Support transaction
+- Support logging operations (for recreating crashes)
+- Support undoable operation (with _Unexecute_ interface)
+- Enrich raw callback function (_lambda_ and _functor_ in C++)
+
 ### Chain of Responsibility
 
 > **Chain handlers** to decouple sender from handler
@@ -387,3 +417,34 @@
 
 - Handling user event (only handle what it can, and forward what it can't)
 - Handling redraw event (only draw what is in its context)
+
+### Interpreter
+
+> Add **_Interpret_ interface** to abstract syntax tree ([sec|Composite] Composite)
+
+#### [no-toc] Roles
+
+- **Abstract Expression** define _Interpret_ interface
+- **Nonterminal Expression** interpret nonterminal symbols in gramma
+- **Terminal Expression** interpret terminal symbols in gramma
+- **Context** provide input/output context for interpreter
+
+#### [no-toc] Process
+
+- **Client** build AST of **Nonterminal** and **Terminal Expression**
+- **Client** initialize **Context** and start _Interpret_ on **Abstract Expression**
+- **Nonterminal** and **Terminal Expression** store/access states in **Context**
+
+#### [no-toc] Info Hidden
+
+No info hidden...
+
+#### [no-toc] Uses
+
+- Match regular expressions
+  - (context: pending sequence)
+  - (slower than automaton solution)
+- Evaluate expressions
+  - (context: variables in expressions)
+  - (evaluate constrants in compiler)
+  - (evaluate varialbes in interpreter)

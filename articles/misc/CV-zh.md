@@ -20,21 +20,21 @@
 
 ## 技能
 
-- 编程语言
-  - **现代 C++** (高级)
-  - **C#** (熟练)
-  - **C** (熟练)
-  - **JavaScript** (熟练)
-  - Java (基本)
 - 技术栈
-  - **Windows 通用应用**（高级）
-  - **Win32 应用**（熟练）
-  - **ASP.NET (core) MVC**（熟练）
-  - **Node.js**（熟练）
-  - Web 前端（基本）
-  - WPF 应用（基本）
-  - **视频编辑**（使用 _Sony Vegas_）（熟练）
+  - 现代 C++（高级）
+    - Win32 应用（熟练）
+  - C#（熟练）
+    - Windows 通用应用（高级）
+    - ASP.NET (core) MVC（熟练）
+    - WPF 应用（基本）
+  - JavaScript（熟练）
+    - Node.js（熟练）
+    - Web 前端（基本）
+  - 其他
+    - C（熟练）
+    - Java（基本）
 - 英文 (CET-6)
+- 视频编辑（使用 _Sony Vegas_）（熟练）
 
 [page-break]
 

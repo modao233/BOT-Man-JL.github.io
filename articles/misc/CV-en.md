@@ -20,20 +20,20 @@ EN | [中文](CV-zh.md)
 
 ## Skills
 
-- Programming language:
-  - **Modern C++** (Advanced)
-  - **C#** (Experienced)
-  - **C** (Experienced)
-  - **JavaScript** (Experienced)
-  - Java (Basic)
-- Solution stacks:
-  - **Universal Windows App** (Advanced)
-  - **Win32 App** (Experienced)
-  - **ASP.NET (core) MVC** (Experienced)
-  - **Node.js** (Experienced)
-  - Web Frontend (Basic)
-  - WPF App (Basic)
-  - **Editing Video** (using _Sony Vegas_) (Experienced)
+- Solution stacks
+  - Modern C++ (Advanced)
+    - Win32 App (Experienced)
+  - C# (Experienced)
+    - Universal Windows App (Advanced)
+    - ASP.NET (core) MVC (Experienced)
+    - WPF App (Basic)
+  - JavaScript (Experienced)
+    - Node.js (Experienced)
+    - Web Frontend (Basic)
+  - Others
+    - C (Experienced)
+    - Java (Basic)
+    - Editing Video (using _Sony Vegas_) (Experienced)
 - English (CET-6)
 
 [page-break]

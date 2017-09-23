@@ -136,12 +136,12 @@
 
 #### [no-toc] Roles
 
-- **Singleton** define the interface of `Instance`
+- **Singleton** define the interface to get instance
 - **Singleton Subclass** represent various product
 
 #### [no-toc] Process
 
-- **Client** call `Instance` of **Singleton**
+- **Client** call method of **Singleton**
 - **Singleton** construct instance of **Singleton** / **Singleton Subclass**
 - **Client** retieve instance of **Singleton**
 
@@ -330,7 +330,7 @@
 
 #### [no-toc] Uses
 
-- Compiler's `compile` interface (hide lexer / parser details)
+- Compiler's _Compile_ interface (hide lexer / parser details)
 - Large systems (define layers by layered facades)
 
 ### Flyweight
@@ -375,7 +375,7 @@
 
 - **Client** create **Concrete Command** with **Receiver**
 - **Client** config **Invoker** with **Concrete Command**
-- **Invoker** call methods of **Abstract Command**
+- **Invoker** call methods of **Abstract Command** (async)
 - **Concrete Command** delegate handling to **Receiver**
 
 #### [no-toc] Info Hidden
@@ -448,3 +448,102 @@ No info hidden...
   - (context: variables in expressions)
   - (evaluate constrants in compiler)
   - (evaluate varialbes in interpreter)
+
+### Iterator
+
+> Decouple **aggregate traversal** from **representation**
+
+#### [no-toc] Roles
+
+- **Aggregate** define interface to create iterator ([sec|Factory Method] Factory Method)
+- **Iterator** define basic iteration operations
+  - External iterator
+    - _First_ / _Next_ / _IsDone_ / _GetItem_
+  - Internal iterator
+    - [sec|Strategy] Strategy (pass strategy into _Traverse_ interface)
+    - [sec|Template Method] Template Method (override _ProcessItem_ method)
+
+#### [no-toc] Process
+
+- **Client** create **Iterator** of **Aggregate**
+- **Client** call iteration methods of **Iterator**
+- **Iterator** keep track of iteration and compute next position
+
+#### [no-toc] Info Hidden
+
+- **Iterator** is _friend_ of **Aggregate** (tight coupling)
+- **Aggregate** not know **Iterator**
+
+#### [no-toc] Uses
+
+- Sequential access of aggregate container (STL container)
+- Stream operation (in/out stream opertions)
+
+### Mediator
+
+> Encapsulate interaction between components
+
+#### [no-toc] Roles
+
+- **Abstract Mediator** define interface
+  - to receive **Colleague** notification
+  - or act as [sec|Observer] Observer
+- **Concrete Mediator** establish binding with **Colleague**
+- **Colleague** interact with **Abstract Mediator** (async with **Client**)
+
+#### [no-toc] Process
+
+- **Client** create **Concrete Mediator** with **Colleague**
+- **Colleage** send request to **Abstract Mediator** (async)
+- **Concrete Mediator** send request to **Colleage**
+
+#### [no-toc] Info Hidden
+
+- **Colleague** not know **Concrete Mediator**
+
+#### [no-toc] Uses
+
+- Form/Pane/Window (create widgets -> show component -> handle interaction)
+- Message center in publish-subscribe system
+
+### Memento
+
+#### [no-toc] Roles
+#### [no-toc] Process
+#### [no-toc] Info Hidden
+#### [no-toc] Uses
+
+### Observer
+
+#### [no-toc] Roles
+#### [no-toc] Process
+#### [no-toc] Info Hidden
+#### [no-toc] Uses
+
+### State
+
+#### [no-toc] Roles
+#### [no-toc] Process
+#### [no-toc] Info Hidden
+#### [no-toc] Uses
+
+### Strategy
+
+#### [no-toc] Roles
+#### [no-toc] Process
+#### [no-toc] Info Hidden
+#### [no-toc] Uses
+
+### Template Method
+
+#### [no-toc] Roles
+#### [no-toc] Process
+#### [no-toc] Info Hidden
+#### [no-toc] Uses
+
+### Visitor
+
+#### [no-toc] Roles
+#### [no-toc] Process
+#### [no-toc] Info Hidden
+#### [no-toc] Uses

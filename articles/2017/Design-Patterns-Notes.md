@@ -147,7 +147,7 @@
 
 #### [no-toc] Info Hidden
 
-- Client not know **Singleton Subclass**
+- **Client** not know **Singleton Subclass**
 
 #### [no-toc] Uses
 
@@ -471,6 +471,7 @@ No info hidden...
 
 #### [no-toc] Info Hidden
 
+- **Client** not know representation of **Aggregate** / **Iterator**
 - **Iterator** is _friend_ of **Aggregate** (tight coupling)
 - **Aggregate** not know **Iterator**
 
@@ -481,7 +482,7 @@ No info hidden...
 
 ### Mediator
 
-> Encapsulate interaction between components
+> **Encapsulate interaction** between components
 
 #### [no-toc] Roles
 
@@ -508,10 +509,33 @@ No info hidden...
 
 ### Memento
 
+> **Encapsulate representation** to restore/undo later
+
 #### [no-toc] Roles
+
+- **Memento** represent a snapshot of **Originator**
+- **Originator** create and restore **Memento**
+
 #### [no-toc] Process
+
+- **Client** get **Memento** from **Originator**
+- **Client** request restoration of **Originator** with **Memento** (async)
+- **Originator** restore internal state in **Memento**
+
 #### [no-toc] Info Hidden
+
+- **Client** not know representation of **Memento** / **Originator**
+- **Originator** is _friend_ of **Memento** (tight coupling)
+- **Memento** not know **Originator**
+
 #### [no-toc] Uses
+
+- Undoable operation
+  - Constraint solving system (state is solution)
+  - Support state management in [sec|Command] Command
+- Memento-based iteration ([sec|Iterator] Iterator)
+  - Interface: `aggregate.next(iter_state)` vs. `iter.next()`
+  - Reverse friendship between aggregate and iterator/state
 
 ### Observer
 

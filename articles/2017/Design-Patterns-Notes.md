@@ -73,7 +73,7 @@
 
 - Creating event handler
   - (different component create component-specific handler)
-  - (different handler know how to handle the same event on different component)
+  - (different handler handle the same event on different component)
 
 ### Prototype
 
@@ -100,7 +100,9 @@
 - Palette
   - (clone prototype on the palette to create component)
   - (clone composited or decorated component)
-- Registry with key (dependency lookup, clone prototype in manager to create component)
+- Registry with key
+  - (dependency lookup)
+  - (clone prototype in manager to create component)
 
 ### Builder
 
@@ -141,7 +143,7 @@
 
 #### [no-toc] Process
 
-- **Client** call method of **Singleton**
+- **Client** call methods of **Singleton**
 - **Singleton** construct instance of **Singleton** / **Singleton Subclass**
 - **Client** retieve instance of **Singleton**
 
@@ -253,7 +255,7 @@
 
 - **Abstract Component** define uniform interface
 - **Concrete Component** define component entity
-- **Abstract Decorator** define interface that conform to **Abstract Component** (optional)
+- **Abstract Decorator** define interface conforming to **Abstract Component** (optional)
 - **Concrete Decorator** define additional responsibility
 
 #### [no-toc] Process
@@ -486,9 +488,9 @@ No info hidden...
 
 #### [no-toc] Roles
 
-- **Abstract Mediator** define interface
-  - to receive **Colleague** notification
-  - or act as [sec|Observer] Observer
+- **Abstract Mediator**
+  - define interface to receive **Colleague** notification
+  - can be an [sec|Observer] _Observer_ (**Colleague** be _Subject_)
 - **Concrete Mediator** establish binding with **Colleague**
 - **Colleague** interact with **Abstract Mediator** (async with **Client**)
 
@@ -500,12 +502,17 @@ No info hidden...
 
 #### [no-toc] Info Hidden
 
+- **Abstract Mediator** not know **Colleague**
 - **Colleague** not know **Concrete Mediator**
 
 #### [no-toc] Uses
 
-- Form/Pane/Window (create widgets -> show component -> handle interaction)
+- Widget-Pane in GUI
+  - (Widget as **Colleague** while Pane as **Mediator**)
+  - (Pane: create widgets -> show component -> handle interaction)
 - Message center in publish-subscribe system
+  - (provide acyclic callback)
+  - (clarify dependency between components)
 
 ### Memento
 
@@ -539,17 +546,69 @@ No info hidden...
 
 ### Observer
 
+> Decouple **one-to-many dependency** by **notification**
+
 #### [no-toc] Roles
+
+- **Abstract Subject** provide interface to attach / detach **Observer**
+- **Abstract Observer** provide interface to get notified from **Subject**
+- **Concrete Subject** _publish to_ (and refer to) **Observer**
+- **Concrete Observer** _subscribe to_ and react to **Subject**
+
 #### [no-toc] Process
+
+- **Client** attach **Abstract Observer** to **Abstract Subject**
+- **Concrete Subject** notify subscribed **Abstract Observer** (async)
+  - called by **Subject** ifself (setter method)
+  - called by **Client** (exteranl method call)
+- **Concrete Observer** get and (handle or ignore) notification through
+  - (Pull Model) querying state of its **Concrete Subject**
+  - (Push Model) passing by **Concrete Subject** sender
+
 #### [no-toc] Info Hidden
+
+- **Abstract** and **Concrete Subject** not know **Concrete Observer**
+- **Abstract Observer** not know **Abstract** and **Concrete Subject**
+- **Concrete Observer** not know **Abstract Subject**
+- **Concrete Observer** not know **Concrete Subject** (Push Model only)
+
 #### [no-toc] Uses
+
+- Model and view in MVC (view subscribing to model changes)
+- Decouple cyclic dependency
+  - (introduce a [sec|Mediator] _Mediator_ to maintain dependency)
+  - (dependent objects be _Subject_, mediator be _Observer_)
 
 ### State
 
+> Encapsulate **state-specific behavior** to **alter at runtime**
+
 #### [no-toc] Roles
+
+- **Context** provide interface for **Client** and maintain **State** instance
+- **Abstract State** provide interface for **Context**
+- **Concrete State** implement state-specific behavior
+
 #### [no-toc] Process
+
+- **Client** initialize **Context** with **Concrete State**
+- **Client** call methods of **Context**
+- **Context** defer request to **Abstract State**
+- **Concrete State** handle request according to its state
+- Transition to succeeding state
+  - **Context** handle transition uniformly
+  - **Concrete State** update **State** instance of **Context**
+
 #### [no-toc] Info Hidden
+
+- **Context** is _friend_ of **Abstract State** (tight coupling)
+- **Context** not know **Concrete State**
+
 #### [no-toc] Uses
+
+- Simplify conditional statement (delegate behavior rather than check state)
+- Automaton (behavior changes along with state changes)
+- Polymorphic tool (different behavior in different context, like magic pen)
 
 ### Strategy
 

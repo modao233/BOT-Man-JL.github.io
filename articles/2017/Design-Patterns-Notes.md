@@ -134,7 +134,7 @@
 
 ### Singleton
 
-> **Single** instance with global access
+> **Single** instance for global access and **runtime** config
 
 #### [no-toc] Roles
 
@@ -155,6 +155,7 @@
 
 - XXX manager (manage shared resources)
 - Dependency lookup (store dependency objects)
+- Solution to static-virtual function
 
 ## Structural Patterns
 
@@ -637,7 +638,7 @@ No info hidden...
 - Simplify conditional statement (delegate behavior rather than check state)
 - Strategy varies but doesn't take all responsibility for client (dependency injection)
 - Like [sec|Factory Method] Factory Method (vs. [sec|State] State)
-- Use delegation to vary algorithm (vs. [sec|Template Method] Template Method)
+- Use delegation to inverse control (IOC) (vs. [sec|Template Method] Template Method)
 
 ### Template Method
 
@@ -662,7 +663,7 @@ No info hidden...
 #### [no-toc] Uses
 
 - Framework (let user to override only some point, not template method)
-- Use inheritance to vary algorithm (vs. [sec|Strategy] Strategy)
+- Use inheritance to inverse control (IOC) (vs. [sec|Strategy] Strategy)
 
 ### Visitor
 

@@ -609,13 +609,34 @@ No info hidden...
 - Simplify conditional statement (delegate behavior rather than check state)
 - Automaton (behavior changes along with state changes)
 - Polymorphic tool (different behavior in different context, like magic pen)
+- Like [sec|Abstract Factory] Abstract Factory (vs. [sec|Strategy] Strategy)
 
 ### Strategy
 
+> **Encapsulate** a **family of algorithm**
+
 #### [no-toc] Roles
+
+- **Context** provide interface for **Client** and maintain **Strategy** instance
+- **Abstract Strategy** provide common functionality interface of algorithm
+- **Concrete Strategy** implement algorithm behavior
+
 #### [no-toc] Process
+
+- **Client** config **Context** with **Concrete Strategy**
+- **Client** call methods of **Context**
+- **Context** delegate algorithm related behavior to **Abstract Strategy**
+
 #### [no-toc] Info Hidden
+
+- **Context** not know **Concrete Strategy**
+- **Abstract** and **Concrete Strategy** not know **Context** (only know information algorithm needed)
+
 #### [no-toc] Uses
+
+- Simplify conditional statement (delegate behavior rather than check state)
+- Strategy varies and is not the whole part of Context methods (dep-injection)
+- Like [sec|Factory Method] Factory Method (vs. [sec|State] State)
 
 ### Template Method
 

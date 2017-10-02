@@ -635,15 +635,34 @@ No info hidden...
 #### [no-toc] Uses
 
 - Simplify conditional statement (delegate behavior rather than check state)
-- Strategy varies and is not the whole part of Context methods (dep-injection)
+- Strategy varies but doesn't take all responsibility for client (dependency injection)
 - Like [sec|Factory Method] Factory Method (vs. [sec|State] State)
+- Use delegation to vary algorithm (vs. [sec|Template Method] Template Method)
 
 ### Template Method
 
+> **Define algorithm's skeleton** and **defer step to subclass**
+
 #### [no-toc] Roles
+
+- **Abstract Class** define
+  - _template method_ (public, non-virtual)
+  - _primitive operation_ (protected, virtual, maybe pure virtual)
+- **Concrete Class** override _primitive operation_
+
 #### [no-toc] Process
+
+- **Client** call _template method_ of **Abstract Class**
+- **Concrete Class** do specific work by overriding
+
 #### [no-toc] Info Hidden
+
+- **Client** not know _primitive operation_
+
 #### [no-toc] Uses
+
+- Framework (let user to override only some point, not template method)
+- Use inheritance to vary algorithm (vs. [sec|Strategy] Strategy)
 
 ### Visitor
 

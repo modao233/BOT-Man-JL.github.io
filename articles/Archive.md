@@ -6,7 +6,10 @@
 
 #### 2017
 
-- [Design Patterns Notes](2017/Design-Patterns-Notes.md)
+- Design Patterns Notes
+  - [Creational Patterns](2017/Design-Patterns-Notes-1.md)
+  - [Structural Patterns](2017/Design-Patterns-Notes-2.md)
+  - [Behavioral Patterns](2017/Design-Patterns-Notes-3.md)
 - [Node 单元测试的 Mock 总结](2017/Node-Mock.md)
 - [两个提高 服务灵活性 的途径](2017/Improve-Flexibility.md)
 - [如何优雅的把 命令行界面 Hack 到 Qt 界面](2017/Hack-Qt-GUI.md)

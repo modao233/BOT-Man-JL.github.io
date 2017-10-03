@@ -1,0 +1,178 @@
+﻿# Creational Patterns Notes
+
+> Reading in 2017/7
+>
+> Encapsulate the concept that varies. —— GOF
+
+[heading-numbering]
+
+## [no-toc] [no-number] Related Notes
+
+- Creational Patterns Notes
+- [Structural Patterns Notes](Design-Patterns-Notes-2.md)
+- [Behavioral Patterns Notes](Design-Patterns-Notes-3.md)
+
+## [no-toc] [no-number] Covered Patterns
+
+[TOC]
+
+## Abstract Factory
+
+> Abstract the creation of a **family of product**
+
+#### [no-toc] [no-number] &sect; Roles
+
+- **Abstract Factory** construct **Abstract Product**
+- **Concrete Factory** construct **Concrete Product** family
+- **Abstract Product** represent product interface
+- **Concrete Product** represent a family of product
+
+#### [no-toc] [no-number] &sect; Process
+
+- **Client** call methods of **Abstract Factory**
+- **Concrete Factory** create **Concrete Product** family
+- **Client** retrieve **Abstract Product**
+
+#### [no-toc] [no-number] &sect; Info Hidden
+
+- **Abstract Factory** not know **Concrete Product** (not care)
+- **Client** not know **Concrete Factory** and **Concrete Product**
+  - (only use **Abstract Factory** to create **Abstract Product**)
+
+#### [no-toc] [no-number] &sect; Uses
+
+- Cross-platform solution
+  - (different platform ~ different family of component)
+
+#### [no-toc] [no-number] &sect; Comparison
+
+- Implemented by
+  - [sec|Factory Method] Factory Method (subclassing, compile-time)
+  - [sec|Prototype] Prototype (object composition, runtime)
+
+## Factory Method
+
+> Subclass to **defer instantiation** of concrete product
+
+#### [no-toc] [no-number] &sect; Roles
+
+- **Abstract Creator** create **Abstract Product**
+- **Concrete Creator** create **Concrete Product**
+- **Abstract Product** represent product interface
+- **Concrete Product** represent a family of product
+
+#### [no-toc] [no-number] &sect; Process
+
+- **Client** call methods of **Abstract Creator**
+- **Abstract Creator** defer instantiation to **Concrete Creator**
+- **Concrete Creator** create subclass-specific **Concrete Product**
+- **Client** retrieve **Abstract Product**
+
+#### [no-toc] [no-number] &sect; Info Hidden
+
+- **Abstract Creator** not know **Concrete Product** (not care)
+- **Client** not know **Concrete Creator** and **Concrete Product**
+  - (only use **Abstract Creator** to create **Abstract Product**)
+
+#### [no-toc] [no-number] &sect; Uses
+
+- Create event handler
+  - (different component create component-specific handler)
+  - (different handler handle the same event on different component)
+- Create iterator
+  - (only aggregate itself know how to create its iterator)
+  - (different iterator has the same interface for iteration)
+
+#### [no-toc] [no-number] &sect; Comparison
+
+- Used to implement [sec|Abstract Factory] Abstract Factory
+
+## Prototype
+
+> Prototype to **clone** new product
+
+#### [no-toc] [no-number] &sect; Roles
+
+- **Abstract Prototype** define interface to clone
+- **Concrete Prototype** implement copy construction and initialization
+
+#### [no-toc] [no-number] &sect; Process
+
+- **Client** call methods of **Abstract Prototype**
+- **Abstract Prototype** defer construction to **Concrete Prototype**
+- **Concrete Prototype** clone itself and initialize the copy
+- **Client** retrieve **Abstract Prototype**
+
+#### [no-toc] [no-number] &sect; Info Hidden
+
+- **Client** not know **Concrete Prototype**
+  -  (only deal with interface of **Abstract Prototype**)
+
+#### [no-toc] [no-number] &sect; Uses
+
+- Palette
+  - (clone prototype on the palette to create component)
+  - (used to clone composited or decorated component)
+- Registry with key
+  - (clone prototype in manager to create component)
+  - (used for dependency lookup)
+
+#### [no-toc] [no-number] &sect; Comparison
+
+- Used to implement [sec|Abstract Factory] Abstract Factory
+
+## Builder
+
+> Seperate **construction procedure** from **product representation**
+
+#### [no-toc] [no-number] &sect; Roles
+
+- **Director** use the same construction procedure
+- **Abstract Builder** define interface to accept build command
+- **Concrete Builder** implement concrete build action
+- **Product** have different representation
+
+#### [no-toc] [no-number] &sect; Process
+
+- **Client** create **Director** and **Concrete Builder**
+- **Client** config **Director** with **Concrete Builder**
+- **Director** call methods of **Abstract Builder**
+- **Client** retrieve **Product** from **Concrete Builder**
+
+#### [no-toc] [no-number] &sect; Info Hidden
+
+- **Director** not know **Concrete Builder**
+  - (only deal with interface of **Abstract Builder**)
+- **Director** not know **Product**
+  - (only **Client** care about **Product**)
+
+#### [no-toc] [no-number] &sect; Uses
+
+- Format conversion (the same source structure ~ different target)
+- Parser (the same token flow ~ different abstract syntax tree)
+
+## Singleton
+
+> Maintain **sole instance** at all places
+
+#### [no-toc] [no-number] &sect; Roles
+
+- **Singleton** define the interface to get instance
+- **Singleton Subclass** represent variation of product
+
+#### [no-toc] [no-number] &sect; Process
+
+- **Client** call methods of **Singleton**
+- **Singleton** construct instance of **Singleton** / **Singleton Subclass**
+- **Client** retieve instance of **Singleton**
+
+#### [no-toc] [no-number] &sect; Info Hidden
+
+- **Client** not know **Singleton Subclass**
+  - (retrieve **Singleton Subclass** from interface of **Singleton** class)
+
+#### [no-toc] [no-number] &sect; Uses
+
+- Resource manager (manage distributed shared resource)
+- Dependency lookup (store dependent in one place)
+- Solution to _static-virtual member function_ (configurable at **runtime**)

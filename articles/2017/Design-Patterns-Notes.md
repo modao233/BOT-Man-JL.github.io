@@ -155,7 +155,7 @@
 
 - XXX manager (manage shared resources)
 - Dependency lookup (store dependency objects)
-- Solution to static-virtual function
+- Solution to _static-virtual member function_
 
 ## Structural Patterns
 
@@ -434,7 +434,7 @@
 
 #### [no-toc] Process
 
-- **Client** build AST of **Nonterminal** and **Terminal Expression**
+- **Client** build AST with **Nonterminal** and **Terminal Expression**
 - **Client** initialize **Context** and start _Interpret_ on **Abstract Expression**
 - **Nonterminal** and **Terminal Expression** store/access states in **Context**
 
@@ -582,7 +582,7 @@ No info hidden...
 
 ### State
 
-> Encapsulate **state-specific behavior** to **alter at runtime**
+> **Encapsulate state-specific behavior** to **alter at runtime**
 
 #### [no-toc] Roles
 
@@ -667,7 +667,33 @@ No info hidden...
 
 ### Visitor
 
+> Decouple **element of aggregate** from **operation** on them
+
 #### [no-toc] Roles
+
+- **Abstract Visitor** provide interface to visit all **Concrete Element**
+- **Concrete Visitor** implement operation on visiting **Concrete Element**
+- **Abstract Element** provide interface to accept **Visitor**
+- **Concrete Element** pass _this_ to **Visitor** on acception
+- **Aggregate**
+  - provide interface to accept **Visitor** for **Client**
+  - be composite ([sec|Composite]) or collection (list, array...)
+
 #### [no-toc] Process
+
+- **Client** create **Concrete Visitor**
+- **Client** visit **Aggregate** using **Abstract Visitor**
+- **Aggregate** pass **Abstract Visitor** to internal **Abstract Element**
+- **Concrete Element** accept **Abstract Visitor** by passing _this_ to it
+- **Concrete Visitor** access **Concrete Element** and accumulate result
+
 #### [no-toc] Info Hidden
+
+- **Abstract** and **Concrete Visitor** _know all_ **Concrete Element**
+- **Abstract** and **Concrete Element** not know **Concrete Visitor**
+
 #### [no-toc] Uses
+
+- Iterate over tuple (non-typed, as opposed to typed [sec|Iterator] Iterator)
+- Apply to traversal of abstract syntax tree in [sec|Interpreter] Interpreter (provide more flexibility to add new operation on AST)
+- Solution to _double dispatch_ (type of **Element** data bind with type of **Visitor** action dynamically)

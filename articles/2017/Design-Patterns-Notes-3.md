@@ -2,7 +2,7 @@
 
 > Reading in 2017/9
 >
-> Program to an interface, not an implementation. —— GOF
+> Encapsulate the concept that varies. —— GOF
 
 [heading-numbering]
 
@@ -219,7 +219,7 @@
 #### [no-toc] [no-number] &sect; Comparison
 
 - vs. [sec|Strategy] Strategy
-  - Provide several methods (series of behavior), like Abstract Factory
+  - Provide several methods (series of behavior), like _Abstract Factory_
   - **Context** defer whole request to **State**
 
 ### Strategy
@@ -253,7 +253,7 @@
 #### [no-toc] [no-number] &sect; Comparison
 
 - vs. [sec|State] State
-  - Provide single method (single responsibility), like Factory Method
+  - Provide single method (single responsibility), like _Factory Method_
   - **Context** defer only algorithm behavior to **State**
 - vs. [sec|Template Method] Template Method
   - Use delegation to inverse control (IOC)
@@ -291,7 +291,7 @@
 
 - Aggregate be
   - collection (uniform-typed, list, array...)
-  - composite (abstract-typed)
+  - composite (abstract-typed, _Composite_)
   - tuple (product-typed)
 
 ### Iterator
@@ -300,7 +300,7 @@
 
 #### [no-toc] [no-number] &sect; Roles
 
-- **Aggregate** define interface to create iterator (maybe Factory Method)
+- **Aggregate** define interface to create iterator (maybe _Factory Method_)
 - **Iterator** define basic iteration operations
   - External iterator (_First_ / _Next_ / _IsDone_ / _GetItem_)
   - Internal iterator (IOC pattern)
@@ -374,7 +374,7 @@
 
 ### Interpreter
 
-> Add **interpret interface** to abstract syntax tree (composite)
+> Add **interpret interface** to abstract syntax tree (_Composite_)
 
 #### [no-toc] [no-number] &sect; Roles
 

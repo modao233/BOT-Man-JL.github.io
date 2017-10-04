@@ -2,7 +2,7 @@
 
 > Reading in 2017/8
 >
-> Favor object composition over class inheritance. —— GOF
+> Program to an interface, not an implementation. —— GOF
 
 [heading-numbering]
 
@@ -16,224 +16,262 @@
 
 [TOC]
 
-## Adapter
+## Defer Implementation
+
+### Adapter
 
 > Convert **existing interface** to **conform new interface**
 
 #### [no-toc] [no-number] &sect; Roles
 
-- **Target** define the expected new interface
-- **Adaptee** expose the existing interface
-- **Adapter** show **Target**'s interface, delegate to **Adaptee**
-  - public inherit the interface of **Target**
-  - private inherit the implementation of / compose an instance of **Adaptee**
+- **Target** provide interface for **Client**
+- **Adaptee** expose existing interface (for **Target**)
+- **Adapter** act as **Target** but defer request to **Adaptee** by
+  - public inherit interface of **Target** (for **Client**)
+  - **Adaptee** side:
+    - private inherit implementation of **Adaptee**
+    - maintain instance of **Adaptee**
 
 #### [no-toc] [no-number] &sect; Process
 
-- **Client** call methods of **Target** on **Adapter**
+- **Client** call methods of **Target** (on **Adapter**)
 - **Adapter** defer request to **Adaptee**
+- **Adaptee** do actual work
 
 #### [no-toc] [no-number] &sect; Info Hidden
 
 - **Client** not know **Adaptee**
-- **Target** and **Adaptee** not know **Adapter**
-- **Target** and **Adaptee** not know each other
+  - (only deal with interface of **Target** / **Adapter**)
+- **Target** and **Adaptee** not know **Adapter** / each other
+  - (not exist in the same system)
+  - (**Adapter** connect them)
 
 #### [no-toc] [no-number] &sect; Uses
 
-- Mix alternative library to existing toolkit (different interface)
-- View model (convert models to what views expect)
+- Mix alternative library to new toolkit
+  - (old library exposed as old interface)
+- Model and view model in MVVM
+  - (convert model to what view expect)
 
 #### [no-toc] [no-number] &sect; Comparison
 
 - vs. [sec|Bridge] Bridge
-  - Focus on adapting **existing incompatible** interface
+  - Used to adapt existing and incompatible interface
+  - Not change/update existing implementation
 
-## Bridge
+### Bridge
 
-> Decouple **abstraction** from **implementation** to vary independently
+> Decouple **abstraction** from **implementation**
 
 #### [no-toc] [no-number] &sect; Roles
 
-- **Abstraction** define client expected interface
-- **Abstract Implementor** provide operation primitives for **Abstraction**
-- **Concrete Implementor** define implementation of operations
+- **Abstraction** provide interface for **Client**
+- **Abstract Implementor** provide interface for **Abstraction**
+- **Concrete Implementor** implement specific operation
 
 #### [no-toc] [no-number] &sect; Process
 
 - **Client** call methods of **Abstraction**
 - **Abstraction** defer request to **Abstract Implementor**
-- **Abstract Implementor** let **Concrete Implementor** do specific operation
+- **Concrete Implementor** do specific operation
 
 #### [no-toc] [no-number] &sect; Info Hidden
 
-- **Client** not know and not dependend on **Concrete Implementor**
+- **Client** not know **Concrete Implementor**
+  - (only deal with interface of **Abstraction**)
 - **Abstraction** not know **Concrete Implementor**
-- **Abstract Implementor** not know **Concrete Implementor**
-- **Abstract Implementor** and **Concrete Implementor** not know **Abstraction**
+  - (only deal with interface of **Abstract Implementor**)
+- **Implementor** not know **Abstraction** (not care)
 
 #### [no-toc] [no-number] &sect; Uses
 
-- Cross-platform solutions (the same abstraction component with different platform implementation)
-- Dynamic select optimal implementation (determine according to environment status)
-- Implementation with memory management (all instances share the same implemenation)
+- Cross-platform solution
+  - (the same abstraction component ~ platform-specific implementation)
+- Select optimal implementation at runtime
+  - (determine implementation according to current environment)
 
 #### [no-toc] [no-number] &sect; Comparison
 
 - vs. [sec|Adapter] Adapter
-  - Focus on providing **stable abstraction** interface
-  - Vary independent **evoluating implementation**
+  - Provide stable abstraction interface
+  - Vary evoluating implementation independently
 
-## Composite
+## Conform to Interface
 
-> Define **part-whole interface** with **uniform** operation
+### Composite
+
+> Define **uniform interface** for **part-whole component**
 
 #### [no-toc] [no-number] &sect; Roles
 
-- **Component** define interface for both composite and primitive
+- **Component** provide interface for both **Primitive** and **Composite**
 - **Primitive** define leaf component
-- **Composite** define composition of components
+- **Composite** define composition of children **Component**
 
 #### [no-toc] [no-number] &sect; Process
 
 - **Client** call methods of **Component**
+- **Composite** defer request to children **Component**
+  (and perform additional operation)
 - **Primitive** handle request directly
-- **Composite** defer request to **Component** (and perform additional operations)
 
 #### [no-toc] [no-number] &sect; Info Hidden
 
-- **Client** not know **Primitive** and **Composite** (when requesting)
-- **Component** not know **Primitive** and **Composite** (sometimes know **Abstract Composite** to refer to parent)
-- **Primitive** and **Composite** not know each other
+- **Client** not know **Primitive** and **Composite**
+  - (only deal with interface of **Component**)
+- **Component** may know interface of **Composite**
+  - (when **Component** refer to **Composite** as parent)
+- **Primitive** and **Composite** not know each other (parallel)
 
 #### [no-toc] [no-number] &sect; Uses
 
-- GUI component (handle composite and primitive uniformly)
-- Tasks (one task can contain others)
-- Abstract syntax tree (with different gramma component)
+- GUI component (treat composite and primitive uniformly)
+- Task composition (one task can contain others)
+- Define abstract syntax tree
+  - (different gramma component share the same interface)
+  - (base of _Interpreter_ pattern)
 
 #### [no-toc] [no-number] &sect; Comparison
 
 - vs. [sec|Decorator] Decorator
-  - Focus on **object aggregation**
+  - Focus on object aggregation for representation
 
-## Decorator
+### Decorator
 
-> **Attach responsiblity** from outside without changing interface
+> **Attach responsiblity** without changing interface
 
 #### [no-toc] [no-number] &sect; Roles
 
-- **Abstract Component** define uniform interface
-- **Concrete Component** define component entity
-- **Abstract Decorator** define interface conforming to **Abstract Component** (optional)
-- **Concrete Decorator** define additional responsibility
+- **Abstract Component** provide interface for **Client**
+- **Concrete Component** define (leaf) component entity
+- **Decorator**
+  - conform to interface of **Abstract Component**
+  - attach additional responsibility to its **Component**
 
 #### [no-toc] [no-number] &sect; Process
 
-- **Client** establish concrete decorated **Abstract Component**
+- **Client** establish concrete decorated **Component**
 - **Client** call methods of **Abstract Component**
+- **Concrete Decorator** defer request to child **Abstract Component**
+  and perform additional operation
 - **Concrete Component** handle request as normal
-- **Concrete Decorator** defer request to **Abstract Component** and perform additional operations
 
 #### [no-toc] [no-number] &sect; Info Hidden
 
-- **Client** and **Abstract Component** not know **Concrete Component** and **Decorator**
-- **Concrete Component** and **Decorator** not know each other
+- **Client** not know **Concrete Component** and **Decorator**
+  - (only deal with interface of **Abstract Component**)
+- **Concrete Component** and **Decorator** not know each other (parallel)
 
 #### [no-toc] [no-number] &sect; Uses
 
-- GUI component (adding border and scrollbar to a view)
-- Pipeline operation (encoding and encrypting before writing to file)
+- GUI component (add border and scrollbar to a view)
+- Pipeline operation (encode/encrypt stream before writing to file)
 
 #### [no-toc] [no-number] &sect; Comparison
 
 - vs. [sec|Composite] Composite
-  - Focus on **adding responsibility**, **degenerate** composition
+  - Focus on attaching responsibility
+  - Degenerate composition (only one child component)
 - vs. [sec|Proxy] Proxy
-  - Focus on **dynamically** adding responsibility **recursively**
+  - Focus on adding responsibility dynamically and recursively
 
-## Proxy
+### Proxy
 
-> **Intercept access** and provide the same interface
+> **Intercept access** without changing interface
 
 #### [no-toc] [no-number] &sect; Roles
 
-- **Abstract Subject** define uniform interface
+- **Abstract Subject** provide interface for **Client**
 - **Concrete Subject** define concrete object
-- **Proxy** act like a **Abstract Subject** and intercept request to **Concrete Subject**
+- **Proxy**
+  - conform to interface of **Abstract Subject**
+  - intercept request to **Concrete Subject**
 
 #### [no-toc] [no-number] &sect; Process
 
+- **Client** establish concrete proxified **Subject**
 - **Client** call methods of **Abstract Subject**
+- **Proxy** defer request to another **Abstract Subject** under control
 - **Concrete Subject** handle request as normal
-- **Proxy** defer request to another **Abstract Subject** under its control
 
 #### [no-toc] [no-number] &sect; Info Hidden
 
-- **Client** and **Abstract Subject** not know **Concrete Subject** and **Proxy**
+- **Client** not know **Concrete Subject** and **Proxy**
+  - (only deal with interface of **Abstract Subject**)
 - **Concrete Subject** not know **Proxy**
-- **Proxy** may know **Concrete Subject** or not
+  - (**Proxy** act as man-in-middle and control the request traffic)
+- **Proxy** may not know **Concrete Subject**
+  - (may only deal with interface of **Abstract Subject**)
 
 #### [no-toc] [no-number] &sect; Uses
 
-- Remote calling (remote proxy, **not** keep reference to **Concrete Subject**)
-- Optimize expensive action (virtual proxy, **may** keep reference to **Concrete Subject**)
+- Remote proxy (**not** keep reference to **Concrete Subject**)
+  - Remote calling
+- Virtual proxy (**may** keep reference to **Concrete Subject**)
   - Lazy loading
-  - Copy on Write
-- Access control (protection proxy, keep reference to **Concrete Subject**)
-  - Restricted access
-  - Read/Write Lock
-- Smart pointer (resource management, keep reference to **Concrete Subject**)
+  - Copy on write
+- Protection proxy (**do** keep reference to **Concrete Subject**)
+  - Access control
+  - Exclusive lock
+- Resource management (**do** keep reference to **Concrete Subject**)
+  - Smart pointer
+  - Lock guard
 
 #### [no-toc] [no-number] &sect; Comparison
 
 - vs. [sec|Decorator] Decorator
-  - Focus on **intercepting** access in simple relation
+  - Focus on controlling access non-dynamically
 
-## Facade
+## Hide Detail
 
-> **Encapsulate subsystems** to provide **high-level interface**
+### Facade
+
+> **Encapsulate subsystem** to provide **high-level interface**
 
 #### [no-toc] [no-number] &sect; Roles
 
-- **Facade** define client-interested interface
-- **Subsystem** define actual bussiness
+- **Facade** provide interface for **Client**
+- **Subsystem** implement bussiness logic
 
 #### [no-toc] [no-number] &sect; Process
 
-- **Client** call methods of **Facade** (or **Subsystem** directly)
-- **Facade** defer actual works to **Subsystem**
+- **Client** call methods of **Facade**
+- **Facade** defer actual work to **Subsystem**
 
 #### [no-toc] [no-number] &sect; Info Hidden
 
-- **Subsystem** not know **Facade**
+- **Subsystem** not know **Facade** (not care)
+- **Client** not know **Subsystem** (not care)
 
 #### [no-toc] [no-number] &sect; Uses
 
-- Compiler's _Compile_ interface (hide lexer / parser details)
-- Large systems (define layers by layered facades)
+- Compiler's _Compile_ interface (hide lexer/parser detail)
+- Large system (define multi-layered facade inside)
 
-## Flyweight
+### Flyweight
 
 > **Share** substantial **fine-grained objects**
 
 #### [no-toc] [no-number] &sect; Roles
 
-- **Abstract Flyweight** define flyweight interface accepting extrinsic state
-- **Concrete Flyweight** define sharable flyweight, storing intrinsic state
-- **Flyweight Factory** create and manage flyweight object
+- **Abstract Flyweight** define interface to accept extrinsic state
+- **Concrete Flyweight** store intrinsic state to be sharable
+- **Flyweight Factory** create and manage **Flyweight** instance
 
 #### [no-toc] [no-number] &sect; Process
 
 - **Client** retrieve **Abstract Flyweight** from **Flyweight Factory**
-- **Client** store and compute extrinsic state and pass to **Abstract Flyweight**
-- **Concrete Flyweight** combine intrinsic and extrinsic state to work
+- **Client** pass extrinsic state to **Abstract Flyweight** to do work
+- **Concrete Flyweight** use both extrinsic and intrinsic state to do work
 
 #### [no-toc] [no-number] &sect; Info Hidden
 
-- **Abstract Flyweight** not know **Concrete Flyweight**
+- **Flyweight Factory** not know **Concrete Flyweight** (not care)
+- **Client** not know **Concrete Flyweight**
+  - (only deal with interface of **Abstract Flyweight**)
+  - (only retrieve object by key)
 
 #### [no-toc] [no-number] &sect; Uses
 
-- GUI component (sharing bitmap and style)
-- State and Strategy object (retrieve by key)
+- GUI component (sharing font and style bitmap)
+- Manage _State_ / _Strategy_ object (retrieve by key)

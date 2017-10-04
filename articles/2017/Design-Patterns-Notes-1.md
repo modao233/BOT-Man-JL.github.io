@@ -2,7 +2,7 @@
 
 > Reading in 2017/7
 >
-> Encapsulate the concept that varies. —— GOF
+> Favor object composition over class inheritance. —— GOF
 
 [heading-numbering]
 
@@ -157,14 +157,14 @@
 
 #### [no-toc] [no-number] &sect; Roles
 
-- **Singleton** define the interface to get instance
+- **Singleton** define the interface to get instance (and set interface maybe)
 - **Singleton Subclass** represent variation of product
 
 #### [no-toc] [no-number] &sect; Process
 
 - **Client** call methods of **Singleton**
-- **Singleton** construct instance of **Singleton** / **Singleton Subclass**
-- **Client** retieve instance of **Singleton**
+- **Singleton** construct instance of **Singleton** at the first time
+- **Client** retieve instance of **Singleton** (or **Singleton Subclass**)
 
 #### [no-toc] [no-number] &sect; Info Hidden
 
@@ -173,6 +173,7 @@
 
 #### [no-toc] [no-number] &sect; Uses
 
-- Resource manager (manage distributed shared resource)
-- Dependency lookup (store dependent in one place)
-- Solution to _static-virtual member function_ (configurable at **runtime**)
+- Resource manager/factory
+  - (one place to manage distributed shared resource)
+- Solution to _static-virtual member function_
+  - (construct subclass according to initial config)

@@ -221,7 +221,7 @@
 - vs. [sec|Strategy] Strategy
   - **Context** defer whole request to **State**
   - Provide several methods (series of behavior)
-  - like &sect; _Abstract Factory_
+  - like [&sect; Abstract Factory](Design-Patterns-Notes-1.md#Abstract-Factory)
 
 ### Strategy
 
@@ -256,7 +256,7 @@
 - vs. [sec|State] State
   - **Context** defer only algorithm behavior to **State**
   - Provide single method (single responsibility)
-  - like &sect; _Factory Method_
+  - like [&sect; Factory Method](Design-Patterns-Notes-1.md#Factory-Method)
 - vs. [sec|Template Method] Template Method
   - Use delegation to inverse control (IOC)
 
@@ -293,7 +293,8 @@
 
 - Aggregate be
   - collection (uniform-typed, list, array...)
-  - composite (abstract-typed, &sect; _Composite_)
+  - composite (abstract-typed,
+    [&sect; Composite](Design-Patterns-Notes-2.md#Composite))
   - tuple (product-typed)
 
 ### Iterator
@@ -302,7 +303,8 @@
 
 #### [no-toc] [no-number] &sect; Roles
 
-- **Aggregate** define interface to create iterator (&sect; _Factory Method_)
+- **Aggregate** define interface to create iterator
+  ([&sect; Factory Method](Design-Patterns-Notes-1.md#Factory-Method))
 - **Iterator** define basic iteration operations
   - External iterator (First / Next / IsDone / GetItem)
   - Internal iterator (IOC pattern)
@@ -376,7 +378,8 @@
 
 ### Interpreter
 
-> Add **interpret interface** to abstract syntax tree (&sect; _Composite_)
+> Add **interpret interface** to abstract syntax tree
+> ([&sect; Composite](Design-Patterns-Notes-2.md#Composite))
 
 #### [no-toc] [no-number] &sect; Roles
 

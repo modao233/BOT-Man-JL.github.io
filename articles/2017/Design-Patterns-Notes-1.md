@@ -184,5 +184,5 @@
 
 #### [no-toc] [no-number] &sect; Comparison
 
-- vs. &sect; _Flyweight_
+- vs. [&sect; Flyweight](Design-Patterns-Notes-2.md#Flyweight)
   - Used for mutable objects (non-const global)

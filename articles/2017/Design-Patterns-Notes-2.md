@@ -153,7 +153,7 @@
 - Task composition (one task can contain others)
 - Define abstract syntax tree
   - (different gramma component share the same interface)
-  - (base of &sect; _Interpreter_ pattern)
+  - (base of [&sect; Interpreter](Design-Patterns-Notes-3.md#Interpreter))
 
 #### [no-toc] [no-number] &sect; Comparison
 
@@ -276,9 +276,11 @@
 #### [no-toc] [no-number] &sect; Uses
 
 - GUI component (sharing font and style bitmap)
-- Manage &sect; _State_ / &sect; _Strategy_ object (retrieve by key)
+- Manage [&sect; State](Design-Patterns-Notes-3.md#State) /
+  [&sect; Strategy](Design-Patterns-Notes-3.md#Strategy) object
+  (retrieve by key)
 
 #### [no-toc] [no-number] &sect; Comparison
 
-- vs. &sect; _Singleton_
+- vs. [&sect; Singleton](Design-Patterns-Notes-1.md#Singleton)
   - Used for immutable objects (const global)

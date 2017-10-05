@@ -16,9 +16,11 @@
 
 [TOC]
 
-## Abstract Factory
+## Abstract Creation
 
-> Abstract the creation of a **family of product**
+### Abstract Factory
+
+> Abstract creation of a **family of product**
 
 #### [no-toc] [no-number] &sect; Roles
 
@@ -50,9 +52,9 @@
   - [sec|Factory Method] Factory Method (subclassing, compile-time)
   - [sec|Prototype] Prototype (object composition, runtime)
 
-## Factory Method
+### Factory Method
 
-> Subclass to **defer instantiation** of concrete product
+> Subclass to **defer construction** of concrete product
 
 #### [no-toc] [no-number] &sect; Roles
 
@@ -64,7 +66,7 @@
 #### [no-toc] [no-number] &sect; Process
 
 - **Client** call methods of **Abstract Creator**
-- **Abstract Creator** defer instantiation to **Concrete Creator**
+- **Abstract Creator** defer construction to **Concrete Creator**
 - **Concrete Creator** create subclass-specific **Concrete Product**
 - **Client** retrieve **Abstract Product**
 
@@ -87,7 +89,7 @@
 
 - Used to implement [sec|Abstract Factory] Abstract Factory
 
-## Prototype
+### Prototype
 
 > Prototype to **clone** new product
 
@@ -121,7 +123,7 @@
 
 - Used to implement [sec|Abstract Factory] Abstract Factory
 
-## Builder
+### Builder
 
 > Seperate **construction procedure** from **product representation**
 
@@ -151,7 +153,9 @@
 - Format conversion (the same source structure ~ different target)
 - Parser (the same token flow ~ different abstract syntax tree)
 
-## Singleton
+## Maintain Instance
+
+### Singleton
 
 > Maintain **sole instance** at all places
 
@@ -164,7 +168,7 @@
 
 - **Client** call methods of **Singleton**
 - **Singleton** construct instance of **Singleton** at the first time
-- **Client** retieve instance of **Singleton** (or **Singleton Subclass**)
+- **Client** retrieve instance of **Singleton** (or **Singleton Subclass**)
 
 #### [no-toc] [no-number] &sect; Info Hidden
 
@@ -177,3 +181,8 @@
   - (one place to manage distributed shared resource)
 - Solution to _static-virtual member function_
   - (construct subclass according to initial config)
+
+#### [no-toc] [no-number] &sect; Comparison
+
+- vs. &sect; _Flyweight_
+  - Used for mutable objects (non-const global)

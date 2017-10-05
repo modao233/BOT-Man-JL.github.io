@@ -34,7 +34,7 @@
 - **Client** create **Concrete Command** with **Receiver**
 - **Client** config **Invoker** with **Concrete Command**
 - **Invoker** send request to **Abstract Command** (async)
-- **Concrete Command** delegate handling to **Receiver**
+- **Concrete Command** defer request to **Receiver**
 
 #### [no-toc] [no-number] &sect; Info Hidden
 
@@ -46,10 +46,10 @@
 
 #### [no-toc] [no-number] &sect; Uses
 
-- Support undoable operation (with _Unexecute_ interface)
+- Support undoable operation (with unexecute interface)
 - Support logging operations (able to recreate system crash)
 - Support transaction (rollback at failing)
-- Enrich raw callback function (like _lambda_ and _functor_ in C++)
+- Enrich raw callback function (like lambda and functor in C++)
 
 ### Observer
 
@@ -59,8 +59,8 @@
 
 - **Abstract Subject** provide interface to attach/detach **Observer**
 - **Abstract Observer** provide interface to get notified from **Subject**
-- **Concrete Subject** _publish to_ **Observer** (async with **Client**)
-- **Concrete Observer** _subscribe to_ and interact with **Subject**
+- **Concrete Subject** publish to **Observer** (async with **Client**)
+- **Concrete Observer** subscribe to and interact with **Subject**
 
 #### [no-toc] [no-number] &sect; Process
 
@@ -80,7 +80,7 @@
 
 #### [no-toc] [no-number] &sect; Uses
 
-- Model and view in MVC architecture (view subscribing to model changes)
+- Model and view in MVC architecture (model changes notify view)
 
 ### Mediator
 
@@ -115,7 +115,7 @@
   - (clarify dependency between components)
 - Decouple cyclic dependency in [sec|Observer] Observer
   - (introduce **Mediator** to maintain dependency)
-  - (dependent objects be _Subjects_ while **Mediator** be _Observer_)
+  - (dependent objects be Subjects while **Mediator** be Observer)
 
 ### Chain of Responsibility
 
@@ -170,7 +170,7 @@
 
 #### [no-toc] [no-number] &sect; Info Hidden
 
-- **Originator** is _friend_ of **Memento** (access representation)
+- **Originator** is friend of **Memento** (access representation)
 - **Memento** not know **Originator** (not care)
 - **Client** not know representation of **Memento** / **Originator**
   - (only treat them as concrete object)
@@ -179,7 +179,7 @@
 
 - Undoable operation in [sec|Command] Command
 - Memento-based iteration ([sec|Iterator] Iterator)
-  - Interface: `aggregate.next(iter_state)` ~ `iter.next()`
+  - Interface: `aggregate.next(iterState)` ~ `iter.next()`
   - Reverse friendship between aggregate and iterator/memento
 
 ### State
@@ -204,7 +204,7 @@
 
 #### [no-toc] [no-number] &sect; Info Hidden
 
-- **Context** is _friend_ of **Abstract State**
+- **Context** is friend of **Abstract State**
   - (access representation)
   - (**State** also access to **Context** for data)
 - **Context** not know **Concrete State**
@@ -212,15 +212,16 @@
 
 #### [no-toc] [no-number] &sect; Uses
 
-- Simplify conditional statement (delegate behavior rather than check state)
+- Simplify conditional statement (delegation rather than state checking)
 - Implement automaton (behavior changes along with state changes)
 - Polymorphic tool (different behavior for different state, like magic pen)
 
 #### [no-toc] [no-number] &sect; Comparison
 
 - vs. [sec|Strategy] Strategy
-  - Provide several methods (series of behavior), like _Abstract Factory_
   - **Context** defer whole request to **State**
+  - Provide several methods (series of behavior)
+  - like &sect; _Abstract Factory_
 
 ### Strategy
 
@@ -247,14 +248,15 @@
 
 #### [no-toc] [no-number] &sect; Uses
 
-- Simplify conditional statement (delegate behavior rather than check state)
+- Simplify conditional statement (delegation rather than state checking)
 - Strategy (only part of behavior) vary frequently (dependency injection)
 
 #### [no-toc] [no-number] &sect; Comparison
 
 - vs. [sec|State] State
-  - Provide single method (single responsibility), like _Factory Method_
   - **Context** defer only algorithm behavior to **State**
+  - Provide single method (single responsibility)
+  - like &sect; _Factory Method_
 - vs. [sec|Template Method] Template Method
   - Use delegation to inverse control (IOC)
 
@@ -287,22 +289,22 @@
 - vs. [sec|Strategy] Strategy
   - Use inheritance to inverse control (IOC)
 
-## Access Aggregate
+## Traverse Aggregate
 
 - Aggregate be
   - collection (uniform-typed, list, array...)
-  - composite (abstract-typed, _Composite_)
+  - composite (abstract-typed, &sect; _Composite_)
   - tuple (product-typed)
 
 ### Iterator
 
-> Decouple **traversal on aggregate** from its **representation**
+> Decouple **traversal** on aggregate from its **representation**
 
 #### [no-toc] [no-number] &sect; Roles
 
-- **Aggregate** define interface to create iterator (maybe _Factory Method_)
+- **Aggregate** define interface to create iterator (&sect; _Factory Method_)
 - **Iterator** define basic iteration operations
-  - External iterator (_First_ / _Next_ / _IsDone_ / _GetItem_)
+  - External iterator (First / Next / IsDone / GetItem)
   - Internal iterator (IOC pattern)
 
 #### [no-toc] [no-number] &sect; Process
@@ -313,7 +315,7 @@
 
 #### [no-toc] [no-number] &sect; Info Hidden
 
-- **Iterator** is _friend_ of **Aggregate** (access representation)
+- **Iterator** is friend of **Aggregate** (access representation)
 - **Aggregate** not know **Iterator** (not care)
 - **Client** not know representation of **Aggregate** / **Iterator**
   - (only treat them as concrete object)
@@ -328,19 +330,19 @@
 - vs. [sec|Visitor] Visitor
   - Provide external/internal iteration over _collection_
 - Internal iterator implemented by
-  - [sec|Strategy] Strategy (pass strategy into _Traverse_ interface)
-  - [sec|Template Method] Template Method (override _ProcessItem_ method)
+  - [sec|Strategy] Strategy (pass strategy into traverse method)
+  - [sec|Template Method] Template Method (override process item method)
 
 ### Visitor
 
-> Decouple **element of aggregate** from **operation** on them
+> Decouple **element of aggregate** from its **operation**
 
 #### [no-toc] [no-number] &sect; Roles
 
 - **Abstract Visitor** provide interface to visit all **Concrete Element**
 - **Concrete Visitor** implement operation on visiting **Concrete Element**
 - **Abstract Element** provide interface to accept **Visitor**
-- **Concrete Element** pass _this_ to **Visitor** on acception
+- **Concrete Element** pass this to **Visitor** on acception
 - **Aggregate** provide interface to accept **Visitor** for **Client**
 
 #### [no-toc] [no-number] &sect; Process
@@ -348,12 +350,12 @@
 - **Client** create **Concrete Visitor**
 - **Client** call methods of **Aggregate** using **Abstract Visitor**
 - **Aggregate** pass **Abstract Visitor** to internal **Abstract Element**
-- **Concrete Element** accept **Abstract Visitor** by passing _this_ to it
+- **Concrete Element** accept **Abstract Visitor** by passing this to it
 - **Concrete Visitor** access **Concrete Element** and accumulate result
 
 #### [no-toc] [no-number] &sect; Info Hidden
 
-- **Visitor** _know all_ **Concrete Element**
+- **Visitor** know all **Concrete Element**
   - (must cover all types of **Concrete Element** for visiting interface)
 - **Element** not know **Concrete Visitor**
   - (only deal with interface of **Abstract Visitor** and accept it)
@@ -374,7 +376,7 @@
 
 ### Interpreter
 
-> Add **interpret interface** to abstract syntax tree (_Composite_)
+> Add **interpret interface** to abstract syntax tree (&sect; _Composite_)
 
 #### [no-toc] [no-number] &sect; Roles
 

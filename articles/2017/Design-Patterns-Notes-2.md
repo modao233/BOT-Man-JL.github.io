@@ -16,7 +16,7 @@
 
 [TOC]
 
-## Defer Implementation
+## Indirect Implementation
 
 ### Adapter
 
@@ -96,7 +96,31 @@
   - Provide stable abstraction interface
   - Vary evoluating implementation independently
 
-## Conform to Interface
+### Facade
+
+> **Encapsulate subsystem** to provide **high-level interface**
+
+#### [no-toc] [no-number] &sect; Roles
+
+- **Facade** provide interface for **Client**
+- **Subsystem** implement bussiness logic
+
+#### [no-toc] [no-number] &sect; Process
+
+- **Client** call methods of **Facade**
+- **Facade** defer request to **Subsystem**
+
+#### [no-toc] [no-number] &sect; Info Hidden
+
+- **Subsystem** not know **Facade** (not care)
+- **Client** not know **Subsystem** (not care)
+
+#### [no-toc] [no-number] &sect; Uses
+
+- Compiler's compile interface (hide lexer/parser detail)
+- Large system (define multi-layered facade inside)
+
+## Composition
 
 ### Composite
 
@@ -129,7 +153,7 @@
 - Task composition (one task can contain others)
 - Define abstract syntax tree
   - (different gramma component share the same interface)
-  - (base of _Interpreter_ pattern)
+  - (base of &sect; _Interpreter_ pattern)
 
 #### [no-toc] [no-number] &sect; Comparison
 
@@ -222,31 +246,7 @@
 - vs. [sec|Decorator] Decorator
   - Focus on controlling access non-dynamically
 
-## Hide Detail
-
-### Facade
-
-> **Encapsulate subsystem** to provide **high-level interface**
-
-#### [no-toc] [no-number] &sect; Roles
-
-- **Facade** provide interface for **Client**
-- **Subsystem** implement bussiness logic
-
-#### [no-toc] [no-number] &sect; Process
-
-- **Client** call methods of **Facade**
-- **Facade** defer actual work to **Subsystem**
-
-#### [no-toc] [no-number] &sect; Info Hidden
-
-- **Subsystem** not know **Facade** (not care)
-- **Client** not know **Subsystem** (not care)
-
-#### [no-toc] [no-number] &sect; Uses
-
-- Compiler's _Compile_ interface (hide lexer/parser detail)
-- Large system (define multi-layered facade inside)
+## Maintain Instance
 
 ### Flyweight
 
@@ -260,7 +260,9 @@
 
 #### [no-toc] [no-number] &sect; Process
 
-- **Client** retrieve **Abstract Flyweight** from **Flyweight Factory**
+- **Client** call methods of **Flyweight Factory**
+- **Flyweight Factory** construct instance of **Concrete Flyweight** firstly
+- **Client** retrieve instance of **Abstract Flyweight**
 - **Client** pass extrinsic state to **Abstract Flyweight** to do work
 - **Concrete Flyweight** use both extrinsic and intrinsic state to do work
 
@@ -274,4 +276,9 @@
 #### [no-toc] [no-number] &sect; Uses
 
 - GUI component (sharing font and style bitmap)
-- Manage _State_ / _Strategy_ object (retrieve by key)
+- Manage &sect; _State_ / &sect; _Strategy_ object (retrieve by key)
+
+#### [no-toc] [no-number] &sect; Comparison
+
+- vs. &sect; _Singleton_
+  - Used for immutable objects (const global)

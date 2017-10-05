@@ -132,6 +132,16 @@
             document.head.appendChild(styleElem);
         }
 
+        // Jump to hash anchor
+        function jumpToHash() {
+            if (!location.hash) return;
+
+            var target = document.querySelector(location.hash);
+            if (!target) return;
+
+            target.scrollIntoView();
+        }
+
         // Fix relative paths inside 'mdSec according to 'filename
         function fixMarkdownPaths(filename) {
 
@@ -198,56 +208,56 @@
             }
 
             fixAll('A', 'href', function (relPath) {
-                var mdExtension = '.md';
-                if (relPath.substr(relPath.length - mdExtension.length) == mdExtension)
-                    relPath = './?post=' + relPath.substr(0, relPath.length - mdExtension.length);
+                var segments = relPath.split('.md');
+                if (segments.length == 2 && segments[1][0] == '#') {
+                    // hard-coded anchor generator
+                    segments[1] = '#' + segments[1]
+                        .toLowerCase()
+                        .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
+                        .replace(/^-+/g, '')
+                        .replace(/-+$/g, '');
+                }
+                if (segments.length == 1 || segments.length == 2)
+                    relPath = './?post=' + segments.join('');
                 return relPath;
             });
             fixAll('IMG', 'src', function (relPath) { return relPath; });
         }
 
-        var post = getSearchString('post');
-        if (post == '') {
-            if (location.hash != null && location.hash.length > 1) {
-                // Compatible with legacy hash routing
-                window.location = './?post=' + location.hash.substr(1);
+        // Get post filename
+        var post = getSearchString('post') || 'Archive';
+
+        // Hide contact section
+        var contactSec = document.getElementsByClassName('contactSec')[0];
+        contactSec.style.display = 'none';
+
+        // Load post
+        loadLayout(post + '.md', function (md, title) {
+            var renderer = new MarkdownRenderer();
+            mdSec.innerHTML = renderer.render(md);
+
+            // fix relative paths before done
+            fixMarkdownPaths(post);
+
+            // Detect title and handle contactSec
+            var titleStr =
+                moveFirstElement(document.getElementsByClassName('headerTitleSec')[0], 'h1');
+            if (titleStr) {
+                moveFirstElement(document.getElementsByClassName('headerQuoteSec')[0]);
+                contactSec.parentElement.removeChild(contactSec);
             }
             else {
-                // Goto archive page by default
-                post = 'Archive';
+                titleStr = post.substr(post.lastIndexOf('/') + 1);  // filename
+                contactSec.style.display = 'block';
             }
-        }
 
-        if (post != '') {
-            var renderer = new MarkdownRenderer();
+            renderMath();
+            loadPrintStyle();
+            jumpToHash();
 
-            // Hide contact section
-            var contactSec = document.getElementsByClassName('contactSec')[0];
-            contactSec.style.display = 'none';
-
-            loadLayout(post + '.md', function (md, title) {
-                mdSec.innerHTML = renderer.render(md);
-
-                // fix relative paths before done
-                fixMarkdownPaths(post);
-
-                // Detect title and handle contactSec
-                var titleStr =
-                    moveFirstElement(document.getElementsByClassName('headerTitleSec')[0], 'h1');
-                if (titleStr) {
-                    moveFirstElement(document.getElementsByClassName('headerQuoteSec')[0]);
-                    contactSec.parentElement.removeChild(contactSec);
-                }
-                else {
-                    titleStr = post.substr(post.lastIndexOf('/') + 1);  // filename
-                    contactSec.style.display = 'block';
-                }
-
-                renderMath();
-                loadPrintStyle();
-                title(titleStr);
-            });
-        }
+            // Done
+            title(titleStr);
+        });
 
         // Support Drag and Drop files
         if (window.File && window.FileList && window.FileReader) {

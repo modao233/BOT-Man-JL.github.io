@@ -209,16 +209,17 @@
 
             fixAll('A', 'href', function (relPath) {
                 var segments = relPath.split('.md');
-                if (segments.length == 2 && segments[1][0] == '#') {
-                    // hard-coded anchor generator
-                    segments[1] = '#' + segments[1]
-                        .toLowerCase()
-                        .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
-                        .replace(/^-+/g, '')
-                        .replace(/-+$/g, '');
-                }
-                if (segments.length == 1 || segments.length == 2)
+                if (segments.length == 2) {
+                    if (segments[1][0] == '#') {
+                        // hard-coded anchor generator
+                        segments[1] = '#' + segments[1]
+                            .toLowerCase()
+                            .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
+                            .replace(/^-+/g, '')
+                            .replace(/-+$/g, '');
+                    }
                     relPath = './?post=' + segments.join('');
+                }
                 return relPath;
             });
             fixAll('IMG', 'src', function (relPath) { return relPath; });

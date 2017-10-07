@@ -95,7 +95,7 @@
   1. 设置 输入框 的文本，检查 选择框 的选择项是否同步
   2. 设置 选择框 的选择项，检查 输入框 的文本是否同步
 
-### 组件库
+### ~~假想的~~ 组件库
 
 - 我们使用的组件库包含两个基本组件：输入框 和 选择框
 - [代码链接](Observer-Mediator-Explained/widget.h)
@@ -205,7 +205,7 @@ public:
 
 ``` cpp
 auto textbox = std::make_shared<MyTextBox> (items[0]);
-auto listbox = std::make_shared<MyListBox> (items);
+auto listbox = std::make_shared<MyListBox> (items, 0);
 
 textbox->SetListBox (listbox);
 listbox->SetTextBox (textbox);
@@ -225,7 +225,7 @@ listbox->SetTextBox (textbox);
 - 应用观察者模式，将用户行为委托到观察者的回调函数上，消除组件之间双向依赖
 - [代码链接](Observer-Mediator-Explained/solution-observer.cpp)
 
-> 在 [sec|组件库] 原有组件库 的基础上，我们封装了一个可观察的组件库 _(Observable Widget Library)_，用于实现观察者模式。
+> 在 [sec|~~假想的~~ 组件库] 原有组件库 的基础上，我们封装了一个可观察的组件库 _(Observable Widget Library)_，用于实现观察者模式。
 
 #### 可观察的组件库
 
@@ -325,7 +325,7 @@ public:
 
 ``` cpp
 auto textbox = std::make_shared<MyTextBox> (items[0]);
-auto listbox = std::make_shared<MyListBox> (items);
+auto listbox = std::make_shared<MyListBox> (items, 0);
 
 textbox->SetObserver (listbox);
 listbox->SetObserver (textbox);
@@ -335,8 +335,9 @@ listbox->SetObserver (textbox);
 
 - 使用观察者模式
   - 接收到用户行为的组件（发布者） 将 组件的用户行为 作为消息，发布到 订阅了这个消息的组件（观察者）上
-  - 实现了 界面逻辑 从 接收到用户行为的组件 到 对这个用户行为感兴趣的组件 上进行处理
+  - 从而实现了 **界面逻辑的处理** 从 **接收到用户行为的组件** 转移到 **对这个用户行为感兴趣的组件**
   - 而不是由 接收到用户行为的组件 直接处理消息，从而解除了双向的相互依赖（因为接收到消息的一方需要依赖于处理消息的一方）
+  - **在这个例子中**，输入框内容 发生变化时，它本身不知道如何处理（因为它不是 选择框，不能更新选择项），而是通知对这个变化改兴趣的 选择框 去处理当前的用户行为（更新选择项）
 - 但是，当界面变得复杂时，组件对用户行为的处理逻辑仍然非常零散
 
 ### 再改进 —— 基于 中介者模式 的实现
@@ -387,7 +388,7 @@ public:
 
 ``` cpp
 auto textbox = std::make_shared<MyTextBox> (items[0]);
-auto listbox = std::make_shared<MyListBox> (items);
+auto listbox = std::make_shared<MyListBox> (items, 0);
 auto mediator = std::make_shared<Mediator> (textbox, listbox);
 
 textbox->SetObserver (mediator);
@@ -399,6 +400,9 @@ listbox->SetObserver (mediator);
 - 使用中介者模式
   - 化简了观察关系：所有组件只能和 中介者 通信，组件之间没有消息传递
   - 化简了观察行为：原本零散的消息传递关系，集中于 中介者 内部实现
+- 相对于零散的观察者
+  - 把 **组件之间消息的耦合** 转化为 **中介者的内聚**
+  - 从而实现了 高内聚、低耦合
 
 ### 另一种基于 中介者模式 的实现
 
@@ -411,6 +415,9 @@ listbox->SetObserver (mediator);
 - 和 [sec|可观察的组件库] **推送模型** _(push model)_ 不同，`Observer` 的接口没有参数
   - 发布者 仅仅告知有消息到达，而不告知消息的内容
   - 观察者 不能直接从接收到的消息获取内容（进一步通过拉取的方式获取消息）
+- 这就类似于
+  - 推送模型：手机（发布者）收到消息时，消息提示音响起，用户（观察者）能在锁屏界面上看到消息的内容
+  - 拉取模型：朋友圈（发布者）更新时，只会显示一个小红点，用户（观察者）需要点进去才能看到更新
 - [代码链接](Observer-Mediator-Explained/observable-widget-pull.h)
 
 ``` cpp
@@ -445,6 +452,8 @@ void Mediator::SelectionChanged () {
 ## [no-number] 写在最后
 
 本文仅是我对设计模式的一些理解。如果有什么问题，望**不吝赐教**。😄
+
+感谢 [@flythief](https://github.com/thiefuniverse) 提出的修改意见~
 
 **Related**: Design Patterns Notes
 

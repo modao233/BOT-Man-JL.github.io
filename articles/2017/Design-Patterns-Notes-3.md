@@ -20,29 +20,31 @@
 
 ### Command
 
-> Keep **handler of receiver** from **request of sender**
+> Decouple **sender** from **receiver** by encapsulating invocation
 
 #### [no-toc] [no-number] &sect; Roles
 
 - **Abstract Command** define request handling interface
 - **Concrete Command** refer to **Receiver** and corresponding action
 - **Receiver** implement action to handle request
-- **Invoker** issue request (async with **Client**)
+- **Sender** issue request (async with **Client**)
 
 #### [no-toc] [no-number] &sect; Process
 
 - **Client** create **Concrete Command** with **Receiver**
-- **Client** config **Invoker** with **Concrete Command**
-- **Invoker** send request to **Abstract Command** (async)
+- **Client** config **Sender** with **Concrete Command**
+- **Sender** send request to **Abstract Command** (async)
 - **Concrete Command** defer request to **Receiver**
 
 #### [no-toc] [no-number] &sect; Info Hidden
 
-- **Abstract Command** not know **Invoker**
+- **Abstract Command** not know **Sender**
   - (not care about who issue the request)
-- **Invoker** not know **Concrete Command**
+- **Sender** not know **Concrete Command**
   - (only deal with interface of **Abstract Command**)
-- **Receiver** not know **Command** (not care)
+- **Sender** not know **Receiver**
+  - (indirected by and only communicate with **Command**)
+- **Receiver** not know **Sender** and **Command** (not care)
 
 #### [no-toc] [no-number] &sect; Uses
 
@@ -51,9 +53,55 @@
 - Support transaction (rollback at failing)
 - Enrich raw callback function (like lambda and functor in C++)
 
+#### [no-toc] [no-number] &sect; Comparison
+
+- **Sender** not know how to handle request -> defer to **Command**
+- **Command** indirect request of **Sender** to **Receiver**
+
+### Chain of Responsibility
+
+> Decouple **receiver** from **actual handler** by chaining potential handler
+
+#### [no-toc] [no-number] &sect; Roles
+
+- **Abstract Handler** define request handling interface
+- **Concrete Handler** handle request or forward to successor
+- **Receiver** issue request (async with **Client**)
+
+#### [no-toc] [no-number] &sect; Process
+
+- **Client** config **Receiver** with **Concrete Handler**
+- **Receiver** send request to **Abstract Handler** (async)
+- **Concrete Handler**
+  - handle request if able to handle
+  - defer request to successor if unable to handle
+
+#### [no-toc] [no-number] &sect; Info Hidden
+
+- **Abstract Handler** not know **Receiver**
+  - (not care about who issue the request)
+- **Receiver** not know **Concrete Handler**
+  - (only deal with interface of **Abstract Handler**)
+- **Receiver** not know who actually handle the request
+  - (request may be forwarded to the end of the chain)
+- **Concrete Handler** not know its successor
+  - (simply forward to its successor if necessary)
+
+#### [no-toc] [no-number] &sect; Uses
+
+- Handling user event (only handle what it can, and forward what it can't)
+- Handling redraw event (only draw what is in its context)
+
+#### [no-toc] [no-number] &sect; Comparison
+
+- **Receiver** not know how to handle request -> defer to **Handler**
+- **Handler** (in a chain)
+  - defer to successor **Handler** if not know how to handle request
+  - handle request if know how to handle request
+
 ### Observer
 
-> Decouple **one-to-many dependency** using **subscription-notification**
+> Decouple **receiver** from **multi handler** by broadcasting notification
 
 #### [no-toc] [no-number] &sect; Roles
 
@@ -76,15 +124,20 @@
   - (not care about who issue the request)
 - **Subject** not know **Concrete Observer**
   - (only deal with interface of **Abstract Observer**)
-- **Concrete Observer** refer to **Concrete Subject** in Pull Model
+- **Concrete Observer** refer to **Concrete Subject** in _Pull Model_
 
 #### [no-toc] [no-number] &sect; Uses
 
 - Model and view in MVC architecture (model changes notify view)
 
+#### [no-toc] [no-number] &sect; Comparison
+
+- **Subject** be **Receiver** while **Observer** be **Handler**
+- **Subject** not know how to handle request -> defer to **Observer**
+
 ### Mediator
 
-> Centralize **two-way communication** between components
+> Decouple **communication between receivers** by centralization
 
 #### [no-toc] [no-number] &sect; Roles
 
@@ -104,52 +157,25 @@
   - (not care about who issue the request)
 - **Colleague** not know **Concrete Mediator**
   - (only deal with interface of **Abstract Mediator**)
+- **Concrete Mediator** know all **Colleague**
+  - (coordinate all kinds of component to work together)
 
 #### [no-toc] [no-number] &sect; Uses
 
 - Widget-Pane in GUI
   - (Widget be **Colleague** while Pane be **Mediator**)
   - (Pane: create widgets -> show component -> handle interaction)
-- Message center in publish-subscribe system
+- Message center in subscribe-publish system
   - (provide acyclic callback ensurance)
   - (clarify dependency between components)
 - Decouple cyclic dependency in [sec|Observer] Observer
   - (introduce **Mediator** to maintain dependency)
-  - (dependent objects be Subjects while **Mediator** be Observer)
+  - (dependent objects be **Subjects** while **Mediator** be **Observer**)
 
-### Chain of Responsibility
+#### [no-toc] [no-number] &sect; Comparison
 
-> **Chain handlers** to hide sender from potential handler
-
-#### [no-toc] [no-number] &sect; Roles
-
-- **Abstract Handler** define request handling interface
-- **Concrete Handler** handle request or forward to successor
-- **Invoker** issue request (async with **Client**)
-
-#### [no-toc] [no-number] &sect; Process
-
-- **Client** config **Invoker** with **Concrete Handler**
-- **Invoker** send request to **Abstract Handler** (async)
-- **Concrete Handler**
-  - handle request if able to handle
-  - forward to successor if unable to handle
-
-#### [no-toc] [no-number] &sect; Info Hidden
-
-- **Abstract Handler** not know **Invoker**
-  - (not care about who issue the request)
-- **Invoker** not know **Concrete Handler**
-  - (only deal with interface of **Abstract Handler**)
-- **Invoker** not know who actually handle the request
-  - (request may be forwarded to the end of the chain)
-- **Concrete Handler** not know its successor
-  - (simply forward to its successor if necessary)
-
-#### [no-toc] [no-number] &sect; Uses
-
-- Handling user event (only handle what it can, and forward what it can't)
-- Handling redraw event (only draw what is in its context)
+- **Colleague** be **Receiver** while **Mediator** be **Handler**
+- **Colleague** not know how to handle request -> defer to **Mediator**
 
 ## Encapsulate Behavior
 
@@ -358,7 +384,7 @@
 #### [no-toc] [no-number] &sect; Info Hidden
 
 - **Visitor** know all **Concrete Element**
-  - (must cover all types of **Concrete Element** for visiting interface)
+  - (must cover all kinds of **Concrete Element** for visiting interface)
 - **Element** not know **Concrete Visitor**
   - (only deal with interface of **Abstract Visitor** and accept it)
 

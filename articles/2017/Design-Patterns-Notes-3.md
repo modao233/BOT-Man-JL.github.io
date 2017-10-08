@@ -179,35 +179,6 @@
 
 ## Encapsulate Behavior
 
-### Memento
-
-> Encapsulate **object representation** to support undo
-
-#### [no-toc] [no-number] &sect; Roles
-
-- **Memento** represent a snapshot of **Originator**
-- **Originator** provide interface to create and restore **Memento**
-
-#### [no-toc] [no-number] &sect; Process
-
-- **Client** create **Memento** from **Originator**
-- **Client** restore **Originator** with **Memento** (async)
-- **Originator** update internal state using **Memento**
-
-#### [no-toc] [no-number] &sect; Info Hidden
-
-- **Originator** is friend of **Memento** (access representation)
-- **Memento** not know **Originator** (not care)
-- **Client** not know representation of **Memento** / **Originator**
-  - (only treat them as concrete object)
-
-#### [no-toc] [no-number] &sect; Uses
-
-- Undoable operation in [sec|Command] Command
-- Memento-based iteration ([sec|Iterator] Iterator)
-  - Interface: `aggregate.next(iterState)` ~ `iter.next()`
-  - Reverse friendship between aggregate and iterator/memento
-
 ### State
 
 > Encapsulate **state-specific behavior** to **alter at runtime**
@@ -440,3 +411,34 @@
 - vs. [sec|Visitor] Visitor
   - Distribute operation over class of element
   - Operation (only interpretation) be less than element (expression)
+
+## Encapsulate Representation
+
+### Memento
+
+> Encapsulate **object representation** to support undo
+
+#### [no-toc] [no-number] &sect; Roles
+
+- **Memento** represent a snapshot of **Originator**
+- **Originator** provide interface to create and restore **Memento**
+
+#### [no-toc] [no-number] &sect; Process
+
+- **Client** create **Memento** from **Originator**
+- **Client** restore **Originator** with **Memento** (async)
+- **Originator** update internal state using **Memento**
+
+#### [no-toc] [no-number] &sect; Info Hidden
+
+- **Originator** is friend of **Memento** (access representation)
+- **Memento** not know **Originator** (not care)
+- **Client** not know representation of **Memento** / **Originator**
+  - (only treat them as concrete object)
+
+#### [no-toc] [no-number] &sect; Uses
+
+- Undoable operation in [sec|Command] Command
+- Memento-based iteration ([sec|Iterator] Iterator)
+  - Interface: `aggregate.next(iterState)` ~ `iter.next()`
+  - Reverse friendship between aggregate and iterator/memento

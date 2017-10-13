@@ -91,6 +91,8 @@ Here is the ref item [ref|target], and here is a ref item to section [sec|Refere
 ## Slide
 
 ``` markdown
+[slide-mode]
+
 ---
 
 ## Slide 1 [no-toc] [no-number]
@@ -105,6 +107,8 @@ Here is the ref item [ref|target], and here is a ref item to section [sec|Refere
 
 ---
 ```
+
+[slide-mode]
 
 ---
 

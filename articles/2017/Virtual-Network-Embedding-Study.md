@@ -4,6 +4,8 @@
 >
 > A breif introduction to my study on Virtual Network Embedding Algorithm
 
+[slide-mode]
+
 ---
 
 ## Intro
@@ -146,4 +148,4 @@ $$
 
 # Thank you for listening 🙂
 
----
+

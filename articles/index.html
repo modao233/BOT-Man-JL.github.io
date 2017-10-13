@@ -20,6 +20,7 @@
                 left: 50%;
                 transform: translate(-50%, -50%);
                 text-align: center;
+                width: 80%;
             }
 
             .cover-title {
@@ -27,7 +28,15 @@
             }
 
             .cover-subtitle {
-                top: 60%;
+                top: 70%;
+            }
+
+            .slide-cover-title {
+                font-size: xx-large;
+            }
+
+            .slide-cover-subtitle {
+                font-size: x-large;
             }
         }
     </style>
@@ -110,25 +119,34 @@
             for (var i = 0; i < stylesParam.length; i++)
                 styles[stylesParam[i]] = true;
 
-            var styleElem = document.createElement('style');
-            if (styles['cover']) {
-                // TODO: slide-cover
-                document.getElementsByClassName('headerTitleSec')[0].classList.add('cover-title');
-                document.getElementsByClassName('headerQuoteSec')[0].classList.add('cover-subtitle');
-                document.getElementsByTagName('header')[0].style.pageBreakAfter = 'always';
+            if (document.getElementsByClassName('markdown-slide').length != 0) {
+                styles['slide'] = true;
+                styles['cover'] = true;
             }
-            if (styles['word'])
-                styleElem.innerHTML += '@page { margin: 25.4mm 31.8mm; }';
-            else
-                styleElem.innerHTML += '@page { margin: 15mm 15mm; }';
-            if (styles['slide'])
-                styleElem.innerHTML += '@page { size: 297mm 210mm; }';
-            else
-                styleElem.innerHTML += '@page { size: 210mm 297mm; }';
+
+            if (styles['cover']) {
+                var headerTitleSec = document.getElementsByClassName('headerTitleSec')[0];
+                var headerQuoteSec = document.getElementsByClassName('headerQuoteSec')[0];
+
+                document.getElementsByTagName('header')[0].style.pageBreakAfter = 'always';
+                headerTitleSec.classList.add('cover-title');
+                headerQuoteSec.classList.add('cover-subtitle');
+
+                if (styles['slide']) {
+                    headerTitleSec.classList.add('slide-cover-title');
+                    headerQuoteSec.classList.add('slide-cover-subtitle');
+                }
+            }
+
+            var styleElem = document.createElement('style');
+
             if (styles['toc-page-break'])
                 styleElem.innerHTML += '@media print { .markdown-toc { page-break-after: always; } }';
             if (styles['two-column'])
                 styleElem.innerHTML += '@media print { .markdown-body { column-count: 2; } }';
+            if (styles['slide'])
+                styleElem.innerHTML += '@page { size: 297mm 210mm; }';  // landscape A4
+
             document.head.appendChild(styleElem);
         }
 

@@ -213,10 +213,6 @@ nav a:active {
 
 /* Slide Settings */
 
-hr {
-    display: none;
-}
-
 @media screen {
     .markdown-slide {
         box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.16), 0px 2px 10px 0px rgba(0,0,0,0.12);
@@ -269,6 +265,10 @@ hr {
     .not-print + * {
         display: none;
     }
+}
+
+@page {
+    margin: 15mm 15mm;
 }
 
 /* Alignment Settings */

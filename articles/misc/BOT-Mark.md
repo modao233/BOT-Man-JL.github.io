@@ -15,8 +15,8 @@ Here we list the additional specs of _BOT Mark_:
 
 > `<p>...</p>` means `...` must be surrounded by blank lines.
 
-- heading numbering setting
-  - `<p>[heading-numbering]</p>` => auto numbering headings
+- auto heading numbering
+  - enabled by `<p>[heading-numbering]</p>`
 - heading setting
   - `[no-number]` => no number for this heading
   - `[no-toc]` => not add this heading to TOC
@@ -35,6 +35,7 @@ Here we list the additional specs of _BOT Mark_:
   - `[sec|...]` (item) => `§ NUMBER/TEXT` (section)
   - use code/pre to escape
 - slide
+  - enabled by `<p>[slide-mode]</p>`
   - `---` or `<hr>` or `<hr/>` => slide wrapper
   - slide wrapper would seperate article into slides
 - keyword

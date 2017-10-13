@@ -291,6 +291,16 @@ MarkdownRenderer.prototype.slideTags = ['<div class="markdown-slide">', '</div>'
 
 MarkdownRenderer.prototype.renderSlides = function (mdHtml) {
     var that = this;
+
+    // Check slide-mode
+    var isSlideMode = false;
+    mdHtml = mdHtml.replace(/<p>\[slide-mode\]<\/p>/g, function () {
+        isSlideMode = true;
+        return '';
+    });
+
+    if (!isSlideMode) return mdHtml;
+
     var matchHr = mdHtml.match(/<hr\/?>/g);
     if (!matchHr) return mdHtml;
 

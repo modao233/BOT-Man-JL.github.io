@@ -77,11 +77,9 @@ Set `name`, `github`, `email`, (`phone`), `pages` (navigation), `footer` to your
   - NOT starting with `H1` => set filename as title, and keep contact section
 - Article page supports **print style** setting by adding `style=STYLES` to query string.
   - `cover` => print left pane as a single cover page
-  - `word` => use _Office Word_ default page margin (recommend Chrome)
-  - `slide` => use landscape A4 paper (recommend Chrome)
   - `toc-page-break` => page break after TOC
   - `two-column` => two column style (except left pane)
-  - `STYLES` <= style strings concatenated by `+`
+  - `STYLE+STYLE` <= style strings can be concatenated by `+`
 
 ## Credits
 

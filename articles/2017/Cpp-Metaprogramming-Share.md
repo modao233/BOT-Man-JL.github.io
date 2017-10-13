@@ -50,7 +50,7 @@
 👉 模板编程 = **泛型编程** _(generic programming)_ + **元编程** _(meta-programming)_
 
 - **通用概念** 的抽象，**类型** 或 **算法** _(algorithm)_，不关心编译器
-- 模板推导时的 **选择** _(selection)_ 和 **迭代** _(iteration)_，关心编译
+- 模板推导时的 **选择** _(selection)_ 和 **迭代** _(iteration)_
 
 ---
 
@@ -179,7 +179,7 @@ template <typename T>
 std::string ToString (T val) {
     if (isNum<T>) return std::to_string (val);
     else if (isStr<T>) return std::string (val);
-    else static_assert (!isBad<T>, "bad type");
+    else static_assert (!isBad<T>, "bad type :-(");
 }
 ```
 
@@ -226,6 +226,41 @@ constexpr auto Sum (T arg, Ts... args) {
 static_assert (Sum (1) == 1, "compile error");
 static_assert (Sum (1, 2, 3) == 6, "compile error");
 ```
+
+---
+
+## 元编程的威力 —— ORM
+
+```
+auto oldUsers = mapper.Query (User {})
+    .Where (
+        field (user.age) >= 64 &&
+        field (user.name) != nullptr
+    )
+    .OrderBy (field (user.age))
+    .ToVector ();
+```
+
+- 映射器 `mapper` 生成、执行 SQL 语句，填充 C++ 对象
+- 返回值 `oldUsers` 类型推导为 `std::vector<User>`
+
+---
+
+## 元编程的威力 —— ORM
+
+```
+struct User {
+    std::optional<std::string> name;
+    int age;
+    ORMAP ("UserTable", age, name);
+};
+
+SELECT * FROM UserTable
+WHERE (age >= 64 AND name IS NOT NULL)
+ORDER BY age
+```
+
+> See [ORM-Lite](https://github.com/BOT-Man-JL/ORM-Lite) by _BOT-Man-JL_
 
 ---
 

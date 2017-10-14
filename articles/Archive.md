@@ -16,9 +16,7 @@
 - [如何优雅的把 命令行界面 Hack 到 Qt 界面](2017/Hack-Qt-GUI.md)
 - [如何浅显的解释 回调函数](2017/Callback-Explained.md)
 - [浅谈 C++ 元编程](2017/Cpp-Metaprogramming.md)
-- [浅谈 C++ 元编程 (Slides)](2017/Cpp-Metaprogramming-Share.md)
 - [图聚类 算法研究](2017/Graph-Clustering-Study.md)
-- [Virtual Network Embedding Algorithm Study (Slides)](2017/Virtual-Network-Embedding-Study.md)
 - [关于 可扩展性 的思考](2017/Thinking-Scalability.md)
 
 #### 2016
@@ -27,6 +25,13 @@
 - [12306 技术分析](2016/12306-Architecture.md)
 - [如何设计一个 更好的 C++ ORM](2016/How-to-Design-a-Better-Cpp-ORM.md)
 - [如何设计一个 简单的 C++ ORM](2016/How-to-Design-a-Naive-Cpp-ORM.md)
+
+## 幻灯片 | Slides
+
+#### 2017
+
+- [浅谈 C++ 元编程](2017/Cpp-Metaprogramming-Share.md)
+- [Virtual Network Embedding Algorithm Study](2017/Virtual-Network-Embedding-Study.md)
 
 ## 生活 | Life
 

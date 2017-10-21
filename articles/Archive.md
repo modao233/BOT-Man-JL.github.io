@@ -6,6 +6,7 @@
 
 #### 2017
 
+- [最简单的 分层窗口 样例](2017/Minimal-Layered-Window-Example.md)
 - [理解 观察者、中介者 模式](2017/Observer-Mediator-Explained.md)
 - Design Patterns Notes
   - [Creational Patterns](2017/Design-Patterns-Notes-1.md)

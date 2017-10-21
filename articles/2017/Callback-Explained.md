@@ -163,4 +163,4 @@ signal (SIGINT, block_interrupt);
 
 本文仅是我对回调函数的一些理解。如果有什么问题，望**不吝赐教**。😄
 
-Delivered under MIT License © 2017, BOT Man
+Delivered under MIT License &copy; 2017, BOT Man

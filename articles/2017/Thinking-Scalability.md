@@ -165,4 +165,4 @@ NoSQL 和 SQL 最大的区别在于：前者可以存储**非结构化 / 半结�
 
 2017 为了达成一万小时的目标而努力。😇
 
-Delivered under MIT License © 2017, BOT Man
+Delivered under MIT License &copy; 2017, BOT Man

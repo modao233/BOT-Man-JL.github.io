@@ -606,4 +606,4 @@ fieldName = FieldNames[index];
 欢迎 **指点** **讨论** 😉：
 https://github.com/BOT-Man-JL/ORM-Lite/issues
 
-Delivered under MIT License © 2016, BOT Man
+Delivered under MIT License &copy; 2016, BOT Man

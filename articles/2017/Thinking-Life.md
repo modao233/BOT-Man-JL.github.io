@@ -116,4 +116,4 @@
 
 感谢你读到了最后。有什么问题欢迎交流。😘
 
-Delivered under MIT License © 2017, BOT Man
+Delivered under MIT License &copy; 2017, BOT Man

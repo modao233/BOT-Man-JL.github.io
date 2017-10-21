@@ -316,4 +316,4 @@ virtual void Show () override  // GUI Version
 
 以上仅是我对界面架构设计的浅显认识。如果有什么问题，望**不吝赐教**。😄
 
-Delivered under MIT License © 2017, BOT Man
+Delivered under MIT License &copy; 2017, BOT Man

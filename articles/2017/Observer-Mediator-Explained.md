@@ -461,4 +461,4 @@ void Mediator::SelectionChanged () {
 - [Structural Patterns](Design-Patterns-Notes-2.md)
 - [Behavioral Patterns](Design-Patterns-Notes-3.md)
 
-Delivered under MIT License © 2017, BOT Man
+Delivered under MIT License &copy; 2017, BOT Man

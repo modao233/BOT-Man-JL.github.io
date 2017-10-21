@@ -24,6 +24,12 @@ Tom 哥和我说的第一句话是：
 
 也许这句话就是所谓的 **初心** 吧。尽管接下来的生活节奏可能会比原来更快，我仍然很感激 —— 感激帮助我的人，感觉对我好的人。
 
+【2017/10/12】
+
+可能因为我工作比较认真，或者因为其他人真的认为我的水平很高，组里先是给我批准了 **更高的权限**，再是分派 **更复杂的任务** —— “拿着实习生的工资，干正式员工的活”。也许是因为他们比较缺人，也许他们希望给我更多的机会锻炼和提升。
+
+最扎心的一句话：“这个是冲今年 KPI 的，加油今天做完。刚入职就让你加班真是辛苦了。” 我：“没事，我明年入职。” 😂😂😂
+
 ## 红颜
 
 ~~或许是因为物以类聚 🙄，~~ 和我比较熟的女生大都很漂亮，也很优秀：
@@ -34,6 +40,8 @@ Tom 哥和我说的第一句话是：
 - 拿到 腾讯产培 offer
 
 当然，他们的男朋友也很优秀。。。🙃
+
+不过大家都只是朋友，没有其他太多的想法。。
 
 ## 未来
 
@@ -47,7 +55,38 @@ Tom 哥和我说的第一句话是：
 
 也许，这就是所谓的 **彷徨**。也许，只是因为自己 **太浮躁**。也许，还是因为需要学习的知识太多，而自己掌握的太少。
 
-<!-- relative path should be resolved... -->
 <audio controls="controls" autoplay="autoplay" loop="loop" preload="auto">
-  <source src="/articles/2017/Thinking-Life-2/Nokia-Silver.mp3" type="audio/mp3" />
+  <source src="Thinking-Life-2/Nokia-Silver.mp3" type="audio/mp3" />
 </audio>
+
+最后摘取一篇小诗：
+
+> New York is 3 hours ahead of California,
+> but it does not mean that California is slow,
+> or that New York is fast.
+> Both are working based on their own "Time Zone."
+>
+> Some one is still single.
+> Someone got married and 'waited' 10 years before having a child.
+> There is another who had a baby within a year of marriage.
+>
+> Someone graduated at the age of 22,
+> yet waited 5 years before securing a good job;
+> and there is another who graduated at 27 and secured employment immediately!
+>
+> Someone became CEO at 25 and died at 50
+> while another became a CEO at 50 and lived to 90 years.
+>
+> Everyone works based on their 'Time Zone',
+> People can have things worked out only according to their pace.
+>
+> Work in your time zone.
+> Your Colleagues, friends, younger ones might "seem" to go ahead of you.
+> May be some might "seem" behind you.
+> Don't envy them or mock them, it's their 'Time Zone.'
+> You are in yours!
+>
+> Hold on, be strong, and stay true to yourself.
+> All things shall work together for your good.
+> You're not late. You are not early ...
+> You're very much on time... In Your Time Zone....

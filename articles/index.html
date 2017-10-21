@@ -241,6 +241,7 @@
                 return relPath;
             });
             fixAll('IMG', 'src', function (relPath) { return relPath; });
+            fixAll('SOURCE', 'src', function (relPath) { return relPath; });
         }
 
         // Get post filename

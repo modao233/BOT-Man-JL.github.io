@@ -24,7 +24,7 @@
 
 ![Demo](Minimal-Layered-Window-Example/Demo.png)
 
-> Image _jiji_ by &copy; _Kirei-Kaze (Breeze Kruse)_
+> _jiji_ by &copy; _Kirei-Kaze (Breeze Kruse)_
 
 ## 实现
 
@@ -35,9 +35,11 @@
 
 Window 2000 之后，系统为我们提供的接口可以用很少的代码实现这个需求。
 
-下面的代码用最简单的方式实现了上述需求。（[完整代码](Minimal-Layered-Window-Example/minimal-layered-window-example.cpp) 加了注释只有 100 行）
+下面的代码用最简单的方式实现了上述需求。
 
-> 主要使用的是 GDI 和 GDI+ 基础，MSDN 有 [入门教程](https://msdn.microsoft.com/en-us/library/windows/desktop/ff381409(v=vs.85).aspx)
+- [完整代码](Minimal-Layered-Window-Example/minimal-layered-window-example.cpp) 加了注释只有 100 行
+- 使用的 GDI 和 GDI+ 基础，MSDN 有 [入门教程](https://msdn.microsoft.com/en-us/library/windows/desktop/ff381409.aspx)
+- [可执行文件下载](Minimal-Layered-Window-Example/virtual-pet.zip)
 
 ### 创建窗口
 

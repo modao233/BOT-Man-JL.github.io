@@ -1,4 +1,4 @@
-# 哲言
+﻿# 哲言
 
 > 从高中到现在，一直搜集的一些哲言。
 >
@@ -122,3 +122,5 @@
 116. 真正的好男人，就是反反复复睡一个姑娘，然后，一睡就是一辈子。
 117. Good code is its own best documentation. As you’re about to add a comment, ask yourself, “How can I improve the code so that this comment isn’t needed?” Improve the code and then document it to make it even clearer. – Steve McConnell
 118. Any fool can write code that a computer can understand. Good programmers write code that humans can understand. - Martin Fowler
+119. 当你没能力时，遇到想要呵护的人是那么地难，当你有能力时，那个对的人已经离你而去。
+120. 关于写作，时间是一个要紧事。你只要想写，时间一定是可以挤出来的。你打游戏有时间，追女孩有时间，学习、写作怎么也不应该没时间。问题的关键在于你对这件事的欲望有多深，或者说兴趣点有多高。——陈皓

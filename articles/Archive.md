@@ -59,5 +59,5 @@
 ## 其他 | Miscellaneous
 
 - [搜集的哲言](misc/Quotes.md)
-- [搜集的书签](misc/Bookmarks.md)
+- [QRCodeGen](https://bot-man-jl.github.io/QRCodeGen/)
 - [My CV](misc/CV-en.md) | [我的简历](misc/CV-zh.md)

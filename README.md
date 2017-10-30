@@ -83,8 +83,9 @@ Set `name`, `github`, `email`, (`phone`), `pages` (navigation), `footer` to your
 
 ## Credits
 
-- **Markdown Parser JS** by
+- **Markdown parser** by
   - [chjj](https://github.com/chjj/marked) - orginal
   - [ViktorQvarfordt](https://github.com/ViktorQvarfordt/marked) - patch
   - [BOT Man](javascripts/bot-mark.js) - flavor
-- **GitHub Markdown CSS** by [sindresorhus](https://github.com/sindresorhus/github-markdown-css)
+- **Original theme** by [orderedlist](https://github.com/orderedlist/minimal)
+- **GitHub markdown css** by [sindresorhus](https://github.com/sindresorhus/github-markdown-css)

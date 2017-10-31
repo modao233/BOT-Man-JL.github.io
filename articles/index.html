@@ -14,9 +14,17 @@
             padding: 0 0 0 15px;
         }
 
-        .shareSec {
+        .shareSec, .qrCodeSec {
             margin-top: 16px;
         }
+
+        .qrCodeSec {
+            text-align: center;
+        }
+
+            .qrCodeSec svg {
+                width: 75%;
+            }
 
         /* Disable Share Section in print view and small screen */
         @media print, screen and (max-width: 940px) {
@@ -31,26 +39,6 @@
                 display: none;
             }
         }
-
-        [data-tooltip] {
-            cursor: pointer;
-        }
-
-            [data-tooltip]:after {
-                float: right;
-                padding: 5px;
-                margin-left: 5px;
-                border-radius: 3px;
-                background-color: #ebebeb;
-                content: attr(data-tooltip);
-                visibility: hidden;
-                transition: transform 0.2s ease-in-out;
-            }
-
-            [data-tooltip]:hover:after {
-                visibility: visible;
-                transform: translateX(16px);
-            }
 
         @media print {
             .cover-title, .cover-subtitle {
@@ -197,21 +185,21 @@
         function jumpToHash() {
             if (!location.hash) return;
 
-            var target = document.querySelector(location.hash);
-            if (!target) return;
-
-            target.scrollIntoView();
+            // handle invalid hash value
+            try {
+                var target = document.querySelector(location.hash);
+                target.scrollIntoView();
+            } catch (e) { }
         }
 
         // Load Share Section
         function loadShare() {
             var shareSec = document.getElementsByClassName('shareSec')[0];
             shareSec.innerHTML =
-                '<div data-tooltip="Copy link to clipboard">' +
-                '<a onclick="copyToClipboard(location.href)">👉 Share</a>' +
-                '</div>' +
+                '<p><a href="javascript:void(0);" onclick="copyToClipboard(location.href)">' +
+                '👉 Copy link to clipboard</a></p>' +
                 '<input type="text" id="copyTextContainer" style="display:none">' +
-                '<p class="qrCodeSec">' + qrCodeSVG(location.href, 200) + '</p>';
+                '<p class="qrCodeSec">' + qrCodeSVG(location.href, 360) + '</p>';
         }
 
         // Helper function to copy text

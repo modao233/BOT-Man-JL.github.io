@@ -278,54 +278,6 @@
             // Done
             title(titleStr);
         });
-
-        // Support Drag and Drop files
-        if (window.File && window.FileList && window.FileReader) {
-            // Dragover effect
-            window.addEventListener('dragover', function (evt) {
-                evt.stopPropagation();
-                evt.preventDefault();
-                evt.dataTransfer.dropEffect = 'copy';
-            });
-
-            // Drop then read files
-            window.addEventListener('drop', function (evt) {
-                evt.stopPropagation();
-                evt.preventDefault();
-
-                var files = evt.dataTransfer.files;
-                if (files.length == 0) return;
-
-                var file = files[0];
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                    var renderer = new MarkdownRenderer();
-                    mdSec.innerHTML = renderer.render(e.target.result);
-
-                    // Hide contact section if it still exists
-                    var contactSec = document.getElementsByClassName('contactSec')[0];
-                    if (contactSec) contactSec.style.display = 'none';
-
-                    var headerTitleSec = document.getElementsByClassName('headerTitleSec')[0];
-                    var headerQuoteSec = document.getElementsByClassName('headerQuoteSec')[0];
-
-                    var titleStr = moveFirstElement(headerTitleSec, 'h1');
-                    if (titleStr) {
-                        moveFirstElement(headerQuoteSec);
-                    }
-                    else {
-                        titleStr =
-                            file.name.substr(0, file.name.lastIndexOf('.md'));
-                        headerTitleSec.innerHTML = '<h1>' + titleStr + '</h1>';
-                        headerQuoteSec.innerHTML = new Date().toLocaleDateString();
-                    }
-                    renderMath();
-                    document.title = titleStr + ' | Preview';
-                };
-                reader.readAsText(file);
-            });
-        }
     </script>
 </body>
 </html>

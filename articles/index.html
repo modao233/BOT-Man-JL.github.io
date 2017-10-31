@@ -300,6 +300,7 @@
                 var reader = new FileReader();
 
                 reader.onload = function (e) {
+                    var renderer = new MarkdownRenderer();
                     mdSec.innerHTML = renderer.render(e.target.result);
 
                     // Hide contact section if it still exists

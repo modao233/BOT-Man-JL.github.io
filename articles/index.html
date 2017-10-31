@@ -14,6 +14,44 @@
             padding: 0 0 0 15px;
         }
 
+        .shareSec {
+            margin-top: 16px;
+        }
+
+        /* Disable Share Section in print view and small screen */
+        @media print, screen and (max-width: 940px) {
+            .shareSec {
+                display: none;
+            }
+        }
+
+        /* Disable Share Section in print view and small screen */
+        @media screen and (max-height: 640px) {
+            .qrCodeSec {
+                display: none;
+            }
+        }
+
+        [data-tooltip] {
+            cursor: pointer;
+        }
+
+            [data-tooltip]:after {
+                float: right;
+                padding: 5px;
+                margin-left: 5px;
+                border-radius: 3px;
+                background-color: #ebebeb;
+                content: attr(data-tooltip);
+                visibility: hidden;
+                transition: transform 0.2s ease-in-out;
+            }
+
+            [data-tooltip]:hover:after {
+                visibility: visible;
+                transform: translateX(16px);
+            }
+
         @media print {
             .cover-title, .cover-subtitle {
                 position: absolute;
@@ -48,16 +86,21 @@
             <div class="contactSec"></div>
             <div class="headerTitleSec"></div>
             <div class="headerQuoteSec"></div>
+            <div class="shareSec"></div>
         </header>
         <section class="markdown-body"></section>
         <footer class="footerSec"></footer>
     </div>
+    <!-- Basic Rendering -->
     <script src="/javascripts/marked.js"></script>
     <script src="/javascripts/bot-mark.js"></script>
     <script src="/javascripts/bot-frame.js"></script>
     <!-- Math Support -->
     <script src="/javascripts/katex.min.js"></script>
     <script src="/javascripts/auto-render.min.js"></script>
+    <!-- QR Code -->
+    <script src="/javascripts/qrcode.js"></script>
+    <script src="/javascripts/qrcode-svg.js"></script>
     <script>
         // Retrieve search string
         function getSearchString(target) {
@@ -158,6 +201,28 @@
             if (!target) return;
 
             target.scrollIntoView();
+        }
+
+        // Load Share Section
+        function loadShare() {
+            var shareSec = document.getElementsByClassName('shareSec')[0];
+            shareSec.innerHTML =
+                '<div data-tooltip="Copy link to clipboard">' +
+                '<a onclick="copyToClipboard(location.href)">👉 Share</a>' +
+                '</div>' +
+                '<input type="text" id="copyTextContainer" style="display:none">' +
+                '<p class="qrCodeSec">' + qrCodeSVG(location.href, 200) + '</p>';
+        }
+
+        // Helper function to copy text
+        function copyToClipboard(value) {
+            // Note: only visible element is copyable
+            var copyText = document.getElementById('copyTextContainer');
+            copyText.style.display = 'block';
+            copyText.value = value;
+            copyText.select();
+            document.execCommand("copy");
+            copyText.style.display = 'none';
         }
 
         // Fix relative paths inside 'mdSec according to 'filename
@@ -274,6 +339,7 @@
             renderMath();
             loadPrintStyle();
             jumpToHash();
+            loadShare();
 
             // Done
             title(titleStr);

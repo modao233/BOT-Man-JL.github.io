@@ -14,17 +14,26 @@
             padding: 0 0 0 15px;
         }
 
-        .shareSec, .qrCodeSec {
+        .shareSec {
+            text-align: center;
             margin-top: 16px;
         }
 
         .qrCodeSec {
-            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out, transform 0.2s ease-in-out;
         }
 
-            .qrCodeSec svg {
-                width: 75%;
-            }
+        .shareSec:hover .qrCodeSec {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(8px);
+        }
+
+        .qrCodeSec svg {
+            width: 60%;
+        }
 
         /* Disable Share Section in print view and small screen */
         @media print, screen and (max-width: 940px) {
@@ -196,8 +205,9 @@
         function loadShare() {
             var shareSec = document.getElementsByClassName('shareSec')[0];
             shareSec.innerHTML =
-                '<p><a href="javascript:void(0);" onclick="copyToClipboard(location.href)">' +
-                '👉 Copy link to clipboard</a></p>' +
+                '<p><a style="cursor:pointer" ' +
+                'onclick="copyToClipboard(location.href)">' +
+                'Copy link</a></p>' +
                 '<input type="text" id="copyTextContainer" style="display:none">' +
                 '<p class="qrCodeSec">' + qrCodeSVG(location.href, 360) + '</p>';
         }

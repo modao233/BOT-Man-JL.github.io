@@ -60,4 +60,3 @@
 
 - [搜集的哲言](misc/Quotes.md)
 - [二维码生成器](misc/QR-Code-Generator.md)
-- [My CV](misc/CV-en.md) | [我的简历](misc/CV-zh.md)

@@ -14,11 +14,6 @@
             padding: 0 0 0 15px;
         }
 
-        .shareSec {
-            text-align: center;
-            margin-top: 16px;
-        }
-
         .qrCodeSec {
             opacity: 0;
             visibility: hidden;
@@ -207,6 +202,7 @@
             shareSec.innerHTML =
                 '<p><a style="cursor:pointer" ' +
                 'onclick="copyToClipboard(location.href)">' +
+                '<img src="/static/share.svg"> - ' +
                 'Copy link</a></p>' +
                 '<input type="text" id="copyTextContainer" style="display:none">' +
                 '<p class="qrCodeSec">' + qrCodeSVG(location.href, 360) + '</p>';

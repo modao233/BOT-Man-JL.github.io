@@ -1,10 +1,10 @@
-﻿<br />
+﻿[align-center]
+
+![BOT Man](/static/botman.jpg)
 
 [align-center]
 
 # *BOT Man is*
-
-<br />
 
 [align-center]
 
@@ -13,8 +13,6 @@
 > a man who never fears death or dying, and
 >
 > a bot who has a human heart.
-
-<br />
 
 [align-center]
 

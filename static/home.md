@@ -20,4 +20,4 @@
 
 [align-center]
 
-# 👨‍💼 [My CV](/articles/?post=misc/CV-en) | [我的简历](/articles/?post=misc/CV-zh)
+# 🙈 [My CV](/articles/?post=misc/CV-en) | [我的简历](/articles/?post=misc/CV-zh)

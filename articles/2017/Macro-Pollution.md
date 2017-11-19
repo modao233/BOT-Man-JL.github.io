@@ -133,6 +133,8 @@ error C2039: 'PathAppendW': is not a member of 'PathHelper'
 
 如果能放下历史包袱，使用 C++ 提倡的规范，当然是最好的。不过，既然坑已经在那里了，我们只能去面对这个问题了。
 
+> **语言上**，可以通过 空宏、加括号 等方式避免污染。而这里主要从 **设计上** 讨论这个问题。
+
 ### 改名 —— 绕开污染源
 
 如果被污染的名称不是对外暴露的接口，或者改动接口名称的成本不高，那么改名是最快的方法。例如，`PathHelper::PathAppend` 改名为 `PathHelper::AppendPath`。
@@ -169,7 +171,7 @@ error C2039: 'PathAppendW': is not a member of 'PathHelper'
 
 尽可能在定义模块的地方（`*.h`）：
 
-- 避免引用 `C` 相关头文件，例如 `Windows.h`
+- 避免引用可能导致宏污染的 `C` 相关头文件，例如 `Windows.h`
 - 尽可能把对 `C` 相关头文件的依赖放到实现上
 
 从而保持接口的干净（最好把自己定义的符号加入到 **名字空间** _(name space)_ 里）。
@@ -185,6 +187,8 @@ error C2039: 'PathAppendW': is not a member of 'PathHelper'
 ## 写在最后 [no-number]
 
 非常感谢大家的支持！现在 **公众号 `BOTManJL`** 已经开通了评论功能！
+
+感谢 [@WalkerJG](https://github.com/WalkerJG) 提出的修改意见。
 
 如果有什么问题，**欢迎交流**。😄
 

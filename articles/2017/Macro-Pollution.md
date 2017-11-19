@@ -1,6 +1,6 @@
 ﻿# 令人头疼的宏定义污染
 
-> 2017/11/12
+> 2017/11/18
 >
 > Prefer `const`s, `enum`s, and `inline`s to `#define`s.
 > —— Item 2, Effective C++ 3rd Edition

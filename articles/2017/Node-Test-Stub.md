@@ -1,10 +1,16 @@
-﻿# Node 单元测试的 Mock 总结
+﻿# Node 单元测试的 Stub 总结
 
 > 2017/9/9
 >
 > 走出舒适区，and sharpen your teeth.
 
 [heading-numbering]
+
+**2017/11/25 更新**：
+
+- 本文使用的技术不是 _Mock_ 而是 _Stub_，详见 [Martin 的博客](https://martinfowler.com/articles/mocksArentStubs.html)
+- 本文使用的单元测试方法为 常规的 **状态检查** _(state verification)_ 测试，而不是基于 Mock 风格的 **行为检查** _(behavior verification)_ 测试
+- [Mocha 测试框架](http://mochajs.org/#assertions) 提供了基于 Mock 风格的扩展
 
 ## TOC [no-number] [no-toc]
 
@@ -14,9 +20,9 @@
 
 最近花了两周时间敲完了一个 Node 包（重构前 C++ 版本近 10k 行），然后完成了这个模块几百个 case 的单元测试。
 
-而在设计单元测试时，需要重写一些不属于自己代码的关键模块（暴露相同的接口，替换为自己的实现），从而避免外部依赖导致的 **副作用** _(side effect)_。例如，需要依赖于一些读写数据库、发起 HTTP 请求资源的代码，我们可以通过 **模拟** _(Mock)_ 模块的接口，实现一套简单的逻辑。
+而在设计单元测试时，需要重写一些不属于自己代码的关键模块（暴露相同的接口，替换为自己的实现），从而避免外部依赖导致的 **副作用** _(side effect)_。例如，需要依赖于一些读写数据库、发起 HTTP 请求资源的代码，我们可以通过设置模块接口的 **桩代码** _(Stub)_，实现一套简单的逻辑。
 
-而 Node 主要使用 JavaScript 作为编程语言，拥有 **脚本语言动态性** 的优势。借助这个特性，我们可以方便的编写模块接口的 Mock 代码。
+而 Node 主要使用 JavaScript 作为编程语言，拥有 **脚本语言动态性** 的优势。借助这个特性，我们可以方便的编写模块接口的 Stub 代码。（对于静态语言，要求模块的划分、代码的编写具有可测试性）
 
 ## Module 的设计模式
 
@@ -121,17 +127,17 @@ logger.log('This is an informational message');
   - 定义一个统一的 **资源管理器**，通过服务定位的方式，查找依赖
   - 可以通过 **硬编码** 或 **依赖注入** 的方式访问 **资源管理器**
 
-## Mock 的方法
+## Stub 的方法
 
 **单元测试** 常常使用 **白盒测试** 的方法，目标是构造测试用例，尽可能覆盖模块的所有 **路径**（**黑盒测试** 则是尽可能覆盖所有 **等价类**）。
 
-Mock 被依赖模块时，我们需要在测试我们自己代码之前，完成依赖的修改；并在测试结束后，完成依赖的恢复，避免污染其它地方对同一模块的依赖。（当然，我们只需要覆盖 **被测试代码**，不需要知道被依赖模块如何实现）
+给被依赖模块设置 Stub 时，我们需要在测试我们自己代码之前，完成依赖的修改；并在测试结束后，完成依赖的恢复，避免污染其它地方对同一模块的依赖。（当然，我们只需要覆盖 **被测试代码**，不需要知道被依赖模块如何实现）
 
-以流行的 [Mocha 测试框架](http://mochajs.org/) 为例（测试前执行 `before`，测试后执行 `after`），测试 Mock 流程为：
+以流行的 [Mocha 测试框架](http://mochajs.org/) 为例（测试前执行 `before`，测试后执行 `after`），设置测试 Stub 流程为：
 
 ``` javascript
 before(function() {
-    // Mock
+    // Setup Stub
 });
 
 describe(caseName, function() {
@@ -139,7 +145,7 @@ describe(caseName, function() {
 });
 
 after(function() {
-    // Restore
+    // Restore Stub
 });
 ```
 
@@ -148,7 +154,7 @@ after(function() {
 - **依赖模块** 的三种方式
 - **被依赖模块** 四种导出模式
 
-设计不同的 Mock 具体方法。
+设计不同的 Stub 具体方法。
 
 ### 硬编码 - 导出名字
 
@@ -159,12 +165,12 @@ const depModule = require('./depModule');
 const _func = depModule.func;
 
 before(function() {
-    // Mock
+    // Setup Stub
     depModule.func = function () { ... };
 });
 
 after(function() {
-    // Restore
+    // Restore Stub
     depModule.func = _func;
 });
 ```
@@ -179,17 +185,17 @@ const proto = depModule.prototype;
 const _func = proto.func;
 
 before(function() {
-    // Mock
+    // Setup Stub
     proto.func = function () { ... };
 });
 
 after(function() {
-    // Restore
+    // Restore Stub
     proto.func = _func;
 });
 ```
 
-即使被测试代码里使用的 `depModule` 对象已经实例化，修改 `depModule.prototype` 的属性，可以在递归检查 `prototype` 链时实现 Mock —— 不需要重新加载被测试代码的模块。
+即使被测试代码里使用的 `depModule` 对象已经实例化，修改 `depModule.prototype` 的属性，可以在递归检查 `prototype` 链时实现 Stub —— 不需要重新加载被测试代码的模块。
 
 ### 硬编码 - 导出对象实例
 
@@ -203,12 +209,12 @@ after(function() {
 const depModule = require('./depModule');
 
 before(function() {
-    // Mock
+    // Setup Stub
     depModule.func = function () { ... };
 });
 
 after(function() {
-    // Restore
+    // Restore Stub
     delete depModule.func;
 });
 ```
@@ -223,12 +229,12 @@ const proto = Object.getPrototypeOf(depModule);
 const _func = proto.func;
 
 before(function() {
-    // Mock
+    // Setup Stub
     proto.func = function () { ... };
 });
 
 after(function() {
-    // Restore
+    // Restore Stub
     proto.func = _func;
 });
 ```
@@ -274,7 +280,7 @@ const _depModule = require('./adder');
 const depCache = require.cache[require.resolve('./adder')];
 
 before(function () {
-    // Mock
+    // Setup Stub
     depCache.exports = function (a, b) {
         return 0 - a - b;
     };
@@ -289,7 +295,7 @@ describe('Test:', function () {
 });
 
 after(function () {
-    // Restore
+    // Restore Stub
     depCache.exports = _depModule;
     // Force to reload next time
     delete require.cache[require.resolve('./add-one')];
@@ -302,13 +308,13 @@ after(function () {
 
 对于非硬编码的依赖，情况就非常简单了：我们可以通过
 
-- **传入** Mock 后的依赖实例（依赖注入)
-- **替换** Mock 后的依赖资源，并在测试结束后 **恢复**（依赖查找）
+- **传入** Stub 后的依赖实例（依赖注入)
+- **替换** Stub 后的依赖资源，并在测试结束后 **恢复**（依赖查找）
 
-分别实现灵活的 Mock。
+分别实现灵活的 Stub。
 
 ## [no-toc] [no-number]
 
-本文是我学习 Node 测试时的 **个人理解**。对本文有什么问题，**欢迎斧正**。😉
+本文是我学习 Node 测试时 Stub 的 **个人理解**。对本文有什么问题，**欢迎斧正**。😉
 
 This article is published under MIT License &copy; 2017, BOT Man

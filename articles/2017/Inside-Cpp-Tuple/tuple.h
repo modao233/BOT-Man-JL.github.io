@@ -32,6 +32,10 @@ namespace bot {
     namespace detail {
         template<std::size_t Index, typename Tuple>
         struct shrink;
+        template<std::size_t Index, typename Tuple>
+        using shrink_t = typename shrink<Index, Tuple>::type;
+        template<typename ...Ts>
+        using base_t = typename shrink<1, tuple<Ts ...>>::type;
 
         template<std::size_t Index, typename T, typename ...Ts>
         struct shrink<Index, tuple<T, Ts ...>>
@@ -56,15 +60,20 @@ namespace bot {
     class tuple<> {
     public:
         constexpr tuple () noexcept = default;
+
         constexpr tuple (const tuple &) = default;
         constexpr tuple (tuple &&) = default;
-        constexpr tuple &operator=(const tuple &) = default;
-        constexpr tuple &operator=(tuple &&) = default;
+        constexpr tuple &operator= (const tuple &) = default;
+        constexpr tuple &operator= (tuple &&) = default;
 
         template<typename ...Rhs>
-        tuple &operator=(const tuple<Rhs ...> &rhs) { return *this; }
+        constexpr tuple (const tuple<Rhs ...> &rhs) {}
         template<typename ...Rhs>
-        tuple &operator=(tuple<Rhs ...> &&rhs) { return *this; }
+        constexpr tuple (tuple<Rhs ...> &&rhs) {}
+        template<typename ...Rhs>
+        tuple &operator= (const tuple<Rhs ...> &rhs) { return *this; }
+        template<typename ...Rhs>
+        tuple &operator= (tuple<Rhs ...> &&rhs) { return *this; }
 
         void swap (tuple &) noexcept {}
     };
@@ -75,28 +84,39 @@ namespace bot {
 
     public:
         constexpr tuple () noexcept = default;
+
+        explicit constexpr tuple (T arg, Ts ...args) :
+            Base (std::forward<Ts> (args)...),
+            _val (std::forward<T> (arg)) {}
+
         constexpr tuple (const tuple &) = default;
         constexpr tuple (tuple &&) = default;
-        constexpr tuple &operator=(const tuple &) = default;
-        constexpr tuple &operator=(tuple &&) = default;
-
-        constexpr tuple (T arg, Ts ...args) :
-            Base (args...), _val (arg) {}
+        constexpr tuple &operator= (const tuple &) = default;
+        constexpr tuple &operator= (tuple &&) = default;
 
         template<typename ...Rhs>
-        tuple &operator=(const tuple<Rhs ...> &rhs) {
-            using RhsTail = typename detail::shrink<1, tuple<Rhs ...>>::type;
+        constexpr tuple (const tuple<Rhs ...> &rhs) :
+            Base ((const detail::base_t<Rhs ...> &) (rhs)),
+            _val (rhs._val)
+        {}
+        template<typename ...Rhs>
+        constexpr tuple (tuple<Rhs ...> &&rhs) :
+            Base (std::forward<detail::base_t<Rhs ...>> (
+            (detail::base_t<Rhs ...> &) (rhs))),
+            _val (std::forward<tuple_element_t<0, tuple<Rhs ...>>> (rhs._val))
+        {}
+
+        template<typename ...Rhs>
+        tuple &operator= (const tuple<Rhs ...> &rhs) {
+            Base (*this) = (const detail::base_t<Rhs ...> &) (rhs);
             _val = rhs._val;
-            Base (*this) = (const RhsTail &) (rhs);
             return *this;
         }
-
         template<typename ...Rhs>
-        tuple &operator=(tuple<Rhs ...> &&rhs) {
-            using RhsHead = typename tuple_element<0, tuple<Rhs ...>>::type;
-            using RhsTail = typename detail::shrink<1, tuple<Rhs ...>>::type;
-            _val = std::forward<RhsHead> (rhs._val);
-            Base (*this) = std::forward<RhsTail> ((RhsTail &) (rhs));
+        tuple &operator= (tuple<Rhs ...> &&rhs) {
+            Base (*this) = std::forward<detail::base_t<Rhs ...>> (
+                (detail::base_t<Rhs ...> &) (rhs));
+            _val = std::forward<tuple_element_t<0, tuple<Rhs ...>>> (rhs._val);
             return *this;
         }
 

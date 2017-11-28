@@ -14,10 +14,17 @@
 
 int main (int argc, char *argv[])
 {
+    // helpers
+
     using namespace std::string_literals;
+
+    int ref_int = 1;
+    const int cref_int = 0;
+    auto constRValueGen = [] (const auto &val) -> const auto { return val; };
 
     /// tuple
 
+    // implicit
     std::tuple<> std_empty_implicit_ctor_tuple;
     bot::tuple<> bot_empty_implicit_ctor_tuple;
 
@@ -33,6 +40,7 @@ int main (int argc, char *argv[])
     //std::tuple<int &> std_ref_implicit_ctor_tuple ();
     //bot::tuple<int &> bot_ref_implicit_ctor_tuple ();
 
+    // explicit
     std::tuple<> std_empty_tuple {};
     bot::tuple<> bot_empty_tuple {};
 
@@ -45,21 +53,43 @@ int main (int argc, char *argv[])
     std::tuple<int, double, std::string> std_triple_tuple (3, 3.3, "str"s);
     bot::tuple<int, double, std::string> bot_triple_tuple (3, 3.3, "str"s);
 
-    int ref_int = 1;
     std::tuple<int &> std_ref_tuple (ref_int);
     bot::tuple<int &> bot_ref_tuple (ref_int);
 
-    std::tuple<int> std_move_ctor_tuple (std::tuple<int> (2));
-    bot::tuple<int> bot_move_ctor_tuple (bot::tuple<int> (2));
+    std::tuple<const int &> std_cref_tuple (cref_int);
+    bot::tuple<const int &> bot_cref_tuple (cref_int);
 
-    std::tuple<int> std_copy_ctor_tuple (std_move_ctor_tuple);
-    bot::tuple<int> bot_copy_ctor_tuple (bot_move_ctor_tuple);
+    std::tuple<int &&> std_rref_tuple (1);
+    bot::tuple<int &&> bot_rref_tuple (1);
+
+    // move & copy
+    std::tuple<int> std_move_ctor_tuple { std::tuple<int> (2) };
+    bot::tuple<int> bot_move_ctor_tuple { bot::tuple<int> (2) };
+
+    std::tuple<int> std_copy_ctor_tuple { std_move_ctor_tuple };
+    bot::tuple<int> bot_copy_ctor_tuple { bot_move_ctor_tuple };
+
+    std::tuple<int &> std_move_ctor_ref_tuple { std::tuple<int &> (ref_int) };
+    bot::tuple<int &> bot_move_ctor_ref_tuple { bot::tuple<int &> (ref_int) };
+
+    std::tuple<int &> std_copy_ctor_ref_tuple { std_move_ctor_ref_tuple };
+    bot::tuple<int &> bot_copy_ctor_ref_tuple { bot_move_ctor_ref_tuple };
 
     auto std_move_assign_tuple = std::tuple<int> (3);
     auto bot_move_assign_tuple = bot::tuple<int> (3);
 
     auto std_copy_assign_tuple = std_move_assign_tuple;
     auto bot_copy_assign_tuple = bot_move_assign_tuple;
+
+    auto std_move_assign_ref_tuple = std::tuple<int &> (ref_int);
+    auto bot_move_assign_ref_tuple = bot::tuple<int &> (ref_int);
+
+    auto std_copy_assign_ref_tuple = std_move_assign_ref_tuple;
+    auto bot_copy_assign_ref_tuple = bot_move_assign_ref_tuple;
+
+    // convert move & copy
+    std::tuple<long> std_conv_copy_assign_tuple = std_move_assign_tuple;
+    bot::tuple<long> bot_conv_copy_assign_tuple = bot_move_assign_tuple;
 
     /// tuple_size
 
@@ -172,6 +202,24 @@ int main (int argc, char *argv[])
     assert (
         std::get<0> (std_ref_tuple) ==
         bot::get<0> (bot_ref_tuple)
+    );
+
+    const auto std_const_single_tuple = std_single_tuple;
+    const auto bot_const_single_tuple = bot_single_tuple;
+
+    assert (
+        std::get<0> (std_const_single_tuple) ==
+        bot::get<0> (bot_const_single_tuple)
+    );
+
+    assert (
+        std::get<0> (std::make_tuple (5)) ==
+        bot::get<0> (bot::make_tuple (5))
+    );
+
+    assert (
+        std::get<0> (constRValueGen (std_single_tuple)) ==
+        bot::get<0> (constRValueGen (bot_single_tuple))
     );
 
     /// get (by type)
@@ -356,16 +404,13 @@ int main (int argc, char *argv[])
 
     /// forward_as_tuple
 
-    const int cref_int = 0;
-    auto constRString = [] () -> const std::string { return ""s; };
-
-    static_assert (std::is_same<
-        decltype(std::forward_as_tuple (cref_int, 1.1, constRString())),
-        std::tuple<const int &, double &&, const std::string &&>
+    static_assert (std::is_same<decltype(
+        std::forward_as_tuple (ref_int, cref_int, 1.1, constRValueGen (""s))),
+        std::tuple<int &, const int &, double &&, const std::string &&>
     >::value, "");
-    static_assert (std::is_same<
-        decltype(std::forward_as_tuple (cref_int, 1.1, constRString ())),
-        std::tuple<const int &, double &&, const std::string &&>
+    static_assert (std::is_same<decltype(
+        std::forward_as_tuple (ref_int, cref_int, 1.1, constRValueGen (""s))),
+        std::tuple<int &, const int &, double &&, const std::string &&>
     >::value, "");
 
     std::forward_as_tuple (std_int, std_double, std_string) = std_triple_tuple;

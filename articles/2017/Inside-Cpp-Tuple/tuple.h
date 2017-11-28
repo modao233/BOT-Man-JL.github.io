@@ -9,33 +9,68 @@
 #include <functional>  // std::reference_wrapper for make_tuple
 #include <type_traits>
 
-// More about 'const &&'
-// https://codesynthesis.com/~boris/blog/2012/07/24/const-rvalue-references
-
 namespace bot {
 
+    /// tuple
     template<typename ...Ts>
     class tuple;
 
+    /// operators
+    template<typename ...Ts1, typename ...Ts2>
+    constexpr bool operator== (const tuple<Ts1 ...> &, const tuple<Ts2 ...> &);
+    template<typename ...Ts1, typename ...Ts2>
+    constexpr bool operator!= (const tuple<Ts1 ...> &, const tuple<Ts2 ...> &);
+    template<typename ...Ts1, typename ...Ts2>
+    constexpr bool operator< (const tuple<Ts1 ...> &, const tuple<Ts2 ...> &);
+    template<typename ...Ts1, typename ...Ts2>
+    constexpr bool operator<= (const tuple<Ts1 ...> &, const tuple<Ts2 ...> &);
+    template<typename ...Ts1, typename ...Ts2>
+    constexpr bool operator> (const tuple<Ts1 ...> &, const tuple<Ts2 ...> &);
+    template<typename ...Ts1, typename ...Ts2>
+    constexpr bool operator>= (const tuple<Ts1 ...> &, const tuple<Ts2 ...> &);
+
+    /// tuple_size
     template<typename Tuple>
     struct tuple_size;
     template<typename Tuple>
     constexpr std::size_t tuple_size_v = tuple_size<Tuple>::value;
 
+    /// tuple_element
     template<std::size_t Index, typename Tuple>
     struct tuple_element;
     template<std::size_t Index, typename Tuple>
     using tuple_element_t = typename tuple_element<Index, Tuple>::type;
 
-    // helper for operator= and get (by index)
-    // resolve to super-class of Tuple at Index to get value
+    /// get (by index)
+    template<std::size_t Index, typename Tuple>
+    constexpr tuple_element_t<Index, Tuple> &
+        get (Tuple &) noexcept;
+    template<std::size_t Index, typename Tuple>
+    constexpr const tuple_element_t<Index, Tuple> &
+        get (const Tuple &) noexcept;
+    template<std::size_t Index, typename Tuple>
+    constexpr tuple_element_t<Index, Tuple> &&
+        get (Tuple &&) noexcept;
+    template<std::size_t Index, typename Tuple>
+    constexpr const tuple_element_t<Index, Tuple> &&
+        get (const Tuple &&) noexcept;
+
+    /// get (by type)
+    template<typename T, typename ...Ts>
+    constexpr T &get (tuple<Ts ...> &) noexcept;
+    template<typename T, typename ...Ts>
+    constexpr const T &get (const tuple<Ts ...> &) noexcept;
+    template<typename T, typename ...Ts>
+    constexpr T &&get (tuple<Ts ...> &&) noexcept;
+    template<typename T, typename ...Ts>
+    constexpr const T &&get (const tuple<Ts ...> &&) noexcept;
+
+    /// helpers
     namespace detail {
         template<std::size_t Index, typename Tuple>
         struct shrink;
         template<std::size_t Index, typename Tuple>
         using shrink_t = typename shrink<Index, Tuple>::type;
-        template<typename ...Ts>
-        using base_t = typename shrink<1, tuple<Ts ...>>::type;
 
         template<std::size_t Index, typename T, typename ...Ts>
         struct shrink<Index, tuple<T, Ts ...>>
@@ -50,6 +85,11 @@ namespace bot {
         struct shrink<0, tuple<>> {
             using type = tuple<>;
         };
+
+        template<typename ...Ts>
+        using base_t = typename shrink<1, tuple<Ts ...>>::type;
+        template<typename ...Ts>
+        using value_t = typename tuple_element<0, tuple<Ts ...>>::type;
     }
 
     /// tuple
@@ -61,74 +101,131 @@ namespace bot {
     public:
         constexpr tuple () noexcept = default;
 
-        constexpr tuple (const tuple &) = default;
-        constexpr tuple (tuple &&) = default;
-        constexpr tuple &operator= (const tuple &) = default;
-        constexpr tuple &operator= (tuple &&) = default;
-
-        template<typename ...Rhs>
-        constexpr tuple (const tuple<Rhs ...> &rhs) {}
-        template<typename ...Rhs>
-        constexpr tuple (tuple<Rhs ...> &&rhs) {}
-        template<typename ...Rhs>
-        tuple &operator= (const tuple<Rhs ...> &rhs) { return *this; }
-        template<typename ...Rhs>
-        tuple &operator= (tuple<Rhs ...> &&rhs) { return *this; }
+        tuple (const tuple &) = default;
+        tuple (tuple &&) = default;
+        tuple &operator= (const tuple &) = default;
+        tuple &operator= (tuple &&) = default;
 
         void swap (tuple &) noexcept {}
     };
 
     template<typename T, typename ...Ts>
     class tuple<T, Ts ...> : tuple<Ts ...> {
-        using Base = tuple<Ts ...>;
+        // - store the only first element at a class
+        // - use inheritance to get element
+        T _val;
 
+        // base view
+        using Base = tuple<Ts ...>;
+        Base &_base () { return *this; }
+        const Base &_base () const { return *this; }
+
+        // friends
+        template<typename ...>
+        friend class tuple;
+
+        template<std::size_t Index, typename Tuple>
+        friend constexpr tuple_element_t<Index, Tuple> &
+            get (Tuple &tuple) noexcept;
+        template<std::size_t Index, typename Tuple>
+        friend constexpr const tuple_element_t<Index, Tuple> &
+            get (const Tuple &tuple) noexcept;
+        template<std::size_t Index, typename Tuple>
+        friend constexpr tuple_element_t<Index, Tuple> &&
+            get (Tuple &&tuple) noexcept;
+        template<std::size_t Index, typename Tuple>
+        friend constexpr const tuple_element_t<Index, Tuple> &&
+            get (const Tuple &&tuple) noexcept;
+
+        template<typename ...Ts1, typename ...Ts2>
+        friend constexpr bool operator== (const tuple<Ts1 ...> &,
+            const tuple<Ts2 ...> &);
+        template<typename ...Ts1, typename ...Ts2>
+        friend constexpr bool operator< (const tuple<Ts1 ...> &,
+            const tuple<Ts2 ...> &);
     public:
         constexpr tuple () noexcept = default;
 
-        explicit constexpr tuple (T arg, Ts ...args) :
+        explicit tuple (T arg, Ts ...args) :
             Base (std::forward<Ts> (args)...),
             _val (std::forward<T> (arg)) {}
 
-        constexpr tuple (const tuple &) = default;
-        constexpr tuple (tuple &&) = default;
-        constexpr tuple &operator= (const tuple &) = default;
-        constexpr tuple &operator= (tuple &&) = default;
+        tuple (const tuple &) = default;
+        tuple (tuple &&) = default;
+        tuple &operator= (const tuple &) = default;
+        tuple &operator= (tuple &&) = default;
 
+        //template<typename ...Rhs>
+        //tuple (const tuple<Rhs ...> &rhs) :
+        //    Base { rhs._base () }, _val { rhs._val } {}
         template<typename ...Rhs>
-        constexpr tuple (const tuple<Rhs ...> &rhs) :
-            Base ((const detail::base_t<Rhs ...> &) (rhs)),
-            _val (rhs._val)
-        {}
-        template<typename ...Rhs>
-        constexpr tuple (tuple<Rhs ...> &&rhs) :
-            Base (std::forward<detail::base_t<Rhs ...>> (
-            (detail::base_t<Rhs ...> &) (rhs))),
-            _val (std::forward<tuple_element_t<0, tuple<Rhs ...>>> (rhs._val))
-        {}
+        tuple (tuple<Rhs ...> &&rhs) :
+            Base { std::forward<detail::base_t<Rhs ...> &&> (rhs._base ()) },
+            _val (std::forward<detail::value_t<Rhs ...> &&> (rhs._val)) {}
 
         template<typename ...Rhs>
         tuple &operator= (const tuple<Rhs ...> &rhs) {
-            Base (*this) = (const detail::base_t<Rhs ...> &) (rhs);
+            Base (*this) = rhs._base ();
             _val = rhs._val;
             return *this;
         }
         template<typename ...Rhs>
         tuple &operator= (tuple<Rhs ...> &&rhs) {
-            Base (*this) = std::forward<detail::base_t<Rhs ...>> (
-                (detail::base_t<Rhs ...> &) (rhs));
-            _val = std::forward<tuple_element_t<0, tuple<Rhs ...>>> (rhs._val);
+            _base () = std::forward<detail::base_t<Rhs ...> &&> (rhs._base ());
+            _val = std::forward<detail::value_t<Rhs ...> &&> (rhs._val);
             return *this;
         }
 
-        void swap (tuple &other) {
-            std::swap (_val, other._val);
-            Base::swap (other);
+        void swap (tuple &rhs) {
+            std::swap (_val, rhs._val);
+            Base::swap (rhs._base ());
         }
-
-        // - store the only first element at a class
-        // - use inheritance to get element
-        T _val;
     };
+
+    /// operators
+    //  - get
+
+    template<> constexpr bool operator== <> (
+        const tuple<> &, const tuple<> &) {
+        return true;
+    }
+    template<> constexpr bool operator< <> (
+        const tuple<> &, const tuple<> &) {
+        return false;
+    }
+
+    template<typename ...Ts1, typename ...Ts2>
+    constexpr bool operator== (
+        const tuple<Ts1 ...> &lhs, const tuple<Ts2 ...> &rhs) {
+        return lhs._val == rhs._val && lhs._base () == rhs._base ();
+    }
+    template<typename ...Ts1, typename ...Ts2>
+    constexpr bool operator!= (
+        const tuple<Ts1 ...> &lhs, const tuple<Ts2 ...> &rhs) {
+        return !(lhs == rhs);
+    }
+
+    template<typename ...Ts1, typename ...Ts2>
+    constexpr bool operator< (
+        const tuple<Ts1 ...> &lhs, const tuple<Ts2 ...> &rhs) {
+        return lhs._val < rhs._val || (
+            !(lhs._val < rhs._val) && lhs._base () < rhs._base ());
+    }
+    template<typename ...Ts1, typename ...Ts2>
+    constexpr bool operator>= (
+        const tuple<Ts1 ...> &lhs, const tuple<Ts2 ...> &rhs) {
+        return !(lhs < rhs);
+    }
+    template<typename ...Ts1, typename ...Ts2>
+    constexpr bool operator> (
+        const tuple<Ts1 ...> &lhs, const tuple<Ts2 ...> &rhs) {
+        return rhs < lhs;
+    }
+    template<typename ...Ts1, typename ...Ts2>
+    constexpr bool operator<= (
+        const tuple<Ts1 ...> &lhs, const tuple<Ts2 ...> &rhs) {
+        return !(rhs < lhs);
+    }
 
     /// tuple_size
 
@@ -153,75 +250,89 @@ namespace bot {
 
     template<std::size_t Index, typename Tuple>
     constexpr tuple_element_t<Index, Tuple> &
-        get (Tuple &tuple) noexcept
+        get (Tuple &t) noexcept
     {
-        using T = typename detail::shrink<Index, Tuple>::type;
+        using T = detail::shrink_t<Index, Tuple>;
         using R = tuple_element_t<Index, Tuple>;
-        return std::forward<R &> (((T &) tuple)._val);
+        return std::forward<R &> (((T &) t)._val);
     }
     template<std::size_t Index, typename Tuple>
     constexpr const tuple_element_t<Index, Tuple> &
-        get (const Tuple &tuple) noexcept
+        get (const Tuple &t) noexcept
     {
-        using T = typename detail::shrink<Index, Tuple>::type;
+        using T = detail::shrink_t<Index, Tuple>;
         using R = tuple_element_t<Index, Tuple>;
-        return std::forward<const R &> (((const T &) tuple)._val);
+        return std::forward<const R &> (((const T &) t)._val);
     }
     template<std::size_t Index, typename Tuple>
     constexpr tuple_element_t<Index, Tuple> &&
-        get (Tuple &&tuple) noexcept
+        get (Tuple &&t) noexcept
     {
-        using T = typename detail::shrink<Index, Tuple>::type;
+        using T = detail::shrink_t<Index, Tuple>;
         using R = tuple_element_t<Index, Tuple>;
-        return std::forward<R &&> (((T &) tuple)._val);
+        return std::forward<R &&> (((T &) t)._val);
     }
     template<std::size_t Index, typename Tuple>
     constexpr const tuple_element_t<Index, Tuple> &&
-        get (const Tuple &&tuple) noexcept
+        get (const Tuple &&t) noexcept
     {
-        using T = typename detail::shrink<Index, Tuple>::type;
+        using T = detail::shrink_t<Index, Tuple>;
         using R = tuple_element_t<Index, Tuple>;
-        return std::forward<const R &&> (((const T &) tuple)._val);
+        return std::forward<const R &&> (((const T &) t)._val);
     }
 
     /// get (by type)
     //  - get (by index)
-    //  - different from std::get<Type, Tuple>: don't check dup
 
     namespace detail {
-        template<typename T>
-        constexpr int find (int) { return -1; }
+        template<typename T, size_t Index, typename ...Ts>
+        struct type_index {
+            static constexpr int value = -1;
+        };
 
-        template<typename T, typename Head, typename ...Tail>
-        constexpr int find (int index) {
-            return std::is_same<T, Head>::value ?
-                index : find<T, Tail...> (index + 1);
-        }
+        template<typename T, size_t Index, typename Head, typename ...Tail>
+        struct type_index<T, Index, Head, Tail ...> {
+            static constexpr int value = std::is_same<T, Head>::value ?
+                (int) Index : type_index<T, Index + 1, Tail...>::value;
+
+        private:
+            static constexpr auto found_twice =
+                std::is_same<T, Head>::value &&
+                type_index<T, Index + 1, Tail...>::value != -1;
+            static_assert(!found_twice, "duplicate type in bot::get");
+        };
+
+        template<typename T, size_t Index, typename ...Ts>
+        constexpr auto type_index_v = type_index<T, Index, Ts ...>::value;
     }
 
     template<typename T, typename ...Ts>
-    constexpr decltype (auto) get (tuple<Ts ...> &t) noexcept {
-        constexpr auto idx = detail::find<T, Ts ...> (0);
-        static_assert(idx != -1, "type is not found at bot::get");
-        return get<idx> (std::forward<tuple<Ts ...>> (t));
+    constexpr T &get (tuple<Ts ...> &t) noexcept {
+        constexpr auto idx = detail::type_index_v<T, 0, Ts ...>;
+        static_assert(idx != -1, "missing type in bot::get");
+        return get<idx == -1 ? 0 : idx> (
+            (tuple<Ts ...> &) (t));
     }
     template<typename T, typename ...Ts>
-    constexpr decltype (auto) get (const tuple<Ts ...> &t) noexcept {
-        constexpr auto idx = detail::find<T, Ts ...> (0);
-        static_assert(idx != -1, "type is not found at bot::get");
-        return get<idx> (std::forward<tuple<Ts ...>> (t));
+    constexpr const T &get (const tuple<Ts ...> &t) noexcept {
+        constexpr auto idx = detail::type_index_v<T, 0, Ts ...>;
+        static_assert(idx != -1, "missing type in bot::get");
+        return get<idx == -1 ? 0 : idx> (
+            (const tuple<Ts ...> &) (t));
     }
     template<typename T, typename ...Ts>
-    constexpr decltype (auto) get (tuple<Ts ...> &&t) noexcept {
-        constexpr auto idx = detail::find<T, Ts ...> (0);
-        static_assert(idx != -1, "type is not found at bot::get");
-        return get<idx> (std::forward<tuple<Ts ...>> (t));
+    constexpr T &&get (tuple<Ts ...> &&t) noexcept {
+        constexpr auto idx = detail::type_index_v<T, 0, Ts ...>;
+        static_assert(idx != -1, "missing type in bot::get");
+        return get<idx == -1 ? 0 : idx> (
+            std::forward<tuple<Ts ...> &&> ((tuple<Ts ...> &) t));
     }
     template<typename T, typename ...Ts>
-    constexpr decltype (auto) get (const tuple<Ts ...> &&t) noexcept {
-        constexpr auto idx = detail::find<T, Ts ...> (0);
-        static_assert(idx != -1, "type is not found at bot::get");
-        return get<idx> (std::forward<tuple<Ts ...>> (t));
+    constexpr const T &&get (const tuple<Ts ...> &&t) noexcept {
+        constexpr auto idx = detail::type_index_v<T, 0, Ts ...>;
+        static_assert(idx != -1, "missing type in bot::get");
+        return get<idx == -1 ? 0 : idx> (
+            std::forward<const tuple<Ts ...> &&> ((const tuple<Ts ...> &) t));
     }
 
     /// make_tuple
@@ -298,10 +409,9 @@ namespace bot {
             std::index_sequence<Indices1 ...>,
             std::index_sequence<Indices2 ...>)
         {
-            // bad name lookup in both VS and clang
             return Ret {
-                bot::get<Indices1> (std::forward<Tuple1> (tuple1)) ...,
-                bot::get<Indices2> (std::forward<Tuple2> (tuple2)) ...
+                get<Indices1> (std::forward<Tuple1> (tuple1)) ...,
+                get<Indices2> (std::forward<Tuple2> (tuple2)) ...
             };
         }
 

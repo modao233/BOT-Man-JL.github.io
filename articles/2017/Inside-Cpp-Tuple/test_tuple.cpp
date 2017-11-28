@@ -8,9 +8,13 @@
 #include <type_traits>
 #include <utility>
 
-#include <cassert>
+#include <assert.h>
+#include <stddef.h>
 
 #include "tuple.h"
+
+// More about 'const &&'
+// https://codesynthesis.com/~boris/blog/2012/07/24/const-rvalue-references
 
 int main (int argc, char *argv[])
 {
@@ -19,28 +23,39 @@ int main (int argc, char *argv[])
     using namespace std::string_literals;
 
     int ref_int = 1;
-    const int cref_int = 0;
+    const int cref_int = 1;
     auto constRValueGen = [] (const auto &val) -> const auto { return val; };
 
     /// tuple
 
-    // implicit
-    std::tuple<> std_empty_implicit_ctor_tuple;
-    bot::tuple<> bot_empty_implicit_ctor_tuple;
+    // default ctor
+    std::tuple<> std_empty_default_ctor_tuple;
+    bot::tuple<> bot_empty_default_ctor_tuple;
 
-    std::tuple<int> std_single_implicit_ctor_tuple;
-    bot::tuple<int> bot_single_implicit_ctor_tuple;
+    std::tuple<int> std_single_default_ctor_tuple;
+    bot::tuple<int> bot_single_default_ctor_tuple;
 
-    std::tuple<int, double> std_double_implicit_ctor_tuple;
-    bot::tuple<int, double> bot_double_implicit_ctor_tuple;
+    std::tuple<int, double> std_double_default_ctor_tuple;
+    bot::tuple<int, double> bot_double_default_ctor_tuple;
 
-    std::tuple<int, double, std::string> std_triple_implicit_ctor_tuple;
-    bot::tuple<int, double, std::string> bot_triple_implicit_ctor_tuple;
+    std::tuple<int, double, std::string> std_triple_default_ctor_tuple;
+    bot::tuple<int, double, std::string> bot_triple_default_ctor_tuple;
 
-    //std::tuple<int &> std_ref_implicit_ctor_tuple ();
-    //bot::tuple<int &> bot_ref_implicit_ctor_tuple ();
+    //std::tuple<int &> std_ref_default_ctor_tuple ();
+    //bot::tuple<int &> bot_ref_default_ctor_tuple ();
 
-    // explicit
+    (void) std_empty_default_ctor_tuple;
+    (void) bot_empty_default_ctor_tuple;
+    (void) std_single_default_ctor_tuple;
+    (void) bot_single_default_ctor_tuple;
+    (void) std_double_default_ctor_tuple;
+    (void) bot_double_default_ctor_tuple;
+    (void) std_triple_default_ctor_tuple;
+    (void) bot_triple_default_ctor_tuple;
+    //(void) std_ref_default_ctor_tuple;
+    //(void) bot_ref_default_ctor_tuple;
+
+    // value ctor
     std::tuple<> std_empty_tuple {};
     bot::tuple<> bot_empty_tuple {};
 
@@ -62,18 +77,12 @@ int main (int argc, char *argv[])
     std::tuple<int &&> std_rref_tuple (1);
     bot::tuple<int &&> bot_rref_tuple (1);
 
-    // move & copy
-    std::tuple<int> std_move_ctor_tuple { std::tuple<int> (2) };
-    bot::tuple<int> bot_move_ctor_tuple { bot::tuple<int> (2) };
+    // move & copy ctor
+    std::tuple<int> std_move_ctor_tuple (std::tuple<int> (2));
+    bot::tuple<int> bot_move_ctor_tuple (bot::tuple<int> (2));
 
-    std::tuple<int> std_copy_ctor_tuple { std_move_ctor_tuple };
-    bot::tuple<int> bot_copy_ctor_tuple { bot_move_ctor_tuple };
-
-    std::tuple<int &> std_move_ctor_ref_tuple { std::tuple<int &> (ref_int) };
-    bot::tuple<int &> bot_move_ctor_ref_tuple { bot::tuple<int &> (ref_int) };
-
-    std::tuple<int &> std_copy_ctor_ref_tuple { std_move_ctor_ref_tuple };
-    bot::tuple<int &> bot_copy_ctor_ref_tuple { bot_move_ctor_ref_tuple };
+    std::tuple<int> std_copy_ctor_tuple (std_move_ctor_tuple);
+    bot::tuple<int> bot_copy_ctor_tuple (bot_move_ctor_tuple);
 
     auto std_move_assign_tuple = std::tuple<int> (3);
     auto bot_move_assign_tuple = bot::tuple<int> (3);
@@ -81,15 +90,92 @@ int main (int argc, char *argv[])
     auto std_copy_assign_tuple = std_move_assign_tuple;
     auto bot_copy_assign_tuple = bot_move_assign_tuple;
 
+    (void) std_copy_ctor_tuple;
+    (void) bot_copy_ctor_tuple;
+    (void) std_copy_assign_tuple;
+    (void) bot_copy_assign_tuple;
+
+    std::tuple<int &> std_move_ctor_ref_tuple { std::tuple<int &> (ref_int) };
+    bot::tuple<int &> bot_move_ctor_ref_tuple { bot::tuple<int &> (ref_int) };
+
+    std::tuple<int &> std_copy_ctor_ref_tuple (std_move_ctor_ref_tuple);
+    bot::tuple<int &> bot_copy_ctor_ref_tuple (bot_move_ctor_ref_tuple);
+
     auto std_move_assign_ref_tuple = std::tuple<int &> (ref_int);
     auto bot_move_assign_ref_tuple = bot::tuple<int &> (ref_int);
 
     auto std_copy_assign_ref_tuple = std_move_assign_ref_tuple;
     auto bot_copy_assign_ref_tuple = bot_move_assign_ref_tuple;
 
-    // convert move & copy
-    std::tuple<long> std_conv_copy_assign_tuple = std_move_assign_tuple;
-    bot::tuple<long> bot_conv_copy_assign_tuple = bot_move_assign_tuple;
+    (void) std_copy_ctor_ref_tuple;
+    (void) bot_copy_ctor_ref_tuple;
+    (void) std_copy_assign_ref_tuple;
+    (void) bot_copy_assign_ref_tuple;
+
+    // convert ctor
+    std::tuple<int16_t> std_conv_move_ctor_tuple (std::tuple<int8_t> (2));
+    bot::tuple<int16_t> bot_conv_move_ctor_tuple (bot::tuple<int8_t> (2));
+
+    std::tuple<int32_t> std_conv_copy_ctor_tuple (std_conv_move_ctor_tuple);
+    //bot::tuple<int32_t> bot_conv_copy_ctor_tuple (bot_conv_move_ctor_tuple);
+
+    std::tuple<int16_t> std_conv_move_assign_tuple = std::tuple<int8_t> (3);
+    bot::tuple<int16_t> bot_conv_move_assign_tuple = bot::tuple<int8_t> (3);
+
+    std::tuple<int32_t> std_conv_copy_assign_tuple = std_conv_move_assign_tuple;
+    //bot::tuple<int32_t> bot_conv_copy_assign_tuple = bot_conv_move_assign_tuple;
+
+    (void) std_conv_copy_ctor_tuple;
+    //(void) bot_conv_copy_ctor_tuple;
+    (void) std_conv_copy_assign_tuple;
+    //(void) bot_conv_copy_assign_tuple;
+
+    /// operators
+
+    // empty
+    assert (std_empty_tuple == std::tuple<> ());
+    assert (bot_empty_tuple == bot::tuple<> ());
+
+    assert (!(std_empty_tuple < std::tuple<> ()));
+    assert (!(bot_empty_tuple < bot::tuple<> ()));
+
+    // equal
+    assert (std_double_tuple == (std::tuple<int, double> (2, 2.2)));
+    assert (bot_double_tuple == (bot::tuple<int, double> (2, 2.2)));
+
+    assert (std_double_tuple != (std::tuple<int, double> (0, 0.0)));
+    assert (bot_double_tuple != (bot::tuple<int, double> (0, 0.0)));
+
+    // less
+    assert (std_double_tuple < (std::tuple<int, double> (3, 2.2)));
+    assert (bot_double_tuple < (bot::tuple<int, double> (3, 2.2)));
+
+    assert (std_double_tuple < (std::tuple<int, double> (2, 3.3)));
+    assert (bot_double_tuple < (bot::tuple<int, double> (2, 3.3)));
+
+    assert (std_double_tuple > (std::tuple<int, double> (1, 2.2)));
+    assert (bot_double_tuple > (bot::tuple<int, double> (1, 2.2)));
+
+    assert (std_double_tuple > (std::tuple<int, double> (2, 1.1)));
+    assert (bot_double_tuple > (bot::tuple<int, double> (2, 1.1)));
+
+    assert (std_double_tuple <= (std::tuple<int, double> (2, 2.2)));
+    assert (bot_double_tuple <= (bot::tuple<int, double> (2, 2.2)));
+
+    assert (std_double_tuple >= (std::tuple<int, double> (2, 2.2)));
+    assert (bot_double_tuple >= (bot::tuple<int, double> (2, 2.2)));
+
+    assert (std_double_tuple <= (std::tuple<int, double> (3, 2.2)));
+    assert (bot_double_tuple <= (bot::tuple<int, double> (3, 2.2)));
+
+    assert (std_double_tuple <= (std::tuple<int, double> (2, 3.3)));
+    assert (bot_double_tuple <= (bot::tuple<int, double> (2, 3.3)));
+
+    assert (std_double_tuple >= (std::tuple<int, double> (1, 2.2)));
+    assert (bot_double_tuple >= (bot::tuple<int, double> (1, 2.2)));
+
+    assert (std_double_tuple >= (std::tuple<int, double> (2, 1.1)));
+    assert (bot_double_tuple >= (bot::tuple<int, double> (2, 1.1)));
 
     /// tuple_size
 
@@ -148,17 +234,19 @@ int main (int argc, char *argv[])
         bot::tuple_element_t<0, decltype (bot_ref_tuple)>
     >::value, "");
     static_assert(std::is_same<
-        std::tuple_element_t<0, decltype (std_ref_tuple)>,
-        bot::tuple_element_t<0, decltype (bot_ref_tuple)>
+        std::tuple_element_t<0, decltype (std_cref_tuple)>,
+        bot::tuple_element_t<0, decltype (bot_cref_tuple)>
     >::value, "");
 
     /// get (by index)
 
+    // empty
     //assert (
     //    std::get<0> (std_empty_tuple) ==
     //    bot::get<0> (bot_empty_tuple)
     //);
 
+    // normal
     assert (
         std::get<0> (std_single_tuple) ==
         bot::get<0> (bot_single_tuple)
@@ -186,6 +274,7 @@ int main (int argc, char *argv[])
         bot::get<2> (bot_triple_tuple)
     );
 
+    // ref
     ref_int = 2;
     assert (
         std::get<0> (std_ref_tuple) ==
@@ -204,6 +293,7 @@ int main (int argc, char *argv[])
         bot::get<0> (bot_ref_tuple)
     );
 
+    // cref
     const auto std_const_single_tuple = std_single_tuple;
     const auto bot_const_single_tuple = bot_single_tuple;
 
@@ -212,11 +302,13 @@ int main (int argc, char *argv[])
         bot::get<0> (bot_const_single_tuple)
     );
 
+    // rref
     assert (
         std::get<0> (std::make_tuple (5)) ==
         bot::get<0> (bot::make_tuple (5))
     );
 
+    // crref
     assert (
         std::get<0> (constRValueGen (std_single_tuple)) ==
         bot::get<0> (constRValueGen (bot_single_tuple))
@@ -224,6 +316,7 @@ int main (int argc, char *argv[])
 
     /// get (by type)
 
+    // normal
     assert (
         std::get<int> (std_triple_tuple) ==
         bot::get<int> (bot_triple_tuple)
@@ -237,6 +330,7 @@ int main (int argc, char *argv[])
         bot::get<std::string> (bot_triple_tuple)
     );
 
+    // ref
     ref_int = 2;
     assert (
         std::get<int &> (std_ref_tuple) ==
@@ -253,6 +347,30 @@ int main (int argc, char *argv[])
     assert (
         std::get<int &> (std_ref_tuple) ==
         bot::get<int &> (bot_ref_tuple)
+    );
+
+    // missing or duplicate
+    //std::get<double> (std::tuple<int, int> (1, 2));
+    //bot::get<double> (bot::tuple<int, int> (1, 2));
+    //std::get<int> (std::tuple<int, int> (1, 2));
+    //bot::get<int> (bot::tuple<int, int> (1, 2));
+
+    // cref
+    assert (
+        std::get<int> (std_const_single_tuple) ==
+        bot::get<int> (bot_const_single_tuple)
+    );
+
+    // rref
+    assert (
+        std::get<int> (std::make_tuple (5)) ==
+        bot::get<int> (bot::make_tuple (5))
+    );
+
+    // crref
+    assert (
+        std::get<int> (constRValueGen (std_single_tuple)) ==
+        bot::get<int> (constRValueGen (bot_single_tuple))
     );
 
     /// make_tuple
@@ -329,6 +447,7 @@ int main (int argc, char *argv[])
         bot::tuple<int>
     >::value, "");
 
+    // check ref made
     ref_int = 2;
     assert (
         std::get<0> (std_ref_made_tuple) ==
@@ -347,6 +466,7 @@ int main (int argc, char *argv[])
         bot::get<0> (bot_ref_made_tuple)
     );
 
+    // check non ref made
     ref_int = 2;
     assert (
         std::get<0> (std_non_ref_made_tuple) ==
@@ -371,6 +491,7 @@ int main (int argc, char *argv[])
     double std_double, bot_double;
     std::string std_string, bot_string;
 
+    // tie-ref
     std::tie (std_int, std_double, std_string) = std_triple_tuple;
     bot::tie (bot_int, bot_double, bot_string) = bot_triple_tuple;
 
@@ -379,6 +500,7 @@ int main (int argc, char *argv[])
     assert (std_double == bot_double);
     assert (std_string == bot_string);
 
+    // tie-rref
     std::tie (std_int, std_double, std_string) = std::make_tuple (1, .1, ""s);
     bot::tie (bot_int, bot_double, bot_string) = bot::make_tuple (1, .1, ""s);
 
@@ -387,12 +509,14 @@ int main (int argc, char *argv[])
     assert (std_double == bot_double);
     assert (std_string == bot_string);
 
+    // tie-ignore
     std::tie (std_int, std::ignore) = std::make_tuple (2, ""s);
     bot::tie (bot_int, bot::ignore) = bot::make_tuple (2, ""s);
 
     // 1 -> 2
     assert (std_int == bot_int);
 
+    // check types
     static_assert (std::is_same<
         decltype(std::tie (std_int, std_double, std_string, std::ignore)),
         std::tuple<int &, double &, std::string &, decltype(std::ignore) &>
@@ -413,6 +537,7 @@ int main (int argc, char *argv[])
         std::tuple<int &, const int &, double &&, const std::string &&>
     >::value, "");
 
+    // forward as tie
     std::forward_as_tuple (std_int, std_double, std_string) = std_triple_tuple;
     bot::forward_as_tuple (bot_int, bot_double, bot_string) = bot_triple_tuple;
 
@@ -432,6 +557,7 @@ int main (int argc, char *argv[])
 
     /// tuple_cat
 
+    // value cat
     auto std_cat_tuple = std::tuple_cat (std_empty_tuple,
         std_single_tuple, std_double_tuple, std_triple_tuple);
     auto bot_cat_tuple = bot::tuple_cat (bot_empty_tuple,
@@ -469,6 +595,7 @@ int main (int argc, char *argv[])
         bot::get<5> (bot_cat_tuple)
     );
 
+    // ref cat
     auto std_ref_cat_tuple = std::tuple_cat (std_empty_tuple, std_ref_tuple);
     auto bot_ref_cat_tuple = bot::tuple_cat (bot_empty_tuple, bot_ref_tuple);
 
@@ -499,6 +626,7 @@ int main (int argc, char *argv[])
         bot::get<0> (bot_ref_cat_tuple)
     );
 
+    // empty cat
     auto std_empty_cat_tuple = std::tuple_cat (std_empty_tuple);
     auto bot_empty_cat_tuple = bot::tuple_cat (bot_empty_tuple);
 

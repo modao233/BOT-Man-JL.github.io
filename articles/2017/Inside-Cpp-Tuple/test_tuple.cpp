@@ -117,18 +117,18 @@ int main (int argc, char *argv[])
     bot::tuple<int16_t> bot_conv_move_ctor_tuple (bot::tuple<int8_t> (2));
 
     std::tuple<int32_t> std_conv_copy_ctor_tuple (std_conv_move_ctor_tuple);
-    //bot::tuple<int32_t> bot_conv_copy_ctor_tuple (bot_conv_move_ctor_tuple);
+    bot::tuple<int32_t> bot_conv_copy_ctor_tuple (bot_conv_move_ctor_tuple);
 
     std::tuple<int16_t> std_conv_move_assign_tuple = std::tuple<int8_t> (3);
     bot::tuple<int16_t> bot_conv_move_assign_tuple = bot::tuple<int8_t> (3);
 
     std::tuple<int32_t> std_conv_copy_assign_tuple = std_conv_move_assign_tuple;
-    //bot::tuple<int32_t> bot_conv_copy_assign_tuple = bot_conv_move_assign_tuple;
+    bot::tuple<int32_t> bot_conv_copy_assign_tuple = bot_conv_move_assign_tuple;
 
     (void) std_conv_copy_ctor_tuple;
-    //(void) bot_conv_copy_ctor_tuple;
+    (void) bot_conv_copy_ctor_tuple;
     (void) std_conv_copy_assign_tuple;
-    //(void) bot_conv_copy_assign_tuple;
+    (void) bot_conv_copy_assign_tuple;
 
     /// operators
 

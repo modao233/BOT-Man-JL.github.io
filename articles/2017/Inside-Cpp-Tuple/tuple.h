@@ -117,6 +117,7 @@ namespace bot {
 
         // base view
         using Base = tuple<Ts ...>;
+
         Base &_base () { return *this; }
         const Base &_base () const { return *this; }
 
@@ -155,9 +156,9 @@ namespace bot {
         tuple &operator= (const tuple &) = default;
         tuple &operator= (tuple &&) = default;
 
-        //template<typename ...Rhs>
-        //tuple (const tuple<Rhs ...> &rhs) :
-        //    Base { rhs._base () }, _val { rhs._val } {}
+        template<typename ...Rhs>
+        tuple (const tuple<Rhs ...> &rhs) :
+            Base { rhs._base () }, _val { rhs._val } {}
         template<typename ...Rhs>
         tuple (tuple<Rhs ...> &&rhs) :
             Base { std::forward<detail::base_t<Rhs ...> &&> (rhs._base ()) },
@@ -165,7 +166,7 @@ namespace bot {
 
         template<typename ...Rhs>
         tuple &operator= (const tuple<Rhs ...> &rhs) {
-            Base (*this) = rhs._base ();
+            _base () = rhs._base ();
             _val = rhs._val;
             return *this;
         }
@@ -178,7 +179,7 @@ namespace bot {
 
         void swap (tuple &rhs) {
             std::swap (_val, rhs._val);
-            Base::swap (rhs._base ());
+            _base ().swap (rhs._base ());
         }
     };
 

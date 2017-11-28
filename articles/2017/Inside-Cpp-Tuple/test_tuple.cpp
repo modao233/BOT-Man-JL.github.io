@@ -3,15 +3,14 @@
 // by BOT Man, 2017
 //
 
+#include "tuple.h"  // test dependency
+
+#include <functional>
 #include <string>
 #include <tuple>
-#include <type_traits>
-#include <utility>
 
 #include <assert.h>
 #include <stddef.h>
-
-#include "tuple.h"
 
 // More about 'const &&'
 // https://codesynthesis.com/~boris/blog/2012/07/24/const-rvalue-references
@@ -197,11 +196,13 @@ int main (int argc, char *argv[])
 
     /// tuple_element
 
+    // empty
     //static_assert(std::is_same<
     //    std::tuple_element_t<0, decltype (std_empty_tuple)>,
     //    bot::tuple_element_t<0, decltype (bot_empty_tuple)>
     //>::value, "");
 
+    // normal
     static_assert(std::is_same<
         std::tuple_element_t<0, decltype (std_single_tuple)>,
         bot::tuple_element_t<0, decltype (bot_single_tuple)>
@@ -236,6 +237,15 @@ int main (int argc, char *argv[])
     static_assert(std::is_same<
         std::tuple_element_t<0, decltype (std_cref_tuple)>,
         bot::tuple_element_t<0, decltype (bot_cref_tuple)>
+    >::value, "");
+
+    // const
+    const auto std_const_single_tuple = std_single_tuple;
+    const auto bot_const_single_tuple = bot_single_tuple;
+
+    static_assert(std::is_same<
+        std::tuple_element_t<0, decltype (std_const_single_tuple)>,
+        bot::tuple_element_t<0, decltype (bot_const_single_tuple)>
     >::value, "");
 
     /// get (by index)
@@ -294,9 +304,6 @@ int main (int argc, char *argv[])
     );
 
     // cref
-    const auto std_const_single_tuple = std_single_tuple;
-    const auto bot_const_single_tuple = bot_single_tuple;
-
     assert (
         std::get<0> (std_const_single_tuple) ==
         bot::get<0> (bot_const_single_tuple)
@@ -371,6 +378,37 @@ int main (int argc, char *argv[])
     assert (
         std::get<int> (constRValueGen (std_single_tuple)) ==
         bot::get<int> (constRValueGen (bot_single_tuple))
+    );
+
+    /// swap
+
+    std::tuple<int> std_tuple_swap_1 (1);
+    bot::tuple<int> bot_tuple_swap_1 (1);
+    std::tuple<int> std_tuple_swap_2 (2);
+    bot::tuple<int> bot_tuple_swap_2 (2);
+
+    std_tuple_swap_1.swap (std_tuple_swap_2);
+    bot_tuple_swap_1.swap (bot_tuple_swap_2);
+
+    assert (
+        std::get<0> (std_tuple_swap_1) ==
+        bot::get<0> (bot_tuple_swap_1)
+    );
+    assert (
+        std::get<0> (std_tuple_swap_2) ==
+        bot::get<0> (bot_tuple_swap_2)
+    );
+
+    std::swap (std_tuple_swap_1, std_tuple_swap_2);
+    bot::swap (bot_tuple_swap_1, bot_tuple_swap_2);
+
+    assert (
+        std::get<0> (std_tuple_swap_1) ==
+        bot::get<0> (bot_tuple_swap_1)
+    );
+    assert (
+        std::get<0> (std_tuple_swap_2) ==
+        bot::get<0> (bot_tuple_swap_2)
     );
 
     /// make_tuple

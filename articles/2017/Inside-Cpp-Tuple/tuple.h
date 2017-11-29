@@ -163,6 +163,15 @@ namespace bot {
     public:
         constexpr tuple () noexcept = default;
 
+        // Issue here:
+        //   always use construction of arg(s) rather than l/r-reference
+        // Why not fix:
+        //   tuple<int> { tuple<int> } will be ambiguous
+        //   - tuple { T }
+        //   - tuple { tuple<T> }
+        // How to fix:
+        //   introduce SFINAE to match proper ctor :-)
+        //   but I don't wanna fix then :-(
         explicit tuple (Head arg, Tails ...args) :
             Tail (std::forward<Tails> (args)...),
             _val (std::forward<Head> (arg)) {}

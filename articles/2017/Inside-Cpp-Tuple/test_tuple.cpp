@@ -76,6 +76,9 @@ int main (int argc, char *argv[])
     std::tuple<int &&> std_rref_tuple (1);
     bot::tuple<int &&> bot_rref_tuple (1);
 
+    std::tuple<std::string, std::string> std_value_conv_tuple ("s1", "s2");
+    bot::tuple<std::string, std::string> bot_value_conv_tuple ("s1", "s2");
+
     // move & copy ctor
     std::tuple<int> std_move_ctor_tuple (std::tuple<int> (2));
     bot::tuple<int> bot_move_ctor_tuple (bot::tuple<int> (2));

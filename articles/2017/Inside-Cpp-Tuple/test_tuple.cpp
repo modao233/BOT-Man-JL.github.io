@@ -251,10 +251,8 @@ int main (int argc, char *argv[])
     /// get (by index)
 
     // empty
-    //assert (
-    //    std::get<0> (std_empty_tuple) ==
-    //    bot::get<0> (bot_empty_tuple)
-    //);
+    //std::get<0> (std_empty_tuple);
+    //bot::get<0> (bot_empty_tuple);
 
     // normal
     assert (
@@ -284,7 +282,7 @@ int main (int argc, char *argv[])
         bot::get<2> (bot_triple_tuple)
     );
 
-    // ref
+    // ref-value
     ref_int = 2;
     assert (
         std::get<0> (std_ref_tuple) ==
@@ -323,6 +321,10 @@ int main (int argc, char *argv[])
 
     /// get (by type)
 
+    // empty
+    //std::get<int> (std::tuple<> ());
+    //bot::get<int> (bot::tuple<> ());
+
     // normal
     assert (
         std::get<int> (std_triple_tuple) ==
@@ -337,7 +339,7 @@ int main (int argc, char *argv[])
         bot::get<std::string> (bot_triple_tuple)
     );
 
-    // ref
+    // ref-value
     ref_int = 2;
     assert (
         std::get<int &> (std_ref_tuple) ==

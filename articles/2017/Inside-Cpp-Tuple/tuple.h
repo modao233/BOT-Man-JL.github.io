@@ -78,8 +78,6 @@ namespace bot {
     namespace detail {
         template<std::size_t Index, typename Tuple>
         struct shrink;
-        template<std::size_t Index, typename Tuple>
-        using shrink_t = typename shrink<Index, Tuple>::type;
 
         template<std::size_t Index, typename T, typename ...Ts>
         struct shrink<Index, tuple<T, Ts ...>>
@@ -99,6 +97,8 @@ namespace bot {
         using head_t = typename tuple_element<0, tuple<Ts ...>>::type;
         template<typename ...Ts>
         using tail_t = typename shrink<1, tuple<Ts ...>>::type;
+        template<std::size_t Index, typename ...Ts>
+        using shrink_t = typename shrink<Index, tuple<Ts ...>>::type;
     }
 
     template<>
@@ -122,12 +122,19 @@ namespace bot {
         Head _val;
         using Tail = tuple<Tails ...>;
 
-        // head & tail self-encapsulation
+        // head & tail & shrink self-encapsulation
         Head &_head () { return _val; }
         const Head &_head () const { return _val; }
 
         Tail &_tail () { return *this; }
         const Tail &_tail () const { return *this; }
+
+        template<std::size_t Index>
+        detail::shrink_t<Index, Head, Tails ...> &
+            _shrink () { return *this; }
+        template<std::size_t Index>
+        const detail::shrink_t<Index, Head, Tails ...> &
+            _shrink () const { return *this; }
 
         // friends
         template<typename ...>
@@ -271,40 +278,35 @@ namespace bot {
 
     /// get (by index)
     //  - tuple_element
-    //  - shrink
+    //  - _shrink ()
     //  - _head ()
 
     template<std::size_t Index, typename Tuple>
     constexpr tuple_element_t<Index, Tuple> &
         get (Tuple &t) noexcept
     {
-        using T = detail::shrink_t<Index, Tuple>;
-        using R = tuple_element_t<Index, Tuple>;
-        return std::forward<R &> (((T &) t)._head ());
+        // Note: dependent name in member template
+        return t.template _shrink<Index> ()._head ();
     }
     template<std::size_t Index, typename Tuple>
     constexpr const tuple_element_t<Index, Tuple> &
         get (const Tuple &t) noexcept
     {
-        using T = detail::shrink_t<Index, Tuple>;
-        using R = tuple_element_t<Index, Tuple>;
-        return std::forward<const R &> (((const T &) t)._head ());
+        return t.template _shrink<Index> ()._head ();
     }
     template<std::size_t Index, typename Tuple>
     constexpr tuple_element_t<Index, Tuple> &&
         get (Tuple &&t) noexcept
     {
-        using T = detail::shrink_t<Index, Tuple>;
-        using R = tuple_element_t<Index, Tuple>;
-        return std::forward<R &&> (((T &) t)._head ());
+        return std::forward<tuple_element_t<Index, Tuple> &&> (
+            (t.template _shrink<Index> ())._head ());
     }
     template<std::size_t Index, typename Tuple>
     constexpr const tuple_element_t<Index, Tuple> &&
         get (const Tuple &&t) noexcept
     {
-        using T = detail::shrink_t<Index, Tuple>;
-        using R = tuple_element_t<Index, Tuple>;
-        return std::forward<const R &&> (((const T &) t)._head ());
+        return std::forward<const tuple_element_t<Index, Tuple> &&> (
+            (t.template _shrink<Index> ())._head ());
     }
 
     /// get (by type)
@@ -485,7 +487,7 @@ namespace bot {
 
     // Improvement:
     //  It's a more efficent to expand all params at a time
-    //  Ret{std::get<Js>(std::get<Is>(std::forward<Tuples>(tpls)))...};
+    //  Ret { std::get<Js>(std::get<Is>(std::forward<Tuples>(tpls)))... };
     // See:
     // https://github.com/ericniebler/meta/blob/master/example/tuple_cat.cpp
     // http://blogs.microsoft.co.il/sasha/2015/02/22/implementing-tuple-part-7

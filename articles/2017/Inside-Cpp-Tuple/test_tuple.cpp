@@ -23,6 +23,7 @@ int main (int argc, char *argv[])
 
     int ref_int = 1;
     const int cref_int = 1;
+    auto rValueGen = [] (const auto &val) -> auto { return val; };
     auto constRValueGen = [] (const auto &val) -> const auto { return val; };
 
     /// tuple
@@ -40,21 +41,10 @@ int main (int argc, char *argv[])
     std::tuple<int, double, std::string> std_triple_default_ctor_tuple;
     bot::tuple<int, double, std::string> bot_triple_default_ctor_tuple;
 
-    //std::tuple<int &> std_ref_default_ctor_tuple ();
-    //bot::tuple<int &> bot_ref_default_ctor_tuple ();
+    //std::tuple<int &> std_ref_default_ctor_tuple;
+    //bot::tuple<int &> bot_ref_default_ctor_tuple;
 
-    (void) std_empty_default_ctor_tuple;
-    (void) bot_empty_default_ctor_tuple;
-    (void) std_single_default_ctor_tuple;
-    (void) bot_single_default_ctor_tuple;
-    (void) std_double_default_ctor_tuple;
-    (void) bot_double_default_ctor_tuple;
-    (void) std_triple_default_ctor_tuple;
-    (void) bot_triple_default_ctor_tuple;
-    //(void) std_ref_default_ctor_tuple;
-    //(void) bot_ref_default_ctor_tuple;
-
-    // value ctor
+    // value-direct ctor
     std::tuple<> std_empty_tuple {};
     bot::tuple<> bot_empty_tuple {};
 
@@ -73,64 +63,65 @@ int main (int argc, char *argv[])
     std::tuple<const int &> std_cref_tuple (cref_int);
     bot::tuple<const int &> bot_cref_tuple (cref_int);
 
-    std::tuple<int &&> std_rref_tuple (1);
-    bot::tuple<int &&> bot_rref_tuple (1);
+    // value-convert ctor
+    std::tuple<int &&> std_rref_tuple (rValueGen (1));
+    bot::tuple<int &&> bot_rref_tuple (rValueGen (1));
+
+    std::tuple<const int &&> std_crref_tuple (constRValueGen (1));
+    bot::tuple<const int &&> bot_crref_tuple (constRValueGen (1));
+
+    std::tuple<int &&> std_rref_conv_tuple (1);
+    bot::tuple<int &&> bot_rref_conv_tuple (1);
 
     std::tuple<std::string, std::string> std_value_conv_tuple ("s1", "s2");
     bot::tuple<std::string, std::string> bot_value_conv_tuple ("s1", "s2");
 
-    // move & copy ctor
-    std::tuple<int> std_move_ctor_tuple (std::tuple<int> (2));
-    bot::tuple<int> bot_move_ctor_tuple (bot::tuple<int> (2));
-
-    std::tuple<int> std_copy_ctor_tuple (std_move_ctor_tuple);
-    bot::tuple<int> bot_copy_ctor_tuple (bot_move_ctor_tuple);
-
-    auto std_move_assign_tuple = std::tuple<int> (3);
-    auto bot_move_assign_tuple = bot::tuple<int> (3);
-
-    auto std_copy_assign_tuple = std_move_assign_tuple;
-    auto bot_copy_assign_tuple = bot_move_assign_tuple;
-
-    (void) std_copy_ctor_tuple;
-    (void) bot_copy_ctor_tuple;
-    (void) std_copy_assign_tuple;
-    (void) bot_copy_assign_tuple;
-
-    std::tuple<int &> std_move_ctor_ref_tuple { std::tuple<int &> (ref_int) };
-    bot::tuple<int &> bot_move_ctor_ref_tuple { bot::tuple<int &> (ref_int) };
-
-    std::tuple<int &> std_copy_ctor_ref_tuple (std_move_ctor_ref_tuple);
-    bot::tuple<int &> bot_copy_ctor_ref_tuple (bot_move_ctor_ref_tuple);
-
-    auto std_move_assign_ref_tuple = std::tuple<int &> (ref_int);
-    auto bot_move_assign_ref_tuple = bot::tuple<int &> (ref_int);
-
-    auto std_copy_assign_ref_tuple = std_move_assign_ref_tuple;
-    auto bot_copy_assign_ref_tuple = bot_move_assign_ref_tuple;
-
-    (void) std_copy_ctor_ref_tuple;
-    (void) bot_copy_ctor_ref_tuple;
-    (void) std_copy_assign_ref_tuple;
-    (void) bot_copy_assign_ref_tuple;
-
-    // convert ctor
+    // tuple-convert ctor
     std::tuple<int16_t> std_conv_move_ctor_tuple (std::tuple<int8_t> (2));
     bot::tuple<int16_t> bot_conv_move_ctor_tuple (bot::tuple<int8_t> (2));
-
     std::tuple<int32_t> std_conv_copy_ctor_tuple (std_conv_move_ctor_tuple);
     bot::tuple<int32_t> bot_conv_copy_ctor_tuple (bot_conv_move_ctor_tuple);
 
-    std::tuple<int16_t> std_conv_move_assign_tuple = std::tuple<int8_t> (3);
-    bot::tuple<int16_t> bot_conv_move_assign_tuple = bot::tuple<int8_t> (3);
+    std::tuple<int16_t> std_conv_move_assign_tuple;
+    bot::tuple<int16_t> bot_conv_move_assign_tuple;
+    std::tuple<int32_t> std_conv_copy_assign_tuple;
+    bot::tuple<int32_t> bot_conv_copy_assign_tuple;
 
-    std::tuple<int32_t> std_conv_copy_assign_tuple = std_conv_move_assign_tuple;
-    bot::tuple<int32_t> bot_conv_copy_assign_tuple = bot_conv_move_assign_tuple;
+    std_conv_move_assign_tuple = std::tuple<int8_t> (3);
+    bot_conv_move_assign_tuple = bot::tuple<int8_t> (3);
+    std_conv_copy_assign_tuple = std_conv_move_assign_tuple;
+    bot_conv_copy_assign_tuple = bot_conv_move_assign_tuple;
 
-    (void) std_conv_copy_ctor_tuple;
-    (void) bot_conv_copy_ctor_tuple;
-    (void) std_conv_copy_assign_tuple;
-    (void) bot_conv_copy_assign_tuple;
+    // move & copy ctor / assignment
+    std::tuple<int> std_move_ctor_tuple (std::tuple<int> (2));
+    bot::tuple<int> bot_move_ctor_tuple (bot::tuple<int> (2));
+    std::tuple<int> std_copy_ctor_tuple (std_move_ctor_tuple);
+    bot::tuple<int> bot_copy_ctor_tuple (bot_move_ctor_tuple);
+
+    std::tuple<int> std_move_assign_tuple;
+    bot::tuple<int> bot_move_assign_tuple;
+    std::tuple<int> std_copy_assign_tuple;
+    bot::tuple<int> bot_copy_assign_tuple;
+
+    std_move_assign_tuple = std::tuple<int> (3);
+    bot_move_assign_tuple = bot::tuple<int> (3);
+    std_copy_assign_tuple = std_move_assign_tuple;
+    bot_copy_assign_tuple = bot_move_assign_tuple;
+
+    std::tuple<int &> std_move_ctor_ref_tuple { std::tuple<int &> (ref_int) };
+    bot::tuple<int &> bot_move_ctor_ref_tuple { bot::tuple<int &> (ref_int) };
+    std::tuple<int &> std_copy_ctor_ref_tuple (std_move_ctor_ref_tuple);
+    bot::tuple<int &> bot_copy_ctor_ref_tuple (bot_move_ctor_ref_tuple);
+
+    std::tuple<int &> std_move_assign_ref_tuple (ref_int);
+    bot::tuple<int &> bot_move_assign_ref_tuple (ref_int);
+    std::tuple<int &> std_copy_assign_ref_tuple (ref_int);
+    bot::tuple<int &> bot_copy_assign_ref_tuple (ref_int);
+
+    std_move_assign_ref_tuple = std::tuple<int &> (ref_int);
+    bot_move_assign_ref_tuple = bot::tuple<int &> (ref_int);
+    std_copy_assign_ref_tuple = std_move_assign_ref_tuple;
+    bot_copy_assign_ref_tuple = bot_move_assign_ref_tuple;
 
     /// operators
 

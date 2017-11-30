@@ -104,13 +104,18 @@ namespace bot {
     template<>
     class tuple<> {
     public:
+        // default ctor
         constexpr tuple () noexcept = default;
 
+        // copy & move ctor
         tuple (const tuple &) = default;
         tuple (tuple &&) = default;
+
+        // copy & move assignment
         tuple &operator= (const tuple &) = default;
         tuple &operator= (tuple &&) = default;
 
+        // swap
         void swap (tuple &) noexcept {}
     };
 
@@ -161,34 +166,33 @@ namespace bot {
             const tuple<Us ...> &);
 
     public:
+        // default ctor
         constexpr tuple () noexcept = default;
 
-        // Issue here:
-        //   always use construction of arg(s) rather than l/r-reference
-        // Why not fix:
-        //   tuple<int> { tuple<int> } will be ambiguous
-        //   - tuple { T }
-        //   - tuple { tuple<T> }
-        // How to fix:
-        //   introduce SFINAE to match proper ctor :-)
-        //   but I don't wanna fix then :-(
-        explicit tuple (Head arg, Tails ...args) :
-            Tail (std::forward<Tails> (args)...),
-            _val (std::forward<Head> (arg)) {}
+        // value-direct ctor
+        explicit constexpr tuple (const Head &arg, const Tails &...args) :
+            Tail (args...),
+            _val (arg) {}
 
-        tuple (const tuple &) = default;
-        tuple (tuple &&) = default;
-        tuple &operator= (const tuple &) = default;
-        tuple &operator= (tuple &&) = default;
+        // value-convert ctor
+        //   Note: only check T & Head to resolve ambiguous
+        //         - `tuple<int> { int }`
+        //         - `tuple<int> { tuple<int> }`
+        template<typename T, typename ...Ts,
+            typename = std::enable_if_t<std::is_convertible<T, Head>::value>
+        > explicit constexpr tuple (T &&arg, Ts &&...args) :
+            Tail (std::forward<Ts> (args)...),
+            _val (std::forward<T> (arg)) {}
 
+        // tuple-convert ctor / assignment
         template<typename ...Rhs>
         tuple (const tuple<Rhs ...> &rhs) :
             Tail (rhs._tail ()),
             _val (rhs._head ()) {}
         template<typename ...Rhs>
         tuple (tuple<Rhs ...> &&rhs) :
-            Tail (std::forward<detail::tail_t<Rhs ...> &&> (rhs._tail ())),
-            _val (std::forward<detail::head_t<Rhs ...> &&> (rhs._head ())) {}
+            Tail (std::forward<detail::tail_t<Rhs ...>> (rhs._tail ())),
+            _val (std::forward<detail::head_t<Rhs ...>> (rhs._head ())) {}
 
         template<typename ...Rhs>
         tuple &operator= (const tuple<Rhs ...> &rhs) {
@@ -198,12 +202,31 @@ namespace bot {
         }
         template<typename ...Rhs>
         tuple &operator= (tuple<Rhs ...> &&rhs) {
-            _tail () = std::forward<detail::tail_t<Rhs ...> &&> (rhs._tail ());
-            _head () = std::forward<detail::head_t<Rhs ...> &&> (rhs._head ());
+            _tail () = std::forward<detail::tail_t<Rhs ...>> (rhs._tail ());
+            _head () = std::forward<detail::head_t<Rhs ...>> (rhs._head ());
             return *this;
         }
 
-        void swap (tuple &rhs) {
+        // copy & move ctor / assignment
+        tuple (const tuple &) = default;
+        tuple (tuple &&) = default;
+
+        //   Note: default operator= could not overload
+        //         `int & = int &`                  for
+        //         `tuple<int &> = tuple<int &>`
+        tuple &operator= (const tuple &rhs) {
+            _tail () = rhs._tail ();
+            _head () = rhs._head ();
+            return *this;
+        }
+        tuple &operator= (tuple &&rhs) {
+            _tail () = std::forward<Tail> (rhs._tail ());
+            _head () = std::forward<Head> (rhs._head ());
+            return *this;
+        }
+
+        // swap
+        void swap (tuple &rhs) noexcept {
             std::swap (_head (), rhs._head ());
             _tail ().swap (rhs._tail ());
         }
@@ -307,15 +330,15 @@ namespace bot {
     constexpr tuple_element_t<Index, Tuple> &&
         get (Tuple &&t) noexcept
     {
-        return std::forward<tuple_element_t<Index, Tuple> &&> (
-            (t.template _shrink<Index> ())._head ());
+        return std::forward<tuple_element_t<Index, Tuple>> (
+            t.template _shrink<Index> ()._head ());
     }
     template<std::size_t Index, typename Tuple>
     constexpr const tuple_element_t<Index, Tuple> &&
         get (const Tuple &&t) noexcept
     {
-        return std::forward<const tuple_element_t<Index, Tuple> &&> (
-            (t.template _shrink<Index> ())._head ());
+        return std::forward<const tuple_element_t<Index, Tuple>> (
+            t.template _shrink<Index> ()._head ());
     }
 
     /// get (by type)
@@ -361,23 +384,21 @@ namespace bot {
 
     template<typename Type, typename Tuple>
     constexpr Type &get (Tuple &t) noexcept {
-        return get<detail::type_index_v<Type, 0, Tuple>> (
-            (Tuple &) (t));
+        return get<detail::type_index_v<Type, 0, Tuple>> (t);
     }
     template<typename Type, typename Tuple>
     constexpr const Type &get (const Tuple &t) noexcept {
-        return get<detail::type_index_v<Type, 0, Tuple>> (
-            (const Tuple &) (t));
+        return get<detail::type_index_v<Type, 0, Tuple>> (t);
     }
     template<typename Type, typename Tuple>
     constexpr Type &&get (Tuple &&t) noexcept {
         return get<detail::type_index_v<Type, 0, Tuple>> (
-            std::forward<Tuple &&> ((Tuple &) t));
+            std::forward<Tuple> (t));
     }
     template<typename Type, typename Tuple>
     constexpr const Type &&get (const Tuple &&t) noexcept {
         return get<detail::type_index_v<Type, 0, Tuple>> (
-            std::forward<const Tuple &&> ((const Tuple &) t));
+            std::forward<const Tuple> (t));
     }
 
     /// swap

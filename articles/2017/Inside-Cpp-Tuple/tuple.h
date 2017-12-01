@@ -42,32 +42,32 @@ namespace bot {
     using tuple_element_t = typename tuple_element<Index, Tuple>::type;
 
     /// get (by index)
-    template<std::size_t Index, typename Tuple>
-    constexpr tuple_element_t<Index, Tuple> &
-        get (Tuple &) noexcept;
-    template<std::size_t Index, typename Tuple>
-    constexpr const tuple_element_t<Index, Tuple> &
-        get (const Tuple &) noexcept;
-    template<std::size_t Index, typename Tuple>
-    constexpr tuple_element_t<Index, Tuple> &&
-        get (Tuple &&) noexcept;
-    template<std::size_t Index, typename Tuple>
-    constexpr const tuple_element_t<Index, Tuple> &&
-        get (const Tuple &&) noexcept;
+    template<std::size_t Index, typename ...Ts>
+    constexpr tuple_element_t<Index, tuple<Ts ...>> &
+        get (tuple<Ts ...> &) noexcept;
+    template<std::size_t Index, typename ...Ts>
+    constexpr const tuple_element_t<Index, tuple<Ts ...>> &
+        get (const tuple<Ts ...> &) noexcept;
+    template<std::size_t Index, typename ...Ts>
+    constexpr tuple_element_t<Index, tuple<Ts ...>> &&
+        get (tuple<Ts ...> &&) noexcept;
+    template<std::size_t Index, typename ...Ts>
+    constexpr const tuple_element_t<Index, tuple<Ts ...>> &&
+        get (const tuple<Ts ...> &&) noexcept;
 
     /// get (by type)
-    template<typename Type, typename Tuple>
+    template<typename Type, typename ...Ts>
     constexpr Type &
-        get (Tuple &) noexcept;
-    template<typename Type, typename Tuple>
+        get (tuple<Ts ...> &) noexcept;
+    template<typename Type, typename ...Ts>
     constexpr const Type &
-        get (const Tuple &) noexcept;
-    template<typename Type, typename Tuple>
+        get (const tuple<Ts ...> &) noexcept;
+    template<typename Type, typename ...Ts>
     constexpr Type &&
-        get (Tuple &&) noexcept;
-    template<typename Type, typename Tuple>
+        get (tuple<Ts ...> &&) noexcept;
+    template<typename Type, typename ...Ts>
     constexpr const Type &&
-        get (const Tuple &&) noexcept;
+        get (const tuple<Ts ...> &&) noexcept;
 
     /// swap
     template<typename ...Ts>
@@ -145,18 +145,18 @@ namespace bot {
         template<typename ...>
         friend class tuple;
 
-        template<std::size_t Index, typename Tuple>
-        friend constexpr tuple_element_t<Index, Tuple> &
-            get (Tuple &tuple) noexcept;
-        template<std::size_t Index, typename Tuple>
-        friend constexpr const tuple_element_t<Index, Tuple> &
-            get (const Tuple &tuple) noexcept;
-        template<std::size_t Index, typename Tuple>
-        friend constexpr tuple_element_t<Index, Tuple> &&
-            get (Tuple &&tuple) noexcept;
-        template<std::size_t Index, typename Tuple>
-        friend constexpr const tuple_element_t<Index, Tuple> &&
-            get (const Tuple &&tuple) noexcept;
+        template<std::size_t Index, typename ...Ts>
+        friend constexpr tuple_element_t<Index, tuple<Ts ...>> &
+            get (tuple<Ts ...> &) noexcept;
+        template<std::size_t Index, typename ...Ts>
+        friend constexpr const tuple_element_t<Index, tuple<Ts ...>> &
+            get (const tuple<Ts ...> &) noexcept;
+        template<std::size_t Index, typename ...Ts>
+        friend constexpr tuple_element_t<Index, tuple<Ts ...>> &&
+            get (tuple<Ts ...> &&) noexcept;
+        template<std::size_t Index, typename ...Ts>
+        friend constexpr const tuple_element_t<Index, tuple<Ts ...>> &&
+            get (const tuple<Ts ...> &&) noexcept;
 
         template<typename ...Ts, typename ...Us>
         friend constexpr bool operator== (const tuple<Ts ...> &,
@@ -191,8 +191,8 @@ namespace bot {
             _val (rhs._head ()) {}
         template<typename ...Rhs>
         tuple (tuple<Rhs ...> &&rhs) :
-            Tail (std::forward<detail::tail_t<Rhs ...>> (rhs._tail ())),
-            _val (std::forward<detail::head_t<Rhs ...>> (rhs._head ())) {}
+            Tail (std::move (rhs._tail ())),
+            _val (std::move (rhs._head ())) {}
 
         template<typename ...Rhs>
         tuple &operator= (const tuple<Rhs ...> &rhs) {
@@ -202,8 +202,8 @@ namespace bot {
         }
         template<typename ...Rhs>
         tuple &operator= (tuple<Rhs ...> &&rhs) {
-            _tail () = std::forward<detail::tail_t<Rhs ...>> (rhs._tail ());
-            _head () = std::forward<detail::head_t<Rhs ...>> (rhs._head ());
+            _tail () = std::move (rhs._tail ());
+            _head () = std::move (rhs._head ());
             return *this;
         }
 
@@ -220,8 +220,8 @@ namespace bot {
             return *this;
         }
         tuple &operator= (tuple &&rhs) {
-            _tail () = std::forward<Tail> (rhs._tail ());
-            _head () = std::forward<Head> (rhs._head ());
+            _tail () = std::move (rhs._tail ());
+            _head () = std::move (rhs._head ());
             return *this;
         }
 
@@ -313,31 +313,31 @@ namespace bot {
     //  - _shrink ()
     //  - _head ()
 
-    template<std::size_t Index, typename Tuple>
-    constexpr tuple_element_t<Index, Tuple> &
-        get (Tuple &t) noexcept
+    template<std::size_t Index, typename ...Ts>
+    constexpr tuple_element_t<Index, tuple<Ts ...>> &
+        get (tuple<Ts ...> &t) noexcept
     {
         // Note: dependent name in member template
         return t.template _shrink<Index> ()._head ();
     }
-    template<std::size_t Index, typename Tuple>
-    constexpr const tuple_element_t<Index, Tuple> &
-        get (const Tuple &t) noexcept
+    template<std::size_t Index, typename ...Ts>
+    constexpr const tuple_element_t<Index, tuple<Ts ...>> &
+        get (const tuple<Ts ...> &t) noexcept
     {
         return t.template _shrink<Index> ()._head ();
     }
-    template<std::size_t Index, typename Tuple>
-    constexpr tuple_element_t<Index, Tuple> &&
-        get (Tuple &&t) noexcept
+    template<std::size_t Index, typename ...Ts>
+    constexpr tuple_element_t<Index, tuple<Ts ...>> &&
+        get (tuple<Ts ...> &&t) noexcept
     {
-        return std::forward<tuple_element_t<Index, Tuple>> (
+        return std::forward<tuple_element_t<Index, tuple<Ts ...>>> (
             t.template _shrink<Index> ()._head ());
     }
-    template<std::size_t Index, typename Tuple>
-    constexpr const tuple_element_t<Index, Tuple> &&
-        get (const Tuple &&t) noexcept
+    template<std::size_t Index, typename ...Ts>
+    constexpr const tuple_element_t<Index, tuple<Ts ...>> &&
+        get (const tuple<Ts ...> &&t) noexcept
     {
-        return std::forward<const tuple_element_t<Index, Tuple>> (
+        return std::forward<const tuple_element_t<Index, tuple<Ts ...>>> (
             t.template _shrink<Index> ()._head ());
     }
 
@@ -362,11 +362,8 @@ namespace bot {
             static_assert(!found_twice, "duplicate type in bot::get");
         };
 
-        template<typename Type, std::size_t Index, typename Tuple>
-        struct safe_type_index;
-
         template<typename Type, std::size_t Index, typename ...Ts>
-        struct safe_type_index<Type, Index, tuple<Ts ...>> {
+        struct safe_type_index {
         private:
             static constexpr auto not_found =
                 type_index<Type, Index, Ts ...>::value == -1;
@@ -377,28 +374,26 @@ namespace bot {
                 0 : type_index<Type, Index, Ts ...>::value;
         };
 
-        template<typename Type, std::size_t Index, typename Tuple>
+        template<typename Type, std::size_t Index, typename ...Ts>
         constexpr auto type_index_v =
-            safe_type_index<Type, Index, Tuple>::value;
+            safe_type_index<Type, Index, Ts ...>::value;
     }
 
-    template<typename Type, typename Tuple>
-    constexpr Type &get (Tuple &t) noexcept {
-        return get<detail::type_index_v<Type, 0, Tuple>> (t);
+    template<typename Type, typename ...Ts>
+    constexpr Type &get (tuple<Ts ...> &t) noexcept {
+        return get<detail::type_index_v<Type, 0, Ts ...>> (t);
     }
-    template<typename Type, typename Tuple>
-    constexpr const Type &get (const Tuple &t) noexcept {
-        return get<detail::type_index_v<Type, 0, Tuple>> (t);
+    template<typename Type, typename ...Ts>
+    constexpr const Type &get (const tuple<Ts ...> &t) noexcept {
+        return get<detail::type_index_v<Type, 0, Ts ...>> (t);
     }
-    template<typename Type, typename Tuple>
-    constexpr Type &&get (Tuple &&t) noexcept {
-        return get<detail::type_index_v<Type, 0, Tuple>> (
-            std::forward<Tuple> (t));
+    template<typename Type, typename ...Ts>
+    constexpr Type &&get (tuple<Ts ...> &&t) noexcept {
+        return get<detail::type_index_v<Type, 0, Ts ...>> (std::move (t));
     }
-    template<typename Type, typename Tuple>
-    constexpr const Type &&get (const Tuple &&t) noexcept {
-        return get<detail::type_index_v<Type, 0, Tuple>> (
-            std::forward<const Tuple> (t));
+    template<typename Type, typename ...Ts>
+    constexpr const Type &&get (const tuple<Ts ...> &&t) noexcept {
+        return get<detail::type_index_v<Type, 0, Ts ...>> (std::move (t));
     }
 
     /// swap
@@ -431,7 +426,7 @@ namespace bot {
         return Ret { std::forward<Ts> (args)... };
     }
 
-    /// tie && ignore
+    /// tie & ignore
 
     template<typename ...Ts>
     constexpr tuple<Ts &...> tie (Ts &...args) noexcept {

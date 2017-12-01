@@ -295,6 +295,18 @@ int main (int argc, char *argv[])
         bot::get<0> (bot_ref_tuple)
     );
 
+    std::get<0> (std::tuple<int &> (ref_int)) = 5;
+    assert (
+        std::get<0> (std_ref_tuple) ==
+        bot::get<0> (bot_ref_tuple)
+    );
+
+    bot::get<0> (bot::tuple<int &> (ref_int)) = 6;
+    assert (
+        std::get<0> (std_ref_tuple) ==
+        bot::get<0> (bot_ref_tuple)
+    );
+
     // cref
     assert (
         std::get<0> (std_const_single_tuple) ==
@@ -340,13 +352,25 @@ int main (int argc, char *argv[])
         bot::get<int &> (bot_ref_tuple)
     );
 
-    std::get<0> (std_ref_tuple) = 3;
+    std::get<int &> (std_ref_tuple) = 3;
     assert (
         std::get<int &> (std_ref_tuple) ==
         bot::get<int &> (bot_ref_tuple)
     );
 
-    bot::get<0> (bot_ref_tuple) = 4;
+    bot::get<int &> (bot_ref_tuple) = 4;
+    assert (
+        std::get<int &> (std_ref_tuple) ==
+        bot::get<int &> (bot_ref_tuple)
+    );
+
+    std::get<int &> (std::tuple<int &> (ref_int)) = 5;
+    assert (
+        std::get<int &> (std_ref_tuple) ==
+        bot::get<int &> (bot_ref_tuple)
+    );
+
+    bot::get<int &> (bot::tuple<int &> (ref_int)) = 6;
     assert (
         std::get<int &> (std_ref_tuple) ==
         bot::get<int &> (bot_ref_tuple)
@@ -519,7 +543,7 @@ int main (int argc, char *argv[])
         bot::get<0> (bot_non_ref_made_tuple)
     );
 
-    /// tie && ignore
+    /// tie & ignore
 
     int std_int, bot_int;
     double std_double, bot_double;

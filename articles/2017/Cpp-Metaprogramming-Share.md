@@ -280,7 +280,7 @@ ORDER BY age
 
 ---
 
-## Q&A
+## Q & A
 
 [align-center]
 

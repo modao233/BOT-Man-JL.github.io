@@ -359,6 +359,9 @@ tuple_element<I, tuple<Ts ...>>::type &get (
 
 👉 完整测试：[`test_tuple.cpp`](Inside-Cpp-Tuple/test_tuple.cpp)
 
+👉 [延伸学习](https://shaharmike.com/cpp/naive-std-function/)：
+[`std_function.cpp`](Inside-Cpp-Tuple/std_function.cpp)
+
 <br />
 <br />
 <br />

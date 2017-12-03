@@ -11,69 +11,17 @@
 
 namespace bot {
 
-    /// tuple
-    template<typename ...Ts>
-    class tuple;
+    /// tuple_element (forward)
 
-    /// operators
-    template<typename ...Ts, typename ...Us>
-    constexpr bool operator== (const tuple<Ts ...> &, const tuple<Us ...> &);
-    template<typename ...Ts, typename ...Us>
-    constexpr bool operator!= (const tuple<Ts ...> &, const tuple<Us ...> &);
-    template<typename ...Ts, typename ...Us>
-    constexpr bool operator< (const tuple<Ts ...> &, const tuple<Us ...> &);
-    template<typename ...Ts, typename ...Us>
-    constexpr bool operator<= (const tuple<Ts ...> &, const tuple<Us ...> &);
-    template<typename ...Ts, typename ...Us>
-    constexpr bool operator> (const tuple<Ts ...> &, const tuple<Us ...> &);
-    template<typename ...Ts, typename ...Us>
-    constexpr bool operator>= (const tuple<Ts ...> &, const tuple<Us ...> &);
-
-    /// tuple_size
-    template<typename Tuple>
-    struct tuple_size;
-    template<typename Tuple>
-    constexpr std::size_t tuple_size_v = tuple_size<Tuple>::value;
-
-    /// tuple_element
     template<std::size_t Index, typename Tuple>
     struct tuple_element;
     template<std::size_t Index, typename Tuple>
     using tuple_element_t = typename tuple_element<Index, Tuple>::type;
 
-    /// get (by index)
-    template<std::size_t Index, typename ...Ts>
-    constexpr tuple_element_t<Index, tuple<Ts ...>> &
-        get (tuple<Ts ...> &) noexcept;
-    template<std::size_t Index, typename ...Ts>
-    constexpr const tuple_element_t<Index, tuple<Ts ...>> &
-        get (const tuple<Ts ...> &) noexcept;
-    template<std::size_t Index, typename ...Ts>
-    constexpr tuple_element_t<Index, tuple<Ts ...>> &&
-        get (tuple<Ts ...> &&) noexcept;
-    template<std::size_t Index, typename ...Ts>
-    constexpr const tuple_element_t<Index, tuple<Ts ...>> &&
-        get (const tuple<Ts ...> &&) noexcept;
-
-    /// get (by type)
-    template<typename Type, typename ...Ts>
-    constexpr Type &
-        get (tuple<Ts ...> &) noexcept;
-    template<typename Type, typename ...Ts>
-    constexpr const Type &
-        get (const tuple<Ts ...> &) noexcept;
-    template<typename Type, typename ...Ts>
-    constexpr Type &&
-        get (tuple<Ts ...> &&) noexcept;
-    template<typename Type, typename ...Ts>
-    constexpr const Type &&
-        get (const tuple<Ts ...> &&) noexcept;
-
-    /// swap
-    template<typename ...Ts>
-    void swap (tuple<Ts...> &, tuple<Ts...> &) noexcept;
-
     /// tuple
+
+    template<typename ...Ts>
+    class tuple;
 
     namespace detail {
         template<std::size_t Index, typename Tuple>
@@ -93,10 +41,6 @@ namespace bot {
             using type = tuple<>;
         };
 
-        template<typename ...Ts>
-        using head_t = typename tuple_element<0, tuple<Ts ...>>::type;
-        template<typename ...Ts>
-        using tail_t = typename shrink<1, tuple<Ts ...>>::type;
         template<std::size_t Index, typename ...Ts>
         using shrink_t = typename shrink<Index, tuple<Ts ...>>::type;
     }
@@ -236,6 +180,11 @@ namespace bot {
     //  - _head ()
     //  - _tail ()
 
+    template<typename ...Ts, typename ...Us>
+    constexpr bool operator== (const tuple<Ts ...> &, const tuple<Us ...> &);
+    template<typename ...Ts, typename ...Us>
+    constexpr bool operator< (const tuple<Ts ...> &, const tuple<Us ...> &);
+
     template<> constexpr bool operator== <> (
         const tuple<> &, const tuple<> &) {
         return true;
@@ -251,16 +200,16 @@ namespace bot {
         return lhs._head () == rhs._head () && lhs._tail () == rhs._tail ();
     }
     template<typename ...Ts, typename ...Us>
-    constexpr bool operator!= (
-        const tuple<Ts ...> &lhs, const tuple<Us ...> &rhs) {
-        return !(lhs == rhs);
-    }
-
-    template<typename ...Ts, typename ...Us>
     constexpr bool operator< (
         const tuple<Ts ...> &lhs, const tuple<Us ...> &rhs) {
         return lhs._head () < rhs._head () || (
             !(lhs._head () < rhs._head ()) && lhs._tail () < rhs._tail ());
+    }
+
+    template<typename ...Ts, typename ...Us>
+    constexpr bool operator!= (
+        const tuple<Ts ...> &lhs, const tuple<Us ...> &rhs) {
+        return !(lhs == rhs);
     }
     template<typename ...Ts, typename ...Us>
     constexpr bool operator>= (
@@ -280,9 +229,15 @@ namespace bot {
 
     /// tuple_size
 
+    template<typename Tuple>
+    struct tuple_size;
+
     template<typename ...Ts>
     struct tuple_size<tuple<Ts ...>> :
         public std::integral_constant<std::size_t, sizeof... (Ts)> {};
+
+    template<typename Tuple>
+    constexpr std::size_t tuple_size_v = tuple_size<Tuple>::value;
 
     /// tuple_element
 
@@ -510,9 +465,9 @@ namespace bot {
         ), std::forward<Tuples> (ts) ...);
     }
 
-    // Improvement:
-    //  It's a more efficent to expand all params at a time
-    //  Ret { std::get<Js>(std::get<Is>(std::forward<Tuples>(tpls)))... };
+    // Improvement (MSVC only):
+    //   It's a more efficent to expand all params at a time
+    //   Ret { std::get<Js>(std::get<Is>(std::forward<Tuples>(tpls)))... };
     // See:
     // https://github.com/ericniebler/meta/blob/master/example/tuple_cat.cpp
     // http://blogs.microsoft.co.il/sasha/2015/02/22/implementing-tuple-part-7

@@ -12,7 +12,16 @@
 #include <assert.h>
 #include <stddef.h>
 
-// More about 'const &&'
+// tuple in libc++:
+// https://llvm.org/svn/llvm-project/libcxx/trunk/include/tuple
+
+// tuple in libstdc++:
+// https://gcc.gnu.org/svn/gcc/trunk/libstdc++-v3/include/std/tuple
+
+// More about universal reference:
+// https://isocpp.org/blog/2012/11/universal-references-in-c11-scott-meyers
+
+// More about 'const &&':
 // https://codesynthesis.com/~boris/blog/2012/07/24/const-rvalue-references
 
 int main (int argc, char *argv[])

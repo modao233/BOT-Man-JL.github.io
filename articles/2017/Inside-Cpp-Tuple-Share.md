@@ -82,10 +82,10 @@ class tuple : Types... {};
 
 ```
 template <typename T>
-struct _tuple_elem { T value_; };
+struct _tuple_leaf { T value_; };
 
 template <typename... Types>
-class tuple : _tuple_elem<Types>... {};
+class tuple : _tuple_leaf<Types>... {};
 ```
 
 - `tuple<int, int>`
@@ -97,14 +97,14 @@ class tuple : _tuple_elem<Types>... {};
 
 ```
 template <size_t, typename T>
-struct _tuple_elem { T value_; };
+struct _tuple_leaf { T value_; };
 
 template <typename S, typename... Ts>
 struct _tuple;
 
 template <size_t... Is, typename... Ts>
 struct _tuple<index_sequence<Is...>, Ts...>
-  : _tuple_elem<Is, Ts>... {};
+  : _tuple_leaf<Is, Ts>... {};
 ```
 
 ---
@@ -118,9 +118,8 @@ class tuple : _tuple<
   Ts...> {};
 ```
 
-- `_tuple_elem<0, int>`
-- `_tuple_elem<1, int>`
-- `_tuple_elem<2, int>`
+- [libc++ (clang)](https://llvm.org/svn/llvm-project/libcxx/trunk/include/tuple)
+- `((_tuple<Index, Type> &) t)._val`
 
 ---
 
@@ -137,7 +136,7 @@ class tuple<Head, Tails ...> {
 };
 ```
 
-- `tuple._tails._tails._tails._head`
+- `t._tails._tails._tails._head`
 
 ---
 
@@ -149,12 +148,25 @@ class tuple<>;
 
 template<typename Head, typename ...Tails>
 class tuple<Head, Tails ...>
-  : tuple<Tails ...> {
-  Head _val;
-};
+  : tuple<Tails ...> { Head _val; };
 ```
 
-- `((tuple<Base> &) tuple)._val`
+- MSVC STL
+- `((tuple<BaseType> &) t)._val`
+
+## 存储实现
+
+```
+template<>
+class tuple<>;
+
+template<typename Head, typename ...Tails>
+class tuple<Head, Tails ...>
+  : tuple<Tails ...>, _leaf<Head> {};
+```
+
+- [libstdc++ (gcc)](https://gcc.gnu.org/svn/gcc/trunk/libstdc++-v3/include/std/tuple)
+- `((_leaf<BaseHead> &) ((tuple<BaseType> &) t)._val`
 
 ---
 

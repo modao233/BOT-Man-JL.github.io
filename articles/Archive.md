@@ -62,4 +62,5 @@
 ## 其他 | Miscellaneous
 
 - [搜集的哲言](misc/Quotes.md)
+- [读过的书](misc/Books-Read.md)
 - [二维码生成器](misc/QR-Code-Generator.md)

@@ -40,7 +40,8 @@
 
 ## 经历
 
-- 2017 - 参加 **腾讯 QQ 浏览器** 实习，开发 后台服务 | **Node.js**；
+- 2017 - 参加 **腾讯 QQ 浏览器** 实习，Windows 客户端开发 | **Win32**；
+- 2017 - 参加 **腾讯 QQ 浏览器** 实习，后台开发 | **Node.js**；
 - 2017 - 参加 大学生创新创业实践，开发 [听音识谱应用](https://github.com/YuJianghao/YouPu) [(DEMO)](https://bot-man-jl.github.io/YouPu) | **乐理编程，机器学习**；
 - 2017 – **发表论文** [_Clustering Based Energy-Aware Virtual Network Embedding_](http://journals.sagepub.com/doi/full/10.1177/1550147717726714)，由 Dr. Zhongbao Zhang 指导 | **图聚类，虚拟网络映射**；
 - 2016 – 参加 [微软 (MSRA) 菁英计划](https://studentclub.msra.cn/project/97)；

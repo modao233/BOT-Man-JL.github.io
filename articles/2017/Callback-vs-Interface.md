@@ -35,7 +35,7 @@
 
 ### 方案
 
-而这次对观察者模式的实践里，我遇到了一个问题：定义并继承 **`IObserver` 接口**，还是直接使用 **函数对象**，存储用于 _model 的更新通知 view 修改展示的内容_ 的回调执行的内容呢？
+而这次对观察者模式的实践里，我遇到了一个问题：通过继承 **`IObserver` 接口**，还是直接使用 **函数对象**，来表示回调执行的内容呢？
 
 #### 采用接口
 
@@ -195,7 +195,7 @@ public:
 
 为了让 C++ 的回调机制更易于使用，经过多年的思考，人们终于设计出了 **函数适配器** _(function adaptor)_。最基本的有两个：
 
-- `std::bind` 通过绑定参数，实现参数的 [部分应用](https://en.wikipedia.org/wiki/Partial_application)，从而改变函数的签名
+- `std::bind` 通过绑定参数，实现函数的 [部分应用](https://en.wikipedia.org/wiki/Partial_application)，从而改变函数的签名
 - `std::function` 装载 全局函数 _(global function)_、成员函数 _(member function)_、函数对象 _(function object, functor)_、匿名函数 _(anonymous function, lambda)_ 等可调用的东西；抹除装载对象的类型，只保留函数的签名
 
 很多人会好奇：`std::function` 是怎么实现的？这里有一个 [简单的实现原理](https://shaharmike.com/cpp/naive-std-function/)。（[`std_function.cpp`](Inside-Cpp-Tuple/std_function.cpp)）

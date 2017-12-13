@@ -45,6 +45,7 @@ private:
 };
 
 #include <iostream>
+#include <functional>
 
 void func () {
     std::cout << "func" << std::endl;
@@ -56,6 +57,12 @@ struct functor {
     }
 };
 
+struct strct {
+    void mem_func () {
+        std::cout << "mem_func" << std::endl;
+    }
+};
+
 int main () {
     naive_function<void ()> f;
     f = func;
@@ -63,6 +70,8 @@ int main () {
     f = functor ();
     f ();
     f = [] { std::cout << "lambda" << std::endl; };
+    f ();
+    f = std::bind (&strct::mem_func, new strct);
     f ();
     return 0;
 }

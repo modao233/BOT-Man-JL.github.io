@@ -6,7 +6,7 @@
 
 #### 2017
 
-- [回调对象 vs 回调接口](2017/Callback-vs-Interface.md)
+- [回调 vs 接口](2017/Callback-vs-Interface.md)
 - [令人头疼的 宏定义 污染](2017/Macro-Pollution.md)
 - [关于 写代码 的几点思考](2017/Thinking-Coding.md)
 - [最简单的 分层窗口 样例](2017/Minimal-Layered-Window-Example.md)

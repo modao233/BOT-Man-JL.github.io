@@ -67,7 +67,7 @@ int main () {
     naive_function<void ()> f;
     f = func;
     f ();
-    f = std::bind (&container::mem_func, new strct);
+    f = std::bind (&container::mem_func, new container);
     f ();
     f = functor ();
     f ();

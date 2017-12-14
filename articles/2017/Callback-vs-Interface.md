@@ -174,8 +174,9 @@ void View::SetObserver() {
 - 答主支持使用 **回调** 的方式
 - 使用 **接口** 的最大问题在于：需要定义 `IObservable` / `IObserver` 接口，并把原有的 类层次结构 _(class hierarchy)_ 耦合到新增的接口里 _(your type must be coupled to this hierarchy)_
 - 而使用 **回调** 借助 `std::function`，可以装载 全局函数 _(global function)_、成员函数 _(member function)_、函数对象 _(function object, functor)_、匿名函数 _(anonymous function, lambda)_ 等，避免了各种破坏原有结构的接口
+- C++ 标准库中：几乎所有的算法都是基于迭代器的，但没有统一的迭代器接口；比较两个对象也不需要标准的 `IComparable` 接口
 
-对于回调者，它关心的往往是一个 [**可调用** (callable)](http://en.cppreference.com/w/cpp/concept/Callable) 的东西，只关注它的 **参数、返回值**，而不关心调用的东西具体是什么。所以，
+对于回调者，它关心的往往是一个 [**可调用** _(callable)_](http://en.cppreference.com/w/cpp/concept/Callable) 的东西，只关注它的 **参数、返回值**，而不关心调用的东西具体是什么。所以，
 
 > 回调是 **面向可调用实体** 的回调，而不是 **面向接口** 的回调！
 
@@ -185,7 +186,7 @@ void View::SetObserver() {
 
 ### 脚本语言中的回调
 
-例如，在 JavaScript 里，回调、闭包是一个最基本的概念。
+例如，在 JavaScript 里，**回调、[闭包](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures)** 是一个最基本的概念。
 
 在网页里，我们常常使用回调来处理用户的输入：
 
@@ -203,12 +204,18 @@ void View::SetObserver() {
 
 ### C++ 中的回调
 
-然而对于不做类型检查的脚本语言来说，回调就是一个巨大的福利。而 **强类型、强检查** 的 C++ 语言，在 C++ 11 之前，只能使用 C 函数指针的方式实现回调。
+然而对于 **不做类型检查、原生支持内存回收** 的脚本语言来说，回调就是一个巨大的福利。而对于 **强类型、强检查** 的 C++ 语言而言，回调最大的问题在于如何 **存储可调用实体**。主要有两个难点：
 
-为了让 C++ 的回调机制更易于使用，经过多年的思考，人们终于设计出了 **函数适配器** _(function adaptor)_。最基本的有两个：
+- 可调用实体构造时，需要捕获并保存一些变量（构成 **[闭包](https://en.wikipedia.org/wiki/Closure_%28computer_programming%29)**），要求这些变量的 **生命周期** 持续到 **回调时刻**
+- 不同的可调用实体往往有 **不同的类型**，而且 **不能相互转换**
 
-- `std::bind` 通过绑定参数，实现函数的 [部分应用](https://en.wikipedia.org/wiki/Partial_application)，从而 **修改函数的签名**
-- `std::function` 装载 全局函数 _(global function)_、成员函数 _(member function)_、函数对象 _(function object, functor)_、匿名函数 _(anonymous function, lambda)_ 等可调用的东西；**抹除装载对象的类型**，**保留函数的签名**
+前一个问题可以通过 在堆上分配空间（使用 new 定义对象），或 同步回调（在可调用对象生命周期结束前完成回调）解决。为了解决后一个问题，经过多年的思考，人们利用模板的奇技淫巧设计出了 **函数适配器** _(function adaptor)_。最核心的有三个：
+
+- `std::function`
+  - 装载不同类型的 **可调用实体** 全局函数 _(global function)_、成员函数 _(member function)_、函数对象 _(function object, functor)_、匿名函数 _(anonymous function, lambda)_ 等
+  - **抹除** 装载实体的 **类型**，**保留** 函数的 **签名**
+- `std::bind` 通过绑定参数，实现函数参数的 **[部分应用](https://en.wikipedia.org/wiki/Partial_application)**，从而 **修改** 函数的 **签名**
+- `std::mem_fn` 将 **类成员函数** 转换为以类对象为第一个参数的 **普通函数**，也 **修改了** 函数的 **签名**
 
 很多人会好奇：`std::function` 是怎么实现的？这里有一个 [简单的实现原理](https://shaharmike.com/cpp/naive-std-function/)。（测试代码：[`std_function.cpp`](Callback-vs-Interface/std_function.cpp)）
 
@@ -216,6 +223,8 @@ void View::SetObserver() {
 
 ~~由于最近太忙了，这篇文章准备了大半个月。~~
 
-本文仅是我对回调和接口的一些理解。如果有什么问题，**欢迎交流**。😄
+感谢 [@WalkerJG](https://github.com/WalkerJG) 提出的修改意见。
+
+如果有什么问题，**欢迎交流**。😄
 
 Delivered under MIT License &copy; 2017, BOT Man

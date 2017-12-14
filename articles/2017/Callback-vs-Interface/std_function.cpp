@@ -51,15 +51,15 @@ void func () {
     std::cout << "func" << std::endl;
 }
 
-struct functor {
-    void operator()() {
-        std::cout << "functor" << std::endl;
+struct container {
+    void mem_func () {
+        std::cout << "mem_func" << std::endl;
     }
 };
 
-struct strct {
-    void mem_func () {
-        std::cout << "mem_func" << std::endl;
+struct functor {
+    void operator()() {
+        std::cout << "functor" << std::endl;
     }
 };
 
@@ -67,11 +67,11 @@ int main () {
     naive_function<void ()> f;
     f = func;
     f ();
+    f = std::bind (&container::mem_func, new strct);
+    f ();
     f = functor ();
     f ();
     f = [] { std::cout << "lambda" << std::endl; };
-    f ();
-    f = std::bind (&strct::mem_func, new strct);
     f ();
     return 0;
 }

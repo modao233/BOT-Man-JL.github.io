@@ -22,7 +22,7 @@
 - 如果左边（或右边）的某个快捷方式被删除，右边（左边）展示的项目会对应消失
 - 也就是，**同一套数据模型** 在 **多处展示**，某一处对数据模型的修改，需要 **同步** 到其他各处
 
-![Start-Menu](Callback-Object-vs-Interface/Start-Menu.png)
+![Start-Menu](Callback-vs-Interface/Start-Menu.png)
 
 为了实现这个功能，我们重构了相关的代码：
 
@@ -35,7 +35,7 @@
 
 ### 方案
 
-而这次对观察者模式的实践里，我遇到了一个问题：通过继承 **`IObserver` 接口**，还是直接使用 **函数对象**，来表示回调执行的内容呢？
+而在这次观察者模式的实践中，我遇到了一个问题：通过继承 **`IObserver` 接口**，还是直接使用 **回调函数对象**，来执行 model 对 view 的通知呢？
 
 #### 采用接口
 
@@ -93,24 +93,25 @@ public:
 
 - 针对每个 view 定义独立的继承 `IObserver` 的类
 - 把这个类的对象，作为成员变量组合到 view 中
+- 从而避免把 `IObserver` 耦合到已有的 view 类上
 
 ``` cpp
-class ViewObserver;
-
-class View {
-    std::unique_ptr<ViewObserver> _observer;
-public:
-    // init/register/unregister _observer
-};
-
-class ViewObserver : public IObserver {
+class ObserverForView : public IObserver {
     View *_view;
 public:
-    ViewObserver (View *view)
+    ObserverForView (View *view)
         : _view (view) {}
     void OnNotified () override {
         // handle model update using _view
     }
+};
+
+class View {
+    std::unique_ptr<ObserverForView> _observer;
+public:
+    View () : _observer (new ObserverForView { this }) {}
+
+    // register/unregister _observer at ctor/dtor
 };
 ```
 
@@ -130,11 +131,10 @@ public:
 };
 ```
 
-- 给 model 注册一个 `std::function` 对象
-- 在 `std::function` 对象内实现收到通知的处理逻辑
+- 给 model 注册一个 `std::function` 对象，在对象内实现处理 model 通知的逻辑
 - 而这个例子中的 `std::function` 对象
-  - 使用 `std::bind` 绑定成员函数得到
-  - 将具体的处理逻辑委托到成员函数内
+  - 利用 `std::bind` 绑定 `View` 的成员函数得到
+  - 将具体的处理逻辑委托到成员函数 `OnNotified` 内实现
 
 ``` cpp
 class View {
@@ -142,12 +142,24 @@ class View {
 public:
     View () : _observer (new ModelObserver {
         std::bind (&View::OnNotified, this) }) {}
-    // init/register/unregister _observer
+
+    // register/unregister _observer at ctor/dtor
 
     void OnNotified () {
         // handle model update using _view
     }
 };
+```
+
+- 如果不希望引入新的成员函数，可以使用 lambda 表达式
+
+``` cpp
+void View::SetObserver() {
+    auto onNotified = [this] {
+        // handle model update using _view
+    };
+    _observer.reset (new ModelObserver { onNotified });
+}
 ```
 
 ## 回调 vs 接口
@@ -159,11 +171,11 @@ public:
 
 [这个回答](https://stackoverflow.com/questions/22362691/pros-cons-of-a-callback-stdfunction-stdbind-vs-an-interface-abstract-cl/22366369#22366369) 讲的很好：
 
-- 答主支持使用 `std::function` 的方式
+- 答主支持使用 **回调** 的方式
 - 使用 **接口** 的最大问题在于：需要定义 `IObservable` / `IObserver` 接口，并把原有的 类层次结构 _(class hierarchy)_ 耦合到新增的接口里 _(your type must be coupled to this hierarchy)_
 - 而使用 **回调** 借助 `std::function`，可以装载 全局函数 _(global function)_、成员函数 _(member function)_、函数对象 _(function object, functor)_、匿名函数 _(anonymous function, lambda)_ 等，避免了各种破坏原有结构的接口
 
-对于回调者，它关心的往往是一个 [**可调用** (callable)](http://en.cppreference.com/w/cpp/concept/Callable) 的东西，关注它的参数、返回值，而不关心调用的东西具体是什么。所以，
+对于回调者，它关心的往往是一个 [**可调用** (callable)](http://en.cppreference.com/w/cpp/concept/Callable) 的东西，只关注它的 **参数、返回值**，而不关心调用的东西具体是什么。所以，
 
 > 回调是 **面向可调用实体** 的回调，而不是 **面向接口** 的回调！
 
@@ -195,10 +207,10 @@ public:
 
 为了让 C++ 的回调机制更易于使用，经过多年的思考，人们终于设计出了 **函数适配器** _(function adaptor)_。最基本的有两个：
 
-- `std::bind` 通过绑定参数，实现函数的 [部分应用](https://en.wikipedia.org/wiki/Partial_application)，从而改变函数的签名
-- `std::function` 装载 全局函数 _(global function)_、成员函数 _(member function)_、函数对象 _(function object, functor)_、匿名函数 _(anonymous function, lambda)_ 等可调用的东西；抹除装载对象的类型，只保留函数的签名
+- `std::bind` 通过绑定参数，实现函数的 [部分应用](https://en.wikipedia.org/wiki/Partial_application)，从而 **修改函数的签名**
+- `std::function` 装载 全局函数 _(global function)_、成员函数 _(member function)_、函数对象 _(function object, functor)_、匿名函数 _(anonymous function, lambda)_ 等可调用的东西；**抹除装载对象的类型**，**保留函数的签名**
 
-很多人会好奇：`std::function` 是怎么实现的？这里有一个 [简单的实现原理](https://shaharmike.com/cpp/naive-std-function/)。（[`std_function.cpp`](Inside-Cpp-Tuple/std_function.cpp)）
+很多人会好奇：`std::function` 是怎么实现的？这里有一个 [简单的实现原理](https://shaharmike.com/cpp/naive-std-function/)。（测试代码：[`std_function.cpp`](Callback-vs-Interface/std_function.cpp)）
 
 ## 写在最后 [no-number]
 

@@ -74,7 +74,7 @@ int main () {
     f (i);
     f = std::bind (&container::mem_func, new container, std::placeholders::_1);
     f (i);
-    f = functor ();
+    f = functor {};
     f (i);
     f = [&i] (int) { std::cout << ++i << " lambda " << std::endl; };
     f (i);

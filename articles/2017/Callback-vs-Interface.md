@@ -187,7 +187,7 @@ void View::SetObserver() {
 
 > 回调是 **面向可调用实体** 的回调，而不是 **面向特定接口** 的回调！
 
-另外，使用接口的方式还有一个问题：不同接口直接不能相互转换。例如，我们定义了一个接受鼠标点击事件的接口 `IMouseClickHandler`。
+另外，使用接口的方式还有一个问题：不同接口之间不能相互转换。例如，我们定义了一个接受鼠标点击事件的接口 `IMouseClickHandler`。
 
 ``` cpp
 class IMouseClickHandler {

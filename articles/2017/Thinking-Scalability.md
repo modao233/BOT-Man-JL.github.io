@@ -45,7 +45,7 @@
 - 改用 [json 格式](https://en.wikipedia.org/wiki/JSON)实现数据协议。
   - json 数据中包含了元数据，可以利用元数据对数据进行描述，这样利于扩展；例如，我们不再规定字段位置、顺序，新增业务的时候只需要加上新的字段就可以了。
   - json 在 C++ 中有着[很好用的库](https://github.com/nlohmann/json)，不需要编写大量代码就可以生成 / 解析 json 了。
-- 改用 控制反转 方式注入业务逻辑处理器。
+- 改用 [控制反转](https://martinfowler.com/bliki/InversionOfControl.html) 方式注入业务逻辑处理器。
   - 将业务逻辑的请求转发给实际的处理器，让它*想怎么搞就怎么搞吧*。😂
   - 这样实现了**低耦合** **可扩展**的服务器设计。😊
 

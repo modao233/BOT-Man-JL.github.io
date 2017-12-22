@@ -14,7 +14,7 @@
 
 这次的故事 ~~（血泪教训）~~ **很有意思**，先从 **大家都熟知的** 一个 C++ 的和一个 Windows 的坑讲起。
 
-如果你已经很熟悉这两个问题了，可以直接阅读 [sec|两件事同时发生]。
+如果你已经很熟悉这两个问题了，可以直接阅读 [sec|两件事结合在一起]。
 
 ### 不要在构造、析构时调用虚函数
 
@@ -82,42 +82,9 @@ class Derived : Base {
 
 除了互斥资源等内核对象外，常见的还有很多非内核对象，例如窗口、字体等。这些资源不释放虽然不会导致很严重的问题，但是会发生资源泄露。如果资源的数量是无限的（例如我们的机器有无限的内存、无限的存储空间），那么泄露也无所谓；但是在资源有限的情况下，我们需要考虑适时回收（释放）不在使用的资源。
 
-为了方便编写代码，C++ 提出一个 [资源获取即初始化 _(Resource Acquisition Is Initialization, RAII)_](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization) 的设计思想。
+为了方便编写代码，C++ 提出一个 [资源获取即初始化 _(Resource Acquisition Is Initialization, RAII)_](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization) 的设计思想。（最常见的是智能指针 [`unique_ptr`](http://en.cppreference.com/w/cpp/memory/unique_ptr) —— 让我们免受内存泄露和悬垂引用的危害）
 
-但是，释放资源也需要在一个合适的时机进行。例如，Windows 提供的 `DestroyWindow` 可以发送 `WM_DESTROY` 消息，销毁窗口对象，释放窗口资源，并让持有窗口的线程退出。
-
-然而，需要注意：
-
-- `DestroyWindow` 是一个同步调用，例如下面的消息循环处理代码
-  - 在处理 `WM_CLOSE` 时调用了 `DestroyWindow` 系统函数
-  - 系统会再进入这个消息循环处理 `WM_DESTROY`
-  - 处理 `WM_DESTROY` 时，调用 `PostQuitMessage`，通知消息循环停止
-- 在 `DestroyWindow` 调用结束后，**代码会继续往下运行**（注意这个调用顺序）
-- 在 `DestroyWindow` 之后，消息循环里 **没处理的消息** 全部会被 **丢弃**（代码如果不注意，可能有资源泄露）
-
-``` cpp
-LRESULT CALLBACK WndProc (
-    HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
-    case WM_POST_BEFORE_DESTROY:
-        break;    // never hit, message loop quits after WM_QUIT
-    case WM_CLOSE:
-        PostMessageW (hwnd, WM_POST_BEFORE_DESTROY, 0, 0);
-        DestroyWindow (hwnd);                               // 1
-        break;                                              // 4
-    case WM_DESTROY:
-        PostQuitMessage (0);                                // 2
-        break;                                              // 3
-    default:
-        return DefWindowProc (hwnd, msg, wParam, lParam);
-    }
-    return 0;
-}
-```
-
-## 两件事同时发生
+## 两件事结合在一起
 
 正如马克·吐温所说：让你陷入困境的不是你不知道的，而是你知道的认为不会坑你的东西。
 
@@ -151,11 +118,11 @@ public:
 };
 ```
 
-- 定义构造函数
+- 定义构造函数，申请资源
   - 根据 `rect` 创建一个特定位置、大小的窗口
-- 定义虚析构函数，参考了 RAII 的思想
+- 定义虚析构函数，释放资源
   - 如果窗口资源没有释放，调用 `DestroyWindow` 销毁窗口
-- 定义 `OnActivate` 函数处理 `WM_ACTIVATE` 消息
+- 定义 `OnActivate` 函数，处理 `WM_ACTIVATE` 消息
   - 如果是窗口失去焦点，调用纯虚函数 `HideMenu`，让派生类处理
 
 **2. 定义一个 `MyMenu` 派生类**
@@ -206,6 +173,8 @@ public:
 - **如果窗口没有显示**，`DestroyWindow` 就不会隐式的调用 `OnActivate` 函数，也就不会发生崩溃了！
 
 这个问题的出现非常让人难以察觉：没人会想到析构的时候会调用 `OnActivate` 函数！
+
+甚至从直观上看，这段代码使用了 RAII 的风格处理了资源的申请和释放 —— 构造时创建窗口、析构时销毁窗口 —— 可以避免很多的资源泄露问题。
 
 ## 写在最后 [no-number]
 

@@ -4,6 +4,10 @@
 
 ## 思考 | Thinking
 
+#### 2018
+
+- [资源管理小记](2018/Resource-Management.md)
+
 #### 2017
 
 - [C++ / Windows 的一个大坑](2017/Cpp-Windows-Crash.md)

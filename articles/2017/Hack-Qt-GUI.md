@@ -2,7 +2,8 @@
 
 > 2017/6/17
 >
-> “没有人能成为大师，所有人都是这条路上的学徒。” —— 匿名
+> We are all apprentices in a craft where no one ever becomes a master.
+ —— Ernest Hemingway
 
 [heading-numbering]
 

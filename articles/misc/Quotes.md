@@ -126,3 +126,6 @@
 120. 关于写作，时间是一个要紧事。你只要想写，时间一定是可以挤出来的。你打游戏有时间，追女孩有时间，学习、写作怎么也不应该没时间。问题的关键在于你对这件事的欲望有多深，或者说兴趣点有多高。——陈皓
 121. If you come to fame not understanding who you are, it will define who you are. —— Oprah Winfrey
 122. 适当欠些技术债，是贷款；而良好的设计，是投资。—— boyi
+123. 不理解或忽视技术债的人不是因为不懂技术，而是因为不敬畏时间的代价。——吴雪峰
+124. We are all apprentices in a craft where no one ever becomes a master.
+ —— Ernest Hemingway

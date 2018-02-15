@@ -1,5 +1,7 @@
 ﻿[align-right]
 
+[blockquote=border:none]
+
 > 关于 [BOT Frame](../README.md) | [BOT Mark](misc/BOT-Mark.md)
 
 ## 思考 | Thinking
@@ -44,6 +46,10 @@
 - [Virtual Network Embedding Algorithm Study](2017/Virtual-Network-Embedding-Study.md)
 
 ## 生活 | Life
+
+#### 2018
+
+- [旅行归来](2018/Back-from-a-Tour.md)
 
 #### 2017
 

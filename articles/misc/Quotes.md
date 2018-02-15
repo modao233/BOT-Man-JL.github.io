@@ -129,3 +129,4 @@
 123. 不理解或忽视技术债的人不是因为不懂技术，而是因为不敬畏时间的代价。——吴雪峰
 124. We are all apprentices in a craft where no one ever becomes a master.
  —— Ernest Hemingway
+125. Be nice to people on your way up because you'll meet them on your way down. —— Wilson Mizner

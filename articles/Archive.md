@@ -8,20 +8,16 @@
 
 #### 2018
 
-- [资源管理小记](2018/Resource-Management.md)
+- [资源管理 小记](2018/Resource-Management.md)
 
 #### 2017
 
-- [C++ / Windows 的一个大坑](2017/Cpp-Windows-Crash.md)
+- [C++ / Windows 的一个 大坑](2017/Cpp-Windows-Crash.md)
 - [回调 vs 接口](2017/Callback-vs-Interface.md)
 - [令人头疼的 宏定义 污染](2017/Macro-Pollution.md)
 - [关于 写代码 的几点思考](2017/Thinking-Coding.md)
 - [最简单的 分层窗口 样例](2017/Minimal-Layered-Window-Example.md)
 - [理解 观察者、中介者 模式](2017/Observer-Mediator-Explained.md)
-- Design Patterns Notes
-  - [Creational Patterns](2017/Design-Patterns-Notes-1.md)
-  - [Structural Patterns](2017/Design-Patterns-Notes-2.md)
-  - [Behavioral Patterns](2017/Design-Patterns-Notes-3.md)
 - [Node 单元测试的 Stub 总结](2017/Node-Test-Stub.md)
 - [两个提高 服务灵活性 的途径](2017/Improve-Flexibility.md)
 - [如何优雅的把 命令行界面 Hack 到 Qt 界面](2017/Hack-Qt-GUI.md)
@@ -44,6 +40,19 @@
 - [深入 C++ 元组 (tuple) 实现](2017/Inside-Cpp-Tuple-Share.md)
 - [浅谈 C++ 元编程](2017/Cpp-Metaprogramming-Share.md)
 - [Virtual Network Embedding Algorithm Study](2017/Virtual-Network-Embedding-Study.md)
+
+## 笔记 | Notes
+
+#### 2018
+
+- [Refactoring Notes](2018/Refactoring-Notes.md)
+
+#### 2017
+
+- Design Patterns Notes
+  - [Creational Patterns](2017/Design-Patterns-Notes-1.md)
+  - [Structural Patterns](2017/Design-Patterns-Notes-2.md)
+  - [Behavioral Patterns](2017/Design-Patterns-Notes-3.md)
 
 ## 生活 | Life
 

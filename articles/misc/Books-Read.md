@@ -11,12 +11,13 @@
 
 - Design Patterns: Elements of Reusable Object Oriented Software
 - Refactoring: Improving the Design of Existing Code
+- Implementation Patterns
 
 ## 技术
 
-- Programming Windows, 5th Edition
-- Windows via C/C++, 5th Edition（只读了一部分）
-- Windows Internals, 6th Edition（只读了一部分）
+- Programming Windows, 5th Edition（中文版）
+- Windows via C/C++, 5th Edition（中文版，部分）
+- Windows Internals, 6th Edition（部分）
 
 ## 课本
 

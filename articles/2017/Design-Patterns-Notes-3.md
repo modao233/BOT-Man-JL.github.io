@@ -218,6 +218,7 @@
 - vs. [sec|Strategy] Strategy
   - **Context** defer whole request to **State**
   - Provide several methods (series of behavior)
+  - Trigger transition to following state
   - like [&sect; Abstract Factory](Design-Patterns-Notes-1.md#Abstract-Factory)
 
 ### Strategy
@@ -253,6 +254,7 @@
 - vs. [sec|State] State
   - **Context** defer only algorithm behavior to **State**
   - Provide single method (single responsibility)
+  - Updated by others after construction
   - like [&sect; Factory Method](Design-Patterns-Notes-1.md#Factory-Method)
 - vs. [sec|Template Method] Template Method
   - Use delegation to inverse control (IOC)

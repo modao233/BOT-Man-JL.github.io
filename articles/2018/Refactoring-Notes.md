@@ -2,7 +2,7 @@
 
 > Reading in 2017/10 - 2018/2
 >
-> Small pieces in _Refactoring_
+> Digest of _Refactoring_
 
 ## [no-toc] [no-number] TOC
 

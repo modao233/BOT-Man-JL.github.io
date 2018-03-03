@@ -366,6 +366,7 @@
 - Internal iteration over non-uniform element
 - Solution to _double dispatch_
   - (type of **Element** bind with type of **Visitor** action dynamically)
+  - (**Element** dispatch firstly, **Visitor** dispatch secondly)
 
 #### [no-toc] [no-number] &sect; Comparison
 

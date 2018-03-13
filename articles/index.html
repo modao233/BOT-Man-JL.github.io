@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="/stylesheets/bot-frame.css">
     <!-- Math Support -->
     <link rel="stylesheet" href="/stylesheets/katex.min.css">
+    <!-- Highlight Support -->
+    <link rel="stylesheet" href="/stylesheets/vs.css">
     <style>
         .headerQuoteSec blockquote {
             padding: 0 0 0 15px;
@@ -94,6 +96,8 @@
     <!-- Math Support -->
     <script src="/javascripts/katex.min.js"></script>
     <script src="/javascripts/auto-render.min.js"></script>
+    <!-- Highlight Support -->
+    <script src="/javascripts/highlight.pack.js"></script>
     <!-- QR Code -->
     <script src="/javascripts/qrcode.js"></script>
     <script src="/javascripts/qrcode-svg.js"></script>
@@ -149,6 +153,12 @@
                     'script', 'noscript', 'style', 'textarea', 'pre', 'code'
                 ]
             });
+        }
+
+        // Render highlight
+        function renderHighlight() {
+            hljs.initHighlighting();
+            console.log('highlight');
         }
 
         // Load style from '?style, and add style tag to document
@@ -335,6 +345,7 @@
             }
 
             renderMath();
+            renderHighlight();
             loadPrintStyle();
             jumpToHash();
             loadShare();

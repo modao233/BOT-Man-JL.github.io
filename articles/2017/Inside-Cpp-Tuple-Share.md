@@ -20,7 +20,7 @@
 
 ## 什么是 `tuple`
 
-```
+``` cpp
 using Person = tuple<std::string, char, int>;
 Person john { "John"s, 'M', 21 };
 Person jess { "Jess"s, 'F', 19 };
@@ -36,7 +36,7 @@ tie (ignore, gender_jack, ignore) = jack;
 
 ## 什么是 `tuple`
 
-```
+``` cpp
 std::set<Person> group { john, jess, jack };
 
 using Hobby = tuple<std::string, int>;
@@ -52,7 +52,7 @@ auto john_hobby = tuple_cat (john, kongfu);
 
 > Reference: https://github.com/BOT-Man-JL/ORM-Lite
 
-```
+``` cpp
 // ORM-Lite
 auto usersOrderList = mapper.Query (userModel)
     .Join (userModel,
@@ -69,7 +69,7 @@ auto usersOrderList = mapper.Query (userModel)
 
 ## 存储实现
 
-```
+``` cpp
 template <typename... Types>
 class tuple : Types... {};
 ```
@@ -80,7 +80,7 @@ class tuple : Types... {};
 
 ## 存储实现
 
-```
+``` cpp
 template <typename T>
 struct _tuple_leaf { T value_; };
 
@@ -95,7 +95,7 @@ class tuple : _tuple_leaf<Types>... {};
 
 ## 存储实现
 
-```
+``` cpp
 template <size_t, typename T>
 struct _tuple_leaf { T value_; };
 
@@ -111,7 +111,7 @@ struct _tuple<index_sequence<Is...>, Ts...>
 
 ## 存储实现
 
-```
+``` cpp
 template <typename... Ts>
 class tuple : _tuple<
   make_index_sequence<sizeof...(Ts)>,
@@ -125,7 +125,7 @@ class tuple : _tuple<
 
 ## 存储实现
 
-```
+``` cpp
 template<>
 class tuple<>;
 
@@ -142,7 +142,7 @@ class tuple<Head, Tails ...> {
 
 ## 存储实现
 
-```
+``` cpp
 template<>
 class tuple<>;
 
@@ -156,7 +156,7 @@ class tuple<Head, Tails ...>
 
 ## 存储实现
 
-```
+``` cpp
 template<>
 class tuple<>;
 
@@ -172,7 +172,7 @@ class tuple<Head, Tails ...>
 
 ## 构造函数
 
-```
+``` cpp
 // default ctor
 tuple ();
 
@@ -198,7 +198,7 @@ tuple (tuple &&);
 
 ### （右值引用）
 
-```
+``` cpp
 template<typename T> class vector {
     vector(const vector &); // copy data
     vector(vector &&);      // move data
@@ -214,7 +214,7 @@ template<typename T> class unique_ptr {
 
 ### （通用引用）
 
-```
+``` cpp
 // rvalue ref
 void f1 (Widget &&param);
 Widget &&var1 = Widget ();
@@ -229,7 +229,7 @@ template<typename T> void f3 (T &&param);
 
 ### （完美转发）
 
-```
+``` cpp
 template<typename T, typename... Args>
 unique_ptr<T> make_unique(Args &&...args) {
     return unique_ptr<T> {
@@ -246,7 +246,7 @@ unique_ptr<T> make_unique(Args &&...args) {
 
 ## 构造函数
 
-```
+``` cpp
 template<typename T, typename ...Ts>
 tuple (T &&arg, Ts &&...args) :
     Tail (std::forward<Ts> (args)...),
@@ -262,7 +262,7 @@ tuple (tuple<Rhs ...> &&rhs) :
 
 ## 构造函数
 
-```
+``` cpp
 // ambiguous:
 //   tuple<int> { int }
 //   tuple<int> { tuple<int> }
@@ -277,7 +277,7 @@ tuple<int> t (tuple<int> { 1 });
 
 ## 构造函数
 
-```
+``` cpp
 // only check T & Head here
 
 template<typename T, typename ...Ts,
@@ -293,7 +293,7 @@ template<typename T, typename ...Ts,
 
 ## `tuple_element` & `get`
 
-```
+``` cpp
 template<size_t I, typename Tuple>
 struct tuple_element;
 
@@ -309,7 +309,7 @@ tuple_element<I, tuple<Ts ...>>::type &get (
 
 ## `tuple_element` & `get`
 
-```
+``` cpp
 template<size_t I, typename T, typename ...Ts>
 struct tuple_element<I, tuple<T, Ts ...>>
     : tuple_element<I - 1, tuple<Ts ...>> {};
@@ -325,7 +325,7 @@ struct tuple_element<0, tuple<T, Ts ...>> {
 
 ## `tuple_element` & `get`
 
-```
+``` cpp
 template<size_t I, typename ...Ts>
 tuple_element<I, tuple<Ts ...>>::type &get (
     tuple<Ts ...> &t)

@@ -264,7 +264,7 @@ virtual void Show () override  // CLI Version
 
 和主动处理的方式不同，`Show` 函数仅需要将控制权下放到 `Window` 内部，通过回调的方式处理逻辑。例如，首先定义一个 `MainWindow` 类，然后在 `Show` 函数中构造并显示，最后在交互逻辑中关闭窗口。当用户点击 FnA 按钮，图形界面系统就会调用 `on_FnABtn_clicked` 函数（槽函数），从而调用了 `_onFnA`（控制器的操作）。
 
-```
+``` cpp
 class MainWindow : public QWidget
 {
     Q_OBJECT

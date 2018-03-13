@@ -106,7 +106,7 @@
 
 ## 演算规则 —— 测试表达式
 
-```
+``` cpp
 template <unsigned Val> struct _isZero {
     constexpr static bool value = false;
 };
@@ -131,7 +131,7 @@ static_assert (isZero<0>, "compile error");
 
 ## 演算规则 —— 测试类型 满足条件
 
-```
+``` cpp
 template <typename T>
 constexpr bool isNum = std::is_arithmetic<T>::value;
 
@@ -174,7 +174,7 @@ auto d = ToString (std::string {});  // bad type :-(
 
 ## 演算规则 —— 测试类型 反例
 
-```
+``` cpp
 template <typename T>
 std::string ToString (T val) {
     if (isNum<T>) return std::to_string (val);
@@ -187,7 +187,7 @@ std::string ToString (T val) {
 
 ## 演算规则 —— 定长模板的迭代
 
-```
+``` cpp
 template <unsigned N>
 constexpr unsigned _Factor () { return N * _Factor<N - 1> (); }
 
@@ -209,7 +209,7 @@ static_assert (Factor<4> == 24, "compile error");
 
 ## 演算规则 —— 变长模板的迭代
 
-```
+``` cpp
 template <typename T>
 constexpr auto Sum () {
     return T (0);
@@ -231,7 +231,7 @@ static_assert (Sum (1, 2, 3) == 6, "compile error");
 
 ## 元编程的威力 —— ORM
 
-```
+``` cpp
 auto oldUsers = mapper.Query (User {})
     .Where (
         field (user.age) >= 64 &&
@@ -248,7 +248,7 @@ auto oldUsers = mapper.Query (User {})
 
 ## 元编程的威力 —— ORM
 
-```
+``` cpp
 struct User {
     std::optional<std::string> name;
     int age;

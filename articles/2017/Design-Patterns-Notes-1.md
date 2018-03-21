@@ -87,6 +87,7 @@
 
 #### [no-toc] [no-number] &sect; Comparison
 
+- Different from _Static Factory Method_
 - Used to implement [sec|Abstract Factory] Abstract Factory
 
 ### Prototype

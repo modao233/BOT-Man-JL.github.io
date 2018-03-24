@@ -45,6 +45,7 @@
 
 #### 2018
 
+- [Implementation Patterns Notes](2018/Implementation-Patterns-Notes.md)
 - [Refactoring Notes](2018/Refactoring-Notes.md)
 
 #### 2017

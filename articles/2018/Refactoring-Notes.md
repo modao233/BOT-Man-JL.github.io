@@ -2,9 +2,9 @@
 
 > Reading in 2017/10 - 2018/2
 >
-> Digest of _Refactoring_
+> Digest of _Refactoring_, Martin Fowler
 
-## [no-toc] [no-number] TOC
+## [no-toc] TOC
 
 [TOC]
 
@@ -89,7 +89,7 @@ Too much defeats the purpose.
 
 ### Design Patterns and Refactoring P107
 
-Design Patterns... provide targets for your refactorings. —— Gang of Four
+Design Patterns... provide **targets** for your refactorings. —— Gang of Four
 
 ### About Responsibility P141
 
@@ -128,7 +128,7 @@ Let **one class take charge** because it keeps all the logic for manipulating th
 
 ### About Naming P273
 
-Remember your code is for a human first and a computer second.
+Remember your code is for a **human first** and a **computer second**.
 
 ### Separate Query from Modifier P279
 
@@ -136,4 +136,4 @@ A good rule to follow is to say that any method that **returns** a value should 
 
 ### About Research P381
 
-If someone (a reviewer of a paper, an attendee at a talk) comments, "I don't understand" or just doesn't get it, it's our fault. It is our responsibility to work hard to develop and communicate our ideas. —— William Opdyke (Ralph Johnson)
+If someone (a reviewer of a paper, an attendee at a talk) comments, "I don't understand" or just doesn't get it, it's **our fault**. It is our responsibility to work hard to develop and communicate our ideas. —— William Opdyke (Ralph Johnson)

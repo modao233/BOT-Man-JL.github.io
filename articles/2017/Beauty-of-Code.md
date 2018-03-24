@@ -2,7 +2,7 @@
 
 > 2017/11/12
 >
-> 当你对一个问题了解的越多，就会发现还有更多东西需要了解。
+> A progam should read like a book. It should have plot, rhythm, and delightful little turns of phrase. —— Knuth’s _Literate Programming_
 
 每个人都有着对美的不同定义，也同时追求着自己心中的那份 **“美”**。
 
@@ -44,7 +44,7 @@ C++ 之父 Bjarne Stroustrup 常常用 **优雅** 这个词来形容让人赏心
 
 而在不断打磨自己代码的路上，我发现：当你对一个问题了解的越多，就会发现还有更多东西需要了解。
 
-> 推荐阅读：Martin Fowler 的《重构》—— 什么是优雅的代码，为什么代码优雅，如何让代码优雅。
+> 推荐阅读：Martin Fowler 的[《重构》](../2018/Refactoring-Notes.md)及 Kent Beck 的[《实现模式》](../2018/Implementation-Patterns-Notes.md)—— 什么是优雅的代码，为什么代码优雅，如何让代码优雅。
 
 如果有什么问题，**欢迎交流**。😄
 

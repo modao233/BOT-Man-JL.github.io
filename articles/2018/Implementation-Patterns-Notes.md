@@ -96,7 +96,8 @@ A class bundles together related state.
 
 ### Object Design Problem P47
 
-**Most accesses** to an object’s state are **outside** the object. (feature envy)
+- **Most accesses** to an object’s state are **outside** the object.
+- related: [sec|Too Many Setters is a Sign P128]
 
 ### Common Roles for Local Variables P51
 
@@ -117,7 +118,7 @@ A class bundles together related state.
 ### Variable Role-Suggesting Naming P60
 
 - communicate the **role** a variable plays through its **name**
-- communicate **lifetime, scope, and type** through **context**
+- communicate **lifetime, scope, and type** through **context** (with IDE)
 
 ### Metaphors of Computing by John Von Neumann P63
 
@@ -170,8 +171,9 @@ A collection **distinguishes** between objects **in the collection** and those *
 
 ### Too Many Setters is a Sign P128
 
-Rather than publish a setter, publish a method that is named for the **problem** the client **needs to solve** rather than the implementation.
+- Rather than publish a setter, publish a method that is named for the **problem** the client **needs to solve** rather than the implementation.
+- related: [sec|Object Design Problem P47]
 
-### Orthogonal Design Metaphor P130
+### Orthogonal Design P130
 
 Look at a framework as the **intersection** of all the useful **functionality** in a domain **rather than** the **union**.

@@ -155,7 +155,7 @@ One of the beauties of programming with objects is the variety of ways they prov
 - `Type Fn`: **function** returning a particular type of object
 - related: [Separate Query from Modifier](Refactoring-Notes.md#Separate-Query-from-Modifier-P279)
 
-### Models of Computation P89
+### One Change at A Time P89
 
 A change _here_ doesn’t cause an unanticipated problem _there_.
 

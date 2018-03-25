@@ -16,7 +16,7 @@
 
 对于很多人，包括我，最开始写代码的时候，对代码的认识就是：写一些特殊的符号，让机器去执行，从而达到效果。这时候，我们关心的是：**机器** 如何 **执行** 我们写的代码。
 
-例如，我们曾经会设计这样的函数 —— 在一个循环内完成两件事：一边实现某个操作，一边统计结果并返回。
+例如，我曾经会设计这样的函数 —— 在一个循环内完成两件事：一边实现某个操作，一边统计结果并返回。
 
 [code||pet-and-count-cats]
 
@@ -25,7 +25,7 @@ int PetAndCountCats (List<Pet> pets) {
     int count = 0;
     for (var pet in pets) {
         if (pet.GetType () == Pet.CAT) {
-            pet.Pet ();  // Pet cats
+            pet.Pet ();   // Pet cats
             ++count;      // Count cats
         }
     }
@@ -41,9 +41,9 @@ int PetAndCountCats (List<Pet> pets) {
 
 对于上边的例子，[把查询和修改分开 (Separate Query from Modifier)](Refactoring-Notes.md#Separate-Query-from-Modifier-P279)，变为 `PetCats` 和 `CountCats`，更有利于传达我们的想法 —— 因为一般 **有返回值** 的方法只作为 **查询**，没有副作用；**没有返回值** 的方法作为 **修改**，才会产生副作用。（见 [笔记](Implementation-Patterns-Notes.md#Return-Type-P84)）
 
-### 很多人用着面向对象语言，写着命令式程序
+### 很多人用着面向对象语言，却只写着命令式程序
 
-此外，很多人，包括我，最开始学习的编程语言是 **命令式**（面向过程）语言，在使用面向对象语言编写程序的时候，仍然使用着最简单的命令式控制流 —— 把所有的逻辑写成一个 **超长的函数**，只使用 **条件、循环** 实现相应功能。
+此外，很多人，包括我，最开始学习的编程语言是 **命令式**（面向过程）语言，在使用面向对象语言编写程序的时候，仍然只用着最简单的命令式控制流 —— 把所有的逻辑写成一个 **超长的函数**，而且只用了 **条件、循环** 实现相应功能。
 
 而面向对象语言引入了 **类和对象**，把对外表现的 **行为** _(behavior)_ 和用于支持行为的 **状态** _(state)_ 封装在一起，实现功能的模块化。（见 [笔记](Implementation-Patterns-Notes.md#Advantage-of-Object-P43)）
 
@@ -93,7 +93,7 @@ void CleanPets (std::vector<Pet> &pets, Shampoo &shampoo);
 
 面向对象语言引入了 **类和对象**，可以把一组密切相关的 **逻辑** _(logic)_ 和对应的 **数据** _(data)_ 放在一起，从而实现模块化。（见 [笔记](Implementation-Patterns-Notes.md#Coding-Priciples-P13-17)）
 
-放在同一个类里的逻辑和数据，往往解决了 **同一领域** 的问题，**变化频率一致** —— 理想情况下，当这个领域问题变化时，只需要修改对应的这个类，就可以实现了所有的更改。（见 [笔记](Refactoring-Notes.md#About-Changes-P80)）
+放在同一个类里的逻辑和数据，往往解决了 **同一领域** 的问题，**变化频率一致** —— 理想情况下，当这个领域问题变化时，只需要修改对应的这个类，就可以实现所有的更改。（见 [笔记](Refactoring-Notes.md#About-Changes-P80)）
 
 封装是面向对象编程的核心，有两个重要的优势（见 [笔记](Refactoring-Notes.md#About-Encapsulation-P157)）：
 
@@ -102,7 +102,7 @@ void CleanPets (std::vector<Pet> &pets, Shampoo &shampoo);
 
 ### 例子：状态/数据的封装
 
-代码 [code|imperative] 中，为了表示 3 类不同的状态，使用 `*_of_keeper1` 和 `*_of_keeper2` 构成了 2 组 **平行的、独立的** 数据。很容易发现，每一组数据都可以捆绑在一起，组成 `struct PetKeeper`；利用捆绑后的结构，我们可以很方便的定义多组平行的结构相同的数据 `keeper1`, `keeper2`。从而实现了对状态/数据的封装。
+代码 [code|imperative] 中，为了表示 3 类不同的状态，使用 `*_of_keeper1` 和 `*_of_keeper2` 构成了 2 组 **平行的、独立的** 数据。很容易发现，每一组数据都可以捆绑在一起，组成 `struct PetKeeper`；利用捆绑后的结构，可以很方便的定义多组平行的、结构相同的数据 `keeper1`, `keeper2`。从而实现对状态/数据的封装。
 
 [code||encapsulate-data]
 
@@ -122,7 +122,7 @@ PetKeeper keeper1, keeper2;
 
 ### 例子：行为/逻辑的封装
 
-进一步的，代码 [code|imperative] 中的 4 个函数是对 `struct PetKeeper` 数据进行操作的逻辑，解决了 **同一领域的问题、变化频率一致**。所以，在代码 [code|encapsulate-data] 的基础上，把这些逻辑和数据封装在一起，构成了完整的类 `class PetKeeper`。从而实现了对行为/逻辑的封装。
+进一步的，代码 [code|imperative] 中的 4 个函数是对 `struct PetKeeper` 数据进行操作的逻辑，解决了 **同一领域的问题、变化频率一致**。所以，在代码 [code|encapsulate-data] 的基础上，把这些逻辑和数据封装在一起，构成了完整的类 `class PetKeeper`。从而实现对行为/逻辑的封装。
 
 [code||encapsulate-logic]
 
@@ -165,7 +165,7 @@ protected:
     void DigestAfterEating ();
 };
 
-class Cat {
+class Cat : public Pet {
     // ...
 public:
     void Eat (PetFood &pet_food) {
@@ -175,7 +175,7 @@ public:
     }
 };
 
-class Dog {
+class Dog : public Pet {
     // similar to Cat
 };
 ```
@@ -198,13 +198,13 @@ class Dog {
 利用多态，我们可以更灵活的设计逻辑策略的切换（见 [笔记](Implementation-Patterns-Notes.md#Design-Switch-between-Strategies-P34)）：
 
 - 命令式编程中，我们只能通过 **条件** _(conditionals)_ 实现逻辑的切换
-- 基于多态，我们可以通过 **派生** _(subclasses)_ 和 **委派** _(delegation)_ 实现
-  - 派生一般通过继承实现；而委派一般通过组合实现
-  - 派生切换的逻辑，在对象生命周期内不能再次改变；而委派可以多次修改
+- 基于多态，我们可以通过 **派生** _(subclasses)_ 和 **委托** _(delegation)_ 实现
+  - 派生一般通过继承实现；而委托一般通过组合实现
+  - 派生切换的逻辑，在对象生命周期内不能再次改变；而委托可以多次修改
 
 ### 例子：条件逻辑切换
 
-很多人，包括我，喜欢使用命令式语言里的 **测试条件** _(testing conditionals)_ 实现逻辑策略切换。例如，在实现喂食功能 `PetKeeper::FeedPets`，而对于不同的动物有着不同的喂食逻辑时，我们会使用 `if/switch` 语句先测试类型，然后针对不同测试结果进行处理。
+很多人，包括我，喜欢使用命令式语言里的 **测试条件** _(testing conditionals)_ 实现逻辑策略切换。例如，在实现喂食功能 `PetKeeper::FeedPets`，而对于不同的动物有着不同的喂食逻辑时，我们会使用 `if/switch` 语句先判断 `pet` 的类型，然后针对不同类型进行处理。
 
 [code||conditionals]
 
@@ -230,7 +230,7 @@ void PetKeeper::FeedPets () {
 - 在函数中，`PetKeeper` 作为消息的发送者，`Pet` 是消息的接收者 —— `PetKeeper` 操作 `Pet` 的对象实现喂食逻辑
 - 破坏了封装性
   - 消息的 **发送者** 不仅需要关心消息的意图，还需要关心消息处理逻辑的 **实现**
-  - 一个类 `PetKeeper` **过度访问** 另一个类 `Pet` 的数据/实现，在 `PetKeeper` 里实现了 `Pet` 的功能，类的职责划分不恰当，是重构的一个信号（见 [笔记](Implementation-Patterns-Notes.md#Object-Design-Problem-P47)）
+  - 一个类 `PetKeeper` **过度访问** 另一个类 `Pet` 的数据/实现，在 `PetKeeper` 里实现了应该在 `Pet` 里实现的功能，类的职责划分不恰当，是重构的一个信号（见 [笔记](Implementation-Patterns-Notes.md#Object-Design-Problem-P47)）
 - 不易于扩展
   - 当我们需要引入一个新的宠物类型（例如，兔子🐰）的时候，就需要 **修改** 消息的 **发送者** `PetKeeper` 的 `PetKeeper::FeedPets` 实现，即加入 `if (pet.GetType () == Pet.RABBIT)` 分支
 
@@ -247,7 +247,7 @@ public:
     virtual void Eat (PetFood &pet_food) = 0;
 };
 
-class Cat {
+class Cat : public Pet {
     // ...
 public:
     void Eat (PetFood &pet_food) override {
@@ -275,12 +275,12 @@ void PetKeeper::FeedPets () {
 - 易于扩展
   - 当我们需要引入一个新的宠物类型（例如，兔子🐰）的时候，只需要在 `Rabbit` 类里实现 `Eat` 接口即可；消息 **发送者** 代码 **不需要修改**
 
-### 例子：委派逻辑切换
+### 例子：委托逻辑切换
 
-类似于代码 [code|subclasses]，使用委派的方式：
+类似于代码 [code|subclasses]，把 `Pet::Eat` 委托到 `PetImpl::EatImpl` 函数：
 
-- 仅仅是 **实现上** 的问题，对于`PetKeeper::FeedPets` 的消息调用是透明的
-- 相对于派生实现的优势在于，可以在 `Pet` 对象 **生命周期内切换逻辑**
+- 对于`PetKeeper::FeedPets` 的消息调用是透明的，和派生相比，仅仅是 **实现上** 的不同
+- 相对于派生实现的优势在于，可以在 `Pet` 对象 **生命周期内切换逻辑** —— 将变量 `pet_impl` 赋值为 `CatImpl` 对象时，可以实现猫的逻辑；赋值为 `DogImpl` 对象时，就可以动态切换为狗的逻辑（虽然在这个业务场景下没有实际意义，猫生出来不会变成狗。。。）
 
 [code||delegation]
 
@@ -290,7 +290,7 @@ public:
     virtual void EatImpl (PetFood &pet_food) = 0;
 };
 
-class CatImpl {
+class CatImpl : public PetImpl {
     // ...
 public:
     void EatImpl (PetFood &pet_food) override {
@@ -310,7 +310,7 @@ public:
 
 [align-center]
 
-代码 [code|delegation] - 委派逻辑切换
+代码 [code|delegation] - 委托逻辑切换
 
 ## 写在最后 [no-number]
 

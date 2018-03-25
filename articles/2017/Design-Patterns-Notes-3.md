@@ -373,7 +373,7 @@
 - vs. [sec|Iterator] Iterator
   - Provide internal iteration over _composite_ and _tuple_
 - vs. [sec|Interpreter] Interpreter
-  - Seperate operation from class of element
+  - Separate operation from class of element
   - Element be less than operation
 
 ### Interpreter

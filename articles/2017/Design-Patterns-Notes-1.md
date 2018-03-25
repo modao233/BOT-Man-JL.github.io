@@ -126,7 +126,7 @@
 
 ### Builder
 
-> Seperate **construction procedure** from **product representation**
+> Separate **construction procedure** from **product representation**
 
 #### [no-toc] [no-number] &sect; Roles
 

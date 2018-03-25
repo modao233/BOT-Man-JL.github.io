@@ -37,7 +37,7 @@ Here we list the additional specs of _BOT Mark_:
 - slide
   - enabled by `<p>[slide-mode]</p>`
   - `---` or `<hr>` or `<hr/>` => slide wrapper
-  - slide wrapper would seperate article into slides
+  - slide wrapper would separate article into slides
 - keyword
   - set next element's style (excluding keywords / style setters)
   - adjacent tags will be merged (still affect next valid element)

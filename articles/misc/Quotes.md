@@ -130,3 +130,5 @@
 124. We are all apprentices in a craft where no one ever becomes a master.
  —— Ernest Hemingway
 125. Be nice to people on your way up because you'll meet them on your way down. —— Wilson Mizner
+126. 虽然还在舞台上，但已经不在聚光灯下。——手机浏览器
+127. 一个摄影师在可可西里看到一只来打招呼的小藏羚羊，便喂它水喝，突然旁边的藏羚羊保护队队长很凶地把小羊赶跑了。摄影师问他为什么这样做，他回答说你这样会让它们以为人类是善良的。——《他知道风从哪个方向来》玖月晞

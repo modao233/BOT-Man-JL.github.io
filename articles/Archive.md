@@ -60,6 +60,7 @@
 
 #### 2018
 
+- [Only Human](2018/Only-Human.md)
 - [旅行归来](2018/Back-from-a-Tour.md)
 
 #### 2017

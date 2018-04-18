@@ -4,7 +4,7 @@
 
 > 关于 [BOT Frame](../README.md) | [BOT Mark](misc/BOT-Mark.md)
 
-## 思考 | Thinking
+## 代码 | Coding
 
 #### 2018
 

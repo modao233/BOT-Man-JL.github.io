@@ -1,6 +1,6 @@
 ﻿# 从 Windows Filtering Platform 学习 TCP/IP（1）
 
-> 2018/4/18
+> 2018/4/16
 >
 > 彼节者有间，而刀刃者无厚；以无厚入有间，恢恢乎其于游刃必有余地矣。——《庄子·养生主》
 
@@ -92,7 +92,7 @@
 
 最初，我们的 PoC 是从官方的 WFP 拦截样例改过来的：
 
-- 在 `OUTBOUND_TRANSPORT` 和 `INBOUND_TRANSPOR` 上完成修改
+- 在 `OUTBOUND_TRANSPORT` 和 `INBOUND_TRANSPORT` 上完成修改
 - 通过直接修改 `NET_BUFFER`，修改端口
 - IP 地址的修改：发包设置 `FWPS_TRANSPORT_SEND_PARAMS`，收包修改 IP 包头
 
@@ -109,7 +109,25 @@
 
 每一个 TCP/UDP 包都可以用一个 [**五元组** _(5-tuple)_](http://www.w3.org/People/Frystyk/thesis/TcpIp.html) 表示 —— 源 IP、源端口、目的 IP、目的端口、协议（TCP 或者 UDP）。当 IP 驱动收到一个 IP 包，就会检查这个 IP 包承载的内容是什么协议的；如果是 TCP 协议，就会转交给 TCP 驱动处理；TCP 驱动会检查五元组，找到关联的 socket，并将这个数据包传递给这个 socket。
 
-由于从主机 `103` 收回的包，没有及时把 IP 地址还原到 `104` / 端口还原到 `81`，TCP 驱动从包的五元组找不到对应的 socket，就会直接丢弃（有时候还会发送 RST 给对方），导致 `INBOUND_TRANSPOR` 层不能拦截到这个包。
+由于从主机 `103` 收回的包，没有及时把 IP 地址还原到 `104` / 端口还原到 `81`，TCP 驱动 **根据五元组找不到** 对应的 **socket**，就会直接丢弃（有时候还会发送 RST 给对方），导致 `INBOUND_TRANSPORT` 层不能拦截到这个包。
+
+```
+          ^
+          |
+  INBOUND_TRANSPORT -> we update 103:80 to 104:81 here!
+          ^
+          |  (unreachable)
+          |
+     TCP Driver -> 103:80 not found, expect 104:81, discard packet
+          ^
+          |  (103:80 -> 202:xx / TCP)
+          |
+      IP Driver -> IP 103/202 is fine, pass to upper layer
+          ^
+          |  (103:80 -> 202:xx / TCP)
+          |
+     NDIS Driver -> receive Ethernet frame and construct IP packet
+```
 
 所以，我们要在到达 **传输层** 之前，即在 **网络层** 修改收包的 IP/端口（直接修改 `NET_BUFFER`）。
 
@@ -132,9 +150,27 @@
 
 根据 [MSDN 描述](https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/content/fwpsk/nf-fwpsk-fwpsinjecttransportsendasync1)，如果不及时发送数据，socket 关闭、端点资源释放后，会导致数据无法发送。（详见 [Github Issue](https://github.com/Microsoft/Windows-driver-samples/issues/234)）
 
-在我们的试验中，主机 `202` 收到了 `FIN+ACK` 后，发送最后一个 ACK，就可以直接关闭 socket。而这个 ACK 被我们的驱动拦截，在修改后重新发出时，端点资源可能已经被释放了，导致不能正确发送。
+在我们的试验中，主机 `202` 收到了 `FIN+ACK` 后，发送最后一个 `ACK`，就可以直接关闭 socket。而这个 `ACK` 被我们的驱动拦截，在修改后重新发出时，端点资源可能已经被释放了，导致不能正确发送。
 
-为了解决这个问题，我们推迟到 **网络层** 修改发包的 IP/端口（直接修改 `NET_BUFFER`）。
+```
+     TCP Driver -> send last ACK in response to FIN+ACK
+          |
+          |  (last ACK / 202:xx -> 104:81 / TCP)
+          ~
+  OUTBOUND_TRANSPORT -> we update 104:81 to 103:80 here!
+          |
+          |  (last ACK / 202:xx -> 103:80 / TCP)
+          ~
+     TCP Driver -> endpoint is closed, discard packet
+          |
+          |  (unreachable)
+          ~
+      IP Driver
+          |
+          ~
+```
+
+为了解决这个问题，我们推迟到无状态的 **网络层** 修改发包的 IP/端口（直接修改 `NET_BUFFER`）。
 
 ### 网络层修改发包
 
@@ -152,21 +188,60 @@
 
 由于主机 `104` 并不存在，主机 `202` 收不到对应的 ARP 响应，无法构造发往主机 `104` 的以太网帧，从而导致 `OUTBOUND_NETWORK` 层不能拦截到发往主机 `104` 的包。
 
-为了进一步验证这个猜想，我们把主机 `104` 换成了局域网内的另一台主机 `253` —— 即需要把访问主机 `253` 的 `81` 端口的流量，重定向到主机 `103` 的 `80` 端口上。然后，再利用 pcap 嗅探 ARP 流量。
+```
+    TCP Driver -> construct diagram and send
+         |
+         |  (202:xx -> 104:81 / TCP)
+         ~
+     IP Driver -> search ARP table for host 104, but not found
+         |
+         |  (unreachable)
+         ~
+  OUTBOUND_NETWORK -> we update 104:81 to 103:80 here!
+         |
+         |  (unreachable)
+         ~
+     IP Driver
+         |
+         ~
+```
 
-![Network Outbound Redirection Good Arp](Learn-TCP-IP-from-WFP/network-outbound-redirection-good-arp.png)
+为了进一步验证这个猜想，我们把主机 `104` 换成了局域网内的另一台主机 `253` —— 即需要把访问主机 `253` 的 `81` 端口的流量，重定向到主机 `103` 的 `80` 端口上。然后，再利用 pcap 嗅探 ARP 流量。
 
 果然，`OUTBOUND_NETWORK` 层拦截到了发往主机 `253` 的数据包；pcap 也能看出：主机 `202` 先询问了主机 `253` 的 MAC 地址，再询问了主机 `103` 的 MAC 地址。
 
+![Network Outbound Redirection Good Arp](Learn-TCP-IP-from-WFP/network-outbound-redirection-good-arp.png)
+
 也就是说，IP 驱动收到了 **传输层报文** _(transport diagram)_ 后，先会通过 ARP 查询，查找目的 IP 对应的主机的以太网地址，再传入我们的 `OUTBOUND_NETWORK` 层驱动。如果查不到目的 IP 对应的主机地址，就会直接丢弃这个包。
 
+```
+    TCP Driver -> construct diagram and send
+         |
+         |  (202:xx -> 253:81 / TCP)
+         ~
+     IP Driver -> search ARP table for host 253, found
+         |
+         |  (202:xx -> 253:81 / TCP)
+         ~
+  OUTBOUND_NETWORK -> we update 253:81 to 103:80 here!
+         |
+         |  (202:xx -> 103:80 / TCP)
+         ~
+     IP Driver -> search ARP table for host 103, found
+         |
+         |  (202:xx -> 103:80 / TCP)
+         ~
+```
+
 在 TCP/IP 栈上，**最复杂** 的就是 **网络层** —— 向上承接传输层，向下引起数据链路层。在传输层上，即使随意设置端口，也能构造出正确的 IP 包；但网络层中，如果设置的 IP 地址没有对应的主机，就不能构造出对应的以太网帧了。
+
+由于在实际业务中，重定向前后的主机都存在（匿名通信系统中有响应的 ARP 响应），所以最后采用这套方案。
 
 ## 小结
 
 下一篇文章里，我们将
 
-- 设计针对 ARP 协议的拦截/修改 PoC
+- 设计在 MAC 层修改源/目的 MAC 地址的 PoC
 - 设计修改源 IP 地址（在匿名通信网络中隐藏主机真实 IP 地址）的 PoC
 - 总结 Windows TCP/IP 驱动实现流程
 

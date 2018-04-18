@@ -107,9 +107,9 @@
 
 #### 分析
 
-每一个 TCP/UDP 包都可以用一个 [**五元组** _(5-tuple)_](http://www.w3.org/People/Frystyk/thesis/TcpIp.html) 表示 —— 源 IP、源端口、目的 IP、目的端口、协议（TCP 或者 UDP）。而一个 TCP/UDP 报文要能正确的向上传递，则需要有正确的五元组。
+每一个 TCP/UDP 包都可以用一个 [**五元组** _(5-tuple)_](http://www.w3.org/People/Frystyk/thesis/TcpIp.html) 表示 —— 源 IP、源端口、目的 IP、目的端口、协议（TCP 或者 UDP）。当 IP 驱动收到一个 IP 包，就会检查这个 IP 包承载的内容是什么协议的；如果是 TCP 协议，就会转交给 TCP 驱动处理；TCP 驱动会检查五元组，找到关联的 socket，并将这个数据包传递给这个 socket。
 
-由于从主机 `103` 收回的包，在往上传递时，没有及时把 IP 地址还原到 `104` / 端口还原到 `81`；TCP 驱动发现这个包的五元组有问题，就会直接丢弃，导致 `INBOUND_TRANSPOR` 层不能拦截到这个包。
+由于从主机 `103` 收回的包，没有及时把 IP 地址还原到 `104` / 端口还原到 `81`，TCP 驱动从包的五元组找不到对应的 socket，就会直接丢弃（有时候还会发送 RST 给对方），导致 `INBOUND_TRANSPOR` 层不能拦截到这个包。
 
 所以，我们要在到达 **传输层** 之前，即在 **网络层** 修改收包的 IP/端口（直接修改 `NET_BUFFER`）。
 

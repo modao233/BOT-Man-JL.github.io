@@ -14,15 +14,17 @@
 
 毕业设计要求开发一个匿名通信客户端（Windows 网络驱动）：
 
-- 拦截/修改通过主机的流量，实现 [匿名通信协议](https://dl.acm.org/citation.cfm?doid=3140549.3140554)；
-- 防止 [WinPcap (Wireshark)](https://www.winpcap.org/docs/iscc01-wpcap.pdf) 对原始流量的嗅探
+- 拦截/修改主机和外网之间的流量，实现 [匿名通信协议](https://dl.acm.org/citation.cfm?doid=3140549.3140554)；
+- 防止 [WinPcap (Wireshark)](https://www.winpcap.org/docs/iscc01-wpcap.pdf) 对原始流量的嗅探，隐藏 TCP/UDP 端口、IP 地址、以太网 MAC 地址
 
 换句话说，就是需要：
 
 - 拦截/修改 **上层应用程序** 传输的数据包，我们驱动的工作对其 **透明**
   - 需要实现修改（源/目的）TCP/UDP 端口、IP 地址、以太网 MAC 地址的能力
-  - 例如，用户用浏览器打开 Baidu，经过驱动修改后，可以变成 Google
+  - 例如，主机 A 访问 Baidu，而链路上黑客嗅探到的数据是 主机 B 在访问 Google
 - 必须在 WinPcap 嗅探数据 **之前修改发出数据**，在嗅探 **之后修改收回数据**，从而避免其嗅探到原始流量
+  - 主机上黑客（恶意软件等）主要使用类似于 WinPcap 的工具进行流量嗅探，需要重点保护
+  - 如果主机被黑客攻击，原始流量被嗅探，链路上伪造的流量也会被轻易还原
 
 借此机会，学习了 TCP/IP 协议栈、Windows 驱动开发、Windows 网络架构。
 
@@ -49,7 +51,7 @@
 
 ### 技术方案
 
-在 Windows Vista 以后，微软升级了 TCP/IP 栈实现，将 **TCP/IP 的核心逻辑** 处理放入 `tcpip.sys` 驱动实现（例如，TCP 的建立连接三次握手、释放连接四次挥手、传输的过程中的可靠性和效率保障，IP 的维护 ARP 表等），对上层应用只暴露 **简单的接口**（例如 socket 调用 `connect/accept` 函数，TCP 驱动就实现了三次握手；在 `send/recv` 函数背后，TCP 驱动实现了重传、差错控制、拥塞控制等机制）。
+在 Windows Vista 以后，TCP/IP 成为了主流，微软升级了 TCP/IP 栈的驱动架构，将 **TCP/IP 的核心逻辑** 处理放入 `tcpip.sys` 驱动实现（例如，TCP 的建立连接三次握手、释放连接四次挥手、传输的过程中的可靠性和效率保障，IP 的维护 ARP 表、校验 checksum 等），对上层应用只暴露 **简单的接口**（例如 socket 调用 `connect/accept` 函数，TCP 驱动就实现了三次握手；在 `send/recv` 函数背后，TCP 驱动实现了重传、差错控制、拥塞控制等机制）。
 
 [align-center]
 
@@ -71,14 +73,14 @@
 
 恰好，TCP/IP 驱动和 WinPcap 的 NPF 驱动都是 NDIS 协议驱动，处于 **平级关系**。利用 WFP 提供的接口，在 TCP/IP 驱动内完成对流量的修改，一方面能更深入 TCP/IP 流程，另一方面可以绕过 WinPcap 的嗅探。
 
-## 试验（修改目的 IP 地址/端口）
+## 试验 —— 流量重定向
 
-为了体验 WFP 的强大威力，我们基于微软官方的 [WFP 流量拦截样例](https://github.com/Microsoft/Windows-driver-samples/tree/master/network/trans/inspect) 进行修改，实现一个 proof of concept _(PoC)_：
+为了体验 WFP 的强大威力，我们基于微软官方的 [WFP 流量拦截样例](https://github.com/Microsoft/Windows-driver-samples/tree/master/network/trans/inspect) 进行修改，实现一个流量重定向的 proof of concept _(PoC)_：
 
 - 修改 TCP/UDP（源/目的）**端口号**
-- 修改 **发往** 主机 A 包的 目的 IP 地址，**重定向** 到主机 B
-- 修改从主机 B **收到** 包的 目的 IP 地址，**还原** 为主机 A 的地址（否则上层应用无法识别）
-- 对上层应用 **透明**，即上层应用不知道上述修改的存在
+- 修改 **发往** 主机 A 包的 **目的 IP 地址**，**重定向** 到主机 B
+- 修改从主机 B **收到** 包的 **源 IP 地址**，**还原** 为主机 A 的地址（否则上层应用无法识别）
+- 对上层应用 **透明**，即上层应用不知道上述修改的存在（用户用浏览器打开 Baidu，经过驱动修改后，可以变成 Google）
 
 我们在同一个局域网内部署了两个主机，分别记作 `202` 和 `103`。在主机 `202` 上进行如下测试：
 
@@ -97,11 +99,11 @@
             ~                   |
   :--- TCP Driver --------- TCP Driver ---:
   |         |                   ^         |
-  |         |    TCP diagram    |         |
+  |         |    TCP segment    |         |
   |         ~                   |         |
   | OUTBOUND_TRANSPORT  INBOUND_TRANSPORT |  <- modify here!
   |         |                   ^         |
-  |         |    TCP diagram    |         |
+  |         |    TCP segment    |         |
   |         ~                   |         |
   :--- TCP Driver --------- TCP Driver ---:
             |                   ^
@@ -162,11 +164,11 @@
             ~                   |
   :--- TCP Driver --------- TCP Driver ---:
   |         |                   ^         |
-  |         |    TCP diagram    |         |
+  |         |    TCP segment    |         |
   |         ~                   |         |
   | OUTBOUND_TRANSPORT          |         |  <- modify here!
   |         |                   |         |
-  |         |    TCP diagram    |         |
+  |         |    TCP segment    |         |
   |         ~                   |         |
   :--- TCP Driver --------- TCP Driver ---:
             |                   ^
@@ -197,7 +199,7 @@
 
 #### 分析
 
-在传输层，发送数据需要关联特定的 socket；在 `OUTBOUND_TRANSPORT` 层发送的数据包，调用 `FwpsInjectTransportSendAsync` 函数也需要指定 socket 对应端点的 `endpointHandle`。
+在传输层，发送数据需要关联特定的 socket；在 `OUTBOUND_TRANSPORT` 层发送的数据包，调用 `FwpsInjectTransportSendAsync` 函数也需要指定 socket（上层句柄）对应端点的 `endpointHandle`（底层内核对象）。
 
 根据 [MSDN 描述](https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/content/fwpsk/nf-fwpsk-fwpsinjecttransportsendasync1)，如果不及时发送数据，socket 关闭、端点资源释放后，会导致数据无法发送。（详见 [Github Issue](https://github.com/Microsoft/Windows-driver-samples/issues/234)）
 
@@ -259,7 +261,7 @@
 
 从原理上：
 
-- 如果一个 IP 包要通过网卡发到以太网上，必须要知道目的主机的 MAC 地址，才能构造出完整的 **以太网帧** _(Ethernet frame)_
+- 如果一个 IP 包要通过网卡发到以太网上，必须要知道目的主机的 MAC 地址，才能构造出完整的 **以太网帧** _(ethernet frame)_
 - 如果要知道目的 MAC 地址，就需要带着目的主机的 IP 地址，利用 ARP 协议进行查询
 - 如果目的主机的 IP 地址查不到对应的 MAC 地址，就不能构造出正确的以太网帧，IP 驱动会将其丢弃
 
@@ -318,11 +320,12 @@
 
 ## 未完
 
-下一篇文章里，将
+[下一篇文章](Learn-TCP-IP-from-WFP-2.md) 里，将
 
 - 进一步讨论 IP 驱动如何构造以太网帧
-- 实现隐藏主机地址的 PoC，即修改发出包的源地址、收回包的目的地址
-- 设计在 MAC 层修改源/目的 MAC 地址的 PoC
+- 试验 匿名通信
+  - 实现 **隐藏主机 IP 地址** 的 PoC，即修改发出包的源地址、收回包的目的地址
+  - 设计在 MAC 层 **修改源/目的 MAC 地址** 的 PoC
 - 总结 Windows TCP/IP 驱动实现流程
 
 如果有什么问题，**欢迎交流**。😄

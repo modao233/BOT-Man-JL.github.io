@@ -107,7 +107,7 @@
 
 ### 网络层修改收包
 
-经过修改，我们在 `OUTBOUND_MAC` 层修改源 IP 地址，`INBOUND_NETWORK` 修改目的 IP 地址。为了能让修改后的 IP 包送达目的主机（匿名通信协议通过 MAC 地址进行交换机路由），我们在 `OUTBOUND_MAC` 层也修改了以太网帧的源/目的 MAC 地址。
+经过修改，我们在 `OUTBOUND_MAC` 层修改源 IP 地址，`INBOUND_NETWORK` 修改目的 IP 地址。为了能让修改后的 IP 包送达目的主机（匿名通信协议通过 MAC 地址进行交换机路由，并配合 [sec|打开混杂模式] 网卡混杂模式实现端到端路由），我们在 `OUTBOUND_MAC` 层也修改了以太网帧的源/目的 MAC 地址。
 
 ```
           socket              socket
@@ -123,7 +123,7 @@
   |         |     IP packet     |         |
   |         |                   |         |            port &
   |  OUTBOUND_NETWORK     INBOUND_NETWORK |  <- modify remote IP &
-  |         |                   ^         |            local IP
+  |         |                   ^         |            local IP (in)
   |         |     IP packet     |         |
   |         ~                   |         |
   :---- IP Driver ---------- IP Driver ---:
@@ -134,8 +134,8 @@
   |         |                   ^         |
   |         |   Ethernet frame  |         |
   |         |                   |         |
-  |    OUTBOUND_MAC             |         |  <- modify local IP &
-  |         |                   |         |            MAC addr
+  |    OUTBOUND_MAC             |         |  <- modify MAC addr &
+  |         |                   |         |            local IP (out)
   |         |   Ethernet frame  |         |
   |         ~                   |         |
   :---- MAC Driver -------- MAC Driver ---:
@@ -219,28 +219,34 @@
 
 ## 关于网卡的一些坑
 
-在实现匿名通信 PoC 的过程中，还有一些有意思的小插曲。
+> 在实现匿名通信 PoC 的过程中，有一些有意思的小插曲。
 
-### 混杂模式
+### 打开混杂模式
 
-在 MAC 层，网卡也有类似 [sec|网络层修改收包] 中检查主机 IP 的处理机制：
+在 MAC 层，网卡在收包时也有类似 [sec|网络层修改收包] 中检查主机 IP 的处理机制：
 
 在以太网帧送达主机时，网卡会检查帧头的目的 MAC 地址，判断这个数据帧是不是送给自己的（如果是就发往 CPU 处理，如果不是就直接丢弃），从而提高 CPU 的处理效率（网卡硬件检查的速度比 CPU 软件检查快）。
 
-如果将网卡设置为 [混杂模式 _(Promiscuous Mode)_](https://en.wikipedia.org/wiki/Promiscuous_mode)，就可以不检查目的 MAC 地址，直接把所有数据帧传给 CPU。这样，伪造了目的 MAC 地址的以太网帧，才可以正确的被上层驱动收到。
+如果将网卡设置为 [混杂模式 _(Promiscuous Mode)_](https://en.wikipedia.org/wiki/Promiscuous_mode)，就可以不检查收包的目的 MAC 地址，直接把所有数据帧传给 CPU。这样，伪造了目的 MAC 地址的以太网帧，才可以正确的被上层驱动收到。
 
-### Checksum Offload
+### 检查 Checksum Offload
 
-由于 IP 包、TCP、UDP 报文中的 [checksum 计算](https://tools.ietf.org/html/rfc1071) 比较简单，而利用 CPU 计算这个字段比较浪费时间（例如，TCP 的 checksum 需要同时算上伪 IP 头、TCP 报头、TCP 报文）。所以，网卡提供了一个叫做 _Checksum Offload_ 的功能，利用硬件计算/校验 checksum，为 CPU 分担工作（硬件可以并行处理整个 buffer，而软件只能循序的读取、计算 buffer）。
+由于 IP 包、TCP、UDP 报文中的 [checksum 计算](https://tools.ietf.org/html/rfc1071) 比较简单，而利用 CPU 计算这个字段比较浪费时间（例如，TCP 的 checksum 需要同时算上伪 IP 头、TCP 报头、TCP 报文）。所以，网卡提供了一个叫做 _Checksum Offload_ 的功能，利用硬件计算/校验 checksum，为 CPU 分担工作（硬件可以并行处理整个待校验数据段，而软件只能循序的读取并计算）。
 
-然而，有的网卡并不支持 Checksum Offload。所以需要我们自己处理 checksum 的变换：
+然而，有的网卡并不支持 Checksum Offload，需要我们自己处理 checksum 的变换（IP/TCP/UDP 的 checksum）：
 
 - 在发出网卡前，重新计算被修改的包的 checksum（可以在 `OUTBOUND_MAC` 层修改完后）
-- 从网卡收回后，重新计算被修改的包的 checksum（在 `INBOUND_MAC` 层修改完后，需要重新计算一次；进入 IP 驱动时，会再次校验 checksum）
+- 从网卡收回后，重新计算被修改的包的 checksum（需要在 `INBOUND_MAC` 层修改完后，重新计算 checksum；进入 IP 驱动时，会再次校验 checksum）
 
-另外，为了快速计算修改后的 checksum，可以使用 [增量计算](https://tools.ietf.org/html/rfc1141) 的方法。
+另外，为了快速计算修改后的 checksum，可以使用 [增量计算](https://tools.ietf.org/html/rfc1624) 的方法。
 
-## 小结
+## Windows 网络驱动小结
+
+> 以 TCP 协议为例，总结 Windows TCP/IP 驱动如何处理整个通信流程。
+
+### 发出一个 TCP 包
+
+### 收回一个 TCP 包
 
 如果有什么问题，**欢迎交流**。😄
 

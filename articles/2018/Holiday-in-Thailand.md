@@ -244,8 +244,8 @@
   - Pork Rice 80B
 - 20:30 chinatown/night market
   - Minibus 20/2B
-  - Angel T-shirt 250B
-  - Glowing T-shirt 350B
+  - [Rock Eagle T-shirt](http://www.rockeagle.co.th/product/4442/) 250B
+  - [Rock Chang T-shirt](http://www.t-rockchang.com/product/hd60/) 350B
 - 22:00 buy fruit
   - 1-piece durian 250/2B
   - 1-kilo mangosteen 150/2B
@@ -273,7 +273,7 @@
   - Minibus 20B
   - Motobike 100B
   - Bread/ice-cream (for Thai) 20+0B
-- 18:30 see movie (nong pee teerak)
+- 18:30 Thai movie [nong pee teerak](https://www.imdb.com/title/tt8060408/)
   - Motobike 160B
   - Ticket 120*2B
 - 21:00 night market
@@ -293,7 +293,7 @@
   - coffee + bread + crab stick
 - 11:00 breakfast outdoor
   - seafood/pork noodle 80B
-- 12:30 7-rows
+- 12:30 Got-Pat [Sak-Yant](https://en.wikipedia.org/wiki/Yantra_tattooing)
   - Motobike goto 300B
   - Tattoo 3000B
   - Tip 200B
@@ -316,7 +316,7 @@
 - 11:00 breakfast
   - 7-11 bread + mocha 65B
 - 13:00 shopping
-  - Thai-Design Bear T-shirt 550B
+  - [Thai-Design](https://www.instagram.com/foxpixel/) Bear T-shirt 550B
   - Thai Souvenir Toy 350B
 - 14:30 lunch
   - Mixed 3-Style Chicken Rice 115B

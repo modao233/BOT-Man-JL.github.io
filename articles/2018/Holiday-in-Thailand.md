@@ -6,7 +6,7 @@
 
 ## Summary
 
-> Total: 3016 + 47555/5 = 12527RMB
+> Total: 3016 + 48155/5 = 12647RMB
 >
 > Hotel: 1284RMB
 > - Citrus Sukhumvit 13 (2-night) 623.45/2RMB
@@ -59,7 +59,7 @@
 - 19:30 siam discovery
 - 20:30 back in hotel
   - BTS 50B
-- 21:30 shemei cafe
+- 21:30 Thermae Coffee House
   - Orange Beer + SangSom Rum 300B
 - 22:00 nana plaza
   - Drink 100*2B
@@ -160,7 +160,7 @@
 - 17:00 back from island
   - Boat 30B
 - 17:30 arrived at Pattaya port
-- 18:30 exchange 700RMB to 3486B (4.98)
+- 18:30 exchange money 700RMB to 3486B (4.98)
 - 19:00 gave money to Apichai
 - 19:30 dinner
   - Large Hinan-Style Chicken Rice 140B
@@ -199,7 +199,7 @@
 
 ## 14th
 
-> Total: 7020B
+> Total: 7220B
 
 - 11:00 breakfast
   - 7-11 sandwich + mocha 50B
@@ -218,6 +218,9 @@
   - Lobster 1000/2B
   - half-kilo Thenus Orientalis 200/2B
   - Cooking 300/2B
+- 21:00 withdraw money (5000B)
+  - fee by Thai 150B
+  - fee by China 50B
 - 21:30 body massage
   - Cost 4500B
   - Papa-san Tip 200B
@@ -226,7 +229,7 @@
 
 ## 15th
 
-> Total: 4920+890B
+> Total: 5120+890B
 
 - 11:00 breakfast
   - 7-11 sandwich + mocha 50B
@@ -235,6 +238,9 @@
 - 14:30 lunch
   - Pineapple Seafood Fried Rice 80B
   - Vegetable 80B
+- 14:00 withdraw money (7500B)
+  - fee by Thai 150B
+  - fee by China 50B
 - 15:00 shopping in Central
   - Beauty Buffet Foaming Cream 130B
   - Snail White Facial Cream 590B
@@ -286,13 +292,16 @@
 
 ## 17th
 
-> Total: 9675B
+> Total: 9875B
 
 - 09:00 play with Nana
 - 10:00 breakfast indoor
   - coffee + bread + crab stick
 - 11:00 breakfast outdoor
   - seafood/pork noodle 80B
+- 12:00 withdraw money (7500B)
+  - fee by Thai 150B
+  - fee by China 50B
 - 12:30 Got-Pat [Sak-Yant](https://en.wikipedia.org/wiki/Yantra_tattooing)
   - Motobike goto 300B
   - Tattoo 3000B

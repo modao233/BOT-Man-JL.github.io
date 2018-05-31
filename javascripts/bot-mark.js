@@ -156,8 +156,9 @@ MarkdownRenderer.prototype.mathTags = [
 // citation
 
 MarkdownRenderer.prototype.citeNote = function (anchor, noteIndex) {
-    return '<span class="cite-note" id="cite-note-' +
-        anchor + '">[' + noteIndex + ']</a></span>';
+    // note: align (index < 10), assuming (max index < 100)
+    return '<span class="cite-note" id="cite-note-' + anchor + '">' +
+        (noteIndex < 10 ? '&nbsp; ' : '') + '[' + noteIndex + ']</a></span>';
 };
 
 MarkdownRenderer.prototype.citeRef = function (anchor, noteIndex, refIndex) {

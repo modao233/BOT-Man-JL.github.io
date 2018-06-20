@@ -8,8 +8,9 @@
 
 #### 2018
 
-- [从 Windows Filtering Platform 学习 TCP/IP（1）](2018/Learn-TCP-IP-from-WFP-1.md)
+- [匿名通信 Windows 客户端的设计与实现](2018/Anonymous-Communication-Client-Design.md)
 - [从 Windows Filtering Platform 学习 TCP/IP（2）](2018/Learn-TCP-IP-from-WFP-2.md)
+- [从 Windows Filtering Platform 学习 TCP/IP（1）](2018/Learn-TCP-IP-from-WFP-1.md)
 - [浅谈 面向对象编程](2018/Object-Oriented-Programming.md)
 - [资源管理 小记](2018/Resource-Management.md)
 
@@ -38,6 +39,10 @@
 
 ## 幻灯片 | Slides
 
+#### 2018
+
+- [匿名通信 Windows 客户端的设计与实现](2018/Anonymous-Communication-Client-Design-Share.md)
+
 #### 2017
 
 - [深入 C++ 元组 (tuple) 实现](2017/Inside-Cpp-Tuple-Share.md)
@@ -62,6 +67,7 @@
 
 #### 2018
 
+- [泰国假日](2018/Holiday-in-Thailand.md)
 - [咖啡、酒精、牛奶、花茶](2018/Drinks.md)
 - [旅行归来](2018/Back-from-a-Tour.md)
 

@@ -22,7 +22,7 @@
 - 拦截/修改 **上层应用程序** 传输的数据包，我们驱动的工作对其 **透明**
   - 需要实现修改（源/目的）TCP/UDP 端口、IP 地址、以太网 MAC 地址的能力
   - 例如，主机 A 访问 Baidu，而链路上黑客嗅探到的数据是 主机 B 在访问 Google
-- 必须在 WinPcap 嗅探数据 **之前修改发出数据**，在嗅探 **之后修改收回数据**，从而避免其嗅探到原始流量
+- 必须在 WinPcap 嗅探数据 **之前修改发送数据**，在嗅探 **之后修改接收数据**，从而避免其嗅探到原始流量
   - 主机上黑客（恶意软件等）主要使用类似于 WinPcap 的工具进行流量嗅探，需要重点保护
   - 如果主机被黑客攻击，原始流量被嗅探，链路上伪造的流量也会被轻易还原
 
@@ -91,7 +91,7 @@
 
 ### 传输层修改收包
 
-最初，我们的 PoC 是从官方的 WFP 拦截样例改过来的，分别在 `OUTBOUND_TRANSPORT` 和 `INBOUND_TRANSPORT` 层上完成对发出/收回的包的修改。架构模型大致如下：
+最初，我们的 PoC 是从官方的 WFP 拦截样例改过来的，分别在 `OUTBOUND_TRANSPORT` 和 `INBOUND_TRANSPORT` 层上完成对发送/接收的包的修改。架构模型大致如下：
 
 ```
           socket              socket
@@ -120,8 +120,8 @@
 
 - `OUTBOUND_TRANSPORT` 层成功重定向 IP 地址、端口，并送达主机 `103`
 - 主机 `202` 能接收到主机 `103` 的 `80` 端口发回的数据包（pcap 能抓到）
-- 但是，`INBOUND_TRANSPORT` 层 **没有拦截到** 收回的数据包
-- 从而导致，两个主机超时重传 `SYN`；最后主机 `103` 发出 `RST` 结束这个过程
+- 但是，`INBOUND_TRANSPORT` 层 **没有拦截到** 接收的数据包
+- 从而导致，两个主机超时重传 `SYN`；最后主机 `103` 发送 `RST` 结束这个过程
 
 ![Transport Inbound Redirection](Learn-TCP-IP-from-WFP/transport-inbound-redirection.png)
 
@@ -133,7 +133,7 @@
 - 如果是 TCP 协议，就会转交给 TCP 驱动处理
 - TCP 驱动会检查五元组，查找关联的 socket，并将这个数据传递给这个 socket
 
-由于从主机 `103` 收回的包，没有及时把 IP 地址还原到 `104` / 端口还原到 `81`，TCP 驱动 **根据五元组**，**找不到** 对应的 **socket**，就会直接丢弃（有时候还会发送 RST），导致 `INBOUND_TRANSPORT` 层不能拦截到这个包。
+由于从主机 `103` 接收的包，没有及时把 IP 地址还原到 `104` / 端口还原到 `81`，TCP 驱动 **根据五元组**，**找不到** 对应的 **socket**，就会直接丢弃（有时候还会发送 RST），导致 `INBOUND_TRANSPORT` 层不能拦截到这个包。
 
 ```
           ^
@@ -204,7 +204,7 @@
 
 根据 [MSDN 描述](https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/content/fwpsk/nf-fwpsk-fwpsinjecttransportsendasync1)，如果不及时发送数据，socket 关闭、端点资源释放后，会导致数据无法发送。（详见 [Github Issue](https://github.com/Microsoft/Windows-driver-samples/issues/234)）
 
-在我们的试验中，主机 `202` 收到了 `FIN+ACK` 后，发送最后一个 `ACK`，就可以 **直接关闭 socket**。而这个 `ACK` 被我们的驱动 **拦截**，在修改后 **重新发出**，端点资源可能已经 **被释放**，导致不能正确发送。
+在我们的试验中，主机 `202` 收到了 `FIN+ACK` 后，发送最后一个 `ACK`，就可以 **直接关闭 socket**。而这个 `ACK` 被我们的驱动 **拦截**，在修改后 **重新发送**，端点资源可能已经 **被释放**，导致不能正确发送。
 
 ```
      TCP Driver -> send last ACK in response to FIN+ACK
@@ -255,7 +255,7 @@
 
 #### 结果
 
-- 出人意料，`OUTBOUND_NETWORK` 层 **没有拦截到** 发出的数据包
+- 出人意料，`OUTBOUND_NETWORK` 层 **没有拦截到** 发送的数据包
 - 当然，pcap 也抓不到任何流量
 
 #### 分析
@@ -317,7 +317,7 @@
 
 在传输层上，即使随意设置端口，不需要知道远端主机的端口是否打开，也能构造出正确的 IP 包（例如，[端口扫描](https://en.wikipedia.org/wiki/Port_scanner)）；但网络层中，如果设置的 IP 地址没有对应的主机，就不能构造出对应的以太网帧了。
 
-由于在实际业务中，匿名通信系统会响应的主机发出的所有 ARP 请求（并设置用于匿名通信的 MAC 地址），所以我们的 PoC 最后采用这套方案。
+由于在实际业务中，匿名通信系统会响应的主机发送的所有 ARP 请求（并设置用于匿名通信的 MAC 地址），所以我们的 PoC 最后采用这套方案。
 
 ## 未完
 
@@ -325,9 +325,9 @@
 
 - 进一步讨论 IP 驱动如何构造以太网帧
 - 试验 匿名通信
-  - 实现隐藏 **本机 IP 地址** 的 PoC，即修改发出包的源地址、收回包的目的地址
+  - 实现隐藏 **本机 IP 地址** 的 PoC，即修改发送包的源地址、接收包的目的地址
   - 设计在 MAC 层修改 **源/目的 MAC 地址** 的 PoC
-- 总结 Windows TCP/IP 驱动实现流程
+- 总结 Windows TCP/IP 驱动架构实现
 
 如果有什么问题，**欢迎交流**。😄
 

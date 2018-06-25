@@ -8,8 +8,12 @@
 
 [align-center]
 
-# 🙈 [My CV](/articles/?post=misc/CV-en) | [我的简历](/articles/?post=misc/CV-zh)
+# 🙈 [CV](/articles/?post=misc/CV-en) | [简历](/articles/?post=misc/CV-zh)
 
 [align-center]
 
 ![BOT Man](/static/botman.jpg)
+
+[align-center]
+
+> 关于 [BOT Frame](/articles/?post=../README) | [BOT Mark](/articles/?post=misc/BOT-Mark)

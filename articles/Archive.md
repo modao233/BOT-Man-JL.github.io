@@ -1,9 +1,4 @@
-﻿[align-right]
-
-[blockquote=border:none]
-
-> 关于 [BOT Frame](../README.md) | [BOT Mark](misc/BOT-Mark.md)
-
+﻿
 ## 代码 | Coding
 
 #### 2018

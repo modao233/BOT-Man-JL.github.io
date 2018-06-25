@@ -20,21 +20,19 @@ EN | [中文](CV-zh.md)
 
 ## Skills
 
-- Solution stacks
+- Technique stacks
   - Modern C++ (Advanced)
-    - Win32 App (Experienced)
+    - Win32 App (Advanced)
+  - C (Experienced)
+    - WFP Callout Driver (Experienced)
   - C# (Experienced)
     - Universal Windows App (Advanced)
     - ASP.NET (core) MVC (Experienced)
-    - WPF App (Basic)
   - JavaScript (Experienced)
     - Node.js (Experienced)
-    - Web Frontend (Basic)
-  - Others
-    - C (Experienced)
-    - Java (Basic)
-    - Editing Video (using _Sony Vegas_) (Experienced)
+    - Web Frontend / Vue.js (Basic)
 - English (CET-6)
+- Editing Video (using _Sony Vegas_) (Experienced)
 
 [page-break]
 

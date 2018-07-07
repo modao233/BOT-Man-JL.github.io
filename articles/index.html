@@ -222,6 +222,15 @@
                 '<p class="qrCodeSec">' + qrCodeSVG(location.href, 360) + '</p>';
         }
 
+        // Run Scripts inside 'mdSec
+        function runScripts() {
+            var scripts = mdSec.getElementsByTagName('script');
+            for (var i = 0; i < scripts.length; i++) {
+                eval(scripts[i].innerHTML);
+                //console.log('eval', scripts[i].innerHTML);
+            }
+        }
+
         // Helper function to copy text
         function copyToClipboard(value) {
             // Note: only visible element is copyable
@@ -349,6 +358,7 @@
             loadPrintStyle();
             jumpToHash();
             loadShare();
+            runScripts();
 
             // Done
             title(titleStr);

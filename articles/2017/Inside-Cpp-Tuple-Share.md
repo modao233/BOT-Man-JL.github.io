@@ -215,12 +215,12 @@ template<typename T> class unique_ptr {
 ### （通用引用）
 
 ``` cpp
-// rvalue ref
+// rvalue ref: no type deduction
 void f1 (Widget &&param);
 Widget &&var1 = Widget ();
 template<typename T> void f2 (vector<T> &&);
 
-// universal ref
+// universal ref: type deduction
 auto &&var2 = var1;       
 template<typename T> void f3 (T &&param);
 ```

@@ -20,26 +20,21 @@
 
 我刚开始学习 C++ 的时候，也常常混淆这几个概念。但随着深入了解、与人探讨，才逐步理清楚这几个概念的来龙去脉。先分享几个我曾经的犯下的错误。
 
-### 错误：移动临时值
+### 错误：返回前，移动临时值
 
 ``` cpp
 void fn() {
   //...
-
   std::string base_url  = tag->GetBaseUrl();
-  std::string user_name = user_mgr->GetName();
   if (!base_url.empty())
-    UpdateQueryUrl(std::move(base_url) + "&q=" +
-                   std::move(user_name));
+    UpdateQueryUrl(std::move(base_url) + "&q=" + word_);
   else
-    UpdateQueryUrl(default_base_url_ + "&q=" +
-                   std::move(user_name));
-
+    UpdateQueryUrl(default_base_url_ + "&q=" + word_);
   //...
 }
 ```
 
-上述代码的问题在于：对临时值使用 `std::move`，会导致后续代码不能使用 `base_url` 和 `user_name`；如果使用，会出现 **未定义行为** _(undefined behavior)_。
+上述代码的问题在于：对临时值使用 `std::move`，会导致后续代码不能使用 `base_url`；如果使用，会出现 **未定义行为** _(undefined behavior)_。
 
 正确做法是封装成一个函数，只在返回值使用 `std::move`（这也符合函数式思想，尽可能减少临时值）：
 
@@ -47,15 +42,11 @@ void fn() {
 std::string GetQueryUrlString(const Tag* tag,
                               const UserMgr* user_mgr) {
   ASSERT(tag && user_mgr);
-
   std::string base_url  = tag->GetBaseUrl();
-  std::string user_name = user_mgr->GetName();
   if (!base_url.empty())
-    return std::move(base_url) + "&q=" +
-           std::move(user_name);
+    return std::move(base_url) + "&q=" + word_;
   else
-    return default_base_url_ + "&q=" +
-           std::move(user_name);
+    return default_base_url_ + "&q=" + word_;
 }
 
 void fn() {
@@ -65,7 +56,7 @@ void fn() {
 }
 ```
 
-### 错误：移动返回值
+### 误解：返回时，移动临时值
 
 ``` cpp
 std::unique_ptr<int> fn() {
@@ -74,43 +65,61 @@ std::unique_ptr<int> fn() {
 }
 ```
 
-上述代码的问题在于：对返回值使用 **冗余的** `std::move`。因为 C++ 会把返回值当成右值，直接进行 [sec|移动语义] 移动构造（语言标准）；如果编译器允许 [sec|拷贝省略] 拷贝省略，还可以省略这一步的构造，直接移动内存（编译器优化）。
+上述代码的问题在于：对返回值使用 **冗余的 `std::move`**。
+
+因为函数返回时，C++ 会把临时值当成右值，通过右值引用进行 [sec|移动语义] 移动构造（语言标准）；如果编译器允许 [sec|拷贝省略] 拷贝省略，还可以省略这一步的构造，直接移动内存（编译器优化）。
+
+### 误解：返回时，不移动右值引用参数
+
+``` cpp
+std::unique_ptr<int> fn(std::unique_ptr<int>&& val) {
+  //...
+  return val;    // not compiled, -> return std::move(val);
+}
+```
+
+上述代码的问题在于：没有对返回值使用 `std::move`，提示 `unique_ptr(const unique_ptr&) = delete` 不能编译。
+
+因为不论 **左值引用** 还是 **右值引用** 的参数，传入函数体后，都会 **退化为左值引用**（在函数体内，这个引用的值可以被取地址、被赋值）；而在函数体内使用 **传入的右值引用** 时，如果不把引用 **强制还原**，就只能退化为左值引用继续使用。所以，返回右值引用时，需要显式移动。
+
+在 [sec|完美转发] 完美转发部分，详细描述了如何合理的保持引用的左右值属性。
 
 ## 右值引用
 
-> 如果已经了解了左右值基本概念，可以直接跳过这个部分。
+> 如果已经了解了左右值引用基本概念，可以直接跳过这个部分。
 
 ### 概念
 
-C++ 11 强化了左值/右值的概念：**左值** (lvalue, left value) 指的是可以通过变量名/指针/引用使用的值，**右值** (rvalue, right value) 指的是函数返回的临时值。
+C++ 11 强化了左右值的概念：**左值** (lvalue, left value) 指的是可以通过变量名/指针/引用使用的值，**右值** (rvalue, right value) 指的是函数返回的临时值。区分左右值的一个不完全正确的方法是：左值可以取到有效地址，而右值不行；另一个从概念上的区分方法是：可以给左值赋值，但右值不行。
 
-区分左右值的一个不完全正确的方法是：左值可以取到有效地址，而右值不行。另一个从概念上的区分方法是：可以给左值赋值，但右值不行。
+C++ 11 还引入了右值引用的概念：**左值引用** (lvalue reference) 是指通过 `&` 符号引用左值对象；**右值引用** (rvalue reference) 是指通过 `&&` 符号引用右值对象。而一旦 **右值引用被初始化**，就会立即 **退化成左值引用**（这个引用可以被取地址、被赋值；参考 [sec|误解：返回时，不移动右值引用参数] _误解：返回时，不移动右值引用参数_）。
 
 ### 示例
 
 ``` cpp
-class Foo {
-public:
-  void Process(Data& data);   // data is lvalue
-  void Process(Data&& data);  // data is rvalue
-};
+void Process(Data& data);   // 1, data is lvalue
+void Process(Data&& data);  // 2, data is rvalue
 ```
 
-使用时，会根据参数/对象的左右值属性重载不同的函数：
+使用时，会根据参数的左右值属性重载不同的函数：
 
 ``` cpp
-Foo foo;
 Data data;
 
-foo.Process(data);    // data is lvalue
-foo.Process(Data{});  // data is rvalue
+Process(data);    // 1, data is lvalue
+Process(Data{});  // 2, data is rvalue
+
+Data&  data1 = data;
+Data&& data2 = data;
+
+Process(data1);  // 1, data1 is lvalue reference
+Process(data2);  // 1, data2 degenerates to lvalue reference
 ```
 
-另外，我们还可以加入 **常引用** (const reference) 作为参数的成员函数，同时接受左值、右值参数：
+另外，我们还可以加入 **常引用** (const reference) 作为参数的重载，同时接受左右值参数：
 
 ``` cpp
-// class Foo
-  void Handle(const Data& data);  // data is const-ref
+void Handle(const Data& data);  // data is const-ref
 
 foo.Handle(data);    // ok, data is lvalue
 foo.Handle(Data{});  // ok, data is rvalue
@@ -120,7 +129,7 @@ foo.Handle(Data{});  // ok, data is rvalue
 
 ### 概念
 
-在 C++ 11 强化左值/右值概念后，我们可以针对右值进行优化。于是，C++ 11 中就提出了 **移动语义** (move semantic)：右值对象一般是临时对象；转移该对象时，内部包含的资源 **不需要先复制再删除**，只需要直接 **从旧对象移动到新对象**。
+在 C++ 11 强化左右值概念后，我们可以针对右值进行优化。于是，C++ 11 中就提出了 **移动语义** (move semantic)：右值对象一般是临时对象；转移该对象时，内部包含的资源 **不需要先复制再删除**，只需要直接 **从旧对象移动到新对象**。
 
 在 C++ 提出移动语义之前，编译器往往可以针对需要移动的对象进行 [sec|拷贝省略] 拷贝省略的优化。由于拷贝省略只是编译器可选的优化项，没有纳入标准，C++ 11 语言标准就引入了移动语义。
 
@@ -130,8 +139,8 @@ foo.Handle(Data{});  // ok, data is rvalue
 
 针对一些包含了资源的对象，我们可以通过移动对象的资源进行优化。例如，我们常用的 STL 类模板都有：
 
-- 以左值作为参数的 **拷贝构造函数** (copy constructor)
-- 以右值作为参数的 **移动构造函数** (move constructor)
+- 以常引用作为参数的 **拷贝构造函数** (copy constructor)
+- 以右值引用作为参数的 **移动构造函数** (move constructor)
 
 ``` cpp
 template<typename T> class vector {
@@ -159,7 +168,7 @@ vector::vector(vector&& rhs) {
 }
 ```
 
-上述代码中，`std::vector` 根据参数的左右值判断：
+上述代码中，`std::vector` 根据参数的左右值属性判断：
 
 - 参数为左值时，拷贝构造，使用 `memcpy` 拷贝原对象的内存
 - 参数为右值时，移动构造，把指向原对象内存的指针 `data_`、内存大小 `size_` 复制到新对象，并把原对象这两个成员置 `0`
@@ -274,7 +283,7 @@ g(f());           // copy elision from prvalue (C++ 17)
 
 > Item 24: Distinguish universal references from rvalue references. —— Meyer Scott, _Effective Modern C++_
 
-[Meyer Scott 指出](https://isocpp.org/blog/2012/11/universal-references-in-c11-scott-meyers)：有时候符号 `&&` 并不一定代表右值引用，它也可能是左值引用 —— 如果一个被引用符号需要通过左右值属性推导（模板推导或 `auto` 推导），那么这个符号可能是左值或右值 —— 这叫做 **通用引用** (universal reference)。
+[Meyer Scott 指出](https://isocpp.org/blog/2012/11/universal-references-in-c11-scott-meyers)：有时候符号 `&&` 并不一定代表右值引用，它也可能是左值引用 —— 如果一个引用符号需要通过左右值属性推导（模板推导或 `auto` 推导），那么这个符号可能是左值引用或右值引用 —— 这叫做 **通用引用** (universal reference)。
 
 ``` cpp
 // rvalue ref: no type deduction
@@ -287,18 +296,21 @@ auto&& var2 = var1;
 template<typename T> void f3(T&& param);
 ```
 
-上述代码中，前三个 `&&` 符号不涉及被引用符号的左右值属性推导，是右值引用；而后两个 `&&` 符号会根据实际的 `var1` 类型或 `param` 类型推导左右值。
+上述代码中，前三个 `&&` 符号不涉及引用符号的左右值属性推导，是右值引用；而后两个 `&&` 符号会根据初始值推导左右值属性：
 
-对于 `var2`：因为 `var1` 是右值引用，所以 `var2` 也是右值引用。对于 `T`，`param` 如果传入右值引用，`T` 是右值引用；如果 `param` 是左值引用，`T` 也是左值引用。
+- 对于 `var2`：因为 `var1` 是右值引用，所以 `var2` 也是右值引用
+- 对于 `T&&`，如果 `param` 传入右值引用，`T&&` 是右值引用 `&&`；如果传入左值引用，`T&&` 也是左值引用 `&`。
 
-### 用途
+### 变长引用参数模板
 
-C++ 11 引入了变长模板的概念，允许向模板参数里传入不定长的不同的类型。由于每个类型可能是左值或右值，针对所有类型特化不同的模板是不现实的。
+C++ 11 引入了变长模板的概念，允许向模板参数里传入不同类型的不定长引用。由于每个类型可能是左值引用或右值引用；针对所有可能的左右值引用组合，特化所有模板是不现实的。
 
-假设没有通用引用，即所有的 `&&` 均表示右值引用，模板 `std::make_unique` 至少需要两个重载：
+假设没有通用引用的概念，即所有的 `&&` 均表示右值引用，模板 `std::make_unique` 至少需要两个重载：
 
-- 对于传入的左值引用 `const Args& ...args`，只要展开 `args...` 就可以转发这一组左值引用了
+- 对于传入的左值引用 `const Args& ...args`，只要展开 `args...` 就可以转发这一组左值引用
 - 对于传入的右值引用 `Args&& ...args`，需要通过 `std::move` 转发出去，即 `std::move<Args>(args)...`
+
+> 为什么要用 `std::move` 转发：见 [sec|误解：返回时，不移动右值引用参数] _误解：返回时，不移动右值引用参数_。
 
 ``` cpp
 template<typename T, typename... Args>
@@ -316,14 +328,9 @@ unique_ptr<T> make_unique(Args&& ...args) {
 }
 ```
 
-为什么要用 `std::move` 转发：
+上述代码存在一个问题：如果传入的 `...args` 既有左值引用又有右值引用，那么这两个模板都不匹配。为了解决这个问题，C++ 11 同时引入了通用引用的概念，用于推导引用的不确定左右值属性。
 
-- 对于右值引用参数，传入函数体后，再继续传入另一个函数时，会变成左值。（在函数体内，这个值可以被取地址、被赋值）
-- 如果需要保持原来的右值属性，需要通过 `std::move` 转变回到右值属性，再转发出去
-
-上述代码存在一个问题：如果传入的 `...args` 既有右值又有左值，那么这两个模板都不能正确匹配。为了解决这个问题，C++ 11 同时引入了通用引用的概念，用于推导不确定引用的左右值属性。
-
-有了通用引用的概念，模板 `std::make_unique` 只需要一个重载：
+引入了通用引用的概念，模板 `std::make_unique` 只需要一个重载：
 
 ``` cpp
 template<typename T, typename... Args>
@@ -334,16 +341,36 @@ unique_ptr<T> make_unique(Args&& ...args) {
 }
 ```
 
+### 完美转发
+
 上述代码使用了 `std::forward` 实现参数的 **完美转发** (perfect forwarding)：
 
-- 如果参数传入前是左值，我们要以左值的形式转发到下一个函数
-- 如果参数传入前是右值，我们要先还原为右值的形式（使用 `std::move`），再转发到下一个函数
+- 如果参数传入前是 **左值引用**，我们要以 **左值引用** 的形式转发到下一个函数
+- 如果参数传入前是 **右值引用**，我们要先还原为 **右值引用** 的形式（使用 `std::move`），再转发到下一个函数
 
-而 `std::forward` 的实现原理比较简单：还原 `&&` 传入前的类型，对左值直接返回左值引用，对右值通过 `std::move` 变为右值引用。
+而 `std::forward` 的实现原理比较简单：利用模板重载的方法，构造不涉及左右值属性推导的两个重载：
+
+- 对 **左值引用** 可以根据需要返回 **左值引用** 或 **右值引用**
+- 对 **右值引用** 仅返回 **右值引用**
+
+``` cpp
+template <typename T>
+T&& forward(std::remove_reference_t<T>& val) {
+  // forward lvalue as either lvalue or rvalue
+  return (static_cast<T&&>(val));
+}
+
+template <typename T>
+T&& forward(std::remove_reference_t<T>&& val) {
+  // forward rvalue as rvalue
+  static_assert(!std::is_lvalue_reference_v<T>, "bad forward");
+  return (static_cast<T&&>(val));
+}
+```
 
 ## 写在最后 [no-number]
 
-虽然这些东西你不知道，也不会伤害你；但如果你知道了，就可以合理利用，从而提升编码效率，避免不必要的问题。
+虽然这些东西你不知道，也不会伤害你；但如果你知道了，就可以合理利用，从而提升 C++ 的使用效率，避免不必要的问题。
 
 如果有什么问题，**欢迎交流**。😄
 

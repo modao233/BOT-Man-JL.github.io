@@ -93,7 +93,7 @@ C++ 11 强化了左右值的概念：**左值** (lvalue, left value) 指的是�
 C++ 11 还引入了右值引用的概念：**左值引用** (lvalue reference) 是指通过 `&` 符号引用左值对象；**右值引用** (rvalue reference) 是指通过 `&&` 符号引用右值对象。而一旦 **右值引用被初始化** 后，就会立即 **退化成左值引用**（这个引用可以被取地址、被赋值；参考 [sec|误解：返回时，不移动右值引用参数] _误解：返回时，不移动右值引用参数_）。
 
 ``` cpp
-void f(Data& data);   // 1, data is lvalue
+void f(Data&  data);  // 1, data is lvalue
 void f(Data&& data);  // 2, data is rvalue
 
 Data   data;
@@ -154,7 +154,7 @@ vector::vector(vector&& rhs) {
 }
 ```
 
-上述代码中，`std::vector` 根据参数的左右值属性判断：
+上述代码中，`vector::vector` 根据参数的左右值属性判断：
 
 - 参数为左值时，拷贝构造，使用 `memcpy` 拷贝原对象的内存
 - 参数为右值时，移动构造，把指向原对象内存的指针 `data_`、内存大小 `size_` 复制到新对象，并把原对象这两个成员置 `0`
@@ -194,19 +194,19 @@ unique_ptr::unique_ptr(unique_ptr&& rhs) {
 }
 ```
 
-上述代码中，`std::unique_ptr` 的移动构造过程和 `std::vector` 类似：
+上述代码中，`unique_ptr` 的移动构造过程和 `vector` 类似：
 
 - 把指向原对象内存的指针 `data_` 复制到新对象
 - 把原对象的指针 `data_` 置为空
 
 ### 反例：不遵守移动语义
 
-移动语义只是语言上的一个 **概念**，具体是否移动对象的资源、如何移动对象的资源，都需要通过编写代码 **实现**。而移动语义常常被误认为移动对象本身。
+移动语义只是语言上的一个 **概念**，具体是否移动对象的资源、如何移动对象的资源，都需要通过编写代码 **实现**。而移动语义常常被误认为，编译器自动生成移动对象本身的代码（[sec|拷贝省略] 拷贝省略）。
 
-例如，`vector::vector(vector&& rhs)` 也可以不遵守移动语义，执行拷贝语义：
+为了证明这一点，我们可以实现不遵守移动语义的 `bad_vector::bad_vector(bad_vector&& rhs)`，执行拷贝语义：
 
 ``` cpp
-vector::vector(vector&& rhs) {
+bad_vector::bad_vector(bad_vector&& rhs) {
   auto &lhs = *this;
   lhs.size_ = rhs.size_;
   lhs.data_ = new T[lhs.size_];
@@ -214,10 +214,10 @@ vector::vector(vector&& rhs) {
 }
 ```
 
-那么，一个 `vector` 对象在被 `move` 移动后仍然可用：
+那么，一个 `bad_vector` 对象在被 `move` 移动后仍然可用：
 
 ```
-std::vector<int> v1 { 0, 1, 2, 3 };
+bad_vector<int> v1 { 0, 1, 2, 3 };
 auto v2 = std::move(v1);
 
 v1[0] = v2[3];           // ok, but a bit odd
@@ -229,7 +229,7 @@ ASSERT(v1[0] == v1[3]);
 
 ### 拷贝省略
 
-尽管有了移动语义，仍然有进一步优化的空间。编译器实现认为，与其调用一次没有太多意义的移动构造函数，不如直接让编译器把内存拷贝过去。于是就有了 [拷贝省略](https://en.cppreference.com/w/cpp/language/copy_elision) (copy elision) 的优化。
+尽管有了移动语义，仍然有进一步优化的空间。编译器实现认为，与其调用一次没有太多意义的移动构造函数，不如直接让编译器把对象本身的内存拷贝过去。于是就有了 [拷贝省略](https://en.cppreference.com/w/cpp/language/copy_elision) (copy elision) 的优化。
 
 很多人会把移动语义和拷贝省略 **混淆**：
 

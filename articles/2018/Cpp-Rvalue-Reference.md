@@ -39,9 +39,8 @@ void fn() {
 正确做法是封装成一个函数，只在返回值使用 `std::move`（这也符合函数式思想，尽可能减少临时值）：
 
 ``` cpp
-std::string GetQueryUrlString(const Tag* tag,
-                              const UserMgr* user_mgr) {
-  ASSERT(tag && user_mgr);
+std::string GetQueryUrlString(const Tag* tag) {
+  ASSERT(tag);
   std::string base_url  = tag->GetBaseUrl();
   if (!base_url.empty())
     return std::move(base_url) + "&q=" + word_;
@@ -51,7 +50,7 @@ std::string GetQueryUrlString(const Tag* tag,
 
 void fn() {
   //...
-  UpdateQueryUrl(GetQueryUrlString(tag, user_mgr));
+  UpdateQueryUrl(GetQueryUrlString(tag));
   //...
 }
 ```
@@ -76,6 +75,7 @@ std::unique_ptr<int> fn(std::unique_ptr<int>&& val) {
 ``` cpp
 std::unique_ptr<int> fn() {
   auto ret = std::make_unique<int>(64);
+  //...
   return std::move(ret);  // -> return ret;
 }
 ```
@@ -88,13 +88,13 @@ std::unique_ptr<int> fn() {
 
 > 如果已经了解了左右值引用基本概念，可以直接跳过这个部分。
 
-C++ 11 强化了左右值的概念：**左值** (lvalue, left value) 指的是可以通过变量名/指针/引用使用的值，**右值** (rvalue, right value) 指的是函数返回的临时值。区分左右值的一个不完全正确的方法是：左值可以 **取地址**，而右值不行；另一个从概念上的区分方法是：可以给左值 **赋值**，但右值不行。
+C++ 11 强化了左右值的概念：**左值** (lvalue, left value) 指的是可以通过变量名/指针/引用使用的值，**右值** (rvalue, right value) 指的是表达式返回的临时值。区分左右值的一个不完全正确的方法是：左值可以 **取地址**，而右值不行；另一个从概念上的区分方法是：可以给左值 **赋值**，但右值不行。
 
-C++ 11 还引入了右值引用的概念：**左值引用** (lvalue reference) 是指通过 `&` 符号引用左值对象；**右值引用** (rvalue reference) 是指通过 `&&` 符号引用右值对象。而一旦 **右值引用被初始化** 后，就会立即 **退化成左值引用**（这个引用可以被取地址、被赋值；参考 [sec|误解：返回时，不移动右值引用参数] _误解：返回时，不移动右值引用参数_）。
+C++ 11 还引入了右值引用的概念：**左值引用** (l-ref, lvalue reference) 是指通过 `&` 符号引用左值对象；**右值引用** (r-ref, rvalue reference) 是指通过 `&&` 符号引用右值对象。而一旦 **右值引用被初始化** 后，就会立即 **退化成左值引用**（这个引用可以被取地址、被赋值；参考 [sec|误解：返回时，不移动右值引用参数] _误解：返回时，不移动右值引用参数_）。
 
 ``` cpp
-void f(Data&  data);  // 1, data is lvalue
-void f(Data&& data);  // 2, data is rvalue
+void f(Data&  data);  // 1, data is l-ref
+void f(Data&& data);  // 2, data is r-ref
 
 Data   data;
 Data&  data1 = data;
@@ -102,14 +102,14 @@ Data&& data2 = data;
 
 f(data);    // 1, data is lvalue
 f(Data{});  // 2, data is rvalue
-f(data1);   // 1, data1 is lvalue reference
-f(data2);   // 1, data2 degenerates to lvalue reference
+f(data1);   // 1, data1 is l-ref
+f(data2);   // 1, data2 degenerates to l-ref
 ```
 
-另外，C++ 还允许 **常引用** (const reference) 作为参数的重载，同时接受左右值参数：
+另外，C++ 还允许 **常引用** (c-ref, const reference) 作为参数的重载，同时接受左右值参数：
 
 ``` cpp
-void f(const Data& data);  // data is const-ref
+void f(const Data& data);  // data is c-ref
 
 f(data);    // ok, data is lvalue
 f(Data{});  // ok, data is rvalue
@@ -141,7 +141,7 @@ template<typename T> class vector {
 vector::vector(const vector& rhs) {
   auto &lhs = *this;
   lhs.size_ = rhs.size_;
-  lhs.data_ = new T[lhs.size_];
+  lhs.data_ = new T[rhs.size_];
   memcpy(lhs.data_, rhs.data, rhs.size_);  // copy data
 }
 
@@ -163,7 +163,7 @@ vector::vector(vector&& rhs) {
 
 ``` cpp
 class Foo {
-public:
+ public:
   Data& data() & { return data_; }        // lvalue, ref
   Data data() && { return move(data_); }  // rvalue, move
 };
@@ -189,8 +189,8 @@ template<typename T> class unique_ptr {
 
 unique_ptr::unique_ptr(unique_ptr&& rhs) {
   auto &lhs = *this;
-  rhs.data_ = lhs.data_;
-  lhs.data_ = nullptr;
+  lhs.data_ = rhs.data_;
+  rhs.data_ = nullptr;
 }
 ```
 
@@ -209,14 +209,14 @@ unique_ptr::unique_ptr(unique_ptr&& rhs) {
 bad_vector::bad_vector(bad_vector&& rhs) {
   auto &lhs = *this;
   lhs.size_ = rhs.size_;
-  lhs.data_ = new T[lhs.size_];
+  lhs.data_ = new T[rhs.size_];
   memcpy(lhs.data_, rhs.data, rhs.size_);  // copy data
 }
 ```
 
 那么，一个 `bad_vector` 对象在被 `move` 移动后仍然可用：
 
-```
+``` cpp
 bad_vector<int> v1 { 0, 1, 2, 3 };
 auto v2 = std::move(v1);
 
@@ -239,19 +239,20 @@ ASSERT(v1[0] == v1[3]);
 在 C++ 14 标准中没有强制编译器支持这个优化，而 C++ 17 标准针对这项优化有了进一步的强制性。C++ 17 提出了 **纯右值** (prvalue, pure rvalue) 的概念，并要求编译器对纯右值进行拷贝省略优化。
 
 ``` cpp
-Type f() {
+Data f() {
+  Data val;
   // ...
-  throw t;
+  throw val;
   // ...
-  return t;
+  return val;
 
   // NRVO from lvalue to ret (not guaranteed)
   // if NRVO is disabled, move ctor is called
 }
  
-void g(Type arg);
+void g(Date arg);
 
-Type v = f();     // copy elision from prvalue (C++ 17)
+Data v = f();     // copy elision from prvalue (C++ 17)
 g(f());           // copy elision from prvalue (C++ 17)
 ```
 

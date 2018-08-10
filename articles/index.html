@@ -314,7 +314,7 @@
                         // hard-coded anchor generator
                         segments[1] = '#' + segments[1]
                             .toLowerCase()
-                            .replace(/[^\w\u4E00-\u9FFF]+/g, '-')
+                            .replace(/[^\w\u4E00-\u9FFF%]+/g, '-')
                             .replace(/^-+/g, '')
                             .replace(/-+$/g, '');
                     }

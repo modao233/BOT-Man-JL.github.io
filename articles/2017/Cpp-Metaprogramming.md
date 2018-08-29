@@ -159,9 +159,9 @@ auto d = ToString (std::string {});  // not compile :-(
 
 #### 使用 `if` 进行编译时测试
 
-对于初次接触元编程的人，往往会使用 `if` 语句进行编译时测试。代码 [code|not-test-type] 是 代码 [code|test-type] 一个 **错误的写法**，很代表性的体现了元编程和普通编程的不同之处（[sec|什么是元编程]）。
+对于初次接触元编程的人，往往会使用 `if` 语句进行编译时测试。代码 [code|bad-test-type] 是 代码 [code|test-type] 一个 **错误的写法**，很代表性的体现了元编程和普通编程的不同之处（[sec|什么是元编程]）。
 
-[code||not-test-type]
+[code||bad-test-type]
 
 ``` cpp
 template <typename T>
@@ -174,11 +174,30 @@ std::string ToString (T val) {
 
 [align-center]
 
-代码 [code|not-test-type] - 编译时测试类型的错误用法
+代码 [code|bad-test-type] - 编译时测试类型的错误用法
 
-代码 [code|not-test-type] 中的错误在于：编译代码的函数 `ToString` 时，对于给定的类型 `T`，需要进行两次函数绑定 —— `val` 作为参数分别调用 `std::to_string (val)` 和 `std::string (val)`，再进行一次静态断言 —— 判断 `!isBad<T>` 是否为 `true`。这会使得两次绑定中，有一次会失败。假设调用 `ToString ("str")`，在编译这段代码时，`std::string (const char *)` 可以正确的重载，但是 `std::to_string (const char *)` 并不能找到正确的重载，导致编译失败。
+代码 [code|bad-test-type] 中的错误在于：编译代码的函数 `ToString` 时，对于给定的类型 `T`，需要进行两次函数绑定 —— `val` 作为参数分别调用 `std::to_string (val)` 和 `std::string (val)`，再进行一次静态断言 —— 判断 `!isBad<T>` 是否为 `true`。这会使得两次绑定中，有一次会失败。假设调用 `ToString ("str")`，在编译这段代码时，`std::string (const char *)` 可以正确的重载，但是 `std::to_string (const char *)` 并不能找到正确的重载，导致编译失败。
 
-假设是脚本语言，这段代码是没有问题的：因为脚本语言没有编译的概念，所有函数的绑定都在 **运行时** 完成；而静态语言的函数绑定是在 **编译时** 完成的。为了使得代码 [code|not-test-type] 的风格用于元编程，C++ 17 引入了 `constexpr-if` [cppref-constexpr-if] —— 只需要把以上代码 [code|not-test-type] 中的 `if` 改为 `if constexpr` 就可以编译了。`constexpr-if` 的引入让模板测试更加直观，提高了模板代码的可读性（[sec|复杂性]）。
+假设是脚本语言，这段代码是没有问题的：因为脚本语言没有编译的概念，所有函数的绑定都在 **运行时** 完成；而静态语言的函数绑定是在 **编译时** 完成的。为了使得代码 [code|bad-test-type] 的风格用于元编程，C++ 17 引入了 `constexpr-if` [cppref-constexpr-if] —— 只需要把以上代码 [code|bad-test-type] 中的 `if` 改为 `if constexpr` 就可以编译了。
+
+`constexpr-if` 的引入让模板测试更加直观，提高了模板代码的可读性（[sec|复杂性]）。代码 [code|fixed-test-type] 展示了如何使用 `constexpr-if` 解决编译时选择的问题。
+
+[code||fixed-test-type]
+
+``` cpp
+template <typename T>
+std::string ToString (T val) {
+    if constexpr (isNum<T>) return std::to_string (val);
+    else if constexpr (isStr<T>) return std::string (val);
+    else static_assert (!isBad<T>, "neither arithmetic nor string");
+}
+```
+
+[align-center]
+
+代码 [code|fixed-test-type] - 编译时测试类型的正确用法
+
+然而，`constexpr-if` 背后的思路早在 Visual Studio 2012 已出现了。其引入了 `__if_exists` 语句，用于编译时测试标识符是否存在。[vs-if-exists]
 
 ### 编译时迭代
 
@@ -384,6 +403,7 @@ This article is published under MIT License &copy; 2017, BOT Man
 - [template-turing-complete]: Todd L. Veldhuizen. _C++ Templates are Turing Complete_ [J] Indiana University Computer Science Technical Report. 2003.
 - [cppref-SFINAE]: cppreference.com. _SFINAE_ [EB/OL] http://en.cppreference.com/w/cpp/language/sfinae
 - [cppref-constexpr-if]: cppreference.com. _if statement_ [EB/OL] http://en.cppreference.com/w/cpp/language/if
+- [vs-if-exists]: Microsoft Docs. _`__if_exists` Statement_ [EB/OL] https://docs.microsoft.com/en-us/cpp/cpp/if-exists-statement?view=vs-2017
 - [expr-template]: Todd Veldhuizen. _Expression Templates_ [C] // S. B. Lippman. In _C++ Report_, 1995, 7(5): 26–31.
 - [gererative-programming]: K. Czarnecki, U. Eisenecker. _Generative Programming: Methods, Tools, and Applications_ [M] Addison-Wesley, 2000.
 - [naive-orm]: BOT Man JL. _How to Design a Naive C++ ORM_ [EB/OL] https://bot-man-jl.github.io/articles/?post=2016/How-to-Design-a-Naive-Cpp-ORM

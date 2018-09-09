@@ -702,7 +702,7 @@ Galaxy Club 是芭提雅步行街的一个俄罗斯酒吧，里边的妹子全�
 
 ## 总结
 
-TODO
+去不一样的地方，经历不一样的事情，感受不一样的文化，就会有不一样的收获。人生就是一场旅行，旅行的意义在此，人生的意义亦在此。
 
 <script>
 function removeSection(strBeg, strEnd) {

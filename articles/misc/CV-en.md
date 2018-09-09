@@ -30,7 +30,7 @@ EN | [中文](CV-zh.md)
     - ASP.NET (core) MVC (Experienced)
   - JavaScript (Experienced)
     - Node.js (Experienced)
-    - Web Frontend / Vue.js (Basic)
+    - Web Frontend / Vue.js / Wechat App (Basic)
 - English (CET-6)
 - Editing Video (using _Sony Vegas_) (Experienced)
 

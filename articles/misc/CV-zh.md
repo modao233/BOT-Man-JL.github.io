@@ -30,7 +30,7 @@
     - ASP.NET (core) MVC（熟练）
   - JavaScript（熟练）
     - Node.js（熟练）
-    - Web 前端/ Vue.js（基本）
+    - Web 前端/ Vue.js/微信小程序（基本）
 - 英文 (CET-6)
 - 视频编辑（使用 _Sony Vegas_）（熟练）
 

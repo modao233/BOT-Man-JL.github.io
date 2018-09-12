@@ -12,7 +12,7 @@
 
 > 微信平台的最大不足，就是过于 **封闭** ...
 
-我们那次使用 [Slack 开放平台](https://api.slack.com/) 实现课题。由于那是第一次接触 Web 前端，就随口问了一下微信小程序生态的情况，没想到听到的全是吐槽。当时想，线上那么多小程序都蛮好用的，怎么开发者们都在吐槽呢。。。现在是切身体会到了 —— **不推荐开发微信小程序**。
+对比当时使用 [Slack 开放平台](https://api.slack.com/)，现在切身体会到了 —— **不推荐开发微信小程序**。
 
 本文简单的吐槽一下这次开发中，遇到的一些坑。
 
@@ -20,7 +20,7 @@
 
 首次创建小程序例子项目的时候，乍一看，这不就是 [vue](https://cn.vuejs.org/) 风格的前端框架吗？写了一段时间之后，才发现：小程序的 [WXML](https://developers.weixin.qq.com/miniprogram/dev/quickstart/basic/file.html) 并不是想象中的 HTML！小程序开发并不是简单的 Web 前端开发！
 
-### 不能操作 DOM 元素
+### 不能动态修改节点结构
 
 在 JavaScript 里，经常能看到类似下面的语句：
 
@@ -32,39 +32,53 @@ document.querySelector(".log").innerHTML += msg + "<br/>";
 - 然后，修改选中元素的子元素
 - 最后，实现修改页面的内容和样式
 
-而小程序的设计思路和上边的代码大相径庭 —— 不能动态修改 DOM 元素，只能通过修改 `class` 或使用 [`wx:if` 条件渲染](https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxml/conditional.html) 动态修改样式。。。
-
-由于不能动态修改页面节点结构，小程序更适合显示
-
-> [封闭式的、逻辑简单的](http://www.cnblogs.com/yingwo/p/5912797.html) 页面。
+而小程序的设计思路和上边的代码大相径庭 —— 不能动态修改 DOM 元素结构，只能通过修改 `class` 或使用 [`wx:if` 条件渲染](https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxml/conditional.html) 动态修改样式。。。
 
 尽管小程序也提供了一些 [节点信息获取方法](https://developers.weixin.qq.com/miniprogram/dev/api/wxml-nodes-info.html)，却仍然无法实现丰富的功能。
 
-所以，小程序很难渲染出像很多网页一样丰富、动态的内容。（其实是可以的，只是代价特别大 😐）
+由于不能动态修改页面节点结构，小程序更适合
+
+> [封闭式的、逻辑简单的](http://www.cnblogs.com/yingwo/p/5912797.html) 的应用。
+
+简单说来，就是在小程序里展示一篇文章，文章的版式和样式都是固定的；而如果使用网页展示一篇文章，文章的版式和样式都可以灵活的定制。如果想要在小程序里引入新的样式，则需要为小程序编写新样式，然后发布新版本。
+
+> 好处是：小程序发布后，结构基本不变，**不能显示未审核的内容**。
+
+### 不支持外链
+
+小程序只能显示内置页面；如果要显示外部网页，则需要使用 [WebView 组件](https://developers.weixin.qq.com/miniprogram/dev/component/web-view.html)。（可以类比公众号不支持外链）
+
+> 好处是：收紧外链展示入口，易于 **监控、审核外链内容**。
 
 ### 原生组件
 
-https://developers.weixin.qq.com/miniprogram/dev/component/native-component.html
+和一般的 Web App 不一样，小程序提供了一些基本的 [原生组件](https://developers.weixin.qq.com/miniprogram/dev/component/native-component.html)（例如，视频播放器）。
 
-### 其他限制
+原生组件使用上虽然比较方便，但是会有一些问题：一方面，原生组件不易自己定制（比如设计样式）；另一方面，原生组件交互上体验不是太好（比如视频播放器组件进度条体验不大好）。
 
-- [代码大小不能超过 2M，分开打包不能超过 8M](https://developers.weixin.qq.com/miniprogram/dev/framework/subpackages.html)
-- [本地存储只允许 10M](https://developers.weixin.qq.com/miniprogram/dev/api/data.html)
-- [网络请求也有诸多苛刻的限制...](https://developers.weixin.qq.com/miniprogram/dev/api/api-network.html)
+另外，许多原生组件的使用需要特殊的权限申请（例如，视频播放需要媒体牌照）。
 
-## 敏捷的敌人 —— XX的审核
+> 好处是：收紧富媒体内容入口，易于 **对富媒体内容进行审查**。
 
-- 音视频/交流板块
-- 流畅慢
-- WebView 权限限制（公众号外链）
+## 权限和审核
 
-https://developers.weixin.qq.com/miniprogram/dev/component/web-view.html
+微信对小程序有着严格的 **功能范围限制**：
+
+- 如果小程序需要支持 **音视频播放**，就需要向微信申请媒体权限；如果需要实时音视频流的播放，还会有额外的一些限制。
+- 如果小程序需要支持 **交流、评论** 的功能，也需要特殊的权限。
+- **WebView 组件** 并不对所有小程序开放，也需要申请相应权限。
+
+申请这些权限，一方面需要提供相关材料，另一方面还要走复杂的申请-审核流程。如果需要 **发布** 小程序，需要先提交代码，待 **微信审核** 通过后，才能上线。
+
+而如果在开放的互联网里，开发 Web 应用，则不需要关心太多权限、审核的问题。
 
 ## 写在最后
 
-最后，我在文档里发现了一些小问题；正准备反馈，但是 **没找到反馈的入口**，于是放弃了。😔
+最后，我在文档里发现了一些小问题（就是一个 typo）；正准备反馈，但是 **没找到反馈的入口**，于是放弃了。😔
 
-想起 2 年前第一次接触 Web 前端，第一次使用 JavaScript，就有幸体验到了什么叫做 **开放平台**。。。
+在一个封闭的平台下，一切都弥漫着审核的气息，不禁让我想起 2 年前第一次接触 Web 前端，就有幸体验到了什么叫做 **开放平台**。
+
+综上，**不推荐开发微信小程序**。
 
 如果有什么问题，**欢迎交流**。😄
 

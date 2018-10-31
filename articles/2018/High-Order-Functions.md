@@ -10,23 +10,23 @@
 
 ## 使用 `every/some` (`all/any`) 合并谓词
 
-> 数学描述：
->
-> $$some/every: (E \rightarrow boolean) \times [E] \rightarrow boolean$$
-
 很多时候，我们需要对多个元素检查同一个 **谓词** (predicate)。例如：
 
 - 检查 **每个元素** 是否 **都** 满足一个条件；
 - 检查是否 **存在某些元素** 满足一个条件。
 
-设这组元素序列为 $S$，谓词为 $P$，用离散数学可以表述为：
+设这组元素序列为 $S$，谓词为 $P$，这两个操作用离散数学可以表述为：
 
-- $\forall{x \in S}, P(x)$
-- $\exists{x \in S}, P(x)$
+- $every: \forall{x \in S}, P(x)$
+- $some: \exists{x \in S}, P(x)$
 
+> 数学描述：
+>
+> $$every/some: (E \rightarrow boolean) \times [E] \rightarrow boolean$$
+>
 > 编程语言实现：
 >
-> - JavaScript：[`Array.prototype.some`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some)/[`Array.prototype.every`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every)
+> - JavaScript：[`Array.prototype.every`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every)/[`Array.prototype.some`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some)
 > - C++：[`std::any_of`/`std::all_of`](https://en.cppreference.com/w/cpp/algorithm/all_any_none_of)
 
 ### 例子：检查日期
@@ -68,10 +68,6 @@ function isDayAvaliable(avaliable_days, day_now) {
 
 ## 使用 `map` 映射结果
 
-> 数学描述：
->
-> $$map: (E \rightarrow F) \times [E] \rightarrow [F]$$
-
 图形描述：
 
 [align-center]
@@ -82,13 +78,17 @@ function isDayAvaliable(avaliable_days, day_now) {
 
 [align-center]
 
-map - [source](https://atendesigngroup.com/sites/default/files/array-map.png)
+[map](https://atendesigngroup.com/blog/array-map-filter-and-reduce-js) - [source](https://atendesigngroup.com/sites/default/files/array-map.png)
 
 有时候，我们需要对多个元素进行同一个 **转换** (transform)。例如：上边图片里，给定 3 个水果，把每个水果都进行切片转换，得到 3 个水果切片。操作的特点是：
 
-- 对每个元素都进行相同的转换
-- 转换后结果的个数和转换前相同
+- 转换后结果的 **个数** 和转换前 **相同**
+- 转换前后元素 **类型** **不一定相同**
 
+> 数学描述：
+>
+> $$map: (E \rightarrow F) \times [E] \rightarrow [F]$$
+>
 > 编程语言实现：
 >
 > - JavaScript：[`Array.prototype.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)
@@ -137,7 +137,9 @@ function stableSort(array, compare) {
 }
 ```
 
-首先，将每个元素连同其下标转换成（元素，下标）序对；然后，根据元素的比较函数作为排序依据；如果比较相等，那么就优先排列下标靠前的元素；最后，从排好序的（元素，下标）序对中取出元素，从而得到结果。
+- 首先，将每个元素连同其下标转换成（元素，下标）序对
+- 然后，根据元素的比较函数作为排序依据；如果比较相等，那么就优先排列下标靠前的元素
+- 最后，从排好序的（元素，下标）序对中取出元素，从而得到结果
 
 ### 例子：抓取页面
 
@@ -199,11 +201,9 @@ const result = $('.myclass ul').map(
 );
 ```
 
-## 使用 `filter` 过滤结果
+针对多个循环嵌套的情况，可以通过高阶函数嵌套的方法，有效的消除循环和临时变量。
 
-> 数学描述：
->
-> $$filter: (E \rightarrow boolean) \times [E] \rightarrow [E]'$$
+## 使用 `filter` 过滤结果
 
 图形描述：
 
@@ -215,19 +215,23 @@ const result = $('.myclass ul').map(
 
 [align-center]
 
-filter - [source](https://atendesigngroup.com/sites/default/files/array-filter.png)
+[filter](https://atendesigngroup.com/blog/array-map-filter-and-reduce-js) - [source](https://atendesigngroup.com/sites/default/files/array-filter.png)
 
 有时候，我们需要对多个元素按照一个规则进行 **筛选** (filter)。例如：上边图片里，给定 3 个水果，我们筛选球形的水果，得到 1 个水果（橙子）。操作的特点是：
 
-- 对每个元素都检查相同的谓词
-- 筛选后结果的个数 ≤ 元素的总数
+- 筛选后结果的 **个数 ≤** 筛选前的元素总数
+- 筛选前后元素 **类型** **相同**
 
+> 数学描述：
+>
+> $$filter: (E \rightarrow boolean) \times [E] \rightarrow [E]'$$
+>
 > 编程语言实现：
 >
 > - JavaScript：[`Array.prototype.filter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter)
 > - C++：[`std::copy_if`](https://en.cppreference.com/w/cpp/algorithm/copy)
 
-### 例子：数组去重：使用 `filter` 过滤出首次出现的元素
+### 例子：数组去重
 
 ``` js
 // [ x, y, y ] => [ x, y ]
@@ -236,11 +240,9 @@ function uniqueArray(array) {
 }
 ```
 
-## 使用 `reduce` 规约结果
+代码使用 `indexOf` 检查 `elem` 首次出现的下标，过滤出下标和当前 `elem` 下标一致的元素。
 
-> 数学描述：
->
-> $$reduce: (E \times F \rightarrow F) \times [E] \times F \rightarrow F'$$
+## 使用 `reduce` 规约结果
 
 图形描述：
 
@@ -252,20 +254,27 @@ function uniqueArray(array) {
 
 [align-center]
 
-reduce - [source](https://atendesigngroup.com/sites/default/files/array-reduce.png)
+[reduce](https://atendesigngroup.com/blog/array-map-filter-and-reduce-js) - [source](https://atendesigngroup.com/sites/default/files/array-reduce.png)
 
 有时候，我们需要对多个元素按照一个规则先进行 **加工** (process)，然后 **累加** (accumulate) 起来。例如：上边图片里，给定 3 个水果，我们先提供一个碗，每一步把水果切成小块并放入碗里，最后得到一碗水果块。操作的特点是：
 
-- 给定一个 **初始值** 作为累加结果
-- **每次** 把 **一个** 元素通过规约方法累加到结果上
-- 规约完成后，最终得到 **一个结果**
+- 规约完成后，最终只得到 **一个结果**
+- 规约得到 **结果的类型** 和 **初始值的类型** **相同**
 
+> 数学描述：
+>
+> $$reduce: (E \times F \rightarrow F) \times [E] \times F \rightarrow F'$$
+>
 > 编程语言实现：
 >
-> - JavaScript：[`Array.prototype.reduce`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce)
-> - C++：[`std::accumulate`](https://en.cppreference.com/w/cpp/algorithm/accumulate)
+> - JavaScript：
+>   - 最左规约：[`Array.prototype.reduce`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce)
+>   - 最右规约：[`Array.prototype.reduceRight`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduceRight)
+> - C++：
+>   - 最左规约：[`std::accumulate`](https://en.cppreference.com/w/cpp/algorithm/accumulate)
+>   - 乱序规约：[`std::reduce`](https://en.cppreference.com/w/cpp/algorithm/reduce)
 
-### 例子：数组扁平化：使用 `reduce` 规约拼接数组元素
+### 例子：数组扁平化
 
 ``` js
 // [ [x, y], [z] ] => [ x, y, z ]
@@ -274,21 +283,28 @@ function flatArray(array) {
 }
 ```
 
+- 首先，规约的初始值是一个空数组，作为 `acc` 进行规约
+- 然后，每次从输入数组 `array` 中取出一个元素 `elem`，和数组 `acc` 合并，并作为下一轮规约的 `acc`
+- 最后，得到数组 `acc` 作为规约的返回值
+
 ## 写在最后
 
-综上，（尤其针对多个循环嵌套的情况，[sec|例子：抓取页面]），可以通过高阶函数嵌套的方法，消除循环和临时变量。
+说几点我自己的想法：
+
+- 变量主要是用来存储状态，而如果系统中存在过多的状态，很难保持各个状态的一致性，所以尽可能：
+  - 减少变量的使用：将与当前上下文无关的临时变量封装到新的函数里（小范围可以构造匿名函数，大范围再提成公共的成员函数/静态函数），将新的函数的返回值作为当前函数的输入
+  - 缩小变量的作用域：例如，将循环里的变量的作用域限制在高阶函数参数的函数里，不会相互干扰
+- `every`/`some`/`map`/`filter` 都可以用 `reduce` 实现，从而实现更复杂的函数式编程
+- C++ 是强类型编译语言，不同序列的 **类型不同**，所以标准库只能借助 **泛型** 实现高阶函数；JavaScript 是弱类型脚本语言，可以使用 `Array` 存储 **任意序列**，所以可以把这些高阶函数作为 **`Array` 的原型方法**
+  - [C++ 版本 demo](High-Order-Functions/High-Order-Functions.cpp)
+  - [JavaScript 版本 demo](High-Order-Functions/High-Order-Functions.js)
+- C++ 库 [range-v3](https://github.com/ericniebler/range-v3) 利用了现代 C++ 的模板技巧，提供一种更方便的高阶函数语法
 
 > 延伸阅读：
 >
-> - [Simplify your JavaScript – Use .map(), .reduce(), and .filter()](https://medium.com/poka-techblog/simplify-your-javascript-use-map-reduce-and-filter-bd02c593cc2d)
-> - [Array Map, Filter and Reduce in JS](https://atendesigngroup.com/blog/array-map-filter-and-reduce-js)
-> - [js map, reduce, forEach, filter的一般实现](https://blog.csdn.net/u011700203/article/details/47191893)
+> - [Simplify your JavaScript – Use .map(), .reduce(), and .filter() | Medium](https://medium.com/poka-techblog/simplify-your-javascript-use-map-reduce-and-filter-bd02c593cc2d)
 > - [Reading 25: Map, Filter, Reduce | MIT 6.005](http://web.mit.edu/6.005/www/fa15/classes/25-map-filter-reduce/)
-
-相关 demo 代码：
-
-- [js 版本](High-Order-Functions/High-Order-Functions.js)
-- [C++ 版本](High-Order-Functions/High-Order-Functions.cpp)
+> - [Functional-Light JavaScript (FLJSBook) | Github](https://github.com/getify/Functional-Light-JS)
 
 如果有什么问题，**欢迎交流**。😄
 

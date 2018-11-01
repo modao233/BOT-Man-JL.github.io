@@ -2,7 +2,7 @@
 
 > 2018/10/27
 >
-> 如何设计使用高阶函数，让代码更简洁、更清晰。
+> 如何使用高阶函数，让代码更简洁、更清晰。本文比较浅显地介绍了序列相关的操作。
 
 ## 目录 [no-toc]
 
@@ -10,19 +10,21 @@
 
 ## 使用 `every/some` (`all/any`) 合并谓词
 
-很多时候，我们需要对多个元素检查同一个 **谓词** (predicate)。例如：
+很多时候，我们需要对一个序列的各个元素检查同一个 **谓词** (predicate)。例如：
 
-- 检查 **每个元素** 是否 **都** 满足一个条件；
-- 检查是否 **存在某些元素** 满足一个条件。
+- 检查 **每个元素** 是否 **都** 满足一个条件
+- 检查是否 **存在某些元素** 满足一个条件
 
 设这组元素序列为 $S$，谓词为 $P$，这两个操作用离散数学可以表述为：
 
 - $every: \forall{x \in S}, P(x)$
 - $some: \exists{x \in S}, P(x)$
 
+对于这两种检查，我们可以用高阶函数表示。
+
 > 数学描述：
 >
-> $$every/some: (E \rightarrow boolean) \times [E] \rightarrow boolean$$
+> $$(E \rightarrow boolean) \times [E] \rightarrow boolean$$
 >
 > 编程语言实现：
 >
@@ -64,7 +66,7 @@ function isDayAvaliable(avaliable_days, day_now) {
 }
 ```
 
-相比循环实现的代码，使用高阶函数一方面缩短代码的长度，另一方面可读性更好 —— 从代码上可以直观的看出其语义：检查 `avaliable_days` 中是否存在 `some` `day`，满足和 `day_now` 表示同一天的 。
+相比循环实现的代码，使用高阶函数一方面缩短代码的长度，另一方面可读性更好 —— 代码的风格更接近于自然语言：检查 `avaliable_days` 中是否存在 `some` `day`，满足和 `day_now` 表示同一天的 。
 
 ## 使用 `map` 映射结果
 
@@ -80,14 +82,14 @@ function isDayAvaliable(avaliable_days, day_now) {
 
 [map](https://atendesigngroup.com/blog/array-map-filter-and-reduce-js) - [source](https://atendesigngroup.com/sites/default/files/array-map.png)
 
-有时候，我们需要对多个元素进行同一个 **转换** (transform)。例如：上边图片里，给定 3 个水果，把每个水果都进行切片转换，得到 3 个水果切片。操作的特点是：
+有时候，我们需要对一个序列的各个元素进行同一个 **转换** (transform)。例如：上边图片里，给定 3 个水果，把每个水果都进行切片转换，得到 3 个水果切片。操作的特点是：
 
-- 转换后结果的 **个数** 和转换前 **相同**
-- 转换前后元素 **类型** **不一定相同**
+- 转换后结果的 **个数** 和转换前 **相同**（都是三个）
+- 转换前后元素 **类型** **不一定相同**（从水果到切片）
 
 > 数学描述：
 >
-> $$map: (E \rightarrow F) \times [E] \rightarrow [F]$$
+> $$(E \rightarrow F) \times [E] \rightarrow [F]$$
 >
 > 编程语言实现：
 >
@@ -121,7 +123,7 @@ JavaScript 里，[`Array.prototype.sort`](https://developer.mozilla.org/en-US/do
 ]
 ```
 
-根据上述规则，我们应该选择 `john` 和 `jill`，而不会选择 `jill` 和 `jess`。
+根据上述规则，如果要选两个人，我们应该选择 `john` 和 `jill`，而不会选择 `jill` 和 `jess`。
 
 我们可以利用（不稳定排序 + 下标排序）构造一个复合排序，实现稳定排序。
 
@@ -137,16 +139,16 @@ function stableSort(array, compare) {
 }
 ```
 
-- 首先，将每个元素连同其下标转换成（元素，下标）序对
+- 首先，将每个元素连同其下标组合成 <元素，下标> 序对
 - 然后，根据元素的比较函数作为排序依据；如果比较相等，那么就优先排列下标靠前的元素
-- 最后，从排好序的（元素，下标）序对中取出元素，从而得到结果
+- 最后，从排好序的 <元素，下标> 序对中取出元素，从而得到结果
 
 ### 例子：抓取页面
 
-[cheerio.js](https://cheerio.js.org/) 提供了类似 jQuery 的解析 DOM 树接口，可以用于抓取页面元素。对于每个 DOM 节点的解析结果，都可以用两种方式获取：
+[cheerio.js](https://cheerio.js.org/) 提供了类似 jQuery 的解析 DOM 树接口，可以用于抓取页面元素。对于每个 DOM 节点的解析结果，都可以从父节点处，使用两种方式访问：
 
-- `.children()` 返回当前节点的子节点
-- `.map(fn)` 遍历当前节点的子节点，执行函数 `fn`，返回执行结果并构造为数组
+- `for (const child of elem.children()) ...` 遍历节点 `elem` 的所有子节点，执行需要的操作
+- `elem.map((index, child) => { ... })` 遍历节点 `elem` 的子节点，执行函数，并将所有返回的结果构造为数组
 
 假设抓取的页面格式：
 
@@ -154,13 +156,13 @@ function stableSort(array, compare) {
 <div class="myclass">
   <p>section1</p>
   <ul>
-    <li>Please visit <a href="about:blank">website1</a>!</li>
-    <li>Please visit <a href="about:blank">website2</a>!</li>
+    <li>Please visit <a href="http://github.com/a">website1</a>!</li>
+    <li>Please visit <a href="http://github.com/b">website2</a>!</li>
   </ul>
   <p>section2</p>
   <ul>
-    <li>Please visit <a href="about:blank">website3</a>!</li>
-    <li>Please visit <a href="about:blank">website4</a>!</li>
+    <li>Please visit <a href="http://github.com/c">website3</a>!</li>
+    <li>Please visit <a href="http://github.com/d">website4</a>!</li>
   </ul>
 </div>
 ```
@@ -169,8 +171,14 @@ function stableSort(array, compare) {
 
 ``` json
 [
-  { "anchors": [ "website1", "website2" ] },
-  { "anchors": [ "website3", "website4" ] }
+  {
+    "titles": [ "website1", "website2" ],
+    "links": [ "http://github.com/a", "http://github.com/b" ]
+  },
+  {
+    "titles": [ "website3", "website4" ],
+    "links": [ "http://github.com/c", "http://github.com/d" ]
+  }
 ]
 ```
 
@@ -178,30 +186,55 @@ function stableSort(array, compare) {
 
 ``` js
 const result = [];
+
 for (cosnt e_ul of $('.myclass ul').children()) {
-  const anchors = [];
+  const titles = [];
+  const links = [];
+
   for (const e_a of $('li a', e_ul).children()) {
-    const text = $(e_a).text();
-    anchors.push(text);
+    const title = $(e_a).text();
+    titles.push(title);
+
+    const link = $(e_a).attr('href');
+    links.push(link);
   }
-  result.push({ anchors });
+
+  result.push({ titles, links });
 }
 ```
 
 - 需要使用两层 for 循环
-- 需要使用 `anchors` 变量保存中间结果
+- 需要使用 `titles`/`links` 变量保存中间结果
 
 使用 `map` 抓取的代码：
 
 ``` js
 const result = $('.myclass ul').map(
-  (i, e_ul) => { anchors: $('li a', e_ul).map(
-    (i, e_a) => $(e_a).text()
-  )}
+  (i_ul, e_ul) => {
+    titles: $('li a', e_ul).map(
+      (i_a, e_a) => $(e_a).text()
+    ),
+    links: $('li a', e_ul).map(
+      (i_a, e_a) => $(e_a).attr('href')
+    )
+  }
 );
 ```
 
-针对多个循环嵌套的情况，可以通过高阶函数嵌套的方法，有效的消除循环和临时变量。
+这里可以通过高阶函数嵌套的方法，有效的消除循环和临时变量，并更直观的展现处输入/输出的数据结构。例如，把 `() =>` 删掉，把 `$().map(...)` 替换成 `[...]`，我们就可以得到下面的结果（这不就是我们的抓取目标格式吗）：
+
+``` js
+result = [
+  {
+    titles: [
+      text()
+    ],
+    links: [
+      attr('href')
+    ]
+  }
+]
+```
 
 ## 使用 `filter` 过滤结果
 
@@ -217,14 +250,14 @@ const result = $('.myclass ul').map(
 
 [filter](https://atendesigngroup.com/blog/array-map-filter-and-reduce-js) - [source](https://atendesigngroup.com/sites/default/files/array-filter.png)
 
-有时候，我们需要对多个元素按照一个规则进行 **筛选** (filter)。例如：上边图片里，给定 3 个水果，我们筛选球形的水果，得到 1 个水果（橙子）。操作的特点是：
+有时候，我们需要对一个序列的各个元素按照一个规则进行 **筛选** (filter)。例如：上边图片里，给定 3 个水果，筛选球形的水果，得到 1 个水果（橙子）。操作的特点是：
 
-- 筛选后结果的 **个数 ≤** 筛选前的元素总数
-- 筛选前后元素 **类型** **相同**
+- 筛选后结果的 **个数 ≤** 筛选前的元素总数（1 ≤ 3）
+- 筛选前后元素 **类型** **相同**（都是水果）
 
 > 数学描述：
 >
-> $$filter: (E \rightarrow boolean) \times [E] \rightarrow [E]'$$
+> $$(E \rightarrow boolean) \times [E] \rightarrow [E]'$$
 >
 > 编程语言实现：
 >
@@ -240,7 +273,8 @@ function uniqueArray(array) {
 }
 ```
 
-代码使用 `indexOf` 检查 `elem` 首次出现的下标，过滤出下标和当前 `elem` 下标一致的元素。
+- 使用 `indexOf` 检查 `elem` 首次出现的下标
+- 使用 `filter` 过滤出下标和当前 `elem` 下标一致的元素
 
 ## 使用 `reduce` 规约结果
 
@@ -256,14 +290,14 @@ function uniqueArray(array) {
 
 [reduce](https://atendesigngroup.com/blog/array-map-filter-and-reduce-js) - [source](https://atendesigngroup.com/sites/default/files/array-reduce.png)
 
-有时候，我们需要对多个元素按照一个规则先进行 **加工** (process)，然后 **累加** (accumulate) 起来。例如：上边图片里，给定 3 个水果，我们先提供一个碗，每一步把水果切成小块并放入碗里，最后得到一碗水果块。操作的特点是：
+有时候，我们需要对一个序列的各个元素按照一个规则先进行 **加工** (process)，然后 **累加** (accumulate) 起来。例如：上边图片里，给定 3 个水果，我们先提供一个空碗，每一步把水果切成小块并放入碗里，最后得到一碗水果块。操作的特点是：
 
-- 规约完成后，最终只得到 **一个结果**
-- 规约得到 **结果的类型** 和 **初始值的类型** **相同**
+- 规约完成后，最终只得到 **一个结果**（得到一碗水果块）
+- 规约得到 **结果和初始值** **类型相同**（都是一碗东西）
 
 > 数学描述：
 >
-> $$reduce: (E \times F \rightarrow F) \times [E] \times F \rightarrow F'$$
+> $$(E \times F \rightarrow F) \times [E] \times F \rightarrow F'$$
 >
 > 编程语言实现：
 >

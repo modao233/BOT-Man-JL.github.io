@@ -2,11 +2,16 @@
 
 > 2018/10/27
 >
-> 如何使用高阶函数，让代码更简洁、更清晰。本文比较浅显地介绍了序列相关的操作。
+> 如何使用高阶函数，让代码更简洁、更清晰。本文浅显地介绍了序列相关的几个常用高阶函数。
 
 ## 目录 [no-toc]
 
 [TOC]
+
+> [**高阶函数** (higher-order function)](https://en.wikipedia.org/wiki/Higher-order_function) 指的是满足下列条件之一的函数：
+>
+> - 以函数作为参数
+> - 返回值是函数
 
 ## 使用 `every/some` (`all/any`) 合并谓词
 
@@ -76,7 +81,7 @@ function isDayAvaliable(avaliable_days, day_now) {
 
 [img=max-width:50%]
 
-![Map](High-Order-Functions/map.png)
+![Map](Higher-Order-Functions/map.png)
 
 [align-center]
 
@@ -95,6 +100,8 @@ function isDayAvaliable(avaliable_days, day_now) {
 >
 > - JavaScript：[`Array.prototype.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)
 > - C++：[`std::transform`](https://en.cppreference.com/w/cpp/algorithm/transform)
+>
+> [Wikipedia 描述](https://en.wikipedia.org/wiki/Map_%28higher-order_function%29)
 
 ### 例子：稳定排序
 
@@ -244,7 +251,7 @@ result = [
 
 [img=max-width:50%]
 
-![Filter](High-Order-Functions/filter.png)
+![Filter](Higher-Order-Functions/filter.png)
 
 [align-center]
 
@@ -263,6 +270,8 @@ result = [
 >
 > - JavaScript：[`Array.prototype.filter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter)
 > - C++：[`std::copy_if`](https://en.cppreference.com/w/cpp/algorithm/copy)
+>
+> [Wikipedia 描述](https://en.wikipedia.org/wiki/Filter_%28higher-order_function%29)
 
 ### 例子：数组去重
 
@@ -276,7 +285,7 @@ function uniqueArray(array) {
 - 使用 `indexOf` 检查 `elem` 首次出现的下标
 - 使用 `filter` 过滤出下标和当前 `elem` 下标一致的元素
 
-## 使用 `reduce` 规约结果
+## 使用 `reduce` (`fold`) 规约结果
 
 图形描述：
 
@@ -284,7 +293,7 @@ function uniqueArray(array) {
 
 [img=max-width:50%]
 
-![Reduce](High-Order-Functions/reduce.png)
+![Reduce](Higher-Order-Functions/reduce.png)
 
 [align-center]
 
@@ -307,6 +316,8 @@ function uniqueArray(array) {
 > - C++：
 >   - 最左规约：[`std::accumulate`](https://en.cppreference.com/w/cpp/algorithm/accumulate)
 >   - 乱序规约：[`std::reduce`](https://en.cppreference.com/w/cpp/algorithm/reduce)
+>
+> [Wikipedia 描述](https://en.wikipedia.org/wiki/Fold_%28higher-order_function%29)
 
 ### 例子：数组扁平化
 
@@ -319,20 +330,20 @@ function flatArray(array) {
 
 - 首先，规约的初始值是一个空数组，作为 `acc` 进行规约
 - 然后，每次从输入数组 `array` 中取出一个元素 `elem`，和数组 `acc` 合并，并作为下一轮规约的 `acc`
-- 最后，得到数组 `acc` 作为规约的返回值
+- 最后，得到数组 `acc` 作为规约的结果
 
 ## 写在最后
 
-说几点我自己的想法：
+说几点自己的想法：
 
-- 变量主要是用来存储状态，而如果系统中存在过多的状态，很难保持各个状态的一致性，所以尽可能：
-  - 减少变量的使用：将与当前上下文无关的临时变量封装到新的函数里（小范围可以构造匿名函数，大范围再提成公共的成员函数/静态函数），将新的函数的返回值作为当前函数的输入
-  - 缩小变量的作用域：例如，将循环里的变量的作用域限制在高阶函数参数的函数里，不会相互干扰
-- `every`/`some`/`map`/`filter` 都可以用 `reduce` 实现，从而实现更复杂的函数式编程
+- 变量主要是用来存储状态，而如果系统中存在过多的零碎的状态，很难保持各个状态的一致性，所以尽可能：
+  - 减少变量的使用：将与当前上下文无关的临时变量封装到新的函数里（小范围可以构造匿名函数，大范围可以提成公共函数）
+  - 缩小变量的作用域：使用高阶函数，将临时变量的作用域限制在传入高阶函数的参数函数里，每次执行不会相互干扰
+- `every`/`some`/`map`/`filter` 都可以用 `reduce` 实现
 - C++ 是强类型编译语言，不同序列的 **类型不同**，所以标准库只能借助 **泛型** 实现高阶函数；JavaScript 是弱类型脚本语言，可以使用 `Array` 存储 **任意序列**，所以可以把这些高阶函数作为 **`Array` 的原型方法**
-  - [C++ 版本 demo](High-Order-Functions/High-Order-Functions.cpp)
-  - [JavaScript 版本 demo](High-Order-Functions/High-Order-Functions.js)
-- C++ 库 [range-v3](https://github.com/ericniebler/range-v3) 利用了现代 C++ 的模板技巧，提供一种更方便的高阶函数语法
+  - [C++ 版本 demo](Higher-Order-Functions/Higher-Order-Functions.cpp)
+  - [JavaScript 版本 demo](Higher-Order-Functions/Higher-Order-Functions.js)
+- C++ 库 [range-v3](https://github.com/ericniebler/range-v3) 利用了现代 C++ 的模板技巧，提供一种更方便的函数式编程方法
 
 > 延伸阅读：
 >

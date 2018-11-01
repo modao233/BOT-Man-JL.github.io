@@ -3,7 +3,7 @@
 
 #### 2018
 
-- [高阶函数：消除循环和临时变量](2018/High-Order-Functions.md)
+- [高阶函数：消除循环和临时变量](2018/Higher-Order-Functions.md)
 - [不推荐使用微信小程序](2018/NOT-Wechat-App.md)
 - [C++ 11 右值引用总结](2018/Cpp-Rvalue-Reference.md)
 - [匿名通信 Windows 客户端的设计与实现](2018/Anonymous-Communication-Client-Design.md)

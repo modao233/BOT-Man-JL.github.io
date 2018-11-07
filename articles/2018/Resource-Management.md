@@ -2,9 +2,11 @@
 
 > 2018/1/10
 >
-> 记录曾经遇到过的一些问题
+> 学习浏览器书签实现时遇过的一些问题
 
 [heading-numbering]
+
+> [再谈资源管理](Resource-Management-Explained.md)：用一个具体的例子，进一步阐述本文的抽象讨论
 
 ## [no-toc] [no-number] TOC
 

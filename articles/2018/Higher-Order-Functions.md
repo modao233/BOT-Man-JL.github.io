@@ -217,14 +217,14 @@ for (cosnt e_ul of $('.myclass ul').children()) {
 
 ``` js
 const result = $('.myclass ul').map(
-  (i_ul, e_ul) => {
+  (i_ul, e_ul) => ({
     titles: $('li a', e_ul).map(
       (i_a, e_a) => $(e_a).text()
     ),
     links: $('li a', e_ul).map(
       (i_a, e_a) => $(e_a).attr('href')
     )
-  }
+  })
 );
 ```
 

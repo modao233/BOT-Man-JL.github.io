@@ -2,7 +2,7 @@
 
 > 2018/11/10
 >
-> 用一个具体的例子，进一步阐述 [资源管理小记](Resource-Management.md) 的抽象讨论
+> 用一个具体的 C++ 例子，进一步阐述 [资源管理小记](Resource-Management.md) 的抽象讨论
 
 [heading-numbering]
 

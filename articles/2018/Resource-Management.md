@@ -6,7 +6,9 @@
 
 [heading-numbering]
 
-> [再谈资源管理](Resource-Management-Explained.md)：用一个具体的例子，进一步阐述本文的抽象讨论
+> 更新：
+>
+> [再谈资源管理](Resource-Management-Explained.md) —— 用一个具体的例子，进一步阐述本文的抽象讨论
 
 ## [no-toc] [no-number] TOC
 

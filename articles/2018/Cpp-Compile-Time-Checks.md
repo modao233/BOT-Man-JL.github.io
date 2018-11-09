@@ -25,6 +25,9 @@
 
 ## 检查业务实体类型
 
+- [Avoiding Disasters with Strongly Typed C++](https://github.com/CppCon/CppCon2018/blob/master/Presentations/avoiding_disasters_with_strongly_typed_cpp/avoiding_disasters_with_strongly_typed_cpp__arno_lepisk__cppcon_2018.pdf) by Arno Lepisk
+- [NamedType](https://github.com/joboccara/NamedType) by joboccara
+
 ``` cpp
 bool SendWebsiteToEmail(const std::wstring& email,
                         const std::wstring& url,

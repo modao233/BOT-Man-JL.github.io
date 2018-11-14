@@ -51,10 +51,6 @@ class FolderNode : public BookmarkNode {
   Children children_;
 };
 
-constexpr auto kBookmarkNodeSize = sizeof(BookmarkNode);
-constexpr auto kUrlNodeSize = sizeof(UrlNode);
-constexpr auto kFolderNodeSize = sizeof(FolderNode);
-
 void DestroyBookmarkTree(BookmarkNode* root) {
   if (!root || root->is_url())
     return;

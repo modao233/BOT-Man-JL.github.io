@@ -56,10 +56,6 @@ class FolderNode : public BookmarkNode {
   Children children_;
 };
 
-constexpr auto kBookmarkNodeSize = sizeof(BookmarkNode);
-constexpr auto kUrlNodeSize = sizeof(UrlNode);
-constexpr auto kFolderNodeSize = sizeof(FolderNode);
-
 unique_ptr<BookmarkNode> NewBookmarkNode(string title, string url) {
   return std::make_unique<UrlNode>(title, url);
 }

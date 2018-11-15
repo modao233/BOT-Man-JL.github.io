@@ -6,9 +6,13 @@
 
 [heading-numbering]
 
-> 更新：
+> 2018/11/14 更新：
 >
-> [再谈资源管理](Resource-Management-Explained.md) —— 用一个具体的例子，进一步阐述本文的抽象讨论
+> - 对比 **命令式语言** 和 **面向对象语言**，在资源管理上的异同
+> - 强调资源的 **申请/释放** 过程，与资源的 **使用** 在面向对象程序中的不同
+> - 细化讨论 **强引用** 和 **弱引用** 的区别，以及在 C++ 里的具体实现
+>
+> [再谈资源管理（1）](Resource-Management-Explained-1.md)[（2）](Resource-Management-Explained-2.md)用一个具体的例子，进一步阐述本文的抽象讨论
 
 ## [no-toc] [no-number] TOC
 

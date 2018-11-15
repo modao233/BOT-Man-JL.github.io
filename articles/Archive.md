@@ -3,6 +3,7 @@
 
 #### 2018
 
+- [再谈 资源管理（1）](2018/Resource-Management-Explained-1.md)
 - [高阶函数：消除循环和临时变量](2018/Higher-Order-Functions.md)
 - [不推荐使用微信小程序](2018/NOT-Wechat-App.md)
 - [C++ 11 右值引用总结](2018/Cpp-Rvalue-Reference.md)

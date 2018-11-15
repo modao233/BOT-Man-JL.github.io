@@ -6,6 +6,7 @@ using std::vector;
 
 struct BookmarkNode {
   // common properties
+  bool is_url;
   string title;
 
   // url properties
@@ -18,17 +19,19 @@ struct BookmarkNode {
 
 int main() {
   auto root = BookmarkNode{
+      false,
       "Bookmark Root",
       "",
       {
-          BookmarkNode{"Github", "https://github.com/", {}},
-          BookmarkNode{"BOT Man", "https://bot-man-jl.github.io/", {}},
+          BookmarkNode{true, "Github", "https://github.com/", {}},
+          BookmarkNode{true, "BOT Man", "https://bot-man-jl.github.io/", {}},
           BookmarkNode{
+              false,
               "Search Engines",
               "",
               {
-                  BookmarkNode{"Bing", "https://cn.bing.com/", {}},
-                  BookmarkNode{"Baidu", "https://www.baidu.com/", {}},
+                  BookmarkNode{true, "Bing", "https://cn.bing.com/", {}},
+                  BookmarkNode{true, "Baidu", "https://www.baidu.com/", {}},
               },
           },
       },

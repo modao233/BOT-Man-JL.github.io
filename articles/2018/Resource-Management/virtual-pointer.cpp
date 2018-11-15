@@ -10,14 +10,14 @@ class BookmarkNode {
 
   // common getters
   virtual bool is_url() const = 0;
-  virtual string title() = 0;
+  virtual string& title() = 0;
 
   // url getters
-  virtual string url() = 0;
+  virtual string& url() = 0;
 
   // folder getters
   using Children = vector<BookmarkNode*>;
-  virtual Children children() = 0;
+  virtual Children& children() = 0;
 };
 
 class UrlNode : public BookmarkNode {
@@ -25,10 +25,13 @@ class UrlNode : public BookmarkNode {
   UrlNode(string title, string url) : title_(title), url_(url) {}
 
   bool is_url() const override { return true; }
-  string title() override { return title_; }
-  string url() override { return url_; }
+  string& title() override { return title_; }
+  string& url() override { return url_; }
 
-  Children children() override { return {}; }
+  Children& children() override {
+    static Children dummy;
+    return dummy;
+  }
 
  private:
   string title_;
@@ -41,10 +44,13 @@ class FolderNode : public BookmarkNode {
       : title_(title), children_(children) {}
 
   bool is_url() const override { return false; }
-  string title() override { return title_; }
-  Children children() override { return children_; }
+  string& title() override { return title_; }
+  Children& children() override { return children_; }
 
-  string url() override { return {}; }
+  string& url() override {
+    static string dummy;
+    return dummy;
+  }
 
  private:
   string title_;

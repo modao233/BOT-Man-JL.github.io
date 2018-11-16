@@ -27,10 +27,10 @@
 
 资源管理是程序设计中的一个重要问题：
 
-- 资源是有限的
+- 资源是 **有限的**
   - 如果程序获取了资源后不释放，就会导致资源 **泄露** _(leak)_
   - 由于资源的有限性，其他程序就会申请不到这些资源
-- 所以资源需要被释放
+- 资源 **需要被释放**
   - 如果程序访问了已经被释放的资源，可能出现 **异常** _(exception)_
   - 如果程序没有做相应的检查，就会崩溃
 
@@ -46,27 +46,47 @@
 | 使用资源 | [读](https://en.cppreference.com/w/c/io/fread)/[写](https://en.cppreference.com/w/c/io/fwrite) 文件 `fread/fwrite(buffer, size, count, file)` |
 | 释放资源 | [关闭文件](https://en.cppreference.com/w/c/io/fclose) `fclose(file)` |
 
-在面向对象程序设计中，资源往往以对象为载体。所以很多时候，资源的管理可以通过对象的生命周期管理实现：
-
-| 对象生命周期 | 举例 C++ 标准库 [`std::basic_fstream`](https://en.cppreference.com/w/cpp/io/basic_fstream) |
-|---|---|
-| 对象创建时，获取资源 | 构造 `fstream` 时根据 `filename/open_mode` 打开对应文件 |
-| 通过访问对象，使用资源 | 调用 `fstream` 的 [`operator>>`](https://en.cppreference.com/w/cpp/io/basic_istream/operator_gtgt)/[`operator<<`](https://en.cppreference.com/w/cpp/io/basic_ostream/operator_ltlt) 函数读写文件 |
-| 对象销毁时，释放资源 | 析构 `fstream` 关闭对应文件 |
-
-### 资源对象的访问
-
 在命令式语言中，对资源的操作往往通过函数调用的方式实现：
 
 - 调用 open 函数获取资源，返回资源 **句柄** _(handle)_
 - 以句柄作为参数，调用资源操作函数（例如 read/write）使用资源
 - 使用结束后，以句柄作为参数，调用 close 函数释放资源
 
-而在面向对象语言中，对资源的操作就被封装到了对象里 —— 访问对象的成员方法，会 **映射** 为资源的使用。例如，调用 `file_object.read` 会映射为读取文件的操作，`file_object.write` 会映射为写入文件的操作。
+由于命令式语言没有对象的概念，资源的 **所有权** _(ownership)_ 往往并不明确，从而容易导致忘记释放资源：
 
-需要注意的是，对资源对象的许多访问操作，与资源管理无关。例如，C++ 标准库中 [`std::basic_fstream`](https://en.cppreference.com/w/cpp/io/basic_fstream) 提供的读取文件接口 [`std::basic_istream::operator>>`](https://en.cppreference.com/w/cpp/io/basic_istream/operator_gtgt) 并不属于 `fstream`，而属于其基类 `istream`。
+``` c
+// function A
+  FILE* file = fopen(filename, "r");
+  if (file) {
+    // push |file| back to |pending_files|
+    PushBack(pending_files, file);
+  }
 
-在使用 `fstream >> value` 的情况下，通过 `fstream` 使用了文件资源；但在执行 `>>` 时，不关心具体使用的是哪种来源读取 `value` —— 支持操作 `>>` 的来源可能是 标准输入输出流（`iostream`）/ 字符串流（`stringstream`）/ 文件流（`fstream`）。
+// function B
+  // process all files in |pending_files|
+
+  // ...
+
+  // Oops: forgot to call |fclose| on |file|
+  // (DestroyList will only destroy list nodes)
+  DestroyList(pending_files);
+```
+
+在面向对象程序设计中，资源往往以对象为载体，资源对象 **拥有** _(own)_ 资源，通过对象的生命周期管理实现资源管理：
+
+| 对象生命周期 | 举例 C++ 标准库 [`std::basic_fstream`](https://en.cppreference.com/w/cpp/io/basic_fstream) |
+|---|---|
+| 对象创建时，获取资源 | 构造 `fstream` 时根据 `filename/open_mode` 打开对应文件 |
+| 通过访问对象，使用资源 | 调用 `fstream` 的 [`read`](https://en.cppreference.com/w/cpp/io/basic_istream/read)/[`write`](https://en.cppreference.com/w/cpp/io/basic_ostream/write) 函数读写文件 |
+| 对象销毁时，释放资源 | 析构 `fstream` 关闭对应文件 |
+
+### 资源对象的访问
+
+在面向对象语言中，对资源的操作就被封装到了对象里 —— 对象成员方法的访问，会被 **映射** 为资源的使用。例如，调用 `file_object.read` 会映射为读取文件的操作，`file_object.write` 会映射为写入文件的操作。
+
+需要注意的是，对资源对象的许多访问操作，与资源管理无关。例如，C++ 标准库中 [`std::basic_fstream`](https://en.cppreference.com/w/cpp/io/basic_fstream) 提供的读取文件接口 [`std::basic_istream::read`](https://en.cppreference.com/w/cpp/io/basic_istream/read) 并不属于 `fstream`，而属于其基类 `istream`。
+
+在使用 `fstream.read(&value, size)` 的情况下，`fstream` 使用了文件资源；但在执行 `read` 时，不关心具体使用的是哪种来源读取 `value` —— 支持 `read` 操作的来源可能是 标准输入输出流（`iostream`）/ 字符串流（`stringstream`）/ 文件流（`fstream`）。
 
 在面向对象语言中，由于 [**多态** _(Polymorphism)_](Object-Oriented-Programming.md#多态-Polymorphism) 概念的引入，把资源对象的 **访问和创建/销毁 分离** —— 使用一个资源对象，不需要知道它是特定的资源对象，还是其基类的其他子类。
 

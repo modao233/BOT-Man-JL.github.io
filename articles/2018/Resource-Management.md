@@ -1,12 +1,12 @@
 ﻿# 资源管理小记
 
-> 2018/1/10 & 2018/11/14
+> 2018/1/10
 >
 > 主要讨论 面向对象程序设计中的资源管理，以及 跨系统边界资源管理的相关问题。
 
 [heading-numbering]
 
-> 2018/11/14 更新：
+> 2018/11/17 更新：
 >
 > - 对比 **命令式语言** 和 **面向对象语言**，在资源管理上的异同
 > - 强调资源的 **申请/释放** 过程，与资源的 **使用** 在面向对象程序中的不同
@@ -23,7 +23,7 @@
 **资源** _(resource)_ 是 _使用前需要被获取、使用后需要被释放_ 的东西。
 
 - 从计算机的角度来看，常见的资源有：内存、锁、网络连接、文件等
-- 从人类的角度来看，资源还可以是业务逻辑上的 **实体** _(entity)_ 在计算机中的表示
+- 从人类的角度来看，资源还可以是业务逻辑上的 **实体** _(entity)_ 在计算机中的表示，例如人员、社区、物资等
 
 资源管理是程序设计中的一个重要问题：
 
@@ -84,29 +84,29 @@
 
 在面向对象语言中，对资源的操作就被封装到了对象里 —— 对象成员方法的访问，会被 **映射** 为资源的使用。例如，调用 `file_object.read` 会映射为读取文件的操作，`file_object.write` 会映射为写入文件的操作。
 
-需要注意的是，对资源对象的许多访问操作，与资源管理无关。例如，C++ 标准库中 [`std::basic_fstream`](https://en.cppreference.com/w/cpp/io/basic_fstream) 提供的读取文件接口 [`std::basic_istream::read`](https://en.cppreference.com/w/cpp/io/basic_istream/read) 并不属于 `fstream`，而属于其基类 `istream`。
+在面向对象程序中，访问资源对象的接口 和 使用资源的实际操作，不一定直接相关。例如，C++ 标准库中 [`std::basic_fstream`](https://en.cppreference.com/w/cpp/io/basic_fstream) 提供的读取数据接口 [`std::basic_istream::read`](https://en.cppreference.com/w/cpp/io/basic_istream/read) 并不属于 `fstream`，而属于其基类 `istream`。
 
-在使用 `fstream.read(&value, size)` 的情况下，`fstream` 使用了文件资源；但在执行 `read` 时，不关心具体使用的是哪种来源读取 `value` —— 支持 `read` 操作的来源可能是 标准输入输出流（`iostream`）/ 字符串流（`stringstream`）/ 文件流（`fstream`）。
+而在调用 `istream.read` 时，使用者并不关心具体使用的是哪种来源读取数据 —— 支持 `read` 操作的来源可能是 标准输入输出流（`iostream`）/ 字符串流（`stringstream`）/ 文件流（`fstream`）。只有传入的 `istream` 是 `fstream` 时，才会访问文件资源。
 
-在面向对象语言中，由于 [**多态** _(Polymorphism)_](Object-Oriented-Programming.md#多态-Polymorphism) 概念的引入，把资源对象的 **访问和创建/销毁 分离** —— 使用一个资源对象，不需要知道它是特定的资源对象，还是其基类的其他子类。
+在面向对象语言中，由于 [**多态** _(Polymorphism)_](Object-Oriented-Programming.md#多态-Polymorphism) 概念的引入，把资源对象的 **访问操作** 和 **创建/销毁** 分离 —— 可以通过资源对象的基类接口，隐式地把 **基类接口的访问** 映射到 **资源的使用** 上。
 
 ### 资源对象的销毁
 
 程序设计语言中，对象的销毁主要有两种方式：
 
-- [手动销毁](https://en.wikipedia.org/wiki/Manual_memory_management) —— 需要在代码中显式销毁对象（包括使用 C++ 的 `unique_ptr`，本质上是程序本身主动销毁）
-- 自动销毁 —— 一般通过运行时系统提供的 [垃圾回收](https://en.wikipedia.org/wiki/Garbage_collection_%28computer_science%29) 机制完成，不由程序主动销毁
+- [手动销毁](https://en.wikipedia.org/wiki/Manual_memory_management) —— 需要在 **代码显式** 销毁对象（包括使用 C++ 的 `unique_ptr`，本质上是程序本身主动销毁）
+- 自动销毁 —— 一般通过 **运行时系统** 提供的 [垃圾回收](https://en.wikipedia.org/wiki/Garbage_collection_%28computer_science%29) 机制完成，不由程序主动销毁
 
-以上两种方式，没有优劣之分；但对于资源对象的销毁，不同应用场景下各有利弊。例如：
+对于资源对象的销毁，这两种方式在不同应用场景下各有利弊。例如：
 
 - 手动销毁
   - **不释放不再使用** 的资源，会 **导致泄露** 问题（可以使用 [RAII 范式](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization) 避免）
   - 使用 **已经被释放** 的资源，会导致 **悬垂引用** 问题（可以通过观察者模式让引用失效，[sec|弱引用关系]）
-  - 需要注意资源释放的时机，如果在资源 **正在使用时释放**（常见的是对象回调栈上，例如从  UI 的上下文菜单删除对象本身），可能导致 **崩溃** 问题（可以通过异步释放的方式改进）
+  - 如果 **释放** **正在使用的资源**（常见的是对象回调栈上，例如从  UI 的上下文菜单中删除弹出菜单的对象本身），可能导致 **崩溃** 问题（可以通过异步释放的方式改进）
 - 自动销毁
-  - （基于 [引用计数](https://en.wikipedia.org/wiki/Reference_counting#Variants_of_reference_counting) 的自动管理）对象之间 **循环引用**，会导致 **资源泄露** 问题（可以使用 [弱引用](https://en.wikipedia.org/wiki/Weak_reference) 解决）
-  - （基于可达性的自动管理）对于不再使用的对象，忘记断开对它的引用，就会出现 **不可达引用**，导致 **资源泄露** 问题；例如把资源对象放入 cache 但不及时清理（只能需要程序员注意）
   - 资源的释放 **时机不可控**，往往依赖于垃圾回收系统的实现机制
+  - 基于 [计数](https://en.wikipedia.org/wiki/Reference_counting#Variants_of_reference_counting) 的自动管理：如果对象之间出现 **循环引用**，也会导致 **资源泄露** 问题（可以使用弱引用避免，[sec|弱引用关系]）
+  - 基于 [跟踪](https://en.wikipedia.org/wiki/Tracing_garbage_collection) 的自动管理：对于不再使用的对象，如果忘记断开对它的引用，就会出现 **不可达引用**（例如把资源对象放入 cache 但从不清理），同样导致 **资源泄露** 问题（需要资源的申请者注意）
 
 [align-center]
 
@@ -124,28 +124,26 @@
 
 - 如果资源是不可复制的，那么这个对象也是不可复制的
 - 如果资源可以复制，那么对象的复制会导致相应资源的复制
-- 另外，有时候仅需要使用资源，而不关心资源的申请和释放
+- 另外，有时候仅需要使用资源，而不需要拥有资源
 
 这里，就涉及到了资源和对象的 **映射关系**。
 
 ### 一对一关系
 
-同一个资源，在系统中由一个 **可变** _(mutable)_ 对象来管理。
+同一个资源，在系统中由一个对象来管理。一般这个对象是 **不可复制** _(non-copyable)_ 的（如果不希望资源被复制，可以使用这种方法）。
 
-- 一般这个对象是 **不可复制** 的
 - 这个对象创建时申请资源，销毁时释放资源
 - 读取和修改这个可变对象，直接映射到对资源的读取和修改上
 
 ### 一对多关系
 
-同一个资源，在系统中有多个 **可变** 或 **不变** _(immutable)_ 对象来表示。
+同一个资源，在系统中有多个对象来表示。多个对象 **共享** 同一个资源。
 
-- 一般涉及到 **多个对象共享资源** 的情况
 - 在第一个对象创建时申请资源，所有对象都销毁时释放资源
 - 读取任意一个对象，都直接映射到对资源的读取上
 - 修改其中一个对象：
-  - （可变对象，引用语义）不仅会修改资源，还会把修改自动同步到其他对象上
-  - （不变对象，值语义）相当于只操作了资源的一个副本，不影响其他对象；需要手动把修改同步到其他对象上
+  - 如果使用 **可变** _(mutable)_ 对象（引用语义）实现，不仅会修改当前对象表示的资源，还会 **自动** 把修改应用到其他对象上
+  - 如果使用 **不变** _(immutable)_ 对象（值语义）实现，相当于只操作了资源的一个副本，不影响其他对象；为了保证数据的一致性，往往需要 **手动** 把修改同步到其他对象上
 
 > 关于 mutable/immutable 对象的讨论参考：
 >
@@ -154,29 +152,36 @@
 
 ### 弱引用关系
 
-有时候，我们仅需要使用一个资源对象，而不需要关心它的生命周期。例如，[sec|资源对象的访问] 使用通用接口读取数据，不需要关心资源申请和释放。
+有时候，我们仅需要使用一个资源对象，而不需要管理它的生命周期，即 **不拥有** _(not own)_ 这个资源。例如，[sec|资源对象的访问] 使用基类的通用接口读取数据，不需要关心文件资源申请和释放。
 
-这类对象就是 [弱引用](https://en.wikipedia.org/wiki/Weak_reference)：
+一般使用 **强引用** 表示 拥有资源的引用关系（[sec|一对一关系] 一对一 / [sec|一对多关系] 一对多）；而使用 [弱引用](https://en.wikipedia.org/wiki/Weak_reference) 表示 不拥有资源的引用关系：
 
-- 仅作为对 管理资源的强引用对象（一对一/一对多）的一个引用
-- 不涉及资源的申请和释放
+- 不涉及资源的申请和释放，但需要指定引用一个强引用对象
 - 如果被引用对象还有效，读取和修改这个弱引用对象，和直接操作被引用对象一致
 - 如果被引用对象无效，不能读取或修改这个弱引用对象
 
-> 补充：
+> 技巧：C++ 如何避免资源的意外释放
 >
-> C++ 可以通过将基类的析构函数设置为 `protected`，禁止资源对象通过基类指针析构。例如，observer 对象一般不希望通过 `IObserver*` 指针析构。（参考：[C.35: A base class destructor should be either public and virtual, or protected and nonvirtual](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c35-a-base-class-destructor-should-be-either-public-and-virtual-or-protected-and-nonvirtual)）
+> 将基类的析构函数设置为 `protected`，禁止资源对象通过基类指针析构。例如，一般的观察者 observer 对象一般不希望通过 `IObserver*` 指针析构。（参考：[C.35: A base class destructor should be either public and virtual, or protected and nonvirtual](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c35-a-base-class-destructor-should-be-either-public-and-virtual-or-protected-and-nonvirtual)）
 >
 > ``` cpp
-> class Interface {
+> class IObserver {
 >  public:
->   // ... (interface functions)
+>   // observer interfaces
 >  protected:
->   ~Interface() = default;
+>   ~IObserver() = default;
 > };
+>
+> // ...
+>
+> ConcreteObserver* my_ob = new ConcreteObserver;
+> IObserver* any_ob = my_ob;
+>
+> delete my_ob;   // ok
+> delete any_ob;  // compile error
 > ```
 
-### 在 C++ 的实现
+### 在 C++ 里的几种实现
 
 | 实现方式 | 映射关系 | 可复制 | 修改同步 | 失效同步 |
 |---------|----------|-------|---------|----------|
@@ -189,6 +194,8 @@
 > 关于 C++ 智能指针：[R.20: Use unique_ptr or shared_ptr to represent ownership](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rr-owner)
 >
 > 虽然 C++ 标准库的 `weak_ptr` 不支持对 `unique_ptr` 的弱引用，但上述 `weak_ptr` 泛指能同步失效状态的弱引用。
+>
+> 补充：C++ 98 的 [`auto_ptr`](https://en.cppreference.com/w/cpp/memory/auto_ptr) 由于没有明确的所引用资源的 一对一/一对多 关系，导致资源所有权不明确，已经被弃用了。
 
 ## 超出系统边界的资源管理
 

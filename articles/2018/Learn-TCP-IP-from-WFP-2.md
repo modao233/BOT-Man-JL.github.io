@@ -284,6 +284,8 @@ TCP/IP 驱动 (`tcpip.sys`) 从功能上可以划分为三层（如下图所示�
 
 数据在传输的每个重要环节，都可以通过 WFP 驱动进行过滤和拦截，从而实现在不同位置上的流量修改。WFP 除了在上述三层外，还在多个流量传输的关键位置，提供一系列更丰富的 [过滤拦截点](https://docs.microsoft.com/en-us/windows-hardware/drivers/network/management-filtering-layer-identifiers)。由于本文不涉及，故不赘述。
 
+## 写在最后 [no-number]
+
 设计一个在特定位置过滤/拦截/修改流量的方案，需要对 TCP/IP 协议有足够的了解。在设计 Windows 匿名通信客户端的过程中，我深入学习了 TCP/IP 协议实现原理。
 
 如果有什么问题，**欢迎交流**。😄

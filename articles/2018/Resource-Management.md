@@ -94,17 +94,17 @@
 
 程序设计语言中，对象的销毁主要有两种方式：
 
-- [手动销毁](https://en.wikipedia.org/wiki/Manual_memory_management) —— 需要在 **代码显式** 销毁对象（包括使用 C++ 的 `unique_ptr`，本质上是程序本身主动销毁）
+- [手动销毁](https://en.wikipedia.org/wiki/Manual_memory_management) —— 需要在 **代码显式** 销毁对象
 - 自动销毁 —— 一般通过 **运行时系统** 提供的 [垃圾回收](https://en.wikipedia.org/wiki/Garbage_collection_%28computer_science%29) 机制完成，不由程序主动销毁
 
 对于资源对象的销毁，这两种方式在不同应用场景下各有利弊。例如：
 
 - 手动销毁
-  - **不释放不再使用** 的资源，会 **导致泄露** 问题（可以使用 [RAII 范式](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization) 避免）
+  - **不释放不再使用** 的资源，会 **导致泄露** 问题（可以使用 **RAII 范式** 避免）
   - 使用 **已经被释放** 的资源，会导致 **悬垂引用** 问题（可以通过观察者模式让引用失效，[sec|弱引用关系]）
   - 如果 **释放** **正在使用的资源**（常见的是对象回调栈上，例如从  UI 的上下文菜单中删除弹出菜单的对象本身），可能导致 **崩溃** 问题（可以通过异步释放的方式改进）
 - 自动销毁
-  - 资源的释放 **时机不可控**，往往依赖于垃圾回收系统的实现机制
+  - 资源的释放 **位置和时机不可控**，往往依赖于垃圾回收系统的实现机制
   - 基于 [计数](https://en.wikipedia.org/wiki/Reference_counting#Variants_of_reference_counting) 的自动管理：如果对象之间出现 **循环引用**，也会导致 **资源泄露** 问题（可以使用弱引用避免，[sec|弱引用关系]）
   - 基于 [跟踪](https://en.wikipedia.org/wiki/Tracing_garbage_collection) 的自动管理：对于不再使用的对象，如果忘记断开对它的引用，就会出现 **不可达引用**（例如把资源对象放入 cache 但从不清理），同样导致 **资源泄露** 问题（需要资源的申请者注意）
 
@@ -115,6 +115,13 @@
 [align-center]
 
 图：被遗忘的引用 导致内存泄露（[来源](https://www.dynatrace.com/resources/ebooks/javabook/how-garbage-collection-works/)）
+
+### 在 C++ 里的实现
+
+C++ 为了保证语言本身的性能，不支持自动销毁机制。为了解决 C 语言里资源所有权不明确的问题，现代 C++ 提供了更方便的 **资源安全** _(memory safe)_ 机制：
+
+- 引入 [**RAII** _(resource acquisition is initialization)_ 范式](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)，明确资源的所有权，避免资源泄露（例如，[`unique_ptr`](https://en.cppreference.com/w/cpp/memory/unique_ptr) / [`shared_ptr`](https://en.cppreference.com/w/cpp/memory/shared_ptr)）
+- 支持 [**基于区域的内存管理** _(region-based memory management)_](https://github.com/CppCon/CppCon2016/blob/master/Presentations/Lifetime%20Safety%20By%20Default%20-%20Making%20Code%20Leak-Free%20by%20Construction/Lifetime%20Safety%20By%20Default%20-%20Making%20Code%20Leak-Free%20by%20Construction%20-%20Herb%20Sutter%20-%20CppCon%202016.pdf)，提供类似自动销毁的垃圾回收机制，并允许使用者 **控制** 回收的 **位置和时机**（例如，[`deferred_ptr`](https://github.com/hsutter/gcpp)）
 
 ## 资源和对象的映射关系
 
@@ -197,8 +204,6 @@
 > 虽然 C++ 标准库的 `weak_ptr` 不支持对 `unique_ptr` 的弱引用，但上述 `weak_ptr` 泛指能同步失效状态的弱引用。
 >
 > 补充：C++ 98 的 [`auto_ptr`](https://en.cppreference.com/w/cpp/memory/auto_ptr) 由于没有明确的所引用资源的 一对一/多对一 关系，导致资源所有权不明确，已经被弃用了。
->
-> 补充：非标准的智能指针 [`deferred_ptr`](https://github.com/hsutter/gcpp) 提供了一种 [基于区域的内存管理](https://en.wikipedia.org/wiki/Region-based_memory_management) 机制，可以实现类似垃圾回收的机制。
 
 ## 超出系统边界的资源管理
 

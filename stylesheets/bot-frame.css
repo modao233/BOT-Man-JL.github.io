@@ -30,6 +30,10 @@ a {
     text-decoration: none;
 }
 
+    a > h1, a > h2, a > h3, a > h4, a > h5, a > h6, a > strong {
+        color: #4078c0;
+    }
+
 blockquote {
     border-left: 0.25em solid #ddd;
     margin: 0;

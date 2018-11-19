@@ -135,7 +135,7 @@
 - 这个对象创建时申请资源，销毁时释放资源
 - 读取和修改这个可变对象，直接映射到对资源的读取和修改上
 
-### 一对多关系
+### 多对一关系
 
 同一个资源，在系统中有多个对象来表示。多个对象 **共享** 同一个资源。
 
@@ -149,12 +149,13 @@
 >
 > - https://stackoverflow.com/questions/214714/mutable-vs-immutable-objects
 > - https://stackoverflow.com/questions/8056130/immutable-vs-mutable-types
+> - https://www.martinfowler.com/bliki/AliasingBug.html
 
 ### 弱引用关系
 
 有时候，我们仅需要使用一个资源对象，而不需要管理它的生命周期，即 **不拥有** _(not own)_ 这个资源。例如，[sec|资源对象的访问] 使用基类的通用接口读取数据，不需要关心文件资源申请和释放。
 
-一般使用 **强引用** 表示 拥有资源的引用关系（[sec|一对一关系] 一对一 / [sec|一对多关系] 一对多）；而使用 [弱引用](https://en.wikipedia.org/wiki/Weak_reference) 表示 不拥有资源的引用关系：
+一般使用 **强引用** 表示 拥有资源的引用关系（[sec|一对一关系] 一对一 / [sec|多对一关系] 多对一）；而使用 [弱引用](https://en.wikipedia.org/wiki/Weak_reference) 表示 不拥有资源的引用关系：
 
 - 不涉及资源的申请和释放，但需要指定引用一个强引用对象
 - 如果被引用对象还有效，读取和修改这个弱引用对象，和直接操作被引用对象一致
@@ -186,8 +187,8 @@
 | 实现方式 | 映射关系 | 可复制 | 修改同步 | 失效同步 |
 |---------|----------|-------|---------|----------|
 | `unique_ptr` | 一对一 强引用 | × | √ | - |
-| `shared_ptr` | 一对多 强引用 | √ | √ | √ |
-| 值对象       | 一对多 强引用 | √ | × | × |
+| `shared_ptr` | 多对一 强引用 | √ | √ | √ |
+| 值对象       | 多对一 强引用 | √ | × | × |
 | `weak_ptr`   | 弱引用       | √ | √ | √ |
 | 普通指针     | 弱引用        | √ | √ | × |
 
@@ -195,7 +196,9 @@
 >
 > 虽然 C++ 标准库的 `weak_ptr` 不支持对 `unique_ptr` 的弱引用，但上述 `weak_ptr` 泛指能同步失效状态的弱引用。
 >
-> 补充：C++ 98 的 [`auto_ptr`](https://en.cppreference.com/w/cpp/memory/auto_ptr) 由于没有明确的所引用资源的 一对一/一对多 关系，导致资源所有权不明确，已经被弃用了。
+> 补充：C++ 98 的 [`auto_ptr`](https://en.cppreference.com/w/cpp/memory/auto_ptr) 由于没有明确的所引用资源的 一对一/多对一 关系，导致资源所有权不明确，已经被弃用了。
+>
+> 补充：非标准的智能指针 [`deferred_ptr`](https://github.com/hsutter/gcpp) 提供了一种 [基于区域的内存管理](https://en.wikipedia.org/wiki/Region-based_memory_management) 机制，可以实现类似垃圾回收的机制。
 
 ## 超出系统边界的资源管理
 

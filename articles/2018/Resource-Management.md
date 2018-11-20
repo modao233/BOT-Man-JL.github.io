@@ -168,27 +168,6 @@ C++ 为了保证语言本身的性能，不支持自动销毁机制。为了解�
 - 如果被引用对象还有效，读取和修改这个弱引用对象，和直接操作被引用对象一致
 - 如果被引用对象无效，不能读取或修改这个弱引用对象
 
-> 技巧：C++ 如何避免资源的意外释放
->
-> 将基类的析构函数设置为 `protected`，禁止资源对象通过基类指针析构。例如，一般的观察者 observer 对象一般不希望通过 `IObserver*` 指针析构。（参考：[C.35: A base class destructor should be either public and virtual, or protected and nonvirtual](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c35-a-base-class-destructor-should-be-either-public-and-virtual-or-protected-and-nonvirtual)）
->
-> ``` cpp
-> class IObserver {
->  public:
->   // observer interfaces
->  protected:
->   ~IObserver() = default;
-> };
->
-> // ...
->
-> ConcreteObserver* my_ob = new ConcreteObserver;
-> IObserver* any_ob = my_ob;
->
-> delete my_ob;   // ok
-> delete any_ob;  // compile error
-> ```
-
 ### 在 C++ 里的几种实现
 
 | 实现方式 | 映射关系 | 可复制 | 修改同步 | 失效同步 |
@@ -199,11 +178,13 @@ C++ 为了保证语言本身的性能，不支持自动销毁机制。为了解�
 | `weak_ptr`   | 弱引用       | √ | √ | √ |
 | 普通指针     | 弱引用        | √ | √ | × |
 
-> 关于 C++ 智能指针：[R.20: Use unique_ptr or shared_ptr to represent ownership](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rr-owner)
->
-> 虽然 C++ 标准库的 `weak_ptr` 不支持对 `unique_ptr` 的弱引用，但上述 `weak_ptr` 泛指能同步失效状态的弱引用。
->
-> 补充：C++ 98 的 [`auto_ptr`](https://en.cppreference.com/w/cpp/memory/auto_ptr) 由于没有明确的所引用资源的 一对一/多对一 关系，导致资源所有权不明确，已经被弃用了。
+注：
+
+- C++ 98 的 [`auto_ptr`](https://en.cppreference.com/w/cpp/memory/auto_ptr) 由于没有明确的所引用资源的 一对一/多对一 关系，导致资源所有权不明确，已经被弃用了。
+- 关于 C++ 智能指针的使用指南：[R.20: Use unique_ptr or shared_ptr to represent ownership](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rr-owner)
+- 关于 C++ 基类析构函数的规范：[C.35: A base class destructor should be either public and virtual, or protected and nonvirtual](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c35-a-base-class-destructor-should-be-either-public-and-virtual-or-protected-and-nonvirtual)
+  - 如果需要基类的使用者管理对象生命周期，那么需要 `public virtual` 的基类析构函数，允许从基类指针安全的析构任意子类对象（例如 [strategy 对象](../2017/Design-Patterns-Notes-2.md#Strategy) 一般让使用者管理）
+  - 如果基类的使用者仅是通过基类接口使用对象，那么需要 `protected non-virtual` 的基类析构函数，禁止从基类指针析构子类对象（例如 [observer 对象](../2017/Design-Patterns-Notes-2.md#Observer) 一般和使用者的生命周期独立）
 
 ## 超出系统边界的资源管理
 

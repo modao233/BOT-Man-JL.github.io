@@ -345,7 +345,51 @@ function flatArray(array) {
 - C++ 是强类型编译语言，不同序列的 **类型不同**，所以标准库只能借助 **泛型** 实现高阶函数；JavaScript 是弱类型脚本语言，可以使用 `Array` 存储 **任意序列**，所以可以把这些高阶函数作为 **`Array` 的原型方法**
   - [C++ 版本 demo](Higher-Order-Functions/Higher-Order-Functions.cpp)
   - [JavaScript 版本 demo](Higher-Order-Functions/Higher-Order-Functions.js)
-- C++ 库 [range-v3](https://github.com/ericniebler/range-v3) 利用了现代 C++ 的模板技巧，提供一种更方便的函数式编程方法
+> C++ 库 [range-v3](https://github.com/ericniebler/range-v3) 利用了现代 C++ 的模板技巧，提供一种更方便的函数式编程方法
+>
+> [例如](http://www.modernescpp.com/index.php/the-new-ranges-library)，找出 **小于 1000 的 [完全平方](https://en.wikipedia.org/wiki/Square_number) 奇数**：
+>
+> ``` cpp
+> auto oddSquaresLessThan1000 =
+>     view::ints(1) |
+>     view::transform([] (int i) { return i * i; }) |
+>     view::remove_if([] (int i) { return i % 2 == 0; }) |
+>     view::take_while([] (int i) { return i < 1000; });
+> 
+> ranges::for_each(oddSquaresLessThan1000,
+>                  [] (int i) { std::cout << i << " "; });
+> 
+> // output:
+> // 1 9 25 49 81 121 169 225 289 361 441 529 625 729 841 961
+> ```
+>
+> [再如](https://github.com/ericniebler/range-v3/blob/master/example/comprehensions.cpp)，找出 前 100 个 [毕达哥拉斯三元数组](https://en.wikipedia.org/wiki/Pythagorean_triple)：
+>
+> ``` cpp
+> auto triples = view::for_each(view::ints(1), [] (int z) {
+>   return view::for_each(view::ints(1, z + 1), [=] (int x) {
+>     return view::for_each(view::ints(x, z + 1), [=] (int y) {
+>       return yield_if(x * x + y * y == z * z,
+>                       std::make_tuple(x, y, z));
+>     });
+>   });
+> });
+> 
+> // output:
+> // (3,4,5)
+> // (6,8,10)
+> // (5,12,13)
+> // (9,12,15)
+> // ...
+> ```
+
+最后补上一张 [emoji 版本的 map/filter/reduce 的解释](http://modernescpp.com/index.php/higher-order-functions)：
+
+[align-center]
+
+[img=max-width:50%]
+
+![Emoji Map Filter Reduce](Higher-Order-Functions/emoji-map-filter-reduce.png)
 
 > 延伸阅读：
 >

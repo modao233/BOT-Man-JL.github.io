@@ -269,7 +269,9 @@ result = [
 > 编程语言实现：
 >
 > - JavaScript：[`Array.prototype.filter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter)
-> - C++：[`std::copy_if`](https://en.cppreference.com/w/cpp/algorithm/copy)
+> - C++：
+>   - 拷贝过滤：[`std::copy_if`](https://en.cppreference.com/w/cpp/algorithm/copy)
+>   - 移除过滤：[`std::remove_if`](https://en.cppreference.com/w/cpp/algorithm/remove) + [erase–remove idiom](https://en.wikipedia.org/wiki/Erase%E2%80%93remove_idiom)
 >
 > [Wikipedia 描述](https://en.wikipedia.org/wiki/Filter_%28higher-order_function%29)
 

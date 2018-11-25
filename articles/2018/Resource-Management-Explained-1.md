@@ -220,11 +220,13 @@ auto root = new FolderNode{"Bookmark Root",
 
 ``` cpp
 void DestroyBookmarkTree(BookmarkNode* root) {
-  if (!root || root->is_url())
+  if (!root)
     return;
 
-  for (BookmarkNode* child : root->children())
-    DestroyBookmarkTree(child);
+  if (!root->is_url()) {
+    for (BookmarkNode* child : root->children())
+      DestroyBookmarkTree(child);
+  }
 
   delete root;
 }

@@ -451,6 +451,8 @@ void Mediator::SelectionChanged () {
 
 ## [no-number] 写在最后
 
+TODO: callback style
+
 本文仅是我对设计模式的一些理解。如果有什么问题，望**不吝赐教**。😄
 
 感谢 [@flythief](https://github.com/thiefuniverse) 提出的修改意见~

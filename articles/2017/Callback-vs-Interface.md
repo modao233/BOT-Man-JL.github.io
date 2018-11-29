@@ -198,6 +198,8 @@ public:
 
 尽管这个 `IObserver` 和 `IMouseClickHandler` 里的函数签名一致，但是他们的子类对象不能相互转换。如果我们想用一个函数，同时处理 `IObserver::OnNotified` 和 `IMouseClickHandler::OnClicked`，就不能直接把对象绑定到两个的事件发送者上了。
 
+> Favor object composition over class inheritance.（组合优于继承）—— GOF
+>
 > “继承就像一条贼船，上去就下不来了” —— [陈硕](https://blog.csdn.net/Solstice/article/details/3066268)
 
 而对于使用回调的方法，`using MouseClickHandler = std::function<void ()>;` 和 `ModelObserver` 却是相同类型的，可以相互转换。

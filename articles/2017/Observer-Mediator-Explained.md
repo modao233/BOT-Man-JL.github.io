@@ -451,7 +451,16 @@ void Mediator::SelectionChanged () {
 
 ## [no-number] 写在最后
 
-TODO: callback style
+> 延伸阅读：[回调 vs 接口](Callback-vs-Interface.md) —— 如何进一步优化观察者模式的实现
+>
+> 在实践中，观察者可以直接通过 **可调用对象** _(callable object)_ 实现，而不需要引入额外的 **类层次结构** _(class hierarchy)_：
+>
+> - 回调函数 **接口** _(interface)_ 可以改造为 回调函数 **对象** _(object)_
+>   - `void ObservableTextBox::Observer::TextUpdated(const Item &);` ->
+>   - `using ObservableTextBox::TextUpdatedObserver = std::function<void(const Item &)>;`
+> - **重载** _(override)_ 回调函数接口 可以改造为 **注入** _(inject)_ 回调函数对象
+>   - `void ObservableTextBox::SetObserver (std::weak_ptr<Observer> &&observer);` + `void Mediator::TextUpdated(const MyItem &item) override;` ->
+>   - `void ObservableTextBox::SetObserver(TextUpdatedObserver observer);`
 
 本文仅是我对设计模式的一些理解。如果有什么问题，望**不吝赐教**。😄
 

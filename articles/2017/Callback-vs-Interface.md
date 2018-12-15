@@ -157,7 +157,7 @@ public:
 
 **b) 构造闭包**
 
-- 如果不希望引入新的成员函数，可以使用 lambda 表达式构造[闭包](https://en.wikipedia.org/wiki/Closure_%28computer_programming%29)
+- 如果不希望引入新的成员函数，可以使用 lambda 表达式构造[闭包 _(closure)_](https://en.wikipedia.org/wiki/Closure_%28computer_programming%29)
 - 闭包内捕获 view 的本身，并在回调过程中使用 view 相关的数据
 
 ``` cpp
@@ -208,9 +208,39 @@ public:
 
 可调用的概念早在很多语言里都有实现。
 
-### 脚本语言中的回调
+### C 语言中的回调
 
-例如，在 JavaScript 里，**回调、[闭包](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures)** 是一个最基本的概念。
+> 2018/12/15 延申：传统面向过程语言中的回调实现方法
+
+对于 C 风格的回调函数没有闭包的概念，不能方便的实现可调用对象，只能定义回调接口，然后定义业务逻辑处理函数实现接口，并通过回调函数的参数传递上下文变量。例如，使用 libevent 监听 socket 可写事件，实现异步/非阻塞发送数据：
+
+``` c
+// callback interface
+typedef void (*event_callback_fn)(evutil_socket_t, short, void *);
+
+// callback code
+void do_send(evutil_socket_t fd, short events, void* context) {
+  char* buffer = (char*)context;
+  // ... send |buffer| via |fd|
+  free(buffer);
+}
+
+// client code
+char* buffer = malloc(buffer_size);
+// ... fill |buffer|
+event_new(event_base, fd, EV_WRITE, do_send, buffer);
+```
+
+- 由于 C 语言没有对象的概念，不支持可调用对象，必须通过 **定义回调格式接口** 实现
+  - 定义回调接口 `event_callback_fn`
+  - 实现回调接口 `do_send`，在该函数中处理业务逻辑
+- 由于 C 语言没有对象的概念，不支持闭包捕获上下文，必须通过 **回调接口的 `context` 参数** 传递上下文数据
+  - client 代码申请发送缓冲区 `buffer` 资源，并作为 `context` 传入注册函数
+  - callback 代码从 `context` 中取出 `buffer`，发送数据后释放 `buffer` 资源
+
+### 脚本语言 Javascript 中的回调
+
+在 JavaScript 里，**回调、[**闭包** _(closure)_](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures)** 是一个最基本的概念。
 
 在网页里，我们常常使用回调来处理用户的输入：
 
@@ -226,7 +256,7 @@ public:
 
 代码里的 `alert('haha 😁 ~')` 就是一个回调对象，注册到按钮的点击事件上。对于 JavaScript 的回调，并 **不需要定义接口**，只需要给回调对象传入参数，然后调用就行。
 
-### C++ 中的回调
+### C++ 语言中的回调
 
 对于 **不做类型检查、原生支持内存回收** 的脚本语言来说，回调就是一个巨大的福利。而对于 **强类型、强检查** 的 C++ 语言而言，回调最大的问题在于如何 **构造和存储可调用实体**。主要有两个难点：
 
@@ -237,9 +267,9 @@ public:
 
 第一个问题可以通过下面 4 种方法解决：
 
-- 使用同步回调（在可调用对象生命周期结束前完成回调），从而保证捕获变量的声明周期能超过回调时刻
+- 使用同步回调（在可调用对象生命周期结束前完成回调），从而保证捕获变量的声明周期能超过回调时刻（raw-ref 语义）
 - 将上下文变量通过 拷贝或移动 传入闭包，在闭包内一般以只读的方式使用传入的变量（copy/move 语义）
-- 捕获变量的强引用，在回调时或回调后释放（shared-ref 语义）
+- 捕获变量的强引用，确保能在回调时或回调后释放（shared-ref 语义）
 - 将变量的弱引用传入闭包，在回调时检查变量的有效性（weak-ref 语义）
 
 而第二个问题就非常棘手了：C++ 是一个 **强类型、强检查** 的语言，所有 **函数的调用都必须基于明确的接口**，而这个接口需要在编译时明确指定。为了解决这个问题，C++ 约定使用 `operator ()` 作为 [**可调用** _(callable)_](http://en.cppreference.com/w/cpp/concept/Callable) 的接口 —— 凡是可以通过 `xxx (...)` 调用的东西，就是可调用的。拿到一个可调用对象 `obj`，只需要通过 `obj (...)` 就可以对这个对象进行调用 —— 调用者只关心给 `obj` 传入的参数和它的返回值。

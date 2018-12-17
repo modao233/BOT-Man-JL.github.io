@@ -14,7 +14,7 @@
 
 ## 传递引用，避免拷贝
 
-> [代码链接](Cpp-Higher-Order-Functions/functional-transpose.cpp)
+> [代码链接](Cpp-Reference-in-Functional/functional-transpose.cpp)
 
 ### 什么是矩阵转置
 
@@ -167,7 +167,7 @@ Matrix<K> TransposeLref(const Matrix<K>& matrix) {
 
 实际上，`std::accumulate` 在迭代时直接传递 init 导致的问题已经被发现了（C++ 20 可能会修复该问题）。
 
-正确的做法是现有的 `op(init, *first)` 改用 [移动语义](Cpp-Rvalue-Reference.md#移动语义) `op(std::move(init), *first)` 传递迭代产生的临时变量：
+正确的做法是现有的 `op(init, *first)` 改用 [移动语义](Cpp-Rvalue-Reference.md#移动语义) `op(std::move(init), *first)` 传递每轮迭代产生的 `init` 变量：
 
 > 参考：[c++ accumulate with move instead of copy - Stack Overflow](https://stackoverflow.com/questions/13725425/c-accumulate-with-move-instead-of-copy/13740937#13740937)
 
@@ -232,7 +232,7 @@ IteratePageRank: (ranks) -> ranks
 ``` cpp
 Vector<K, V> StepPageRank(const Vector<K, V>& ranks,
                           Vector<K, V>&& temp_ranks) {
-  // update |temp_ranks|
+  // ... update |temp_ranks| according to |ranks|
   return std::move(temp_ranks);
 }
 
@@ -253,9 +253,64 @@ Vector<K, V> IteratePageRank(Vector<K, V>&& ranks,
 
 基于双缓冲的方法，整个迭代过程中，只需要初始化两个 `Vector<K, V>` 对象即可。
 
-## 右值引用 -> 左值引用
+## 右值 -> 左值引用
 
-> [代码链接](Cpp-Higher-Order-Functions/functional-iostream.cpp)
+> [代码链接](Cpp-Reference-in-Functional/functional-iostream.cpp)
+
+### 输入输出流相关操作
+
+在 C++ 中，许多和 IO 相关的接口继承于 `std::istream`/`std::ostream`；而对输入输出流的操作往往需要修改流的本身，所以很多输入输出流相关的操作接口，只接受 **左值引用** 作为输入：
+
+``` cpp
+std::ifstream ifs = argc >= 2 ? std::ifstream(argv[1]) : std::ifstream();
+std::ofstream ofs = argc >= 3 ? std::ofstream(argv[2]) : std::ofstream();
+std::copy(std::istream_iterator<std::string>(ifs),
+          std::istream_iterator<std::string>(),
+          std::ostream_iterator<std::string>(ofs, "\n"));
+```
+
+- 以参数 `argv[1]` 构造文件输入流 `ifs`，参数 `argv[2]` 构造文件输出流 `ofs`
+- 从 `ifs` 读取所有的 `std::string`，直接输出到 `ofs` 中
+
+### 传递右值参数
+
+为了实现函数式，我们需要消除变量 `ifs`/`ofs`，避免存储状态：
+
+``` cpp
+std::copy(std::istream_iterator<std::string>(
+              argc >= 2 ? std::ifstream(argv[1]) : std::ifstream()),
+          std::istream_iterator<std::string>(),
+          std::ostream_iterator<std::string>(
+              argc >= 3 ? std::ofstream(argv[2]) : std::ofstream(), "\n"));
+```
+
+- 直接在 `stream_iterator` 构造函数的参数里构造 `fstream` 对象
+- 代码无法编译 —— 因为在表达式里构造 `fstream` 对象是一个 **右值**，无法转换成 **左值引用**，而 `stream_iterator` 构造函数只接受 `stream` 的 **左值引用**：
+
+```
+candidate constructor not viable: no known conversion
+    from 'std::ifstream' to 'istream_type &' for 1st argument
+candidate constructor not viable: no known conversion
+    from 'std::ofstream' to 'ostream_type &' for 1st argument
+```
+
+### 将右值转化为左值引用
+
+为了避免存储局部变量，我们可以使用 [右值引用的技巧](Cpp-Rvalue-Reference.md#右值引用) 进行优化：
+
+``` cpp
+[](std::ifstream&& ifs, std::ofstream&& ofs) -> void {
+  std::copy(std::istream_iterator<std::string>(ifs),
+            std::istream_iterator<std::string>(),
+            std::ostream_iterator<std::string>(ofs, "\n"));
+}(argc >= 2 ? std::ifstream(argv[1]) : std::ifstream(),
+  argc >= 3 ? std::ofstream(argv[2]) : std::ofstream());
+```
+
+- 将构造出的 `fstream` 变量（**右值**）传入 lambda 表达式的 `ifs`/`ofs` **右值引用参数**
+- 而 **右值引用参数** 会 [在函数内退化为左值引用](Cpp-Rvalue-Reference.md#误解-返回时-不移动右值引用参数)，所以在 lambda 表达式内，`ifs`/`ofs` 会被当成 **左值引用变量** 看待（即，在 lambda 表达式内，`ifs`/`ofs` 可以被修改、被取地址、被赋值）
+
+基于这个技巧，我们就可以愉快的编写函数式代码了~ 😊
 
 ## 写在最后 [no-toc]
 

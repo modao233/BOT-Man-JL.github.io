@@ -317,6 +317,10 @@ static_assert (std::is_same<
 
 和泛型编程一样，元编程也常常被用于代码的生成。但是和简单的泛型编程不同，元编程生成的代码往往是通过 **编译时测试** 和 **编译时迭代** 的演算推导出来的。例如，[sec|测试类型] 中的代码 [code|test-type] 就是一个将 C 语言基本类型转化为 `std::string` 的代码的生成代码。
 
+在实际项目中，我们往往需要将 C++ 数据结构，和实际业务逻辑相关的 **领域模型** _(domain model)_ 相互转化。例如，将承载着领域模型的 JSON 字符串 **反序列化** _(deserialize)_ 为 C++ 对象，再做进一步的业务逻辑处理，然后将处理后的 C++ 对象 **序列化** _(serialize)_ 变为 JSON 字符串。而这些序列化/反序列化的代码，一般不需要手动编写，可以自动生成。
+
+BOT Man 提出了一种基于 **编译时多态** _(compile-time polymorphism)_ 的方法，定义领域模型的 **模式** _(schema)_，自动生成领域模型和 C++ 对象的序列化/反序列化的代码。[reflect-struct] 这样，业务逻辑的处理者可以更专注于如何处理业务逻辑，而不需要关注如何做底层的数据结构转换。
+
 [align-center]
 
 ## 元编程的主要难点
@@ -350,9 +354,9 @@ static_assert (std::is_same<
 [code||spec-vector]
 
 ``` cpp
-template <typename T> class vector;  // general
+template <typename T> class vector;       // general
 template <typename T> class vector<T *>;  // partial spec
-template <> class vector<void *>;  // complete spec
+template <> class vector<void *>;         // complete spec
 
 template <typename T>
 class vector<T *> : private vector<void *>
@@ -373,6 +377,8 @@ public:
 ### 调试模板
 
 元编程在运行时主要的难点在于：对模板代码的 **调试** _(debugging)_。如果需要调试的是一段通过很多次的 **编译时测试**（[sec|编译时测试]）和 **编译时迭代**（[sec|编译时迭代]）展开的代码，即这段代码是各个模板的拼接生成的（而且展开的层数很多）；那么，调试时需要不断地在各个模板的 **实例** _(instance)_ 间来回切换。这种情景下，调试人员很难把具体的问题定位到展开后的代码上。
+
+所以，一些大型项目很少使用复杂的代码生成技巧（[sec|代码生成]），而是通过传统的代码生成器生成重复的代码，易于调试。例如 chromium 的 **通用扩展接口** _(common extension api)_ 通过定义 JSON/IDL 文件，通过代码生成器生成相关的 C++ 代码。[chromium-common-extension-api]
 
 [align-center]
 
@@ -408,5 +414,7 @@ This article is published under MIT License &copy; 2017, BOT Man
 - [gererative-programming]: K. Czarnecki, U. Eisenecker. _Generative Programming: Methods, Tools, and Applications_ [M] Addison-Wesley, 2000.
 - [naive-orm]: BOT Man JL. _How to Design a Naive C++ ORM_ [EB/OL] https://bot-man-jl.github.io/articles/?post=2016/How-to-Design-a-Naive-Cpp-ORM
 - [better-orm]: BOT Man JL. _How to Design a Better C++ ORM_ [EB/OL] https://bot-man-jl.github.io/articles/?post=2016/How-to-Design-a-Better-Cpp-ORM
+- [reflect-struct]: BOT Man JL. TODO
 - [cppref-concept]: cppreference.com. _Constraints and concepts_ [EB/OL] http://en.cppreference.com/w/cpp/language/constraints
 - [fit-lib]: Paul Fultz II. _Goodbye metaprogramming, and hello functional: Living in a post-metaprogramming era in C++_ [EB/OL] https://github.com/boostcon/cppnow_presentations_2016/raw/master/03_friday/goodbye_metaprogramming_and_hello_functional_living_in_a_post_metaprogramming_era_in_cpp.pdf
+- [chromium-common-extension-api]: Chromium. _Extension API Functions_ [EB/OL] https://github.com/chromium/chromium/blob/master/extensions/docs/api_functions.md

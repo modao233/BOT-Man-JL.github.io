@@ -1,37 +1,10 @@
-// clang++ struct_json.cc -std=c++14 -Wall -o struct_json && ./struct_json
+// clang++ raw_json.cc -std=c++14 -Wall -o raw_json && ./raw_json
 
 #include <iostream>
 #include <string>
 #include <vector>
 
-// JSON for Modern C++ (see: https://github.com/nlohmann/json)
-#include "json.hpp"
-
-// optional implementation (see: https://github.com/TartanLlama/optional)
-#include "optional.hpp"
-
-namespace nlohmann {
-
-template <typename T>
-struct adl_serializer<tl::optional<T>> {
-  static void to_json(json& j, const tl::optional<T>& opt) {
-    if (!opt) {
-      j = nullptr;
-    } else {
-      j = *opt;
-    }
-  }
-
-  static void from_json(const json& j, tl::optional<T>& opt) {
-    if (j.is_null()) {
-      opt = tl::nullopt;
-    } else {
-      opt = j.get<T>();
-    }
-  }
-};
-
-}  // namespace nlohmann
+#include "optional_json.h"
 
 struct SimpleStruct {
   bool bool_;
@@ -66,20 +39,20 @@ int main() {
   using nlohmann::json;
   std::cout << json{json::parse("{"
                                 "  \"bool\": true,"
-                                "  \"double\": 0,"
-                                "  \"int\": 0,"
-                                "  \"string\": \"hi\","
-                                "  \"vector\": []"
+                                "  \"int\": 1,"
+                                "  \"double\": 1.0,"
+                                "  \"string\": \"hello raw json\","
+                                "  \"vector\": [1, 1.0]"
                                 "}")
                         .get<SimpleStruct>()}
             << std::endl
             << json{json::parse("{"
                                 "  \"bool\": true,"
-                                "  \"double\": 0,"
-                                "  \"int\": 0,"
-                                "  \"string\": \"hi\","
-                                "  \"vector\": [],"
-                                "  \"optional\": false"
+                                "  \"int\": 1,"
+                                "  \"double\": 1.0,"
+                                "  \"string\": \"hello raw json\","
+                                "  \"vector\": [1, 1.0],"
+                                "  \"optional\": true"
                                 "}")
                         .get<SimpleStruct>()}
             << std::endl;

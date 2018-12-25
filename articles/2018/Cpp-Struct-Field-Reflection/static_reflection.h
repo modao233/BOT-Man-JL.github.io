@@ -1,15 +1,12 @@
-// Struct Field Schema Extractor by BOT Man, 2018
+// Static Reflection by BOT Man, 2018
 
-#ifndef STRUCT_SCHEMA_H_
-#define STRUCT_SCHEMA_H_
+#ifndef STATIC_REFLECTION_H_
+#define STATIC_REFLECTION_H_
 
 #include <tuple>
 #include <type_traits>
 
-template <typename T>
-inline constexpr auto StructSchema() {
-  return std::make_tuple();
-}
+namespace detail {
 
 template <typename Fn, typename Tuple, std::size_t... I>
 inline constexpr void ForEachTuple(Tuple&& tuple,
@@ -26,6 +23,22 @@ inline constexpr void ForEachTuple(Tuple&& tuple, Fn&& fn) {
       std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>::value>{});
 }
 
+template <typename T>
+struct is_field_pointer : std::false_type {};
+
+template <typename C, typename T>
+struct is_field_pointer<T C::*> : std::true_type {};
+
+template <typename T>
+constexpr auto is_field_pointer_v = is_field_pointer<T>::value;
+
+}  // namespace detail
+
+template <typename T>
+inline constexpr auto StructSchema() {
+  return std::make_tuple();
+}
+
 template <typename T, typename Fn>
 inline constexpr void ForEachField(T&& value, Fn&& fn) {
   constexpr auto struct_schema = StructSchema<std::decay_t<T>>();
@@ -33,15 +46,16 @@ inline constexpr void ForEachField(T&& value, Fn&& fn) {
                 "StructSchema<T>() for type T should be specialized to return "
                 "FieldSchema tuples, like ((&T::field, field_name), ...)");
 
-  ForEachTuple(struct_schema, [&value, &fn](auto&& field_schema) {
-    using FieldSchema = std::remove_reference_t<decltype(field_schema)>;
-    static_assert(std::tuple_size<FieldSchema>::value >= 2,
-                  "FieldSchema tuple should be (&T::field, field_name)");
+  detail::ForEachTuple(struct_schema, [&value, &fn](auto&& field_schema) {
+    using FieldSchema = std::decay_t<decltype(field_schema)>;
+    static_assert(
+        std::tuple_size<FieldSchema>::value >= 2 &&
+            detail::is_field_pointer_v<std::tuple_element_t<0, FieldSchema>>,
+        "FieldSchema tuple should be (&T::field, field_name)");
 
-    fn(std::forward<T>(value),
-       std::get<0>(std::forward<decltype(field_schema)>(field_schema)),
+    fn(value.*(std::get<0>(std::forward<decltype(field_schema)>(field_schema))),
        std::get<1>(std::forward<decltype(field_schema)>(field_schema)));
   });
 }
 
-#endif  // STRUCT_SCHEMA_H_
+#endif  // STATIC_REFLECTION_H_

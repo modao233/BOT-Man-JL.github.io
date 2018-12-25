@@ -1,16 +1,11 @@
-// clang++ struct_field_json.cc -std=c++14 -Wall -o json && ./json
+// clang++ reflection_json.cc -std=c++14 -Wall -o ref_json && ./ref_json
 
 #include <iostream>
 #include <string>
 #include <vector>
 
-// JSON for Modern C++ (downloaded here: https://github.com/nlohmann/json)
-#include "json.hpp"
-
-// optional implementation (see: https://github.com/TartanLlama/optional)
-#include "optional.hpp"
-
-#include "struct_field.h"
+#include "optional_json.h"
+#include "static_reflection.h"
 
 namespace detail {
 
@@ -20,36 +15,12 @@ struct is_optional : std::false_type {};
 template <typename T>
 struct is_optional<tl::optional<T>> : std::true_type {};
 
-template <class T>
-struct get_field_type;
-
-template <class C, class T>
-struct get_field_type<T C::*> {
-  using type = T;
-};
+template <typename T>
+constexpr auto is_optional_v = is_optional<T>::value;
 
 }  // namespace detail
 
 namespace nlohmann {
-
-template <typename T>
-struct adl_serializer<tl::optional<T>> {
-  static void to_json(json& j, const tl::optional<T>& opt) {
-    if (!opt) {
-      j = nullptr;
-    } else {
-      j = *opt;
-    }
-  }
-
-  static void from_json(const json& j, tl::optional<T>& opt) {
-    if (j.is_null()) {
-      opt = tl::nullopt;
-    } else {
-      opt = j.get<T>();
-    }
-  }
-};
 
 template <typename T>
 struct adl_serializer<T,
@@ -57,23 +28,18 @@ struct adl_serializer<T,
                                            StructSchema<T>())>::value != 0>> {
   template <typename BasicJsonType>
   static void to_json(BasicJsonType& j, const T& value) {
-    ForEachField(value, [&j](auto&& value, auto&& pointer, auto&& name) {
-      j[name] = value.*pointer;
-    });
+    ForEachField(value, [&j](auto&& field, auto&& name) { j[name] = field; });
   }
 
   template <typename BasicJsonType>
   static void from_json(const BasicJsonType& j, T& value) {
-    ForEachField(value, [&j](auto&& value, auto&& pointer, auto&& name) {
-      using type = typename ::detail::get_field_type<
-          std::decay_t<decltype(pointer)>>::type;
-      constexpr auto is_optional = ::detail::is_optional<type>::value;
-
+    ForEachField(value, [&j](auto&& field, auto&& name) {
       // ignore missing field of optional
-      if (is_optional && j.find(name) == j.end())
+      if (::detail::is_optional_v<std::decay_t<decltype(field)>> &&
+          j.find(name) == j.end())
         return;
 
-      j.at(name).get_to(value.*pointer);
+      j.at(name).get_to(field);
     });
   }
 };
@@ -103,20 +69,20 @@ int main() {
   using nlohmann::json;
   std::cout << json{json::parse("{"
                                 "  \"bool\": true,"
-                                "  \"double\": 0,"
-                                "  \"int\": 0,"
-                                "  \"string\": \"hi\","
-                                "  \"vector\": []"
+                                "  \"int\": 2,"
+                                "  \"double\": 2.0,"
+                                "  \"string\": \"hello reflection json\","
+                                "  \"vector\": [2, 2.0]"
                                 "}")
                         .get<SimpleStruct>()}
             << std::endl
             << json{json::parse("{"
                                 "  \"bool\": true,"
-                                "  \"double\": 0,"
-                                "  \"int\": 0,"
-                                "  \"string\": \"hi\","
-                                "  \"vector\": [],"
-                                "  \"optional\": false"
+                                "  \"int\": 2,"
+                                "  \"double\": 2.0,"
+                                "  \"string\": \"hello reflection json\","
+                                "  \"vector\": [2, 2.0],"
+                                "  \"optional\": true"
                                 "}")
                         .get<SimpleStruct>()}
             << std::endl;

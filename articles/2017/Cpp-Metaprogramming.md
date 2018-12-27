@@ -32,7 +32,7 @@
 
 一般的编程是通过直接编写 **程序** _(program)_，通过编译器 **编译** _(compile)_，产生目标代码，并用于 **运行时** 执行。与普通的编程不同，元编程则是借助语言提供的 **模板** _(template)_ 机制，通过编译器 **推导** _(deduce)_，在 **编译时** 生成程序。元编程经过编译器推导得到的程序，再进一步通过编译器编译，产生最终的目标代码。在 [sec|使用 `if` 进行编译时测试] 中，用一个例子说明了两者的区别。
 
-因此，元编程又被成为 **两级编程** _(two-level programming)_，**生成式编程** _(generative programming)_ 或 **模板元编程** (template metaprogramming)。[cpp-pl]
+因此，元编程又被成为 **两级编程** _(two-level programming)_，**生成式编程** _(generative programming)_ 或 **模板元编程** _(template metaprogramming)_。[cpp-pl]
 
 ### 元编程在 C++ 中的位置
 
@@ -54,7 +54,9 @@ C++ 的 **抽象机制** _(abstraction mechanisms)_ 主要有两种：**面向�
 
 ### 元编程的语言支持
 
-C++ 的元编程主要依赖于语言提供的模板机制。除了模板，现代 C++ 还允许使用 `constexpr` 函数进行常量计算。[cppref-constexpr] 由于 `constexpr` 函数功能有限，所以目前的元编程程序主要基于模板。这一部分主要总结 C++ 中模板的语言支持基础。
+C++ 的元编程主要依赖于语言提供的模板机制。除了模板，现代 C++ 还允许使用 `constexpr` 函数进行常量计算。[cppref-constexpr] 由于 `constexpr` 函数功能有限，所以目前的元编程程序主要基于模板。这一部分主要总结 C++ 模板机制相关的语言基础，包括 **狭义的模板** 和 **泛型 lambda 表达式**。
+
+#### 狭义的模板
 
 目前最新的 C++ 将模板分成了 4 类：**类模板** _(class template)_，**函数模板** _(function template)_，**别名模板** _(alias template)_ 和 **变量模板** _(variable template)_。[cppref-template] 前两者能产生新的类型，属于 **类型构造器** _(type constructor)_；而后两者仅是语言提供的简化记法，属于 **语法糖** _(syntactic sugar)_。
 
@@ -66,7 +68,13 @@ C++ 中的 **模板参数** _(template parameter / argument)_ 可以分为三种
 
 尽管 模板参数 也可以当作一般的 类型参数 进行传递（模板也是一个类型），但之所以单独提出来，是因为它可以实现对传入模板的参数匹配。[sec|类型推导] 的例子（代码 [code|orm-to-nullable]）使用 `std::tuple` 作为参数，然后通过匹配的方法，提取 `std::tuple` 内部的变长参数。
 
-**特化** _(specialization)_ 类似于函数的 **重载** _(overload)_，即给出 全部模板参数取值（完全特化）或 部分模板参数取值（部分特化） 的模板实现。**实例化** _(instantiation)_ 类似于函数的 **绑定** _(binding)_，是编译器根据参数的个数和类型，判断使用哪个重载的过程。由于函数和模板的重载具有相似性，所以他们的参数 **重载规则** _(overloading rule)_ 也是相似的。
+**特化** _(specialization)_ 类似于函数的 **重载** _(overload)_，即给出 全部模板参数取值（完全特化）或 部分模板参数取值（部分特化）的模板实现。**实例化** _(instantiation)_ 类似于函数的 **绑定** _(binding)_，是编译器根据参数的个数和类型，判断使用哪个重载的过程。由于函数和模板的重载具有相似性，所以他们的参数 **重载规则** _(overloading rule)_ 也是相似的。
+
+#### 泛型 lambda 表达式
+
+由于 C++ 不允许在函数内定义模板，有时候为了实现函数内的局部特殊功能，需要在函数外专门定义一个模板。一方面，这导致了代码结构松散，不易于维护；另一方面，使用模板时，需要传递特定的 **上下文** _(context)_，不易于复用。（类似于 C 语言里的回调机制，不能在函数内定义回调函数，需要通过参数传递上下文。）
+
+为此，C++ 14 引入了 **泛型 lambda 表达式** _(generic lambda expression)_ [generic-lambda]：一方面，能像 C++ 11 引入的 lambda 表达式一样，在函数内构造 **闭包** _(closure)_，避免在 **函数外定义** **函数内使用** 的局部功能；另一方面，能实现 **函数模板** 的功能，允许传递任意类型的参数。
 
 [align-center]
 
@@ -333,6 +341,8 @@ BOT Man 提出了一种基于 **编译时多态** _(compile-time polymorphism)_ 
 
 现代 C++ 也不断地增加语言的特性，致力于降低元编程的复杂性。例如，[sec|元编程的语言支持] 的 **别名模板** 提供了对模板中的类型的简记方法，**变量模板** 提供了对模板中常量的简记方法，都增强可读性；C++ 17 的 `constexpr-if`（[sec|使用 `if` 进行编译时测试]）提供了 **编译时测试** 的新写法，增强可写性。
 
+基于 C++ 14 的 **泛型 lambda 表达式**（[sec|泛型 lambda 表达式]），元编程库 Boost.Hana 提出了 **不用模板就能元编程** 的理念，宣告从 **模板元编程** _(template metaprogramming)_ 时代进入 **现代元编程** _(modern metaprogramming)_ 时代。[boost-hana] 其核心思想是：只需要使用 C++ 14 的泛型 lambda 表达式和 C++ 11 的 `constexpr`/`decltype`，就可以快速实现元编程的基本演算了。
+
 ### 实例化错误
 
 模板的实例化 和 函数的绑定 不同：在编译前，前者对传入的参数是什么，没有太多的限制；而后者则根据函数的声明，确定了应该传入参数的类型。而对于模板实参内容的检查，则是在实例化的过程中完成的（[sec|实例化错误]）。所以，程序的设计者在编译前，很难发现实例化时可能产生的错误。
@@ -384,7 +394,7 @@ public:
 
 ## 总结
 
-C++ 元编程的出现，是一个无心插柳的偶然 —— 人们发现 C++ 语言提供的模板抽象机制，能很好的被应用于元编程上。借助元编程，可以写出 类型安全、运行时高效 的代码。但是，过度的使用元编程，一方面会增加编译时间，另一方面会降低程序的可读性。不过，在 C++ 不断地演化中，新的语言特性被不断提出，为元编程提供更多的可能。
+C++ 元编程的出现，是一个无心插柳的偶然 —— 人们发现 C++ 语言提供的模板抽象机制，能很好的被应用于元编程上。借助元编程，可以写出 **类型安全**、**运行时高效** 的代码。但是，过度的使用元编程，一方面会 **增加编译时间**，另一方面会 **降低程序的可读性**。不过，在 C++ 不断地演化中，新的语言特性被不断提出，为元编程提供更多的可能。
 
 本文主要内容是我对 C++ 元编程的 **个人理解**。对本文有什么问题，**欢迎斧正**。😉
 
@@ -406,6 +416,7 @@ This article is published under MIT License &copy; 2017, BOT Man
 - [cppref-constexpr]: cppreference.com. _constexpr specifier_ [EB/OL] http://en.cppreference.com/w/cpp/language/constexpr
 - [cppref-template]: cppreference.com. _Templates_ [EB/OL] http://en.cppreference.com/w/cpp/language/templates
 - [cppref-template-param]: cppreference.com. _Template parameters and template arguments_ [EB/OL] http://en.cppreference.com/w/cpp/language/template_parameters
+- [generic-lambda]: Faisal Vali, Herb Sutter, Dave Abrahams. _Generic (Polymorphic) Lambda Expressions (Revision 3)_ [EB/OL] http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3649.html
 - [template-turing-complete]: Todd L. Veldhuizen. _C++ Templates are Turing Complete_ [J] Indiana University Computer Science Technical Report. 2003.
 - [cppref-SFINAE]: cppreference.com. _SFINAE_ [EB/OL] http://en.cppreference.com/w/cpp/language/sfinae
 - [cppref-constexpr-if]: cppreference.com. _if statement_ [EB/OL] http://en.cppreference.com/w/cpp/language/if
@@ -414,7 +425,8 @@ This article is published under MIT License &copy; 2017, BOT Man
 - [gererative-programming]: K. Czarnecki, U. Eisenecker. _Generative Programming: Methods, Tools, and Applications_ [M] Addison-Wesley, 2000.
 - [naive-orm]: BOT Man JL. _How to Design a Naive C++ ORM_ [EB/OL] https://bot-man-jl.github.io/articles/?post=2016/How-to-Design-a-Naive-Cpp-ORM
 - [better-orm]: BOT Man JL. _How to Design a Better C++ ORM_ [EB/OL] https://bot-man-jl.github.io/articles/?post=2016/How-to-Design-a-Better-Cpp-ORM
-- [reflect-struct]: BOT Man JL. TODO
+- [reflect-struct]: BOT Man JL. _C++ Struct Field Reflection_ [EB/OL] https://bot-man-jl.github.io/articles/?post=2018/Cpp-Struct-Field-Reflection
+- [boost-hana]: Boost. _Your standard library for metaprogramming_ [EB/OL] https://github.com/boostorg/hana
 - [cppref-concept]: cppreference.com. _Constraints and concepts_ [EB/OL] http://en.cppreference.com/w/cpp/language/constraints
 - [fit-lib]: Paul Fultz II. _Goodbye metaprogramming, and hello functional: Living in a post-metaprogramming era in C++_ [EB/OL] https://github.com/boostcon/cppnow_presentations_2016/raw/master/03_friday/goodbye_metaprogramming_and_hello_functional_living_in_a_post_metaprogramming_era_in_cpp.pdf
 - [chromium-common-extension-api]: Chromium. _Extension API Functions_ [EB/OL] https://github.com/chromium/chromium/blob/master/extensions/docs/api_functions.md

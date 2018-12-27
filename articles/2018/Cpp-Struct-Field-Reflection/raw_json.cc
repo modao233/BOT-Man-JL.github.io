@@ -12,7 +12,7 @@ struct SimpleStruct {
   double double_;
   std::string string;
   std::vector<double> vector;
-  tl::optional<bool> optional;
+  std::unique_ptr<bool> optional;
 };
 
 void to_json(nlohmann::json& j, const SimpleStruct& value) {

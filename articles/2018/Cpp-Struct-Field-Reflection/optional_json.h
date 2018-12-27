@@ -3,30 +3,21 @@
 #ifndef OPTIONAL_JSON_H_
 #define OPTIONAL_JSON_H_
 
+#include <memory>
+
 // JSON for Modern C++ (see: https://github.com/nlohmann/json)
 #include "third_party/json.hpp"
-
-// optional implementation (see: https://github.com/TartanLlama/optional)
-#include "third_party/optional.hpp"
 
 namespace nlohmann {
 
 template <typename T>
-struct adl_serializer<tl::optional<T>> {
-  static void to_json(json& j, const tl::optional<T>& opt) {
-    if (!opt) {
-      j = nullptr;
-    } else {
-      j = *opt;
-    }
+struct adl_serializer<std::unique_ptr<T>> {
+  static void to_json(json& j, const std::unique_ptr<T>& opt) {
+    j = opt ? json{*opt} : json{nullptr};
   }
 
-  static void from_json(const json& j, tl::optional<T>& opt) {
-    if (j.is_null()) {
-      opt = tl::nullopt;
-    } else {
-      opt = j.get<T>();
-    }
+  static void from_json(const json& j, std::unique_ptr<T>& opt) {
+    opt = !j.is_null() ? std::make_unique<T>(j.get<T>()) : nullptr;
   }
 };
 

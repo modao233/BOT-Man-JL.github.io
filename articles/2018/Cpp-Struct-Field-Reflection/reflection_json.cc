@@ -13,7 +13,7 @@ template <typename T>
 struct is_optional : std::false_type {};
 
 template <typename T>
-struct is_optional<tl::optional<T>> : std::true_type {};
+struct is_optional<std::unique_ptr<T>> : std::true_type {};
 
 template <typename T>
 constexpr auto is_optional_v = is_optional<T>::value;
@@ -52,7 +52,7 @@ struct SimpleStruct {
   double double_;
   std::string string;
   std::vector<double> vector;
-  tl::optional<bool> optional;
+  std::unique_ptr<bool> optional;
 };
 
 template <>

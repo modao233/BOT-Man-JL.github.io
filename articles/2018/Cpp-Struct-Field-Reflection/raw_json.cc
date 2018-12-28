@@ -37,16 +37,16 @@ void from_json(const nlohmann::json& j, SimpleStruct& value) {
 
 int main() {
   using nlohmann::json;
-  std::cout << json{json::parse("{"
+  std::cout << json(json::parse("{"
                                 "  \"bool\": true,"
                                 "  \"int\": 1,"
                                 "  \"double\": 1.0,"
                                 "  \"string\": \"hello raw json\","
                                 "  \"vector\": [1, 1.0]"
                                 "}")
-                        .get<SimpleStruct>()}
+                        .get<SimpleStruct>())
             << std::endl
-            << json{json::parse("{"
+            << json(json::parse("{"
                                 "  \"bool\": true,"
                                 "  \"int\": 1,"
                                 "  \"double\": 1.0,"
@@ -54,7 +54,7 @@ int main() {
                                 "  \"vector\": [1, 1.0],"
                                 "  \"optional\": true"
                                 "}")
-                        .get<SimpleStruct>()}
+                        .get<SimpleStruct>())
             << std::endl;
   return 0;
 }

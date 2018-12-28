@@ -65,16 +65,16 @@ DEFINE_STRUCT_SCHEMA(SimpleStruct,
 
 int main() {
   using nlohmann::json;
-  std::cout << json{json::parse("{"
+  std::cout << json(json::parse("{"
                                 "  \"bool\": true,"
                                 "  \"int\": 2,"
                                 "  \"double\": 2.0,"
                                 "  \"string\": \"hello reflection json\","
                                 "  \"vector\": [2, 2.0]"
                                 "}")
-                        .get<SimpleStruct>()}
+                        .get<SimpleStruct>())
             << std::endl
-            << json{json::parse("{"
+            << json(json::parse("{"
                                 "  \"bool\": true,"
                                 "  \"int\": 2,"
                                 "  \"double\": 2.0,"
@@ -82,7 +82,7 @@ int main() {
                                 "  \"vector\": [2, 2.0],"
                                 "  \"optional\": true"
                                 "}")
-                        .get<SimpleStruct>()}
+                        .get<SimpleStruct>())
             << std::endl;
   return 0;
 }

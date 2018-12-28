@@ -12,14 +12,11 @@ struct SimpleStruct {
   std::string string_field;
 };
 
-template <>
-inline constexpr auto StructSchema<SimpleStruct>() {
-  return std::make_tuple(
-      std::make_tuple(&SimpleStruct::bool_field, "bool"),
-      std::make_tuple(&SimpleStruct::int_field, "int"),
-      std::make_tuple(&SimpleStruct::double_field, "double"),
-      std::make_tuple(&SimpleStruct::string_field, "string"));
-}
+DEFINE_STRUCT_SCHEMA(SimpleStruct,
+                     DEFINE_STRUCT_FIELD(bool_field, "bool"),
+                     DEFINE_STRUCT_FIELD(int_field, "int"),
+                     DEFINE_STRUCT_FIELD(double_field, "double"),
+                     DEFINE_STRUCT_FIELD(string_field, "string"));
 
 int main() {
   ForEachField(SimpleStruct{true, 1, 1.0, "hello static reflection"},

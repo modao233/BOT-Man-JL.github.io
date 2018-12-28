@@ -58,4 +58,14 @@ inline constexpr void ForEachField(T&& value, Fn&& fn) {
   });
 }
 
+#define DEFINE_STRUCT_SCHEMA(Struct, ...)        \
+  template <>                                    \
+  inline constexpr auto StructSchema<Struct>() { \
+    using _Struct = Struct;                      \
+    return std::make_tuple(__VA_ARGS__);         \
+  }
+
+#define DEFINE_STRUCT_FIELD(StructField, StructName) \
+  std::make_tuple(&_Struct::StructField, StructName)
+
 #endif  // STATIC_REFLECTION_H_

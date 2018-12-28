@@ -13,7 +13,7 @@ namespace nlohmann {
 template <typename T>
 struct adl_serializer<std::unique_ptr<T>> {
   static void to_json(json& j, const std::unique_ptr<T>& opt) {
-    j = opt ? json{*opt} : json{nullptr};
+    j = opt ? json(*opt) : json(nullptr);
   }
 
   static void from_json(const json& j, std::unique_ptr<T>& opt) {

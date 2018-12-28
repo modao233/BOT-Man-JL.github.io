@@ -55,15 +55,13 @@ struct SimpleStruct {
   std::unique_ptr<bool> optional;
 };
 
-template <>
-inline constexpr auto StructSchema<SimpleStruct>() {
-  return std::make_tuple(std::make_tuple(&SimpleStruct::bool_, "bool"),
-                         std::make_tuple(&SimpleStruct::int_, "int"),
-                         std::make_tuple(&SimpleStruct::double_, "double"),
-                         std::make_tuple(&SimpleStruct::string, "string"),
-                         std::make_tuple(&SimpleStruct::vector, "vector"),
-                         std::make_tuple(&SimpleStruct::optional, "optional"));
-}
+DEFINE_STRUCT_SCHEMA(SimpleStruct,
+                     DEFINE_STRUCT_FIELD(bool_, "bool"),
+                     DEFINE_STRUCT_FIELD(int_, "int"),
+                     DEFINE_STRUCT_FIELD(double_, "double"),
+                     DEFINE_STRUCT_FIELD(string, "string"),
+                     DEFINE_STRUCT_FIELD(vector, "vector"),
+                     DEFINE_STRUCT_FIELD(optional, "optional"));
 
 int main() {
   using nlohmann::json;

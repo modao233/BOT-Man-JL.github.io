@@ -8,15 +8,16 @@
 #include <string>
 #include <vector>
 
+template <typename FieldType>
+using ValueConverter =
+    std::function<void(FieldType* field, const std::string& name)>;
+
 template <typename StructType>
 class FieldConverterBase {
  public:
   virtual ~FieldConverterBase() = default;
-  virtual void ConvertField(StructType* obj) const = 0;
+  virtual void operator()(StructType* obj) const = 0;
 };
-
-template <typename T>
-using ValueConverter = std::function<void(T* field, const std::string& name)>;
 
 template <typename StructType, typename FieldType>
 class FieldConverter : public FieldConverterBase<StructType> {
@@ -28,7 +29,7 @@ class FieldConverter : public FieldConverterBase<StructType> {
         field_pointer_(pointer),
         value_converter_(converter) {}
 
-  void ConvertField(StructType* obj) const override {
+  void operator()(StructType* obj) const override {
     return value_converter_(&(obj->*field_pointer_), field_name_);
   }
 
@@ -50,8 +51,8 @@ class StructValueConverter {
   }
 
   void operator()(StructType* obj) const {
-    for (const auto& field : fields_) {
-      field->ConvertField(obj);
+    for (const auto& field_converter : fields_) {
+      (*field_converter)(obj);
     }
   }
 

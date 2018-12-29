@@ -6,10 +6,10 @@
 #include "dynamic_reflection.h"
 
 struct SimpleStruct {
-  bool bool_field;
-  int int_field;
-  double double_field;
-  std::string string_field;
+  bool bool_;
+  int int_;
+  double double_;
+  std::string string_;
 };
 
 int main() {
@@ -27,13 +27,13 @@ int main() {
   };
 
   StructValueConverter<SimpleStruct> converter;
-  converter.RegisterField(&SimpleStruct::bool_field, "bool",
+  converter.RegisterField(&SimpleStruct::bool_, "bool",
                           ValueConverter<bool>(bool_converter));
-  converter.RegisterField(&SimpleStruct::int_field, "int",
+  converter.RegisterField(&SimpleStruct::int_, "int",
                           ValueConverter<int>(int_converter));
-  converter.RegisterField(&SimpleStruct::double_field, "double",
+  converter.RegisterField(&SimpleStruct::double_, "double",
                           ValueConverter<double>(double_converter));
-  converter.RegisterField(&SimpleStruct::string_field, "string",
+  converter.RegisterField(&SimpleStruct::string_, "string",
                           ValueConverter<std::string>(string_converter));
 
   SimpleStruct simple{true, 2, 2.0, "hello dynamic reflection"};

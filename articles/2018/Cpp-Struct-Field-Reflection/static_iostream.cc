@@ -6,17 +6,17 @@
 #include "static_reflection.h"
 
 struct SimpleStruct {
-  bool bool_field;
-  int int_field;
-  double double_field;
-  std::string string_field;
+  bool bool_;
+  int int_;
+  double double_;
+  std::string string_;
 };
 
 DEFINE_STRUCT_SCHEMA(SimpleStruct,
-                     DEFINE_STRUCT_FIELD(bool_field, "bool"),
-                     DEFINE_STRUCT_FIELD(int_field, "int"),
-                     DEFINE_STRUCT_FIELD(double_field, "double"),
-                     DEFINE_STRUCT_FIELD(string_field, "string"));
+                     DEFINE_STRUCT_FIELD(bool_, "bool"),
+                     DEFINE_STRUCT_FIELD(int_, "int"),
+                     DEFINE_STRUCT_FIELD(double_, "double"),
+                     DEFINE_STRUCT_FIELD(string_, "string"));
 
 int main() {
   ForEachField(SimpleStruct{true, 1, 1.0, "hello static reflection"},

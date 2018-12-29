@@ -201,7 +201,7 @@ class StructValueConverter {
 
 具体使用时，只需要两步：
 
-1. 构造 `converter`，调用 `RegisterField` 动态 **绑定字段信息**（名称、位置、转换函数）
+1. 构造 `converter` 对象，调用 `RegisterField` **动态绑定字段信息**（名称、位置、转换函数）
 2. 调用 `converter(&simple)` 对所有注册了的字段 **进行转换**
 
 ``` cpp
@@ -267,13 +267,72 @@ inline constexpr void ForEachField(T&& value, Fn&& fn) {
 - `fn` 接受的参数分别为：`(field_value, field_name)`，其中通过结构体成员指针得出 `field_value == value.*field`
 - 具体的 `ForEachTuple` 实现和 **静态断言** _(static assert)_ 检查，见 [static_reflection.h](Cpp-Struct-Field-Reflection/static_reflection.h)
 
+最后，通过提供 **宏** _(macro)_ 的方式，隐藏 `StructSchema` 的相关实现 —— 只对外暴露 `DEFINE_STRUCT_SCHEMA` 和 `DEFINE_STRUCT_FIELD` 两个定义 **结构体字段信息** 的接口：
+
+``` cpp
+#define DEFINE_STRUCT_SCHEMA(Struct, ...)        \
+  template <>                                    \
+  inline constexpr auto StructSchema<Struct>() { \
+    using _Struct = Struct;                      \
+    return std::make_tuple(__VA_ARGS__);         \
+  }
+
+#define DEFINE_STRUCT_FIELD(StructField, StructName) \
+  std::make_tuple(&_Struct::StructField, StructName)
+```
+
 > [使用样例代码链接](Cpp-Struct-Field-Reflection/static_iostream.cc)
+
+具体使用时，也是需要两步：
+
+1. 使用 `DEFINE_STRUCT_SCHEMA` 和 `DEFINE_STRUCT_FIELD` **静态定义字段信息**（名称、位置）
+2. 调用 `ForEachField` 并传入 **转换函数**（函数模板或泛型 lambda 表达式），对所有字段调用这个函数；转换函数通过 **编译时多态** _(compile-time polymorphism)_ 机制，实现对不同 **字段类型** 的实际转换操作
+
+``` cpp
+struct SimpleStruct {
+  int int_;
+  std::string string_;
+};
+
+// define schema
+DEFINE_STRUCT_SCHEMA(
+    SimpleStruct,
+    DEFINE_STRUCT_FIELD(int_, "int"),
+    DEFINE_STRUCT_FIELD(string_, "string"));
+
+// use ForEachTuple
+ForEachField(SimpleStruct{1, "hello static reflection"},
+             [](auto&& field, auto&& name) {
+               std::cout << name << ": "
+                         << field << std::endl;
+             });
+
+// output:
+//   int: 1
+//   string: hello static reflection
+```
+
+上边代码编译后，几乎等效于下面的代码：
+
+``` cpp
+SimpleStruct simple{1, "hello static reflection"};
+std::cout << "int" << ": " << simple.int_ << std::endl;
+std::cout << "string" << ": " << simple.string_ << std::endl;
+```
+
+使用编译时静态反射，相对于运行时动态反射，有许多优点：
+
+| | 动态反射 | 静态反射 |
+|-|---------|----------|
+| 使用难度 | 需要 **编写代码**，调用 `RegisterField` 动态绑定字段信息 | 可以通过 **声明式** 的方法，静态定义字段信息 |
+| 灵活程度 | 每个 `converter` 对象绑定了各个 **字段类型** 的具体 **转换操作**，不易于复用 | 在调用 `ForEachField` 时，传递实际使用的 **转换操作**，并利用编译时多态的机制，针对不同的 **字段类型** 选择合适的操作 |
+| 运行时开销 | 需要动态构造 `converter` 对象，需要通过 **虚函数表** 实现多态 | 编译时自动展开代码，静态展开代码 |
 
 ### 编译器生成 序列化/反序列化 代码
 
 > [代码链接](Cpp-Struct-Field-Reflection/reflection_json.cc)
 
-利用基于静态反射的 `ForEachField`，我们就可以实现通用的结构体序列化/反序列化机制了：
+利用基于静态反射的 `ForEachField`，我们就可以实现 **通用** 的结构体序列化/反序列化函数了：
 
 ``` cpp
 template <typename T>
@@ -298,6 +357,21 @@ struct adl_serializer<T, std::enable_if_t<::has_schema<T>>> {
   }
 };
 ```
+
+对于需要进行序列化/反序列化的结构体，我们只需要使用 `DEFINE_STRUCT_SCHEMA` 和 `DEFINE_STRUCT_FIELD` 定义其字段信息即可：
+
+``` cpp
+DEFINE_STRUCT_SCHEMA(
+    SimpleStruct,
+    DEFINE_STRUCT_FIELD(bool_, "_bool"),
+    DEFINE_STRUCT_FIELD(int_, "_int"),
+    DEFINE_STRUCT_FIELD(double_, "_double"),
+    DEFINE_STRUCT_FIELD(string_, "_string"),
+    DEFINE_STRUCT_FIELD(vector_, "_vector"),
+    DEFINE_STRUCT_FIELD(optional_, "_optional"));
+```
+
+于是，编译器生成的代码，基本上和 [sec|人工手写 序列化/反序列化 代码] 的代码一致 —— 没有依赖于第三方库，只需要声明结构体的格式，生成的代码没有额外的运行时开销 —— 这就是现代 C++ 元编程。
 
 ## 写在最后
 

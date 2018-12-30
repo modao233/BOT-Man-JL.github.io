@@ -51,8 +51,12 @@ struct SimpleStruct {
   int int_;
   double double_;
   std::string string_;
-  std::vector<double> vector_;
   std::unique_ptr<bool> optional_;
+};
+
+struct NestedStruct {
+  SimpleStruct nested_;
+  std::vector<SimpleStruct> vector_;
 };
 
 DEFINE_STRUCT_SCHEMA(SimpleStruct,
@@ -60,29 +64,37 @@ DEFINE_STRUCT_SCHEMA(SimpleStruct,
                      DEFINE_STRUCT_FIELD(int_, "_int"),
                      DEFINE_STRUCT_FIELD(double_, "_double"),
                      DEFINE_STRUCT_FIELD(string_, "_string"),
-                     DEFINE_STRUCT_FIELD(vector_, "_vector"),
                      DEFINE_STRUCT_FIELD(optional_, "_optional"));
+
+DEFINE_STRUCT_SCHEMA(NestedStruct,
+                     DEFINE_STRUCT_FIELD(nested_, "_nested"),
+                     DEFINE_STRUCT_FIELD(vector_, "_vector"));
 
 int main() {
   using nlohmann::json;
   std::cout << json(json::parse("{"
-                                "  \"_bool\": true,"
-                                "  \"_int\": 2,"
-                                "  \"_double\": 2.0,"
-                                "  \"_string\": \"hello reflection json\","
-                                "  \"_vector\": [2, 2.0]"
+                                "  \"_nested\": {"
+                                "    \"_bool\": false,"
+                                "    \"_int\": 0,"
+                                "    \"_double\": 0,"
+                                "    \"_string\": \"foo\""
+                                "  },"
+                                "  \"_vector\": [{"
+                                "    \"_bool\": true,"
+                                "    \"_int\": 1,"
+                                "    \"_double\": 1,"
+                                "    \"_string\": \"bar\","
+                                "    \"_optional\": true"
+                                "  },{"
+                                "    \"_bool\": true,"
+                                "    \"_int\": 2,"
+                                "    \"_double\": 2.0,"
+                                "    \"_string\": \"baz\","
+                                "    \"_optional\": false"
+                                "  }]"
                                 "}")
-                        .get<SimpleStruct>())
-            << std::endl
-            << json(json::parse("{"
-                                "  \"_bool\": true,"
-                                "  \"_int\": 2,"
-                                "  \"_double\": 2.0,"
-                                "  \"_string\": \"hello reflection json\","
-                                "  \"_vector\": [2, 2.0],"
-                                "  \"_optional\": true"
-                                "}")
-                        .get<SimpleStruct>())
+                        .get<NestedStruct>())
+                   .dump(2)
             << std::endl;
   return 0;
 }

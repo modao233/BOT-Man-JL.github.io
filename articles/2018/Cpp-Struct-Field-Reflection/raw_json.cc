@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "optional_json.h"
+#include "third_party/optional_json.h"
 
 struct SimpleStruct {
   bool bool_;

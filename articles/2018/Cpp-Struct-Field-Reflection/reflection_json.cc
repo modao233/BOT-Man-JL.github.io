@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-#include "optional_json.h"
 #include "static_reflection.h"
+#include "third_party/optional_json.h"
 
 namespace {
 

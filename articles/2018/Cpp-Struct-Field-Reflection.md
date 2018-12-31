@@ -4,11 +4,13 @@
 > 
 > 基于 C++ 14 原生语法，不到 100 行代码：让编译器帮你写 **序列化/反序列化** 代码，告别体力劳动 🙃
 
+本文不讨论完整的 C++ 反射技术，只讨论 **结构体** _(struct)_ 的 **字段** _(field)_ 反射，及其在序列化/反序列化代码生成上的应用。
+
 正文开始于 [sec|静态反射] 部分，其他部分都是铺垫。。可以略读。。。😑
 
 ## 背景（TL;DR）[no-toc]
 
-很多人喜欢把程序员称为 **码农**，程序员也经常嘲讽自己每天都在 **搬砖**。这时候，大家会想：能否构造出一些 **更好的工具**，代替我们做那些无意义的 **体力劳动** 中呢？
+很多人喜欢把程序员称为 **码农**，程序员也经常嘲讽自己每天都在 **搬砖**。这时候，大家会想：能否构造出一些 **更好的工具**，代替我们做那些无意义的 **体力劳动** 呢？
 
 在实际 C++ 项目中，我们经常需要实现一些与外部系统交互的 **接口** —— 外部系统传入 JSON 参数，我们的程序处理后，再以 JSON 的格式传回外部系统。这个过程就涉及到了两次数据结构的转换：
 
@@ -128,8 +130,6 @@ std::string string_output = json_output.dump(2);
 
 [TOC]
 
-> 代码可以从各个链接下载
-
 ## 人工手写 序列化/反序列化 代码
 
 > [代码链接](Cpp-Struct-Field-Reflection/raw_json.cc)
@@ -213,7 +213,7 @@ class FieldConverterBase {
 };
 ```
 
-接着，通过 `FieldConverter<StructType, FieldType>` 将上边两个接口 **承接** 起来，存储特定 **结构体** 的特定 **字段类型** 的实际转换操作（类似于 [double dispatch](https://en.wikipedia.org/wiki/Double_dispatch)），同时关联上具体某个字段的位置和名称（**实现  `FieldConverterBase` 接口，调用 `ValueConverter` 接口**）：
+接着，通过 `FieldConverter<StructType, FieldType>` 将上边两个接口 **承接** 起来，用于存储 **结构体** 的 **字段类型** 的实际转换操作（类似于 [double dispatch](https://en.wikipedia.org/wiki/Double_dispatch)），同时关联上具体某个字段的位置和名称（**实现  `FieldConverterBase` 接口，调用 `ValueConverter` 接口**）：
 
 ``` cpp
 template <typename StructType, typename FieldType>
@@ -296,6 +296,12 @@ converter(&simple);
 //   string: hello dynamic reflection
 ```
 
+> 基于动态反射的开源库：
+> 
+> - https://github.com/fnc12/sqlite_orm
+> - https://github.com/billyquith/ponder
+> - https://github.com/rttrorg/rttr
+
 ## 静态反射
 
 实际上，实现序列化/反序列化所需要的信息（有哪些字段，每个字段的位置、名称、映射方法），在 **编译时** _(compile-time)_ 就已经确定了 —— 没必要在 **运行时** _(runtime)_ 动态构建 `converter` 对象。所以，我们可以利用 **静态反射** _(static reflection)_ 的方法，把这些信息告诉 **编译器**，让它帮我们 **生成代码**。
@@ -347,7 +353,7 @@ inline constexpr void ForEachField(T&& value, Fn&& fn) {
 ```
 
 - `fn` 接受的参数分别为：字段的值和名称 `(field_value, field_name)`
-  - 字段的值通过 `value.*field_pointer` 得到
+  - 字段的值通过 `value.*field_pointer` 得到，其中 `field_pointer` 是成员指针
 - `ForEachTuple` 的实现中还用到了 **静态断言** _(static assert)_ 检查，具体见 [代码](Cpp-Struct-Field-Reflection/static_reflection.h)
   - 检查 `StructSchema` **是否定义了字段信息**
   - 检查每个字段的信息 **是否都包含了位置和名称**
@@ -378,17 +384,24 @@ ForEachField(SimpleStruct{1, "hello static reflection"},
 //   string: hello static reflection
 ```
 
-传入 `ForEachField` 的函数通过 **编译时多态** 针对不同 **字段类型** 进行不同的转换操作：
+静态反射过程中，**最核心** 的地方：传入 `ForEachField` 的函数 `fn`，通过 **编译时多态** 针对不同 **字段类型** 选择不同的转换操作：
 
-- 针对 `int` 类型字段，执行 `fn(simple.int_, "int")`
-- 针对 `std::string` 类型字段，执行 `fn(simple.string_, "string")`
+- 针对 `int` 类型字段，`ForEachField` 调用 `fn(simple.int_, "int")`
+- 针对 `std::string` 类型字段，`ForEachField` 调用 `fn(simple.string_, "string")`
 
-最后编译器生成的代码为：
+最后 `ForEachField(SimpleStruct{...}, [](...) { ... });` 经过 [**内联** _(inline)_](https://en.cppreference.com/w/cpp/language/inline) 后，生成的代码非常简单：
 
 ``` cpp
-std::cout << "int" << ": " << simple.int_ << std::endl;
-std::cout << "string" << ": " << simple.string_ << std::endl;
+{
+  SimpleStruct simple{1, "hello static reflection"};
+  std::cout << "int" << ": " << simple.int_ << std::endl;
+  std::cout << "string" << ": " << simple.string_ << std::endl;
+}
 ```
+
+> 基于静态反射的开源库：
+> 
+> - https://github.com/qicosmos/iguana
 
 使用编译时静态反射，相对于运行时动态反射，有许多优点：
 
@@ -437,7 +450,7 @@ struct adl_serializer<T, std::enable_if_t<::has_schema<T>>> {
   - `has_schema<T>` 检查是否定义了 `StructSchema<T>`
   - `is_optional_v<decltype(field)>` 检查字段类型是不是可选参数
 
-对于需要进行序列化/反序列化的自定义结构体，我们只需要使用 `DEFINE_STRUCT_SCHEMA` 和 `DEFINE_STRUCT_FIELD` 声明其字段信息即可 —— 不需要为每个结构体写一遍 `to_json`/`from_json` 逻辑了：
+对于需要进行序列化/反序列化的自定义结构体，我们只需要使用 `DEFINE_STRUCT_SCHEMA` 和 `DEFINE_STRUCT_FIELD` **声明** 其字段信息即可 —— 不需要为每个结构体写一遍 `to_json`/`from_json` 逻辑了：
 
 ``` cpp
 DEFINE_STRUCT_SCHEMA(
@@ -456,8 +469,6 @@ DEFINE_STRUCT_SCHEMA(
 
 于是，编译器就可以生成和 [sec|人工手写 序列化/反序列化 代码] 一致的代码了。
 
-基于 **声明式** 的语法，让没有编程基础的人都可以写代码：
-
 [align-center]
 
 [img=max-width:70%]
@@ -472,7 +483,7 @@ DEFINE_STRUCT_SCHEMA(
 
 不依赖于第三方库，只需要简单的声明，没有额外的运行时开销 —— 这就是 **现代 C++ 元编程**。
 
-~~“勤奋”的程序员还在加班手写重复代码的时候，“懒惰”的程序员都已经下班了。。。😶~~
+~~马上就 2019 年了，“勤奋” 的程序员还在加班手写重复代码的时候，“懒惰” 的程序员都去跨年了。。。😶~~
 
 掌握 C++ 元编程，自己打造工具，解放生产力，告别搬砖的生活！
 

@@ -8,6 +8,8 @@
 
 正文开始于 [sec|静态反射] 部分，其他部分都是铺垫。。可以略读。。。😑
 
+> 打包后的代码可以通过 [`archived.zip`](Cpp-Struct-Field-Reflection/archived.zip) 下载，每个 `.cc` 文件上都有对应的编译、运行脚本，或者可以通过 [`run_all.sh`](Cpp-Struct-Field-Reflection/run_all.sh) 脚本运行所有代码。
+
 ## 背景（TL;DR）[no-toc]
 
 很多人喜欢把程序员称为 **码农**，程序员也经常嘲讽自己每天都在 **搬砖**。这时候，大家会想：能否构造出一些 **更好的工具**，代替我们做那些无意义的 **体力劳动** 呢？

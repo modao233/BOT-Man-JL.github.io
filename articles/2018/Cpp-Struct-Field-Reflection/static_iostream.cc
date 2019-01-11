@@ -18,11 +18,24 @@ DEFINE_STRUCT_SCHEMA(SimpleStruct,
                      DEFINE_STRUCT_FIELD(double_, "double"),
                      DEFINE_STRUCT_FIELD(string_, "string"));
 
+struct GenericFunctor {
+  // ... context data
+
+  template <typename Field, typename Name>
+  void operator()(Field&& field, Name&& name) {
+    std::cout << std::boolalpha << std::fixed << name << ": " << field
+              << std::endl;
+  }
+};
+
 int main() {
   ForEachField(SimpleStruct{true, 1, 1.0, "hello static reflection"},
                [](auto&& field, auto&& name) {
                  std::cout << std::boolalpha << std::fixed << name << ": "
                            << field << std::endl;
                });
+
+  ForEachField(SimpleStruct{true, 1, 1.0, "hello static reflection"},
+               GenericFunctor{/* ... context data */});
   return 0;
 }

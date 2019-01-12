@@ -12,7 +12,7 @@
 
 > 本文献给 不知道什么是回调函数的人。😁
 
-## 为什么要写这篇文章
+## 为什么要写这篇文章 TL;DR
 
 - 正如诸多计算机科学教育者所说，回调函数，对初学编程的人来说，是一个巨大的坎。
 - 目前面向初学者的回调函数的资料并不多。
@@ -42,6 +42,13 @@
   - `B` 不知道 `A` 的存在，只知道 `fn`
   - `B` 在 调用时刻 `T`，调用 `fn`
   - `B` 调用 `fn` 可能是是为了得到结果 `P`
+
+对于没有接触过 [**函数式编程** _(functional programming)_](https://en.wikipedia.org/wiki/Functional_programming) 的初学者，这里有两个难以理解的地方：
+
+- **函数** 竟然可以作为 **参数** 传递到另一个函数里
+  - 函数是程序设计语言中的 [**一等公民** _(first-class function)_](https://en.wikipedia.org/wiki/First-class_function)（函数 `A`）
+  - 将函数作为参数的函数，叫做 [**高阶函数** _(higher-order function)_](https://en.wikipedia.org/wiki/Higher-order_function)（函数 `B`）
+- 通过参数 **传入的函数** `fn`，可以直接通过 `fn()` 的语法 **调用**
 
 ## 生活中的回调函数
 

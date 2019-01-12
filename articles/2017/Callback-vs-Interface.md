@@ -181,11 +181,17 @@ void View::SetObserver() {
 - 答主支持使用 **回调** 的方式
 - 使用 **接口** 的最大问题在于：需要定义 `IObservable` / `IObserver` 接口，并把原有的 类层次结构 _(class hierarchy)_ 耦合到新增的接口里 _(your type must be coupled to this hierarchy)_
 - 而使用 **回调** 借助 `std::function`，可以装载 全局函数 _(global function)_、成员函数 _(member function)_、函数对象 _(function object, functor)_、匿名函数 _(anonymous function, lambda)_ 等，避免了各种破坏原有结构的接口
-- C++ 标准库中：几乎所有的算法都是基于迭代器的，但没有统一的迭代器接口；比较两个对象也不需要标准的 `IComparable` 接口
+- C++ 标准库中：几乎所有的算法都是基于迭代器的，但没有统一的 `Iterator` 接口；比较两个对象也不需要标准的 `Comparable` 接口
+
+> 2018/12/29 延伸：[简单的 C++ 结构体字段反射](../2018/Cpp-Struct-Field-Reflection.md) 讨论了 C++ 标准库如何利用 **泛型** _(generic)_ 可调用对象，实现 **编译时多态** _(compile-time polymorphism)_ 机制，从而避免引入 `Iterator`/`Comparable` 接口
 
 对于回调者，它关心的往往是一个 **可调用** _(callable)_ 的东西，只关注它的 **参数、返回值**，而不关心调用的东西具体是什么。所以：
 
 ❗❗❗ 回调是 **面向语义接口** 的回调，而不是 **面向语言接口** 的回调！
+
+> Favor object composition over class inheritance.（组合优于继承）—— GOF
+>
+> “继承就像一条贼船，上去就下不来了” —— [陈硕](https://blog.csdn.net/Solstice/article/details/3066268)
 
 另外，使用接口的方式还有一个问题：**实现了不同接口的可调用实体之间不能相互转换**。例如，我们定义了一个接受鼠标点击事件的接口 `IMouseClickHandler`。
 
@@ -198,11 +204,13 @@ public:
 
 尽管这个 `IObserver` 和 `IMouseClickHandler` 里的函数签名一致，但是他们的子类对象不能相互转换。如果我们想用一个函数，同时处理 `IObserver::OnNotified` 和 `IMouseClickHandler::OnClicked`，就不能直接把对象绑定到两个的事件发送者上了。
 
-> Favor object composition over class inheritance.（组合优于继承）—— GOF
->
-> “继承就像一条贼船，上去就下不来了” —— [陈硕](https://blog.csdn.net/Solstice/article/details/3066268)
-
 而对于使用回调的方法，`using MouseClickHandler = std::function<void ()>;` 和 `ModelObserver` 却是相同类型的，可以相互转换。
+
+从语言层面上看，接口属于 [**面向对象** _(object-oriented)_](https://en.wikipedia.org/wiki/Object-oriented_programming) 的概念，而回调属于 [**函数式** _(functional)_](https://en.wikipedia.org/wiki/Functional_programming) 的概念：
+
+- 函数式中，函数是 [**一等公民** _(first-class function)_](https://en.wikipedia.org/wiki/First-class_function)；面向对象中，对象是一等公民（一等公民指，和基础类型 `int`/`double` 有同等地位）
+- 函数式中，函数可以 作为参数传递/通过返回值返回，即 [**高阶函数** _(higher-order function)_](https://en.wikipedia.org/wiki/Higher-order_function)；面向对象中，只能 传入/返回 实现接口的具体对象
+- 函数式中，**可调用实体** 可以直接调用，并执行对应函数；面向对象中，**实现接口的对象** 只能通过指定接口调用，并执行对应的实现函数
 
 ## 回调的实践
 
@@ -284,7 +292,7 @@ event_new(event_base, fd, EV_WRITE, do_send, buffer);
 
 很多人会好奇：`std::function` 是怎么实现的？这里有一个 [简单的实现原理](https://shaharmike.com/cpp/naive-std-function/)。（测试代码：[`std_function.cpp`](Callback-vs-Interface/std_function.cpp)）
 
-> 2018/9/9 延申：Chromium 使用 `base::Bind` 构造统一的[函数适配器](https://github.com/chromium/chromium/blob/master/docs/callback.md)对象 `base::Callback`，配合使用 `base::WeakPtr` 实现[弱引用](https://chromium.googlesource.com/chromium/src/+/master/base/memory/weak_ptr.h)机制。
+> 2019/1/12 延伸：[深入 C++ 回调](../2019/Inside-Cpp-Callback.md) 更系统的讨论了 [sec|C++ 语言中的回调] 提到的几个问题，并分析了 [Chromium 的 Bind/Callback 机制](https://github.com/chromium/chromium/blob/master/docs/callback.md)
 
 ## 写在最后 [no-number]
 

@@ -37,8 +37,21 @@
 
 具体过程（以函数为例）：
 
+```
+A() {
+  // output P
+}
+
+B(fn) {
+  fn();  // B knows only fn, not A
+}
+
+B(A);  // B called at T
+       // B calling fn (aka A)
+```
+
 - 函数 `A` 作为参数 `fn` 传入 函数 `B`
-- 函数 `B` 通过 `fn ()` 的语法，调用 函数 `A`
+- 函数 `B` 通过 `fn()` 的语法，调用 函数 `A`
   - `B` 不知道 `A` 的存在，只知道 `fn`
   - `B` 在 调用时刻 `T`，调用 `fn`
   - `B` 调用 `fn` 可能是是为了得到结果 `P`

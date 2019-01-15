@@ -8,6 +8,10 @@
 
 > 由于上一篇 [高阶函数简介](Higher-Order-Functions.md#写在最后) 提到的 [range-v3](https://github.com/ericniebler/range-v3) 没有被 C++ 17 纳入标准，所以本次需求使用的还是 C++ 11 提供的函数式编程能力。
 
+为了实现 **“纯” 函数式** _(pure functional)_ 编程，我们要消灭函数的 **副作用** _(side-effect)_；而为了更高效，我们需要避免 **不必要的拷贝**。（参考：[Purely functional languages and monads (yinwang0)](https://yinwang0.wordpress.com/2013/11/16/pure-fp-and-monads/) 的 _Side-effects are real_ 部分）
+
+对于没有垃圾回收机制的 C++，我们可以通过 **传递引用** 的方式，避免在函数调用/返回时拷贝对象。
+
 ## 目录 [no-toc]
 
 [TOC]

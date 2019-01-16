@@ -206,11 +206,13 @@ public:
 
 而对于使用回调的方法，`using MouseClickHandler = std::function<void ()>;` 和 `ModelObserver` 却是相同类型的，可以相互转换。
 
-从语言层面上看，接口属于 [**面向对象** _(object-oriented)_](https://en.wikipedia.org/wiki/Object-oriented_programming) 的概念，而回调属于 [**函数式** _(functional)_](https://en.wikipedia.org/wiki/Functional_programming) 的概念：
-
-- 函数式中，函数是 [**一等公民** _(first-class function)_](https://en.wikipedia.org/wiki/First-class_function)；面向对象中，对象是一等公民（一等公民指，和基础类型 `int`/`double` 有同等地位）
-- 函数式中，函数可以 作为参数传递/通过返回值返回，即 [**高阶函数** _(higher-order function)_](https://en.wikipedia.org/wiki/Higher-order_function)；面向对象中，只能 传入/返回 实现接口的具体对象
-- 函数式中，**可调用实体** 可以直接调用，并执行对应函数；面向对象中，**实现接口的对象** 只能通过指定接口调用，并执行对应的实现函数
+> 2019/1/16 延伸：[对编程范式的简单思考](../2019/Thinking-Programming-Paradigms.md)
+> 
+> 从语言层面上看，接口属于 [**面向对象** _(object-oriented)_](https://en.wikipedia.org/wiki/Object-oriented_programming) 的概念，而回调属于 [**函数式** _(functional)_](https://en.wikipedia.org/wiki/Functional_programming) 的概念：
+> 
+> - 函数式中，函数是 [**一等公民** _(first-class function)_](https://en.wikipedia.org/wiki/First-class_function)；面向对象中，对象是一等公民（一等公民指，和基础类型 `int`/`double` 有同等地位）
+> - 函数式中，函数可以 作为参数传递/通过返回值返回，即 [**高阶函数** _(higher-order function)_](https://en.wikipedia.org/wiki/Higher-order_function)；面向对象中，只能 传入/返回 实现接口的具体对象
+> - 函数式中，**可调用实体** 可以直接调用，并执行对应函数；面向对象中，**实现接口的对象** 只能通过指定接口调用，并执行对应的实现函数
 
 ## 回调的实践
 

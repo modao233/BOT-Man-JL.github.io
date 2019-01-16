@@ -41,9 +41,9 @@ int PetAndCountCats (List<Pet> pets) {
 
 对于上边的例子，[把查询和修改分开 (Separate Query from Modifier)](Refactoring-Notes.md#Separate-Query-from-Modifier-P279)，变为 `PetCats` 和 `CountCats`，更有利于传达我们的想法 —— 因为一般 **有返回值** 的方法只作为 **查询**，没有副作用；**没有返回值** 的方法作为 **修改**，才会产生副作用。（见 [笔记](Implementation-Patterns-Notes.md#Return-Type-P84)）
 
-### 很多人用着面向对象语言，却只写着命令式程序
+### 很多人用着面向对象语言，却只写着面向过程程序
 
-此外，很多人，包括我，最开始学习的编程语言是 **命令式**（面向过程）语言，在使用面向对象语言编写程序的时候，仍然只用着最简单的命令式控制流 —— 把所有的逻辑写成一个 **超长的函数**，而且只用了 **条件、循环** 实现相应功能。
+此外，很多人，包括我，最开始学习的编程语言是 **面向过程语言**，在使用面向对象语言编写程序的时候，仍然只用着最简单的控制流 —— 把所有的逻辑写成一个 **超长的函数**，而且只用了 **条件、循环** 实现相应功能。
 
 而面向对象语言引入了 **类和对象**，把对外表现的 **行为** _(behavior)_ 和用于支持行为的 **状态** _(state)_ 封装在一起，实现功能的模块化。（见 [笔记](Implementation-Patterns-Notes.md#Advantage-of-Object-P43)）
 
@@ -65,7 +65,7 @@ int PetAndCountCats (List<Pet> pets) {
 - 每个玩家可以给自己或对方的宠物喂食、洗澡
 - 需要分别统计猫和狗的数量
 
-根据直观的 **命令式编程** 的想法（虽然使用了 C++ 的 STL），我们可以：
+根据直观的 **面向过程** 的想法（虽然使用了 C++ 的 STL），我们可以：
 
 - 定义一组变量，用于存放每个玩家的宠物、猫/狗粮和洗发水
 - 定义一组函数，用于统计猫/狗数量、给宠物喂食、给宠物洗澡
@@ -85,7 +85,7 @@ void CleanPets (std::vector<Pet> &pets, Shampoo &shampoo);
 
 [align-center]
 
-代码 [code|imperative] - 命令式编程风格
+代码 [code|imperative] - 面向过程
 
 本文将围绕这个例子，从封装、继承、多态，介绍如何使用面向对象的方法实现上述功能。
 
@@ -197,14 +197,14 @@ class Dog : public Pet {
 
 利用多态，我们可以更灵活的设计逻辑策略的切换（见 [笔记](Implementation-Patterns-Notes.md#Design-Switch-between-Strategies-P34)）：
 
-- 命令式编程中，我们只能通过 **条件** _(conditionals)_ 实现逻辑的切换
+- 对于面向过程语言，我们只能通过 **条件** _(conditionals)_ 实现逻辑的切换
 - 基于多态，我们可以通过 **派生** _(subclasses)_ 和 **委托** _(delegation)_ 实现
   - 派生一般通过继承实现；而委托一般通过组合实现
   - 派生切换的逻辑，在对象生命周期内不能再次改变；而委托可以多次修改
 
 ### 例子：条件逻辑切换
 
-很多人，包括我，喜欢使用命令式语言里的 **测试条件** _(testing conditionals)_ 实现逻辑策略切换。例如，在实现喂食功能 `PetKeeper::FeedPets`，而对于不同的动物有着不同的喂食逻辑时，我们会使用 `if/switch` 语句先判断 `pet` 的类型，然后针对不同类型进行处理。
+很多人，包括我，喜欢使用面向过程语言里的 **测试条件** _(testing conditionals)_ 实现逻辑策略切换。例如，在实现喂食功能 `PetKeeper::FeedPets`，而对于不同的动物有着不同的喂食逻辑时，我们会使用 `if/switch` 语句先判断 `pet` 的类型，然后针对不同类型进行处理。
 
 [code||conditionals]
 

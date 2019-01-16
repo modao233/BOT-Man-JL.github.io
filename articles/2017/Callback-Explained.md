@@ -44,15 +44,17 @@ A() {
 
 B(fn) {
   fn();  // B knows only fn, not A
+         // B treats fn as a variable
 }
 
 B(A);  // B called at T
-       // B calling fn (aka A)
+       // B calling fn() (i.e. calling A())
 ```
 
 - 函数 `A` 作为参数 `fn` 传入 函数 `B`
-- 函数 `B` 通过 `fn()` 的语法，调用 函数 `A`
   - `B` 不知道 `A` 的存在，只知道 `fn`
+  - `B` 将 `fn` 当作一个传入函数的局部变量处理
+- 函数 `B` 通过 `fn()` 的语法，调用 函数 `A`
   - `B` 在 调用时刻 `T`，调用 `fn`
   - `B` 调用 `fn` 可能是是为了得到结果 `P`
 

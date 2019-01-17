@@ -17,7 +17,7 @@
 这对于没有接触过 **函数式** 的人来说，简直是 **世界观的颠覆**：
 
 - **面向过程** 里，数据是数据、操作是操作
-- **面向对象** 里，操作必须放到对象里，操作属于对象
+- **面向对象** 里，数据和操作放到对象里，属于对象的一部分
 
 为了批判 **面向对象** 里 “操作必须放到对象里” 的回调思想，写了一篇文章 [回调 vs 接口](../2017/Callback-vs-Interface.md)（后来读到 陈硕 也有一篇类似的文章 [以boost::function和boost:bind取代虚函数](https://blog.csdn.net/Solstice/article/details/3066268)），但境界还不够，一直没有发现这个问题的 **本质** —— **函数式 vs 面向对象**。
 
@@ -226,13 +226,13 @@ handlers_.at(action)->Run();
 
 > [代码链接](Thinking-Programming-Paradigms/object-oriented.cc)
 
+复用上一个例子的文件 **类** `class File` 和 **对象** `FilePtr file_`（点击事件的 **接收者**）。
+
 重新定义 `Command`（将命令定义为一个函数）：
 
 ``` cpp
 using Command = std::function<void()>;
 ```
-
-复用上一个例子的文件 **类** `class File` 和 **对象** `FilePtr file_`（点击事件的 **接收者**）。
 
 利用新的 `Command` 定义类似的 **中间层**（将 `file_` 作为上下文构造闭包，再分配给各个 `action`）：
 
@@ -256,11 +256,16 @@ handlers_.at(action)();
 
 和 **面向对象** 方法的区别在于：
 
-- 面向对象 把数据和操作放在对象里
-- 函数式 把数据和计算放在 lambda 里
+- 面向对象 把数据和操作放到对象里
+- 函数式 把数据和计算放到 lambda 里
+
+> C++ 的 [`std::function`](https://en.cppreference.com/w/cpp/utility/functional/function) + [lambda 表达式](https://en.cppreference.com/w/cpp/language/lambda) 本质上也是通过 **面向对象** 实现的：
+> 
+> - `std::function` 基于带有 `operator()(...)` 抽象类，在构造时利用泛型技巧，抹除传入的 [可调用 _(callable)_](http://en.cppreference.com/w/cpp/concept/Callable) 对象的类型，仅保留调用的签名（[原理](https://shaharmike.com/cpp/naive-std-function/) / [代码](../2017/Callback-vs-Interface/std_function.cpp)）
+> - lambda 表达式会被编译为带有 `operator()(...)` 的类，并构造时捕获当前的上下文；可以传入 `std::function` 封装为更抽象的可调用对象（类似 `NewCommand` 的类）
 
 ## 写在最后
 
-如果有什么问题，**欢迎交流**。😄
+本文仅是我的一些个人理解。如果有什么问题，**欢迎交流**。😄
 
 Delivered under MIT License &copy; 2019, BOT Man

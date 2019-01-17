@@ -1,6 +1,10 @@
 ﻿
 ## 代码 | Coding
 
+#### 2019
+
+- [对 编程范式 的简单思考](2019/Thinking-Programming-Paradigms.md)
+
 #### 2018
 
 - [简单的 C++ 结构体字段 反射](2018/Cpp-Struct-Field-Reflection.md)

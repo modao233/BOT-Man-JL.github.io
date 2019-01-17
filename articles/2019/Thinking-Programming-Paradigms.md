@@ -27,11 +27,23 @@
 - [Purely functional languages and monads](https://yinwang0.wordpress.com/2013/11/16/pure-fp-and-monads/)：批判“纯”函数式（[备份](Thinking-Programming-Paradigms/Purely-functional-languages-and-monads_Surely-I-Am-Joking.html)）
 - [编程的宗派](http://www.yinwang.org/blog-cn/2015/04/03/paradigms)：批判“纯”面向对象、“纯”函数式 和 说“各有各的好处”的“好好先生”（[备份](Thinking-Programming-Paradigms/编程的宗派.html)）
 
-本文总结一下自己的一些体会。
+在《解密“设计模式”》提到，**面向对象** 的 “设计模式” 是为了解决 “一切皆对象” 思想导致的问题。即使是 Erich Gamma（设计模式作者之一）粉丝的我，也深有感触：
+
+- 由于 函数不是一等公民、不支持高阶函数，我们需要 [创建型模式 _(creational patterns)_](../2017/Design-Patterns-Notes-1.md)（两种工厂、原型、创建者）
+- 由于 不支持闭包、数据必须放到对象里，我们需要 [结构型模式 _(structural patterns)_](../2017/Design-Patterns-Notes-2.md)（适配器、桥接、组合、装饰器、代理）
+- 由于 操作必须放到对象里，我们需要 [行为型模式 _(behavioral patterns)_](../2017/Design-Patterns-Notes-3.md)（命令、责任链、观察者、中介者、状态、策略、模板方法、迭代器、访问者、解释器）
+
+![Happy Coding by Erich Gamma](../2017/Thinking-Coding/Happy-Coding.jpg)
+
+[align-center]
+
+> Happy Coding _(by Erich Gamma)_
+
+本文总结一下自己的一些体会，并用一个例子加以阐述。
 
 ## 三种范式
 
-本文主要分析我所接触过的三种 [编程范式 _(programming paradigm)_](https://en.wikipedia.org/wiki/Programming_paradigm)：
+我只接触过的三种 [编程范式 _(programming paradigm)_](https://en.wikipedia.org/wiki/Programming_paradigm)：
 
 - [面向过程 _(procedural programming)_](https://en.wikipedia.org/wiki/Procedural_programming)
 - [面向对象 _(object-oriented programming)_](https://en.wikipedia.org/wiki/Object-oriented_programming)
@@ -70,13 +82,7 @@
 
 ## 例子：运行时动态选择计算操作
 
-王垠的 [解密“设计模式”](http://www.yinwang.org/blog-cn/2013/03/07/design-patterns) 一文提到，**面向对象** 的 “设计模式” 是为了解决 “一切皆对象” 思想导致的问题：
-
-- 由于 函数不是一等公民、不支持高阶函数，我们需要 [创建型模式 _(creational patterns)_](../2017/Design-Patterns-Notes-1.md)（两种工厂、原型、创建者）
-- 由于 不支持闭包、数据必须放到对象里，我们需要 [结构型模式 _(structural patterns)_](../2017/Design-Patterns-Notes-2.md)（适配器、桥接、组合、装饰器、代理）
-- 由于 操作必须放到对象里，我们需要 [行为型模式 _(behavioral patterns)_](../2017/Design-Patterns-Notes-3.md)（命令、责任链、观察者、中介者、状态、策略、模板方法、迭代器、访问者、解释器）
-
-下面讨论上边三个范式如何 运行时动态 **选择** 计算操作（动态选择行为）—— 用 C++ 模拟一个简单的编辑器，点击界面上不同的按钮，执行不同的操作：
+用 C++ 模拟一个简单的编辑器，点击界面上不同的按钮，执行不同的操作，并讨论各个范式如何在运行时 **动态选择** 计算操作（很简单，点击“新建”则新建文件，点击“打开”则打开文件，点击“保存”则保存文件）：
 
 [align-center]
 
@@ -93,6 +99,11 @@ enum Action {
   ClickSave,
 };
 ```
+
+在程序的系统内：
+
+- 点击事件的 **发送者** 是各个按钮
+- 点击事件的 **接收者** 是程序所操作的文件
 
 ### 面向过程
 
@@ -259,12 +270,14 @@ handlers_.at(action)();
 - 面向对象 把数据和操作放到对象里
 - 函数式 把数据和计算放到 lambda 里
 
+> 注：本例中的函数式，主要指函数式思想，而不是“纯”函数式编程。为了简单的阐述问题，保留了面向对象代码。
+
+## 写在最后
+
 > C++ 的 [`std::function`](https://en.cppreference.com/w/cpp/utility/functional/function) + [lambda 表达式](https://en.cppreference.com/w/cpp/language/lambda) 本质上也是通过 **面向对象** 实现的：
 > 
 > - `std::function` 基于带有 `operator()(...)` 抽象类，在构造时利用泛型技巧，抹除传入的 [可调用 _(callable)_](http://en.cppreference.com/w/cpp/concept/Callable) 对象的类型，仅保留调用的签名（[原理](https://shaharmike.com/cpp/naive-std-function/) / [代码](../2017/Callback-vs-Interface/std_function.cpp)）
 > - lambda 表达式会被编译为带有 `operator()(...)` 的类，并构造时捕获当前的上下文；可以传入 `std::function` 封装为更抽象的可调用对象（类似 `NewCommand` 的类）
-
-## 写在最后
 
 本文仅是我的一些个人理解。如果有什么问题，**欢迎交流**。😄
 

@@ -2,16 +2,25 @@
 
 > 2018/10/27
 >
-> 如何使用高阶函数，让代码更简洁、更清晰。本文浅显地介绍了序列相关的几个常用高阶函数。
+> 如何使用高阶函数，实现内部迭代，消除循环和临时变量，让代码更简洁、更清晰。
 
 ## 目录 [no-toc]
 
 [TOC]
 
-> [**高阶函数** (higher-order function)](https://en.wikipedia.org/wiki/Higher-order_function) 指的是满足下列条件之一的函数：
->
-> - 以函数作为参数
-> - 返回值是函数
+## 背景知识
+
+[**高阶函数** (higher-order function)](https://en.wikipedia.org/wiki/Higher-order_function) 指的是满足下列条件之一的函数：
+
+- 以函数作为参数
+- 返回值是函数
+
+[**迭代器模式** (iterator pattern)](../2017/Design-Patterns-Notes-3.md#Iterator) 分为两种：
+
+- **外部迭代器** (external iterator) 提供 First/Next/IsDone/GetItem 的接口，让使用者在遍历集合时，取出各个元素，实现自己的操作
+- **内部迭代器** (internal iterator) 类似于 [访问者模式 (iterator pattern)](../2017/Design-Patterns-Notes-3.md#Visitor)，提供 [依赖注入 (dependency injection)](https://en.wikipedia.org/wiki/Dependency_injection) 的接口，让使用者在遍历集合时，执行传入的操作
+
+使用内部迭代器，可以消除 **显式的循环** 和 **迭代器临时变量**。
 
 ## 使用 `every/some` (`all/any`) 合并谓词
 
@@ -51,7 +60,7 @@
 }
 ```
 
-使用 `for` 实现的 JavaScript 代码：
+使用 `for` 实现的 JavaScript 代码（**外部迭代**）：
 
 ``` js
 function isDayAvaliable(avaliable_days, day_now) {
@@ -63,7 +72,7 @@ function isDayAvaliable(avaliable_days, day_now) {
 }
 ```
 
-使用高阶函数 `some` 化简的 JavaScript 代码：
+使用高阶函数 `some` 化简的 JavaScript 代码（**内部迭代**）：
 
 ``` js
 function isDayAvaliable(avaliable_days, day_now) {
@@ -154,8 +163,8 @@ function stableSort(array, compare) {
 
 [cheerio.js](https://cheerio.js.org/) 提供了类似 jQuery 的解析 DOM 树接口，可以用于抓取页面元素。对于每个 DOM 节点的解析结果，都可以从父节点处，使用两种方式访问：
 
-- `for (const child of elem.children()) ...` 遍历节点 `elem` 的所有子节点，执行需要的操作
-- `elem.map((index, child) => { ... })` 遍历节点 `elem` 的子节点，执行函数，并将所有返回的结果构造为数组
+- **外部迭代** `for (const child of elem.children()) ...` 遍历节点 `elem` 的所有子节点，执行需要的操作
+- **内部迭代** `elem.map((index, child) => { ... })` 遍历节点 `elem` 的子节点，执行函数，并将所有返回的结果构造为数组
 
 假设抓取的页面格式：
 
@@ -189,7 +198,7 @@ function stableSort(array, compare) {
 ]
 ```
 
-使用 `for` 实现的代码：
+使用 `for` 实现的代码（**外部迭代**）：
 
 ``` js
 const result = [];
@@ -213,7 +222,7 @@ for (cosnt e_ul of $('.myclass ul').children()) {
 - 需要使用两层 for 循环
 - 需要使用 `titles`/`links` 变量保存中间结果
 
-使用 `map` 抓取的代码：
+使用 `map` 抓取的代码（**内部迭代**）：
 
 ``` js
 const result = $('.myclass ul').map(
@@ -338,6 +347,9 @@ function flatArray(array) {
 
 说几点自己的想法：
 
+- 对于需要遍历元素的使用者来说：
+  - 外部迭代 需要关心集合元素的 **存储实现**，再进行具体的访问操作
+  - 内部迭代 只需要关心 **如何操作** 各个元素，不需要关心有多少元素、元素如何存储
 - 变量主要是用来存储状态，而如果系统中存在过多的零碎的状态，很难保持各个状态的一致性，所以尽可能：
   - 减少变量的使用：将与当前上下文无关的临时变量封装到新的函数里（小范围可以构造匿名函数，大范围可以提成公共函数）
   - 缩小变量的作用域：使用高阶函数，将临时变量的作用域限制在传入高阶函数的参数函数里，每次执行不会相互干扰
@@ -345,6 +357,7 @@ function flatArray(array) {
 - C++ 是强类型编译语言，不同序列的 **类型不同**，所以标准库只能借助 **泛型** 实现高阶函数；JavaScript 是弱类型脚本语言，可以使用 `Array` 存储 **任意序列**，所以可以把这些高阶函数作为 **`Array` 的原型方法**
   - [C++ 版本 demo](Higher-Order-Functions/Higher-Order-Functions.cpp)
   - [JavaScript 版本 demo](Higher-Order-Functions/Higher-Order-Functions.js)
+
 > C++ 库 [range-v3](https://github.com/ericniebler/range-v3) 利用了现代 C++ 的模板技巧，提供一种更方便的函数式编程方法
 >
 > [例如](http://www.modernescpp.com/index.php/the-new-ranges-library)，找出 **小于 1000 的 [完全平方](https://en.wikipedia.org/wiki/Square_number) 奇数**：

@@ -441,6 +441,8 @@
 
 #### [no-toc] [no-number] &sect; Uses
 
+- Scoped save-restore operation
+  - SaveDC and RestoreDC in Windows GDI
 - Undoable operation in [sec|Command] Command
 - Memento-based iteration ([sec|Iterator] Iterator)
   - Interface: `aggregate.next(iterState)` ~ `iter.next()`

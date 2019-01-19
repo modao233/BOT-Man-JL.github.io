@@ -10,6 +10,8 @@
 
 ## 为什么要写这篇文章 TL;DR
 
+### #1 [no-toc]
+
 一位朋友曾经曾经和我说：“千万别和不知道回调函数的人，解释什么是回调函数”。（见 [如何浅显的解释回调函数](../2017/Callback-Explained.md)）我本以为 **回调函数** _(callback function)_ 是一个非常简单的概念，但和许多刚入门编程的人解释这个概念的时候，他们都觉得很 **费解**。
 
 直到现在，我才发现，原来要理解回调函数，就需要先接受 [函数是一等公民 _(first-class function)_](https://en.wikipedia.org/wiki/First-class_function) 的事实（函数和数据一样都可以被存储、传递），然后理解 [高阶函数 _(higher-order function)_](https://en.wikipedia.org/wiki/Higher-order_function) 的概念（函数可以作为参数传递到另一个函数里）。
@@ -19,7 +21,15 @@
 - **面向过程** 里，数据是数据、操作是操作
 - **面向对象** 里，数据和操作放到对象里，属于对象的一部分
 
+### #2 [no-toc]
+
 为了批判 **面向对象** 里 “操作必须放到对象里” 的回调思想，写了一篇文章 [回调 vs 接口](../2017/Callback-vs-Interface.md)（后来读到 陈硕 也有一篇类似的文章 [以boost::function和boost:bind取代虚函数](https://blog.csdn.net/Solstice/article/details/3066268)），但境界还不够，一直没有发现这个问题的 **本质** —— **函数式 vs 面向对象**。
+
+### #3 [no-toc]
+
+之前我也 ~~跟风~~ 写过一篇 [高阶函数：消除循环和临时变量](../2018/Higher-Order-Functions.md)，讲的是如何使用 `all`/`any`/`map`/`filter`/`fold` 之类的高阶函数。现在想才明白了问题的 **本质** —— 使用 **函数式** 的方法，实现 **面向对象** 的 [内部迭代 _(internal iteration)_](https://en.wikipedia.org/wiki/Iterator#Internal_Iterators)（属于 [迭代器模式 _(iterator pattern)_](../2017/Design-Patterns-Notes-3.md#Iterator) 的一种），从而消除循环和迭代器临时变量。
+
+### #4 [no-toc]
 
 最近终于读懂了几篇 [王垠的博客](http://www.yinwang.org/)，大概能理解了文章的思想（虽然比较偏激，但论述非常严谨）：
 
@@ -76,7 +86,7 @@
 
 ### 函数式
 
-由于数据是 **有状态的** _(stateful)_，而计算是 **无状态的** _(stateless)_；所以需要将数据 **绑定** _(bind)_ 到函数上，得到“有状态”的函数，即 [闭包 _(closure)_](https://en.wikipedia.org/wiki/Closure_%28computer_programming%29)。通过传递闭包，实现复杂的功能组合。
+由于数据是 **有状态的** _(stateful)_，而计算是 **无状态的** _(stateless)_；所以需要将数据 **绑定** _(bind)_ 到函数上，得到“有状态”的函数，即 [闭包 _(closure)_](https://en.wikipedia.org/wiki/Closure_%28computer_programming%29)。通过构造、传递、调用 闭包，实现复杂的功能组合。
 
 > 参考：[λ 演算 _(lambda calculus)_](https://en.wikipedia.org/wiki/Lambda_calculus)
 
@@ -270,7 +280,7 @@ handlers_.at(action)();
 - 面向对象 把数据和操作放到对象里
 - 函数式 把数据和计算放到 lambda 里
 
-> 注：本例中的函数式，主要指函数式思想，而不是“纯”函数式编程。为了简单的阐述问题，保留了面向对象代码。
+> 注：本例中的函数式，只是函数式的一些思想，而不是“纯”函数式编程。为了简单的阐述问题，保留了面向对象代码。
 
 ## 写在最后
 
@@ -278,6 +288,8 @@ handlers_.at(action)();
 > 
 > - `std::function` 基于带有 `operator()(...)` 抽象类，在构造时利用泛型技巧，抹除传入的 [可调用 _(callable)_](http://en.cppreference.com/w/cpp/concept/Callable) 对象的类型，仅保留调用的签名（[原理](https://shaharmike.com/cpp/naive-std-function/) / [代码](../2017/Callback-vs-Interface/std_function.cpp)）
 > - lambda 表达式会被编译为带有 `operator()(...)` 的类，并构造时捕获当前的上下文；可以传入 `std::function` 封装为更抽象的可调用对象（类似 `NewCommand` 的类）
+
+一切并不都是“对象”，一切也并不都是“函数”。只要能用符号最清晰的表达，就是最好的程序。
 
 本文仅是我的一些个人理解。如果有什么问题，**欢迎交流**。😄
 

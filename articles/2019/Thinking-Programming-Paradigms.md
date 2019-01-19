@@ -277,19 +277,22 @@ handlers_.at(action)();
 
 和 **面向对象** 方法的区别在于：
 
-- 面向对象 把数据和操作放到对象里
-- 函数式 把数据和计算放到 lambda 里
+- 面向对象 把数据和操作 **放到对象里**
+- 函数式 把数据和计算 **放到 lambda 里**
 
-> 注：本例中的函数式，只是函数式的一些思想，而不是“纯”函数式编程。为了简单的阐述问题，保留了面向对象代码。
+对于 C++，上面的代码 **本质** 上是通过 **面向对象** 实现的：
+
+- [`std::function`](https://en.cppreference.com/w/cpp/utility/functional/function) 是基于带有 `operator()(...)` 抽象类，在构造时利用泛型技巧，抹除传入的 [可调用 _(callable)_](http://en.cppreference.com/w/cpp/concept/Callable) 对象的类型，仅保留调用的签名（[原理](https://shaharmike.com/cpp/naive-std-function/) / [代码](../2017/Callback-vs-Interface/std_function.cpp)）
+- [lambda 表达式](https://en.cppreference.com/w/cpp/language/lambda) 会被编译为带有 `operator()(...)` 的类，并构造时捕获当前的上下文（类似前面的 `NewCommand`）；可以传入 `std::function` 封装为更抽象的可调用对象
 
 ## 写在最后
 
-> C++ 的 [`std::function`](https://en.cppreference.com/w/cpp/utility/functional/function) + [lambda 表达式](https://en.cppreference.com/w/cpp/language/lambda) 本质上也是通过 **面向对象** 实现的：
-> 
-> - `std::function` 基于带有 `operator()(...)` 抽象类，在构造时利用泛型技巧，抹除传入的 [可调用 _(callable)_](http://en.cppreference.com/w/cpp/concept/Callable) 对象的类型，仅保留调用的签名（[原理](https://shaharmike.com/cpp/naive-std-function/) / [代码](../2017/Callback-vs-Interface/std_function.cpp)）
-> - lambda 表达式会被编译为带有 `operator()(...)` 的类，并构造时捕获当前的上下文；可以传入 `std::function` 封装为更抽象的可调用对象（类似 `NewCommand` 的类）
+一切并不都是“对象”，一切也并不都是“函数”。最简单明了的，才是最好的。
 
-一切并不都是“对象”，一切也并不都是“函数”。只要能用符号最清晰的表达，就是最好的程序。
+> 有些东西本来就是有随时间变化的“状态”的，如果你偏要用“纯函数式”语言去描述它，当然你就进入了那些 monad 之类的死胡同。
+> ...
+> 如果你进入另一个极端，一定要用对象来表达本来很纯的数学函数，那么你一样会把简单的问题搞复杂。
+> —— 王垠
 
 本文仅是我的一些个人理解。如果有什么问题，**欢迎交流**。😄
 

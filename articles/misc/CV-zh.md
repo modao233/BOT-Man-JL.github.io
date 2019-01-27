@@ -21,12 +21,12 @@
 ## 技能
 
 - 技术栈
-  - 现代 C++（高级）
-    - Win32 应用（高级）
+  - 现代 C++（**高级**）
+    - Win32 软件（熟练）
   - C（熟练）
-    - WFP 标记驱动（熟练）
+    - WFP 标记驱动（基本）
   - C#（熟练）
-    - Windows 通用应用（高级）
+    - Windows 通用应用（熟练）
     - ASP.NET (core) MVC（熟练）
   - JavaScript（熟练）
     - Node.js（熟练）
@@ -38,7 +38,7 @@
 
 ## 经历
 
-- 2017 - 参加 **腾讯 QQ 浏览器** 实习，Windows 客户端开发 | **Win32**；
+- 2017 - 参加 **腾讯 QQ 浏览器** 实习/工作，Windows 客户端开发 | **Win32**；
 - 2017 - 参加 **腾讯 QQ 浏览器** 实习，后台开发 | **Node.js**；
 - 2017 - 参加 大学生创新创业实践，开发 [听音识谱应用](https://github.com/YuJianghao/YouPu) [(DEMO)](https://bot-man-jl.github.io/YouPu) | **乐理编程，机器学习**；
 - 2017 – **发表论文** [_Clustering Based Energy-Aware Virtual Network Embedding_](http://journals.sagepub.com/doi/full/10.1177/1550147717726714)，由 Dr. Zhongbao Zhang 指导 | **图聚类，虚拟网络映射**；

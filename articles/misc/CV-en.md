@@ -21,12 +21,12 @@ EN | [中文](CV-zh.md)
 ## Skills
 
 - Technique stacks
-  - Modern C++ (Advanced)
-    - Win32 App (Advanced)
+  - Modern C++ (**Advanced**)
+    - Win32 Software (Experienced)
   - C (Experienced)
-    - WFP Callout Driver (Experienced)
+    - WFP Callout Driver (Basic)
   - C# (Experienced)
-    - Universal Windows App (Advanced)
+    - Universal Windows App (Experienced)
     - ASP.NET (core) MVC (Experienced)
   - JavaScript (Experienced)
     - Node.js (Experienced)
@@ -38,7 +38,7 @@ EN | [中文](CV-zh.md)
 
 ## Experience
 
-- 2017 - Internship at **QQ Browser** in **Tencent**, _Windows developing_ | **Win32**;
+- 2017 - Internship and Working at **QQ Browser** in **Tencent**, _Windows developing_ | **Win32**;
 - 2017 - Internship at **QQ Browser** in **Tencent**, _back-end developing_ | **Node.js**;
 - 2017 - Building a [_music transcription app_](https://github.com/YuJianghao/YouPu) [(DEMO)](https://bot-man-jl.github.io/YouPu) in _College Innovation Project_ | **Music Theory, Machine Learning**;
 - 2017 – Publishing research paper [_Clustering Based Energy-Aware Virtual Network Embedding_](http://journals.sagepub.com/doi/full/10.1177/1550147717726714) with Dr. Zhongbao Zhang | **Graph Clustering, Virtual Network Embedding**;

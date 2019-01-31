@@ -107,7 +107,7 @@ farm.RemoveObserver(&bakery1);
 - 使用 [RAII _(resource acquisition is initialization)_](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization) 风格的资源管理，例如
   - [`ScopedObserver`](https://github.com/chromium/chromium/blob/master/base/scoped_observer.h) 对象在析构时自动调用 `RemoveObserver`
 - 使用弱引用检查观察者的有效性，例如
-  - [base::ObserverList](https://github.com/chromium/chromium/blob/master/base/observer_list.h) + [`base::CheckedObserver`](https://github.com/chromium/chromium/blob/master/base/observer_list_types.h) 在通知前检查观察者的有效性，避免因为通知无效观察者导致崩溃
+  - [`base::ObserverList`](https://github.com/chromium/chromium/blob/master/base/observer_list.h) + [`base::CheckedObserver`](https://github.com/chromium/chromium/blob/master/base/observer_list_types.h) 在通知前检查观察者的有效性，避免因为通知无效观察者导致崩溃
 
 ### 问题：被观察者先销毁
 
@@ -150,7 +150,7 @@ class Bakery : public FarmObserver {
   - 而不是在 `Bakery` 的构造函数/析构函数里实现（回到最初的方式）
 - 被观察者销毁时，通知观察者反注册，例如
   - 在 `views::View` 析构时通知观察者 [`views::ViewObserver::OnViewIsDeleting`](https://github.com/chromium/chromium/blob/master/ui/views/view_observer.h)
-  - 注意：在回调时，不能直接从 `std::list`/`std::vector` 容器中移除观察者；而应该标记为“待移除”，然后等迭代结束后移除（参考 [base::ObserverList](https://github.com/chromium/chromium/blob/master/base/observer_list.h)）
+  - 注意：在回调时，不能直接从 `std::list`/`std::vector` 容器中移除观察者；而应该标记为“待移除”，然后等迭代结束后移除（参考 [`base::ObserverList`](https://github.com/chromium/chromium/blob/master/base/observer_list.h)）
 - 用弱引用替换裸指针，例如
   - 使用 [`base::WeakPtr`](https://github.com/chromium/chromium/blob/master/base/memory/weak_ptr.h) 把 `Farm* farm_` 替换为 `base::WeakPtr<Farm> farm_`（比较灵活）
 
@@ -158,51 +158,54 @@ class Bakery : public FarmObserver {
 
 > 这些在合同里没说清楚。
 
-### 问题：先执行 or 先通知？
+### 问题：死循环
+
+> how old are you? —— 怎么老是你？
+
+除了 [sec|问题：被观察者先销毁] 提到的
+
+> 在回调时，不能直接从 `std::list`/`std::vector` 容器中移除观察者（类似于下边的代码）
+> 
+> ``` cpp
+> for(auto it = c.begin(); it != c.end(); ++it)
+>   c.erase(it);  // crash in the next turn!
+> ```
+
+例如，对于用户配置管理的代码：
+
+- 同步管理器 `SyncManager` 监听配置数据 `ConfigModel` 的变换，即 `class SyncManager : public ConfigObserver`
+- 当 `ConfigModel` 更新时，通知观察者 `ConfigObserver::OnDataUpdated`
+  - 同步管理器在处理 `SyncManager::OnDataUpdated` 时，把 `ConfigModel` 的“最近一次同步时间”字段更新，然后与服务器同步
+- 由于 `ConfigModel` 更新，导致再次通知所有观察者 `ConfigObserver::OnDataUpdated`
+  - 从而进入了死循环
+
+**解决办法**：
+
+方法很简单，只需要根据具体情况，打破循环的条件即可。例如，上边的例子中，在处理 `SyncManager::OnDataUpdated` 时，检查是哪些配置更新了；如果只是“最近一次同步时间”字段的更新，就直接跳过。
+
+### 问题：处在中间状态
 
 > 东西还没准备好就别来找我！
 
 **解决办法**（参考 chromium）：
 
-- 使用两个回调事件，分别表示 状态正在变换 和 状态变换完成，例如
+- 分别使用两个回调事件，表示 状态正在变换 和 状态变换完成，例如
   - 在 `views::Widget` 销毁时通知观察者 [`views::WidgetObserver::OnWidgetDestroying`](https://github.com/chromium/chromium/blob/master/ui/views/widget/widget_observer.h)
   - 在 `views::Widget` 销毁后通知观察者 [`views::WidgetObserver::OnWidgetDestroyed`](https://github.com/chromium/chromium/blob/master/ui/views/widget/widget_observer.h)
 
 ### 问题：观察者之间的顺序
 
-> 各个面包房谁先拿到货的？
+> 谁先发货？
+
+- `ConfigObserver::OnDataUpdated`
+- `LoginObserver::OnLogin`
 
 **解决办法**：
 
-- 中介者模式
+- 使用中介者模式协调变化顺序，参考 [理解观察者、中介者模式](../2017/Observer-Mediator-Explained.md)
 - 将操作抛到队尾异步处理，避免读取到变换的中间状态，例如
-  - 在观察者回调函数 `On...` 调用 [`base::TaskRunner::PostTask`](https://github.com/chromium/chromium/blob/master/base/task_runner.h) 把实际的处理操作 `Handle...` 延迟到当前任务结束后执行
-  - 在实际操作执行时，状态变换已经结束，从而避免读取到不确定的变化中的状态
-
-### 问题：死循环
-
-> how old are you? —— 怎么老是你？
-
-除了上边提到的
-
-> 在回调时，不能直接从 `std::list`/`std::vector` 容器中移除观察者（类似于下边的代码）
-> 
-> ``` cpp
-> for(auto iter = container.begin(); iter != container.end(); ++iter)
->   container.erase(iter);  // crash in the next turn!
-> ```
-
-观察者模式里还经常会遇到死循环问题。例如，对于用户配置管理的代码：
-
-- 同步管理器 `SyncManager` 监听配置数据 `ConfigModel` 的变换，即 `class SyncManager : public ConfigObserver`
-- 当数据变换时，通知观察者 `ConfigObserver::OnDataUpdated`
-- 同步管理器在处理 `SyncManager::OnDataUpdated` 时，把 `ConfigModel` 的“最近一次同步时间”字段更新，然后与服务器同步
-- 由于 `ConfigModel` 更新，导致再次通知所有观察者 `ConfigObserver::OnDataUpdated`
-- 从而进入了死循环
-
-### 问题：重复调用问题
-
-
+  - 在观察者回调函数 `OnDataUpdated` 调用 [`base::TaskRunner::PostTask`](https://github.com/chromium/chromium/blob/master/base/task_runner.h) 把实际的处理操作，延迟到当前任务结束后执行
+  - 在实际操作执行时，状态变换已经结束（已经不在同一个调用栈里），从而避免读取到不确定的变化中的状态
 
 ## 写在最后
 

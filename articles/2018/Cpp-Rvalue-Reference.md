@@ -22,6 +22,8 @@
 
 ### 错误：返回前，移动临时值
 
+> [ES.56: Write `std::move()` only when you need to explicitly move an object to another scope](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#es56-write-stdmove-only-when-you-need-to-explicitly-move-an-object-to-another-scope)
+
 ``` cpp
 void fn() {
   //...
@@ -71,6 +73,8 @@ std::unique_ptr<int> fn(std::unique_ptr<int>&& val) {
 在 [sec|完美转发] 完美转发部分，详细描述了如何合理的保持引用的左右值属性。
 
 ### 误解：返回时，移动临时值
+
+> [F.48: Don’t `return std::move(local)`](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#f48-dont-return-stdmovelocal)
 
 ``` cpp
 std::unique_ptr<int> fn() {

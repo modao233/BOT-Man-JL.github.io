@@ -69,22 +69,45 @@ farm.AddObserver(&bakery2);
 
 当麦子 🌾 成熟时，农场 🚜 开始生成面粉 📦，然后通知所有观察者 🕵️‍；面包房 🏠 买回面粉后，开始生成 面包 🍞、曲奇 🍪、蛋糕 🎂...
 
-``` cpp
-farm.OnWheatReady()
--> farm.ProduceFlourFromWheat()
--> farm.NotifyFlourReady()
-   -> bakery1.OnFlourReady()
-      -> bakery1.BuyFlourFromFarm()
-      -> bakery1.ProduceBreadFromFlour()
-      -> bakery1.ProduceCookieFromFlour()
-   -> bakery2.OnFlourReady()
-      -> bakery2.BuyFlourFromFarm()
-      -> bakery2.ProduceCakeFromFlour()
-```
+<!--
+# https://sequencediagram.org/
+-->
 
-但如果系统内大量使用观察者模式，可能会出现令人抓狂的问题。
+<!--
+title farm-bakery
+participant farm
+participant bakery1
+participant bakery2
+
+bakery1->>farm: AddObserver
+bakery2->>farm: AddObserver
+space
+
+[->farm: OnWheatReady
+activate farm
+note over farm: ProduceFlourFromWheat 🌾
+
+farm->bakery1: OnFlourReady
+activate bakery1
+note over bakery1: ProduceBreadFromFlour 🍞
+note over bakery1: ProduceCookieFromFlour 🍪
+space
+deactivate bakery1
+
+farm->bakery2: OnFlourReady
+activate bakery2
+note over bakery2: ProduceCakeFromFlour 🎂
+space
+deactivate bakery2
+
+deactivate farm
+-->
+
+![Farm Bakery](Insane-Observer-Pattern/farm-bakery.svg)
 
 > 理想很丰满，现实很骨感。
+
+如果系统内大量使用观察者模式，可能会出现令人抓狂的问题。
 
 ## 生命周期问题
 
@@ -96,6 +119,35 @@ farm.OnWheatReady()
 
 假设 bakery1 对象失效了，导致 `farm.NotifyFlourReady()` 调用的 `bakery1.OnFlourReady()` 会出现异常。
 
+<!--
+title invalid-bakery1
+participant farm
+participant bakery1
+participant bakery2
+
+bakery1->>farm: AddObserver
+bakery2->>farm: AddObserver
+destroyafter bakery1
+space
+
+[->farm: OnWheatReady
+activate farm
+note over farm: ProduceFlourFromWheat 🌾
+
+farm->bakery1: OnFlourReady
+note over farm,bakery1: FAILED
+
+farm->bakery2: OnFlourReady
+activate bakery2
+note over bakery2: ProduceCakeFromFlour 🎂
+space
+deactivate bakery2
+
+deactivate farm
+-->
+
+![Invalid Bakery1](Insane-Observer-Pattern/invalid-bakery1.svg)
+
 **解决办法**（约定俗成的）：
 
 如果观察者不再继续观察，那么需要把它从被观察者的列表中移除：
@@ -104,11 +156,39 @@ farm.OnWheatReady()
 farm.RemoveObserver(&bakery1);
 ```
 
+<!--
+title invalid-bakery1-solved
+participant farm
+participant bakery1
+participant bakery2
+
+bakery1->>farm: AddObserver
+bakery2->>farm: AddObserver
+space
+bakery1->>farm: RemoveObserver
+destroyafter bakery1
+space
+
+[->farm: OnWheatReady
+activate farm
+note over farm: ProduceFlourFromWheat 🌾
+
+farm->bakery2: OnFlourReady
+activate bakery2
+note over bakery2: ProduceCakeFromFlour 🎂
+space
+deactivate bakery2
+
+deactivate farm
+-->
+
+![Invalid Bakery1 Solved](Insane-Observer-Pattern/invalid-bakery1-solved.svg)
+
 **更安全的方法**（参考 chromium）：
 
 - 使用 [RAII _(resource acquisition is initialization)_](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization) 风格的资源管理，例如
-  - [`ScopedObserver`](https://github.com/chromium/chromium/blob/master/base/scoped_observer.h) 对象在析构时自动调用 `RemoveObserver`
-  - 在对象析构调用 `RemoveObserver` 时，需要确保观察者和被观察者仍然有效
+  - 引入 [`ScopedObserver`](https://github.com/chromium/chromium/blob/master/base/scoped_observer.h)，在它析构时自动调用 `RemoveObserver`
+  - 在 `ScopedObserver` 析构调用 `RemoveObserver` 时，需要确保观察者和被观察者仍然有效
 - 使用弱引用检查观察者的有效性，例如
   - [`base::ObserverList`](https://github.com/chromium/chromium/blob/master/base/observer_list.h) + [`base::CheckedObserver`](https://github.com/chromium/chromium/blob/master/base/observer_list_types.h) 在通知前检查观察者的有效性，避免因为通知无效观察者导致崩溃
 
@@ -130,15 +210,6 @@ class Bakery : public FarmObserver {
       farm_->RemoveObserver(this);
   }
 
- protected:
-  void OnFlourReady() override {
-    if (!farm_)
-      return;
-
-    // Buy Flour from farm_
-    // Produce ... from Flour
-  }
-
  private:
   Farm* farm_ = nullptr;
 };
@@ -146,11 +217,35 @@ class Bakery : public FarmObserver {
 
 假设 farm_ 对象失效了，导致 `~Bakery()` 调用的 `RemoveObserver()` 可能出现异常。
 
+<!--
+title invalid-farm
+participant farm
+participant bakery1
+participant bakery2
+
+bakery1->>farm: AddObserver
+bakery2->>farm: AddObserver
+space
+
+destroy farm
+space
+
+bakery1->>farm: RemoveObserver
+note over farm,bakery1: FAILED
+destroyafter bakery1
+
+bakery2->>farm: RemoveObserver
+note over farm,bakery2: FAILED
+destroyafter bakery2
+-->
+
+![Invalid Farm](Insane-Observer-Pattern/invalid-farm.svg)
+
 **解决办法**（参考 chromium）：
 
 - 引入外部协调者，完成注册/反注册操作，例如
-  - 让 `farm` 和 `bakery1`/`bakery2` 的生命周期管理者，添加/移除观察关系
-  - 而不是在 `Bakery` 的构造函数/析构函数里实现（回到最初的方式）
+  - 让 `farm` 和 `bakery1`/`bakery2` 的生命周期管理者，添加/移除观察关系（例如引入 [`ScopedObserver`](https://github.com/chromium/chromium/blob/master/base/scoped_observer.h)）
+  - 而不是在 `Bakery` 的构造函数/析构函数里实现
 - 被观察者销毁时，通知观察者反注册，例如
   - 在 `views::View` 析构时，通知观察者 [`views::ViewObserver::OnViewIsDeleting`](https://github.com/chromium/chromium/blob/master/ui/views/view_observer.h)
   - 注意：在回调时，不能直接从 `std::list`/`std::vector` 容器中移除观察者；而应该标记为“待移除”，然后等迭代结束后移除（参考 [`base::ObserverList`](https://github.com/chromium/chromium/blob/master/base/observer_list.h)）
@@ -159,7 +254,7 @@ class Bakery : public FarmObserver {
 
 ## 调用关系问题
 
-> 这些在合同里没说清楚。
+> 这些细节之前没说清楚。
 
 ### 问题：死循环
 
@@ -184,12 +279,88 @@ class Bakery : public FarmObserver {
 - 由于 `ConfigModel` 更新，导致再次通知所有观察者 `ConfigObserver::OnDataUpdated`
   - 从而进入了死循环
 
+<!--
+title sync-last-update
+participant ConfigModel
+participant SyncManager
+
+SyncManager->>ConfigModel: AddObserver
+space
+
+[->ConfigModel: OnConfigUpdated
+activate ConfigModel
+
+ConfigModel->SyncManager: OnDataUpdated
+activate SyncManager
+SyncManager->>ConfigModel :UpdateLastSyncTime
+
+ConfigModel->SyncManager: OnDataUpdated
+activate SyncManager
+SyncManager->>ConfigModel :UpdateLastSyncTime
+
+ConfigModel->SyncManager: OnDataUpdated
+activate SyncManager
+SyncManager->>ConfigModel :UpdateLastSyncTime
+
+space
+deactivate SyncManager
+
+space
+deactivate SyncManager
+
+space
+deactivate SyncManager
+
+deactivate ConfigModel
+-->
+
+![Sync Last Update](Insane-Observer-Pattern/sync-last-update.svg)
+
 实际场景中，如果触发条件比较隐蔽时，问题就难以复现，例如
 
-- 在处理 `SyncManager::OnDataUpdated` 时，调用检查配置的合法性
-  - 如果配置非法，先修正用户配置（例如，`2019/2/29` -> `2018/3/1`）
-  - 然后更新原来有问题的配置，间接导致重入
+- 在处理 `SyncManager::OnDataUpdated` 时，调用 `ConfigValidator` 检查配置的合法性
+  - 如果配置非法，`ConfigValidator` 先修正用户配置（例如，`2019/2/29` -> `2018/3/1`）
+  - 可能导致配置更新，再次调用 `SyncManager::OnDataUpdated` 间接导致重入
 - 假设测试用例没有覆盖“配置非法”的分支，配置就不会被修正，从而这个问题也不会被发现
+
+<!--
+title sync-validate
+participant ConfigModel
+participant SyncManager
+participant ConfigValidator
+
+SyncManager->>ConfigModel: AddObserver
+space
+
+[->ConfigModel: OnConfigUpdated
+activate ConfigModel
+
+ConfigModel->SyncManager: OnDataUpdated
+activate SyncManager
+SyncManager->>ConfigValidator :ValidateConfig
+
+activate ConfigValidator
+ConfigValidator->>ConfigModel: UpdateConfig
+deactivate ConfigValidator
+
+ConfigModel->SyncManager: OnDataUpdated
+activate SyncManager
+SyncManager->>ConfigValidator :ValidateConfig
+
+activate ConfigValidator
+ConfigValidator->>ConfigModel: UpdateConfig
+deactivate ConfigValidator
+
+space
+deactivate SyncManager
+
+space
+deactivate SyncManager
+
+deactivate ConfigModel
+-->
+
+![Sync Validate](Insane-Observer-Pattern/sync-validate.svg)
 
 **解决办法**：
 
@@ -199,40 +370,61 @@ class Bakery : public FarmObserver {
   - 在处理 `SyncManager::OnDataUpdated` 时，检查是哪些配置更新了
   - 如果只是“最近一次同步时间”字段的更新，就直接跳过合法性检查
 - （根治）重构逻辑，避免出现这种情况，例如
-  - 让 `ConfigModel` 进行合法性检查、配置修正的操作
+  - 让 `ConfigModel` 直接通过 `ConfigValidator` 检查合法性、修正数据
   - `SyncManager` 收到 `OnDataUpdated` 拿到的就已经时正确的数据了
 
 ### 问题：乱序回调
 
 > 东西还没准备好就别来找我！
 
-真实世界往往并不像农场和面包房那么简单 —— 观察者可能同时观察多个状态的变化，而这组状态变化的通知顺序往往是不确定的。
+真实世界往往并不像农场和面包房那么简单 —— 观察者可能同时观察多个状态的变化，而这组状态变化的通知顺序往往是不确定的。在这种情况下，使用去中心化的观察者模式，会产生一些不确定的问题。
 
 例如，对于用户头像按钮根据是否登录、用户配置显示的代码：
 
 - 用户头像按钮 `AvatarButton` 监听
   - 配置数据 `ConfigModel` 的变化，即 `class AvatarButton : public ConfigObserver`
   - 登录状态 `LoginStatus` 的变化，即 `class AvatarButton : public LoginObserver`
-- 用户登录时，配置数据会同步到本地；登出时，配置数据会被还原（都可能触发 `ConfigModel` 更新）
 - 当 `LoginStatus` 登录/登出时，通知观察者 `LoginObserver::OnLogin/OnLogout`
   - 用户头像按钮在处理 `AvatarButton::OnLogin` 时，显示用户的头像图片
   - 用户头像按钮在处理 `AvatarButton::OnLogout` 时，显示默认未登录图片
 - 当 `ConfigModel` 更新后，通知观察者 `ConfigObserver::OnDataUpdated`
   - 用户头像按钮在处理 `AvatarButton::OnDataUpdated` 时，根据配置修改按钮样式（圆形/方形/心形）
+- 用户登录时，配置数据会同步到本地；登出时，配置数据会被还原
+  - 数据的同步/还原，会通知观察者
+  - 用户头像按钮可能连续收到 `AvatarButton::OnLogin/OnLogout` 和 `AvatarButton::OnDataUpdated` 两个事件
 
-实际场景中，两个事件的触发时机是不明确的，例如
+<!--
+title multi-observer
+participant AvatarButton
+participant ConfigModel
+participant LoginStatus
 
-- 在处理 `AvatarButton::OnDataUpdated` 时，用户的登录状态不一定是最新的
-  - 可能用户登录了，显示的是未登录图片
-  - 而用户登出了，显示的还是登录头像
-- 在收到 `OnLogin/OnLogout` 消息时，没有明确是已经登录成功，还是正在开始尝试登录（可能之后失败了）
+parallel
+AvatarButton->>ConfigModel: AddObserver
+AvatarButton->>LoginStatus: AddObserver
+parallel off
+-->
 
-如果模块读取中间状态后，只是内自己使用，问题不大；如果模块利用中间状态，计算出一个结果，然后传播或保存起来，那么可能出错，例如
+实际场景中，两个事件的触发时机和顺序是不明确的，例如
+
+- 如果先收到 `OnDataUpdated` 消息
+  - 在处理 `AvatarButton::OnDataUpdated` 时，用户的登录状态不是最新的
+- 如果先收到 `OnLogin/OnLogout` 消息
+  - 在处理 `AvatarButton::OnLogin/OnLogout` 时，用户的配置数据不是最新的
+- 在收到 `OnLogin/OnLogout` 消息时
+  - 没有明确是已经登录成功，还是正在开始尝试登录
+  - 如果只是开始尝试，最后可能会登录失败
+
+TODO: replace with SyncManager
+
+如果不确定的中间状态传播到其他模块，那么问题会比较严重，例如
 
 - 如果 `AvatarButton` 只是根据 是否登录、用户配置 显示不同的按钮内容，问题不大
+  - 收到一个回调时，先按照原来的状态显示；收到另一个回调时，再重新显示
+  - 对用户来说，就是可能只是界面闪了一下
 - 在处理 `AvatarButton::OnDataUpdated` 时，如果用户配置变为心形样式 且 用户已登录，那么把 logo 隐藏
   - 假设这时用户已经登录成功，但是读取到的 `LoginStatus` 没有更新（仍为未登录状态）
-  - 那么 logo 就不会被隐藏了
+  - 那么 logo 可能永远不会被隐藏了
 
 **解决办法**（参考 chromium）：
 
@@ -242,7 +434,7 @@ class Bakery : public FarmObserver {
 - 将操作延迟到相关回调全部结束后执行，避免读取到变化的中间状态，例如
   - 在观察者回调函数 `OnDataUpdated` 调用 [`base::TaskRunner::PostTask`](https://github.com/chromium/chromium/blob/master/base/task_runner.h)，把实际的处理操作抛到队尾，延迟到当前任务结束后异步执行
   - 当操作被执行时，状态变化已经结束（已经不在同一个调用栈里），从而避免读取到不确定的变化中的状态
-- （根治）重构逻辑，使用中介者模式协调各个事件的回调顺序，参考 [理解观察者、中介者模式](../2017/Observer-Mediator-Explained.md)
+- 重构逻辑，使用中介者模式协调各个事件的回调顺序，参考 [理解观察者、中介者模式](../2017/Observer-Mediator-Explained.md)
 
 ## 写在最后
 

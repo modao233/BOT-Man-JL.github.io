@@ -22,7 +22,7 @@
 
 ### 错误：返回前，移动临时值
 
-> [ES.56: Write `std::move()` only when you need to explicitly move an object to another scope](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#es56-write-stdmove-only-when-you-need-to-explicitly-move-an-object-to-another-scope)
+> [ES.56: Write `std::move()` only when you need to explicitly move an object to another scope](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Res-move)
 
 ``` cpp
 std::string base_url  = tag->GetBaseUrl();
@@ -89,7 +89,7 @@ std::unique_ptr<int> foo(std::unique_ptr<int>&& val) {
 
 ### 误解：返回时，移动临时值
 
-> [F.48: Don’t `return std::move(local)`](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#f48-dont-return-stdmovelocal)
+> [F.48: Don’t `return std::move(local)`](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rf-return-move-local)
 
 ``` cpp
 std::unique_ptr<int> bar() {

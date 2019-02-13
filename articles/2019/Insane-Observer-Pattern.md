@@ -2,11 +2,15 @@
 
 > 2019/1/30
 > 
-> 本文主要介绍观察者模式 C++ 实现的一些问题，并给出基于 chromium 的解决方案。
+> 本文总结了 C++ 实现观察者模式的一些问题，并给出基于 chromium 的解决方案。
 
 读完这篇文章，带你绕过 C++ 观察者模式的那些坑。
 
-## 背景 TL;DR
+## TOC [no-toc]
+
+[TOC]
+
+## 背景 TL;DR [no-toc]
 
 [观察者模式](../2017/Design-Patterns-Notes-3.md#Observer) 是一个大家所熟知的设计模式。如果对观察者模式还不是很了解，可以先阅读 [理解观察者、中介者模式](../2017/Observer-Mediator-Explained.md)。
 
@@ -188,7 +192,7 @@ deactivate farm
 
 - 使用 [RAII _(resource acquisition is initialization)_](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization) 风格的资源管理，例如
   - 引入 [`ScopedObserver`](https://github.com/chromium/chromium/blob/master/base/scoped_observer.h)，在它析构时自动调用 `RemoveObserver`
-  - 在 `ScopedObserver` 析构调用 `RemoveObserver` 时，需要确保观察者和被观察者仍然有效
+  - 注意：在 `ScopedObserver` 析构调用 `RemoveObserver` 时，需要确保观察者和被观察者仍然有效
 - 使用弱引用检查观察者的有效性，例如
   - [`base::ObserverList`](https://github.com/chromium/chromium/blob/master/base/observer_list.h) + [`base::CheckedObserver`](https://github.com/chromium/chromium/blob/master/base/observer_list_types.h) 在通知前检查观察者的有效性，避免因为通知无效观察者导致崩溃
 
@@ -248,7 +252,7 @@ destroyafter bakery2
   - 而不是在 `Bakery` 的构造函数/析构函数里实现
 - 被观察者销毁时，通知观察者反注册，例如
   - 在 `views::View` 析构时，通知观察者 [`views::ViewObserver::OnViewIsDeleting`](https://github.com/chromium/chromium/blob/master/ui/views/view_observer.h)
-  - 注意：在回调时，不能直接从 `std::list`/`std::vector` 容器中移除观察者；而应该标记为“待移除”，然后等迭代结束后移除（参考 [`base::ObserverList`](https://github.com/chromium/chromium/blob/master/base/observer_list.h)）
+  - 注意：在回调时，不能直接从 `std::list`/`std::vector` 容器中移除观察者；而应该标记为“待移除”，然后等迭代结束后移除（参考 [`base::ObserverList::RemoveObserver`](https://github.com/chromium/chromium/blob/master/base/observer_list.h)）
 - 用弱引用替换裸指针，移除时检查被观察者的有效性，例如
   - 使用 [`base::WeakPtr`](https://github.com/chromium/chromium/blob/master/base/memory/weak_ptr.h) 把 `Farm* farm_` 替换为 `base::WeakPtr<Farm> farm_`（比较灵活）
 
@@ -262,16 +266,18 @@ destroyafter bakery2
 
 除了 [sec|问题：被观察者先销毁] 提到的
 
-> 在回调时，不能直接从 `std::list`/`std::vector` 容器中移除观察者（类似于下边的代码）
-> 
-> ``` cpp
-> for(auto it = c.begin(); it != c.end(); ++it)
->   c.erase(it);  // crash in the next turn!
-> ```
+> 在回调时，不能直接从 `std::list`/`std::vector` 容器中移除观察者
+
+类似于下边的代码：
+
+``` cpp
+for(auto it = c.begin(); it != c.end(); ++it)
+  c.erase(it);  // crash in the next turn!
+```
 
 在回调时，还要避免隐式的同步触发当前回调；否则，一旦逻辑变得复杂，很容易进入死循环。
 
-例如，对于用户配置管理、数据同步管理的代码：
+例如，对于登录用户修改配置后（例如联系人/云笔记），需要同步到服务器上（之后再同步到其他设备上）：
 
 - 同步管理器 `SyncManager` 监听配置数据 `ConfigModel` 的变化，即 `class SyncManager : public ConfigObserver`
 - 当 `ConfigModel` 更新后，通知观察者 `ConfigObserver::OnDataUpdated`
@@ -379,65 +385,109 @@ deactivate ConfigModel
 
 真实世界往往并不像农场和面包房那么简单 —— 观察者可能同时观察多个状态的变化，而这组状态变化的通知顺序往往是不确定的。在这种情况下，使用去中心化的观察者模式，会产生一些不确定的问题。
 
-例如，对于用户头像按钮根据是否登录、用户配置显示的代码：
+例如，用户登录成功后弹出欢迎界面提示，并在配置中允许用户选择“不弹出登录欢迎界面”：
 
-- 用户头像按钮 `AvatarButton` 监听
-  - 配置数据 `ConfigModel` 的变化，即 `class AvatarButton : public ConfigObserver`
-  - 登录状态 `LoginStatus` 的变化，即 `class AvatarButton : public LoginObserver`
+[align-center]
+
+<p>
+<button onclick="if (!document.getElementById('no-login-prompt').checked) alert('欢迎界面')">登录</button>
+<input id="no-login-prompt" type="checkbox"> 不弹出登录欢迎界面</input>
+</p>
+
+- 欢迎界面 `WelcomePage` 监听登录状态 `LoginStatus` 的变化，即 `class WelcomePage : public LoginObserver`
 - 当 `LoginStatus` 登录/登出时，通知观察者 `LoginObserver::OnLogin/OnLogout`
-  - 用户头像按钮在处理 `AvatarButton::OnLogin` 时，显示用户的头像图片
-  - 用户头像按钮在处理 `AvatarButton::OnLogout` 时，显示默认未登录图片
-- 当 `ConfigModel` 更新后，通知观察者 `ConfigObserver::OnDataUpdated`
-  - 用户头像按钮在处理 `AvatarButton::OnDataUpdated` 时，根据配置修改按钮样式（圆形/方形/心形）
-- 用户登录时，配置数据会同步到本地；登出时，配置数据会被还原
-  - 数据的同步/还原，会通知观察者
-  - 用户头像按钮可能连续收到 `AvatarButton::OnLogin/OnLogout` 和 `AvatarButton::OnDataUpdated` 两个事件
-
-<!--
-title multi-observer
-participant AvatarButton
-participant ConfigModel
-participant LoginStatus
-
-parallel
-AvatarButton->>ConfigModel: AddObserver
-AvatarButton->>LoginStatus: AddObserver
-parallel off
--->
+  - 欢迎界面在处理 `WelcomePage::OnLogin` 时，检查配置数据 `ConfigModel`；如果没有选择“不弹出登录欢迎界面”，就弹出欢迎界面
+- 登录状态发生变化时，同步管理器 `SyncManager` 会更新配置数据 `ConfigModel`
+  - 登录时，从服务器上同步当前用户的配置
+  - 登出时，将配置还原为本地配置
 
 实际场景中，两个事件的触发时机和顺序是不明确的，例如
 
-- 如果先收到 `OnDataUpdated` 消息
-  - 在处理 `AvatarButton::OnDataUpdated` 时，用户的登录状态不是最新的
-- 如果先收到 `OnLogin/OnLogout` 消息
-  - 在处理 `AvatarButton::OnLogin/OnLogout` 时，用户的配置数据不是最新的
-- 在收到 `OnLogin/OnLogout` 消息时
-  - 没有明确是已经登录成功，还是正在开始尝试登录
-  - 如果只是开始尝试，最后可能会登录失败
+- 欢迎界面在配置更新前处理 `WelcomePage::OnLogin`
+  - 用户配置和本地配置一致 —— 非常幸运，没出问题
+  - 用户配置选择了“不弹出登录欢迎界面”，但本地配置没有选择 —— 弹出欢迎界面（用户崩溃了：明明已经选中了“不弹出登录欢迎界面”，怎么还弹出这个烦人的界面。。。）
+  - 用户配置没选择“不弹出登录欢迎界面”，但本地配置选择了 —— 不弹出用户界面（同样不符合预期）
+- 欢迎界面在配置更新后处理 `WelcomePage::OnLogin` —— 行为正确
 
-TODO: replace with SyncManager
+<!--
+title login-order
+participant LoginStatus
+participant WelcomePage
+participant ConfigModel
+participant SyncManager
 
-如果不确定的中间状态传播到其他模块，那么问题会比较严重，例如
+WelcomePage->>LoginStatus: AddObserver
+space
 
-- 如果 `AvatarButton` 只是根据 是否登录、用户配置 显示不同的按钮内容，问题不大
-  - 收到一个回调时，先按照原来的状态显示；收到另一个回调时，再重新显示
-  - 对用户来说，就是可能只是界面闪了一下
-- 在处理 `AvatarButton::OnDataUpdated` 时，如果用户配置变为心形样式 且 用户已登录，那么把 logo 隐藏
-  - 假设这时用户已经登录成功，但是读取到的 `LoginStatus` 没有更新（仍为未登录状态）
-  - 那么 logo 可能永远不会被隐藏了
+note left of LoginStatus: Bad Case
+[->LoginStatus: OnUserLogin
+activate LoginStatus
+
+LoginStatus->WelcomePage: OnLogin
+activate WelcomePage
+
+WelcomePage->>ConfigModel: CanPrompt
+parallel
+WelcomePage<<--ConfigModel: yes
+note right of ConfigModel: out of date
+parallel off
+WelcomePage->>]: ShowWelcome (BAD)
+
+space
+deactivate WelcomePage
+
+LoginStatus->>SyncManager: SyncConfig
+space
+
+parallel
+SyncManager->>ConfigModel: UpdateConfig
+note left of ConfigModel: up to date
+parallel off
+
+space
+deactivate LoginStatus
+space
+
+note left of LoginStatus: Good Case
+[->LoginStatus: OnUserLogin
+activate LoginStatus
+
+LoginStatus->>SyncManager: SyncConfig
+space
+
+parallel
+SyncManager->>ConfigModel: UpdateConfig
+note left of ConfigModel: up to date
+parallel off
+
+LoginStatus->WelcomePage: OnLogin
+activate WelcomePage
+
+WelcomePage->>ConfigModel: CanPrompt
+WelcomePage<<--ConfigModel: yes
+WelcomePage->>]: ShowWelcome (OK)
+
+space
+deactivate WelcomePage
+deactivate LoginStatus
+-->
+
+![Login Order](Insane-Observer-Pattern/login-order.svg)
 
 **解决办法**（参考 chromium）：
 
 - 分别使用两个回调事件，表示 状态正在变化 和 状态变化完成，例如
   - 在 `views::Widget` 销毁时，通知观察者 [`views::WidgetObserver::OnWidgetDestroying`](https://github.com/chromium/chromium/blob/master/ui/views/widget/widget_observer.h)
   - 在 `views::Widget` 销毁后，通知观察者 [`views::WidgetObserver::OnWidgetDestroyed`](https://github.com/chromium/chromium/blob/master/ui/views/widget/widget_observer.h)
+  - 用户登录相关的工作（同步配置）处理开始前、结束后，分别通知 `LoggingIn`/`LoggedIn`
 - 将操作延迟到相关回调全部结束后执行，避免读取到变化的中间状态，例如
-  - 在观察者回调函数 `OnDataUpdated` 调用 [`base::TaskRunner::PostTask`](https://github.com/chromium/chromium/blob/master/base/task_runner.h)，把实际的处理操作抛到队尾，延迟到当前任务结束后异步执行
+  - 在欢迎页面处理 `WelcomePage::OnLogin` 时调用 [`base::TaskRunner::PostTask`](https://github.com/chromium/chromium/blob/master/base/task_runner.h)，把实际的处理操作抛到队尾，延迟到当前任务结束后异步执行
   - 当操作被执行时，状态变化已经结束（已经不在同一个调用栈里），从而避免读取到不确定的变化中的状态
+  - 类似于 JavaScript 里的 [`setTimeout(fn, 0)`](https://stackoverflow.com/questions/779379/why-is-settimeoutfn-0-sometimes-useful)
 - 重构逻辑，使用中介者模式协调各个事件的回调顺序，参考 [理解观察者、中介者模式](../2017/Observer-Mediator-Explained.md)
 
-## 写在最后
+## 写在最后 [no-toc]
 
-本文仅是我在项目中遇到的一些问题，以及我的一些个人理解。如果有什么问题，**欢迎交流**。😄
+本文仅是我在实际项目中遇到的一些问题，以及我的一些个人理解。如果有什么问题，**欢迎交流**。😄
 
 Delivered under MIT License &copy; 2019, BOT Man

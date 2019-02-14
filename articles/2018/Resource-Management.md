@@ -125,17 +125,17 @@ C++ 为了保证语言本身的性能，不支持自动销毁机制。为了解�
 
 > Item 14: Think carefully about copying behavior in resource-managing classes. —— Meyer Scott, _Effective C++ 3rd Edition_
 
-用于资源管理的对象，往往需要注意它的 **复制语义**：
+用于资源管理的对象，往往需要注意它的 **拷贝语义**：
 
-- 如果资源是不可复制的，那么这个对象也是不可复制的
-- 如果资源可以复制，那么对象的复制会导致相应资源的复制
+- 如果资源是不可拷贝的，那么这个对象也是不可拷贝的
+- 如果资源可以拷贝，那么对象的拷贝会导致相应资源的拷贝
 - 另外，有时候仅需要使用资源，而不需要拥有资源
 
 这里，就涉及到了资源和对象的 **映射关系**。
 
 ### 一对一关系
 
-同一个资源，在系统中由一个对象来管理。一般这个对象是 **不可复制** _(non-copyable)_ 的（如果不希望资源被复制，可以使用这种方法）。
+同一个资源，在系统中由一个对象来管理。一般这个对象是 **不可拷贝** _(non-copyable)_ 的（如果不希望资源被拷贝，可以使用这种方法）。
 
 - 这个对象创建时申请资源，销毁时释放资源
 - 读取和修改这个可变对象，直接映射到对资源的读取和修改上
@@ -168,7 +168,7 @@ C++ 为了保证语言本身的性能，不支持自动销毁机制。为了解�
 
 ### 在 C++ 里的几种实现
 
-| 实现方式 | 映射关系 | 可复制 | 修改同步 | 失效同步 |
+| 实现方式 | 映射关系 | 可拷贝 | 修改同步 | 失效同步 |
 |---------|----------|-------|---------|----------|
 | `unique_ptr` | 一对一 强引用 | × | √ | - |
 | `shared_ptr` | 多对一 强引用 | √ | √ | √ |
@@ -183,6 +183,9 @@ C++ 为了保证语言本身的性能，不支持自动销毁机制。为了解�
 - 关于 C++ 基类析构函数的规范：[C.35: A base class destructor should be either public and virtual, or protected and nonvirtual](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c35-a-base-class-destructor-should-be-either-public-and-virtual-or-protected-and-nonvirtual)
   - 如果需要基类的使用者管理对象生命周期，那么需要 `public virtual` 的基类析构函数，允许从基类指针安全的析构任意子类对象（例如 [strategy 对象](../2017/Design-Patterns-Notes-2.md#Strategy) 一般让使用者管理）
   - 如果基类的使用者仅是通过基类接口使用对象，那么需要 `protected non-virtual` 的基类析构函数，禁止从基类指针析构子类对象（例如 [observer 对象](../2017/Design-Patterns-Notes-2.md#Observer) 一般和使用者的生命周期独立）
+- 关于 C++ 基类的不可拷贝性：
+  - [C.67: A polymorphic class should suppress copying](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-copy-virtual)
+  - [C.130: For making deep copies of polymorphic classes prefer a virtual clone function instead of copy construction/assignment](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-copy)
 
 ## 超出系统边界的资源管理
 

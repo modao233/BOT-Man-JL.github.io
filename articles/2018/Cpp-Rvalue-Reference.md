@@ -25,24 +25,19 @@
 > [ES.56: Write `std::move()` only when you need to explicitly move an object to another scope](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#es56-write-stdmove-only-when-you-need-to-explicitly-move-an-object-to-another-scope)
 
 ``` cpp
-void fn() {
-  //...
-  std::string base_url  = tag->GetBaseUrl();
-  if (!base_url.empty())
-    UpdateQueryUrl(std::move(base_url) + "&q=" + word_);
-  else
-    UpdateQueryUrl(default_base_url_ + "&q=" + word_);
-  //...
-}
+std::string base_url  = tag->GetBaseUrl();
+if (!base_url.empty())
+  UpdateQueryUrl(std::move(base_url) + "&q=" + word_);
+else
+  UpdateQueryUrl(default_base_url_ + "&q=" + word_);
 ```
 
-上述代码的问题在于：对临时值使用 `std::move`，会导致后续代码不能使用 `base_url`；如果使用，会出现 **未定义行为** _(undefined behavior)_。
+上述代码的问题在于：对临时值使用 `std::move`，会导致后续代码不能使用 `base_url`；如果使用，会出现 **未定义行为** _(undefined behavior)_。（参考：[`basic_string(basic_string&&)`](https://en.cppreference.com/w/cpp/string/basic_string/basic_string)）
 
 正确做法是封装成一个函数，只在返回值使用 `std::move`（这也符合函数式思想，尽可能减少临时值）：
 
 ``` cpp
 std::string GetQueryUrlString(const Tag* tag) {
-  ASSERT(tag);
   std::string base_url  = tag->GetBaseUrl();
   if (!base_url.empty())
     return std::move(base_url) + "&q=" + word_;
@@ -50,17 +45,37 @@ std::string GetQueryUrlString(const Tag* tag) {
     return default_base_url_ + "&q=" + word_;
 }
 
-void fn() {
-  //...
-  UpdateQueryUrl(GetQueryUrlString(tag));
-  //...
-}
+// ...
+UpdateQueryUrl(GetQueryUrlString(tag));
 ```
+
+### 误解：被移动的对象不能再使用
+
+> [C.64: A move operation should move and leave its source in a valid state](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-move-semantic)
+
+``` cpp
+auto p = std::make_unique<int>(1);
+auto q = std::move(p);
+assert(p == nullptr);  // OK: use after move
+
+p.reset(new int{2});   // or p = std::make_unique<int>(2);
+assert(*p == 1);       // OK: realive now
+```
+
+很多人会认为：被移动后的对象会进入一个 **非法状态** _(invalid state)_，从而不能再使用。实际上，C++ 标准要求对象被移动后，进入一个 **合法但未指定状态** _(“valid but unspecified” state)_ —— 即调用该对象的方法不会出现异常。处于这个状态的对象：
+
+- （基本要求）能正确析构（不会释放被移动的资源，例如 `unique_ptr::~unique_ptr` 检查指针的有效性）
+- （一般要求）重新赋值后，和新的对象没有差别（C++ 标准库基于这个假设）
+- （更高要求）恢复为默认值（例如 `unique_ptr` 恢复为 `unique_ptr{}`）
+
+关于移动语义的实现原理，参考 [sec|移动语义] 代码。
 
 ### 误解：返回时，不移动右值引用参数
 
+> [F.18: For “will-move-from” parameters, pass by `X&&` and `std::move` the parameter](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rf-consume)
+
 ``` cpp
-std::unique_ptr<int> fn(std::unique_ptr<int>&& val) {
+std::unique_ptr<int> foo(std::unique_ptr<int>&& val) {
   //...
   return val;    // not compiled, -> return std::move(val);
 }
@@ -77,7 +92,7 @@ std::unique_ptr<int> fn(std::unique_ptr<int>&& val) {
 > [F.48: Don’t `return std::move(local)`](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#f48-dont-return-stdmovelocal)
 
 ``` cpp
-std::unique_ptr<int> fn() {
+std::unique_ptr<int> bar() {
   auto ret = std::make_unique<int>(64);
   //...
   return std::move(ret);  // -> return ret;
@@ -137,9 +152,10 @@ template<typename T> class vector {
  public:
   vector(const vector& rhs); // copy data
   vector(vector&& rhs);      // move data
+  ~vector();                 // dtor
  private:
-  T* data_;
-  size_t size_;
+  T* data_ = nullptr;
+  size_t size_ = 0;
 };
 
 vector::vector(const vector& rhs) {
@@ -156,12 +172,19 @@ vector::vector(vector&& rhs) {
   rhs.size_ = 0;
   rhs.data_ = nullptr;    // set data of rhs to null
 }
+
+vector::~vector() {
+  if (data_)              // release only if owned
+    delete[] data_;
+}
 ```
 
-上述代码中，`vector::vector` 根据参数的左右值属性判断：
+上述代码中，构造函数 `vector::vector` 根据参数的左右值属性判断：
 
 - 参数为左值时，拷贝构造，使用 `memcpy` 拷贝原对象的内存
 - 参数为右值时，移动构造，把指向原对象内存的指针 `data_`、内存大小 `size_` 复制到新对象，并把原对象这两个成员置 `0`
+
+析构函数 `vector::~vector` 检查 data_ 是否有效，决定是否需要释放资源。
 
 除了判断参数是否为左右值，我们还可以判断对象本身是否为左右值。例如，对成员函数加入 **引用修饰符** (reference qualifier)，针对对象本身的左右值属性进行优化。
 
@@ -186,9 +209,9 @@ auto ret2 = Foo{}.data();  // foo is rvalue, move directly
 template<typename T> class unique_ptr {
  public:
   unique_ptr(const unique_ptr& rhs) = delete;
-  unique_ptr(unique_ptr&& rhs);     // move only
+  unique_ptr(unique_ptr&& rhs);  // move only
  private:
-  T* data_;
+  T* data_ = nullptr;
 };
 
 unique_ptr::unique_ptr(unique_ptr&& rhs) {
@@ -225,8 +248,8 @@ bad_vector<int> v1 { 0, 1, 2, 3 };
 auto v2 = std::move(v1);
 
 v1[0] = v2[3];           // ok, but a bit odd
-ASSERT(v1[0] != v1[0]);
-ASSERT(v1[0] == v1[3]);
+assert(v1[0] != v1[0]);
+assert(v1[0] == v1[3]);
 ```
 
 虽然代码可以那么写，但是在语义上有问题，还违背了移动语义的初衷。

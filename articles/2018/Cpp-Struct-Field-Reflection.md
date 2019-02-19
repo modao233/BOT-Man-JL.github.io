@@ -391,7 +391,24 @@ ForEachField(SimpleStruct{1, "hello static reflection"},
 - 针对 `int` 类型字段，`ForEachField` 调用 `fn(simple.int_, "int")`
 - 针对 `std::string` 类型字段，`ForEachField` 调用 `fn(simple.string_, "string")`
 
-> 2019/1/11 补充（by fredwyan）
+> **2019/2/19 补充**
+> 
+> 如果需要针对不同类型使用不同的操作，可以考虑 [重载 lambda 表达式](http://martinecker.com/martincodes/lambda-expression-overloading/)（[提案 p0051r3](http://open-std.org/JTC1/SC22/WG21/docs/papers/2018/p0051r3.pdf)）：
+> 
+> ``` cpp
+> ForEachField(SimpleStruct{1, "hello static reflection"},
+>              overload(
+>                  [](int field, const char* name) {
+>                    std::cout << "i " << name << ": "
+>                              << field << std::endl;
+>                  },
+>                  [](const std::string& field, const char* name) {
+>                    std::cout << "s " << name << ": "
+>                              << field.c_str() << std::endl;
+>                  }));
+> ```
+> 
+> **2019/1/11 补充（by fredwyan）**
 > 
 > C++ 11 不支持 **泛型 lambda 表达式**，可以使用 **泛型 functor** 代替传入 `ForEachField` 的可调用对象，从而实现 **编译时多态**：
 > 

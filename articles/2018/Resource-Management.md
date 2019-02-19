@@ -180,7 +180,9 @@ C++ 为了保证语言本身的性能，不支持自动销毁机制。为了解�
 
 - C++ 98 的 [`auto_ptr`](https://en.cppreference.com/w/cpp/memory/auto_ptr) 由于没有明确的所引用资源的 一对一/多对一 关系，导致资源所有权不明确，已经被弃用了。
 - 关于 C++ 智能指针的使用指南：[R.20: Use unique_ptr or shared_ptr to represent ownership](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rr-owner)
-- 关于 C++ 基类析构函数的规范：[C.35: A base class destructor should be either public and virtual, or protected and nonvirtual](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-dtor-virtual)
+- 关于 C++ 基类析构函数的规范：
+  - [C.35: A base class destructor should be either public and virtual, or protected and nonvirtual](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-dtor-virtual)
+  - [C.127: A class with a virtual function should have a virtual or protected destructor](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-dtor)
   - 如果需要基类的使用者管理对象生命周期，那么需要 `public virtual` 的基类析构函数，允许从基类指针安全的析构任意子类对象（例如 [strategy 对象](../2017/Design-Patterns-Notes-2.md#Strategy) 一般让使用者管理）
   - 如果基类的使用者仅是通过基类接口使用对象，那么需要 `protected non-virtual` 的基类析构函数，禁止从基类指针析构子类对象（例如 [observer 对象](../2017/Design-Patterns-Notes-2.md#Observer) 一般和使用者的生命周期独立）
 - 关于 C++ 基类的不可拷贝性：

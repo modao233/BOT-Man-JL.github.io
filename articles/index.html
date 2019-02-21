@@ -368,7 +368,9 @@
     });
 
     // Model from https://github.com/xiazeyu/live2d-widget-models
-    loadlive2d("live2d", "/static/hijiki/hijiki.model.json");
+    try {
+      loadlive2d("live2d", "/static/hijiki/hijiki.model.json");
+    } catch (e) { }
   </script>
 </body>
 </html>

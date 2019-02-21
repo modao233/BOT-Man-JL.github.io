@@ -15,43 +15,57 @@ EN | [中文](CV-zh.md)
 #### 2016.3 - 2017.4
 
 - Project YePeida Acadamy
-- **State Key Laboratory** of Networking and Switching Technology, BUPT
-- Studying **Virtual Network Embedding Algorithms**
+- **State Key Laboratory** of Networking and Switching Technology, BUPT (Studying **Virtual Network Embedding Algorithms**)
+- Paper: [_Clustering Based Energy-Aware Virtual Network Embedding_](http://journals.sagepub.com/doi/full/10.1177/1550147717726714)
 
-## Skills
+## Career
 
-- Technique stacks
-  - Modern C++ (**Advanced**)
-    - Win32 Software (Experienced)
-  - C (Experienced)
-    - WFP Callout Driver (Basic)
-  - C# (Experienced)
-    - Universal Windows App (Experienced)
-    - ASP.NET (core) MVC (Experienced)
-  - JavaScript (Experienced)
-    - Node.js (Experienced)
-    - Web Frontend / Vue.js / Wechat App (Basic)
-- English (CET-6)
-- Editing Video (using _Sony Vegas_) (Experienced)
+#### 2018.7 - now
 
-[page-break]
+- Working at **QQ Browser, Tencent**
+- Ranking **T1.3**
+- Awarded **4-star staff** in the second half of 2018
+- **Windows desktop developer** (C++ Win32)
+  - Developing **universal extension API**, simplifying operation development
+  - Maintaining **could control extension/skin/sidebar/downloader/omnibox** etc. modules
+  - Promoting **unit tests** (gtest/gmock) and **modern C++**
 
-## Experience
+#### 2017.7 - 2018.7
 
-- 2017 - Internship and Working at **QQ Browser** in **Tencent**, _Windows developing_ | **Win32**;
-- 2017 - Internship at **QQ Browser** in **Tencent**, _back-end developing_ | **Node.js**;
-- 2017 - Building a [_music transcription app_](https://github.com/YuJianghao/YouPu) [(DEMO)](https://bot-man-jl.github.io/YouPu) in _College Innovation Project_ | **Music Theory, Machine Learning**;
-- 2017 – Publishing research paper [_Clustering Based Energy-Aware Virtual Network Embedding_](http://journals.sagepub.com/doi/full/10.1177/1550147717726714) with Dr. Zhongbao Zhang | **Graph Clustering, Virtual Network Embedding**;
-- 2016 – Joining in [_Microsoft (MSRA) Elites Plan_](https://studentclub.msra.cn/project/97);
-- 2016 – Building a [_kid education app_](https://github.com/BOT-Man-JL/Better-Kids) in _Microsoft More Personal Computing Hackathon_ | **Microsoft Cognitive Services**;
-- 2016 – Building a [_speech helper BOT_](https://github.com/xinhuaRadioLAB/HackerX_slive) in _CareerX-Tsinghua Hackathon_ | **Slack BOT, Office add-in**;
-- 2016 - Building a [_mixed reality IOT assistant_](https://github.com/BOT-Man-JL/IOT-Holo-Assistant) in _Microsoft (MSRA) Student Summer Camp_ | **Microsoft HoloLens, Unity 3D**;
-- 2016 - Building & Maintaining a [_data collecting website_](https://github.com/ZhangYuef/Survey_Platform_ccer) for _CCER, PKU_ | **ASP.NET core**;
-- 2015 – Building a [_choice making app_](https://www.microsoft.com/store/apps/Random%20Master/9NBLGGH6HCP7) in _Microsoft (MSRA) Campus Hackathon_ | **Microsoft Cortana, NLP**;
+- Internship at **QQ Browser, Tencent**
+- **Back-end developer** (Node.js)
+  - Developing **welcome page operation service**, **navigation page content crawler**
+  - Maintaining **task dispatching filter** module of **cloud control service**
+- **Windows desktop developer** (C++ Win32)
+  - Developing **bookmark feature of Mini browser**
+  - Supporting **code style lint/format** (cpplint/clang-format)
+
+## Technique
+
+- Modern C++ (**Advanced**)
+  - Win32 Software (Experienced)
+- C (Experienced)
+  - WFP Callout Driver (Basic)
+- JavaScript (Experienced)
+  - Node.js (Experienced)
+  - Web Frontend / Vue.js / Wechat App (Basic)
+- C# (Basic)
+  - Universal Windows App (Experienced)
+  - ASP.NET (core) MVC (Experienced)
 
 ## Open Source
 
-- 2017 - Contributing to a [_Markdown Editor_](https://github.com/madskristensen/MarkdownEditor) on Visual Studio;
-- 2016 - Designing a **Strong-Typed**, **Compile-time** [_Object Relation Mapping (ORM)_](https://github.com/BOT-Man-JL/ORM-Lite) in **Modern C++**;
-- 2015 – Designing a **Lightweight, Cross-Platform C++** [_Graphics (GUI) Library_](https://github.com/BOT-Man-JL/EggAche-GL), dedicated to those who have no knowledge of GUI;
-- [Coursework Projects](https://github.com/BOT-Man-JL/BUPT-Projects) that I built in college;
+- 2018 - Designing a **anti-sniffer** [Windows traffic redirection driver](https://github.com/BOT-Man-JL/WFP-Traffic-Redirection-Driver) for anonymous communication
+- 2017 - Contributing to a [_markdown editor_](https://github.com/madskristensen/MarkdownEditor) on Visual Studio
+- 2016 - Designing a **strong-typed**, **compile-time** [_object relation mapping (ORM)_](https://github.com/BOT-Man-JL/ORM-Lite) in **modern C++**
+- 2015 – Designing a **lightweight, cross-platform C++** [_graphics (GUI) library_](https://github.com/BOT-Man-JL/EggAche-GL), dedicated to those who have no knowledge of GUI
+
+## Experience
+
+- 2017 - Building a [_music transcription app_](https://github.com/YuJianghao/YouPu) in _College Innovation Project_ | **Music Theory, Machine Learning** [(DEMO)](https://bot-man-jl.github.io/YouPu)
+- 2016 – Joining in [_Microsoft (MSRA) Elites Plan_](https://studentclub.msra.cn/project/97)
+- 2016 – Building a [_kid education app_](https://github.com/BOT-Man-JL/Better-Kids) in _Microsoft More Personal Computing Hackathon_ | **Microsoft Cognitive Services**
+- 2016 – Building a [_speech helper BOT_](https://github.com/xinhuaRadioLAB/HackerX_slive) in _CareerX-Tsinghua Hackathon_ | **Slack BOT, Office add-in**
+- 2016 - Building a [_mixed reality IOT assistant_](https://github.com/BOT-Man-JL/IOT-Holo-Assistant) in _Microsoft (MSRA) Student Summer Camp_ | **Microsoft HoloLens, Unity 3D**
+- 2016 - Building & Maintaining a [_data collecting website_](https://github.com/ZhangYuef/Survey_Platform_ccer) for _CCER, PKU_ | **ASP.NET core**
+- 2015 – Building a [_choice making app_](https://www.microsoft.com/store/apps/Random%20Master/9NBLGGH6HCP7) in _Microsoft (MSRA) Campus Hackathon_ | **Microsoft Cortana, NLP**

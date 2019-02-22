@@ -285,6 +285,10 @@ handlers_.at(action)();
 - [`std::function`](https://en.cppreference.com/w/cpp/utility/functional/function) 是基于带有 `operator()(...)` 抽象类，在构造时利用泛型技巧，抹除传入的 [可调用 _(callable)_](http://en.cppreference.com/w/cpp/concept/Callable) 对象的类型，仅保留调用的签名（[原理](https://shaharmike.com/cpp/naive-std-function/) / [代码](../2017/Callback-vs-Interface/std_function.cpp)）
 - [lambda 表达式](https://en.cppreference.com/w/cpp/language/lambda) 会被编译为带有 `operator()(...)` 的类，并构造时捕获当前的上下文（类似前面的 `NewCommand`）；可以传入 `std::function` 封装为更抽象的可调用对象
 
+> 2019/2/22 补充：
+> 
+> 使用命令模式，相对于传递函数，更适用于需要 **撤销 (undo)/重做 (redo)** 的情况。（参考：[游戏设计模式](https://gameprogrammingpatterns.com/command.html)）
+
 ## 写在最后
 
 一切并不都是“对象”，可以用 **函数** 表示 **纯粹的数学运算**：

@@ -119,6 +119,7 @@
 - Registry with key
   - (clone prototype in manager to create component)
   - (used for dependency lookup)
+- [C.130: For making deep copies of polymorphic classes prefer a virtual clone function instead of copy construction/assignment](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-copy)
 
 #### [no-toc] [no-number] &sect; Comparison
 

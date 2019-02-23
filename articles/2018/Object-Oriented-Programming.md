@@ -47,7 +47,7 @@ int PetAndCountCats (List<Pet> pets) {
 
 而面向对象语言引入了 **类和对象**，把对外表现的 **行为** _(behavior)_ 和用于支持行为的 **状态** _(state)_ 封装在一起，实现功能的模块化。（见 [笔记](Implementation-Patterns-Notes.md#Advantage-of-Object-P43)）
 
-同时，面向对象语言为我们提供了 **丰富的控制流** 描述方法，更符合人们直观的想法 —— 循序 _(sequence)_，消息 _(messages)_，迭代 _(iteration)_，条件 _(conditionals)_，异常 _(exceptions)_。（见 [笔记](Implementation-Patterns-Notes.md#Usage-Order-of-Control-Flow-P72)）
+同时，面向对象语言为我们提供了 **丰富的控制流** 描述方法，更符合人们直观的想法 —— 顺序 _(sequence)_，消息 _(messages)_，迭代 _(iteration)_，条件 _(conditionals)_，异常 _(exceptions)_。（见 [笔记](Implementation-Patterns-Notes.md#Usage-Order-of-Control-Flow-P72)）
 
 ### 为什么要写这篇文章
 

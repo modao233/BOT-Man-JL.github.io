@@ -237,7 +237,7 @@
 
 ### 检查 Checksum Offload
 
-由于 IP 包、TCP、UDP 报文中的 [checksum 计算](https://tools.ietf.org/html/rfc1071) 比较简单，而利用 CPU 计算这个字段比较浪费时间（例如，TCP 的 checksum 需要同时算上伪 IP 头、TCP 报头、TCP 报文）。所以，网卡提供了一个叫做 _Checksum Offload_ 的功能，利用硬件计算/校验 checksum，为 CPU 分担工作（硬件可以并行处理整个待校验数据段，而软件只能循序的读取并计算）。
+由于 IP 包、TCP、UDP 报文中的 [checksum 计算](https://tools.ietf.org/html/rfc1071) 比较简单，而利用 CPU 计算这个字段比较浪费时间（例如，TCP 的 checksum 需要同时算上伪 IP 头、TCP 报头、TCP 报文）。所以，网卡提供了一个叫做 _Checksum Offload_ 的功能，利用硬件计算/校验 checksum，为 CPU 分担工作（硬件可以并行处理整个待校验数据段，而软件只能顺序的读取并计算）。
 
 然而，有的网卡并不支持 Checksum Offload，需要我们自己处理 checksum 的变换（IP/TCP/UDP 的 checksum）：
 

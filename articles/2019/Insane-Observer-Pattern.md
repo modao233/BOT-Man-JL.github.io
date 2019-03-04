@@ -265,6 +265,61 @@ destroyafter bakery2
 
 > 这些细节之前没说清楚。
 
+### 问题：时机不明
+
+> 东西还没准备好就别来找我！
+
+被观察者提供事件接口时，需要明确 **回调时刻在状态变化前，还是状态变化后**；必要时，需要同时分别提供 **变化前/变化后** 两个事件通知。
+
+例如，一般的软件中，用户数据（例如书签/联系人/云笔记/设置项）常常存储在统一的位置（配置数据）；很多业务逻辑中，一个模块修改配置数据后，会立即影响另一个模块。由于模块只依赖于配置数据，之间没有相互依赖，所以一般使用观察者模式：
+
+- 模块 `ModuleB` 监听配置数据 `ConfigModel` 的变化，即
+  - `class ModuleB : public ConfigObserver`
+- 当模块 `ModuleA` 修改配置数据时，`ConfigModel` 通知观察者 `ConfigObserver::OnDataUpdate`（既不是 `OnDataUpdating` 也不是 `OnDataUpdated`）
+  - 模块 `ModuleB` 在处理 `ModuleB::OnDataUpdate` 时，可能会读取配置数据
+  - 这时，读取到的 `ConfigModel` 不确定是更新前的，还是更新后的
+
+<!--
+title config-update
+participant ModuleA
+participant ConfigModel
+participant ModuleB
+
+ModuleB->>ConfigModel: AddObserver
+space
+
+ModuleA->>ConfigModel: UpdateConfig
+activate ConfigModel
+
+note over ConfigModel: Actually Update?
+
+ConfigModel->ModuleB: OnDataUpdated
+activate ModuleB
+
+ModuleB->>ConfigModel: GetConfig
+ModuleB<<--ConfigModel: Old or New?
+
+note over ConfigModel: Actually Update?
+space
+
+deactivate ModuleB
+deactivate ConfigModel
+-->
+
+![Config Update](Insane-Observer-Pattern/config-update.svg)
+
+**解决办法**：
+
+- 分别使用两个回调事件，表示 **状态正在变化** `OnDoing` 和 **状态变化完成** `OnDone`，例如
+  - 在 `views::Widget` 销毁时，通知观察者 [`views::WidgetObserver::OnWidgetDestroying`](https://github.com/chromium/chromium/blob/master/ui/views/widget/widget_observer.h)
+  - 在 `views::Widget` 销毁后，通知观察者 [`views::WidgetObserver::OnWidgetDestroyed`](https://github.com/chromium/chromium/blob/master/ui/views/widget/widget_observer.h)
+- 一般监听 `OnDoing`，是为了
+  - 阻止变化生效，**提前拦截操作**（例如，关闭文档编辑器窗口前，提示用户确认保存）
+  - **在其他观察者收到 `OnDone` 之前**，先做一些操作（例如，[sec|问题：顺序耦合] 提到的问题）
+- 一般监听 `OnDone` 是为了
+  - **读取变化后的状态**，进行特定操作（例如，更新给用户展示的书签/联系人列表）
+  - **确保变化正确结束后**，再执行操作（例如，登录成功后欢迎用户，失败则忽略）
+
 ### 问题：死循环
 
 > how old are you? —— 怎么老是你？
@@ -280,9 +335,9 @@ for(auto it = c.begin(); it != c.end(); ++it)
   c.erase(it);  // crash in the next turn!
 ```
 
-在回调时，还要避免 **观察者同步修改被观察者状态**，从而再次触发当前回调，导致重入；否则，一旦逻辑变得复杂，很容易进入死循环。
+在回调时，还要避免 **观察者同步修改被观察者状态**，从而再次触发当前回调，导致 **重入**；否则，一旦逻辑变得复杂，很容易进入死循环。
 
-例如，一般的软件中，登录用户修改配置后（例如书签/联系人/云笔记/设置项），需要同步到服务器上（之后再同步到其他设备上）；而对于新用户，配置一开始不是空的，其中可能包含预置数据（例如内置书签/客服联系人）：
+例如，登录用户修改配置数据后，需要同步到服务器上（之后再同步到其他设备上）；而对于新用户，配置一开始不是空的，其中可能包含预置数据（例如内置书签/客服联系人）：
 
 - 同步管理器 `SyncManager` 监听配置数据 `ConfigModel` 的变化，即
   - `class SyncManager : public ConfigObserver`
@@ -342,8 +397,6 @@ deactivate ConfigModel
 ![Sync Upgrade](Insane-Observer-Pattern/sync-upgrade.svg)
 
 **解决办法**：
-
-方法很简单：
 
 - （绕开）根据具体情况，**打破循环的条件**，例如
   - 配置升级器 `ConfigUpgrade` 检查配置数据 `ConfigModel` 是否需要升级，仅在需要时更新
@@ -428,19 +481,6 @@ deactivate LoginStatus
   - 当操作被执行时，状态变化已经结束（已经不在同一个调用栈里），从而避免读取到不确定的变化中的状态
   - 类似于 JavaScript 里的 [`setTimeout(fn, 0)`](https://stackoverflow.com/questions/779379/why-is-settimeoutfn-0-sometimes-useful)
 - （根治）重构逻辑，使用 **中介者模式** —— 引入中介者监听事件，然后协调各个事件处理函数的调用顺序，参考 [理解观察者、中介者模式](../2017/Observer-Mediator-Explained.md)
-
-### 问题：时机不明
-
-> 东西还没准备好就别来找我！
-
-被观察者提供事件接口时，需要明确 **回调时刻在状态变化前，还是状态变化后**；必要时，需要同时分别提供 **变化前/变化后** 两个事件通知。
-
-**解决办法**：
-
-- 分别使用两个回调事件，表示 状态正在变化 和 状态变化完成，例如
-  - 在 `views::Widget` 销毁时，通知观察者 [`views::WidgetObserver::OnWidgetDestroying`](https://github.com/chromium/chromium/blob/master/ui/views/widget/widget_observer.h)
-  - 在 `views::Widget` 销毁后，通知观察者 [`views::WidgetObserver::OnWidgetDestroyed`](https://github.com/chromium/chromium/blob/master/ui/views/widget/widget_observer.h)
-  - 用户登录相关的工作（同步配置）处理开始前、结束后，分别通知 `LoggingIn`/`LoggedIn`
 
 ## 写在最后 [no-toc]
 

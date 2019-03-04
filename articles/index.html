@@ -208,8 +208,7 @@
 
       // handle invalid hash value
       try {
-        var target = document.querySelector(location.hash);
-        target.scrollIntoView();
+        document.querySelector(decodeURI(location.hash)).scrollIntoView();
       } catch (e) { }
     }
 

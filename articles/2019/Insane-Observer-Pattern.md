@@ -293,7 +293,7 @@ activate ConfigModel
 
 note over ConfigModel: Actually Update?
 
-ConfigModel->ModuleB: OnDataUpdated
+ConfigModel->ModuleB: OnDataUpdate
 activate ModuleB
 
 ModuleB->>ConfigModel: GetConfig
@@ -318,7 +318,7 @@ deactivate ConfigModel
   - **在其他观察者收到 `OnDone` 之前**，先做一些操作（例如，[sec|问题：顺序耦合] 提到的问题）
 - 一般监听 `OnDone` 是为了
   - **读取变化后的状态**，进行特定操作（例如，更新给用户展示的书签/联系人列表）
-  - **确保变化正确结束后**，再执行操作（例如，登录成功后欢迎用户，失败则忽略）
+  - **确保变化正确结束后**，再执行操作（例如，连接 WiFi 网络后，自动更新手机 app）
 
 ### 问题：死循环
 

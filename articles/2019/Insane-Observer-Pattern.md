@@ -141,12 +141,7 @@ note over farm: ProduceFlourFromWheat 🌾
 farm->bakery1: OnFlourReady
 note over farm,bakery1: FAILED
 
-farm->bakery2: OnFlourReady
-activate bakery2
-note over bakery2: ProduceCakeFromFlour 🎂
 space
-deactivate bakery2
-
 deactivate farm
 -->
 
@@ -254,12 +249,9 @@ destroyafter bakery2
 - 被观察者销毁时，**通知观察者反注册**，例如
   - 在 `views::View` 析构时，通知观察者 [`views::ViewObserver::OnViewIsDeleting`](https://github.com/chromium/chromium/blob/master/ui/views/view_observer.h)
   - 注意：在回调时，不能直接从 `std::list`/`std::vector` 容器中移除观察者；而应该标记为“待移除”，然后等迭代结束后移除（参考 [`base::ObserverList::RemoveObserver`](https://github.com/chromium/chromium/blob/master/base/observer_list.h)）
+  - 循环内删除迭代器会导致迭代器失效：`for(auto it = c.begin(); it != c.end(); ++it) c.erase(it);  // bad`
 - 用 **弱引用** 替换裸指针，移除时检查被观察者的有效性，例如
   - 使用 [`base::WeakPtr`](https://github.com/chromium/chromium/blob/master/base/memory/weak_ptr.h) 把 `Farm* farm_` 替换为 `base::WeakPtr<Farm> farm_`（比较灵活）
-
-> 注：
-> 
-> 项目中，应该避免静态对象（全局变量/静态变量/单例）之间的相互观察，因为他们的创建/销毁时机是不可控的。
 
 ## 调用关系问题
 
@@ -269,9 +261,13 @@ destroyafter bakery2
 
 > 东西还没准备好就别来找我！
 
+**问题**：
+
 被观察者提供事件接口时，需要明确 **回调时刻在状态变化前，还是状态变化后**；必要时，需要同时分别提供 **变化前/变化后** 两个事件通知。
 
-例如，一般的软件中，用户数据（例如书签/联系人/云笔记/设置项）常常存储在统一的位置（配置数据）；很多业务逻辑中，一个模块修改配置数据后，会立即影响另一个模块。由于模块只依赖于配置数据，之间没有相互依赖，所以一般使用观察者模式：
+**例子**：
+
+一般的软件中，用户数据（例如书签/联系人/云笔记/设置项）常常存储在统一的位置（配置数据）；很多业务逻辑中，一个模块修改配置数据后，会立即影响另一个模块。由于模块只依赖于配置数据，之间没有相互依赖，所以一般使用观察者模式：
 
 - 模块 `ModuleB` 监听配置数据 `ConfigModel` 的变化，即
   - `class ModuleB : public ConfigObserver`
@@ -324,20 +320,13 @@ deactivate ConfigModel
 
 > how old are you? —— 怎么老是你？
 
-除了 [sec|问题：被观察者先销毁] 提到的
+**问题**：
 
-> 在回调时，不能直接从 `std::list`/`std::vector` 容器中移除观察者
+在回调时，要避免 **观察者同步修改被观察者状态**，从而再次触发当前回调，导致 **重入**；否则，一旦逻辑变得复杂，很容易进入 **死循环**。
 
-类似于下边的代码：
+**例子**：
 
-``` cpp
-for(auto it = c.begin(); it != c.end(); ++it)
-  c.erase(it);  // crash in the next turn!
-```
-
-在回调时，还要避免 **观察者同步修改被观察者状态**，从而再次触发当前回调，导致 **重入**；否则，一旦逻辑变得复杂，很容易进入死循环。
-
-例如，登录用户修改配置数据后，需要同步到服务器上（之后再同步到其他设备上）；而对于新用户，配置一开始不是空的，其中可能包含预置数据（例如内置书签/客服联系人）：
+登录用户修改配置数据后，需要同步到服务器上（之后再同步到其他设备上）；而对于新用户，配置一开始不是空的，其中可能包含预置数据（例如内置书签/客服联系人）：
 
 - 同步管理器 `SyncManager` 监听配置数据 `ConfigModel` 的变化，即
   - `class SyncManager : public ConfigObserver`
@@ -409,9 +398,13 @@ deactivate ConfigModel
 
 > 别插队！
 
-理想情况下，观察者之间应该是相互独立的 —— **通知顺序不影响观察者的处理逻辑**。而实际情况下，可能有 **多个相互依赖的观察者，观察同一个事件** —— 处理逻辑依赖于通知顺序，通知顺序依赖于注册顺序；而注册顺序一般难以保证，容易被隐式的修改。
+**问题**：
 
-例如，用户登录成功后弹出欢迎界面提示，而用户名记录在用户配置里；用户配置需要在登录时，从服务器上同步下来：
+理想情况下，观察者之间应该是相互独立的 —— **通知顺序不影响观察者的处理逻辑**。而实际情况下，可能有 **多个相互依赖的观察者，观察同一个事件** —— 处理逻辑依赖于通知顺序，通知顺序依赖于注册顺序；而注册顺序一般难以保证，偶然的正确很容易被隐式打破。
+
+**例子**：
+
+用户登录成功后弹出欢迎界面提示，而用户名记录在用户配置里；用户配置需要在登录时，从服务器上同步下来：
 
 - 欢迎界面 `WelcomePage` 和 同步管理器 `SyncManager` 监听登录状态 `LoginStatus` 的变化，即
   - `class WelcomePage : public LoginObserver`
@@ -428,7 +421,7 @@ deactivate ConfigModel
 配置用户名：<input id="login-user-name" type="text" />
 </p>
 
-两个观察者都监听了同一个事件（登陆状态变化 `LoginObserver::OnLogin`），且都依赖于同一个状态（配置数据 `ConfigModel`）；而两个观察者被通知的顺序时不确定的，例如
+两个观察者都监听了同一个事件（登录状态变化 `LoginObserver::OnLogin`），且都依赖于同一个状态（配置数据 `ConfigModel`）；而两个观察者被通知的顺序时不确定的，例如
 
 - 如果 同步管理器先处理了 `SyncManager::OnLogin`，将配置数据设置为登录用户的用户名；欢迎界面在处理 `WelcomePage::OnLogin` 时，使用的用户名 **正确**
 - 如果 欢迎界面先处理了 `WelcomePage::OnLogin`，这时在配置中没有用户名字段，显示 **错误**
@@ -483,6 +476,13 @@ deactivate LoginStatus
 - （根治）重构逻辑，使用 **中介者模式** —— 引入中介者监听事件，然后协调各个事件处理函数的调用顺序，参考 [理解观察者、中介者模式](../2017/Observer-Mediator-Explained.md)
 
 ## 写在最后 [no-toc]
+
+> 2019/3/08 补充：
+> 
+> - 避免把 **静态对象**（全局变量/静态变量/单例）作为观察者，因为他们的创建/销毁时机是不可控的，可以改为 **直接依赖**
+> - 避免让 **监听同一事件** 的多个观察者 **相互依赖**，尽量只让 **一个模块来控制** 事件的 **处理顺序**
+>   - 既可以把顺序控制放在被观察者 —— 在 OnDoing/OnDone 之间按顺序处理
+>   - 也可以把顺序控制放在观察者 —— 只有一个观察者，由它来协调其他相互依赖的模块
 
 本文仅是我在实际项目中遇到的一些问题，以及我的一些个人理解。如果有什么问题，**欢迎交流**。😄
 

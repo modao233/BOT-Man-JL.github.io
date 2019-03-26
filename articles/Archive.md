@@ -3,6 +3,7 @@
 
 #### 2019
 
+- [深入 C++ 回调](2019/Inside-Cpp-Callback.md)
 - [令人抓狂的 观察者模式](2019/Insane-Observer-Pattern.md)
 - [对 编程范式 的简单思考](2019/Thinking-Programming-Paradigms.md)
 

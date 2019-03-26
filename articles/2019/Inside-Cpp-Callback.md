@@ -19,7 +19,7 @@
 
 [TOC]
 
-本文分析 Chromium 的 [`base::Bind`](https://github.com/chromium/chromium/blob/master/base/bind.h) + [`base::Callback`](https://github.com/chromium/chromium/blob/master/base/callback.h) 回调机制。（参考：[Callback<> and Bind() | Chromium Docs](https://github.com/chromium/chromium/blob/master/docs/callback.md)）很多人会有这样的疑惑：既然 STL 已经提供了 `std::bind` + `std::function`，**为什么 Chromium 项目还要“造轮子”呢**？读完这篇文章，带你领略 Chromium 回调机制的强大之处。
+本文分析 Chromium 的 [`base::Bind`](https://github.com/chromium/chromium/blob/master/base/bind.h) + [`base::Callback`](https://github.com/chromium/chromium/blob/master/base/callback.h) 回调机制。（参考：[Callback<> and Bind() | Chromium Docs](https://github.com/chromium/chromium/blob/master/docs/callback.md)）很多人会有这样的疑惑：既然 STL 已经提供了 `std::bind`/`lambda` + `std::function`，**为什么 Chromium 项目还要“造轮子”呢**？读完这篇文章，带你领略 Chromium 回调机制的精妙之处。
 
 ## 回调是同步还是异步的
 
@@ -66,6 +66,47 @@ void View::FetchImageAsync(const std::string& filename) {
   //                                       ^ use raw |this|
 }
 ```
+
+<!--
+# https://sequencediagram.org/
+-->
+
+<!--
+title fetch-image-async
+participant UI thread
+participant Background Thread
+
+[->>UI thread: Call View::FetchImageAsync
+activate UI thread
+UI thread->Background Thread: Post LoadImageFromFile
+
+space
+deactivate UI thread
+
+space
+activate UI thread
+note over UI thread: Run other tasks
+
+space
+deactivate UI thread
+
+Background Thread->>Background Thread: Call LoadImageFromFile
+activate Background Thread
+Background Thread->UI thread: Post View::LoadImageCallback
+
+space
+deactivate Background Thread
+
+space
+UI thread->>UI thread: Call View::LoadImageCallback
+activate UI thread
+UI thread->>[: Call ImageView::SetImage
+
+space
+deactivate UI thread
+-->
+
+![Fetch Image Async](Inside-Cpp-Callback/fetch-image-async.svg)
 
 > 使用 C++ 11 lambda 表达式描述：
 > 
@@ -120,7 +161,7 @@ void View::FetchImageAsync(const std::string& filename) {
 >       FROM_HERE, base::Bind(&LoadImageFromFile, filename),
 >       base::Bind([](const base::WeakPtr<View>& weak_ptr,
 >                     const Image& image) {
->         // check if |this| is valid
+>         // check if |this| is valid via |weak_ptr|
 >         if (weak_ptr && background_image_view_)
 >           background_image_view_->SetImage(image);
 >       }, weak_factory_.GetWeakPtr()));
@@ -134,7 +175,7 @@ void View::FetchImageAsync(const std::string& filename) {
 
 > 注：
 > 
-> - [`base::WeakPtr`](https://github.com/chromium/chromium/blob/master/base/memory/weak_ptr.h) 属于 **侵入式** _(intrusive)_ 智能指针，不支持跨线程使用
+> - [`base::WeakPtr`](https://github.com/chromium/chromium/blob/master/base/memory/weak_ptr.h) 属于 Chromium 提供的 **侵入式** _(intrusive)_ 智能指针，非 **线程安全** _(thread-safe)_
 > - 基于弱引用指针，Chromium 封装了 **可取消** _(cancelable)_ 回调 [`base::CancelableCallback`](https://github.com/chromium/chromium/blob/master/base/cancelable_callback.h)，提供 `Cancel`/`IsCancelled` 接口。（参考：[Cancelling a Task | Threading and Tasks in Chrome](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#cancelling-a-task)）
 
 ## 回调只能执行一次还是可以多次
@@ -154,8 +195,8 @@ Chromium 区分回调的可调用次数：一方面，在语义上更明确；�
 
 从生命周期的角度看，回调上下文分为两种：**需要回调对象管理生命周期的** 和 **不由回调对象管理的**。目前，Chromium 支持的上下文绑定方式有：
 
-| | 回调参数类型（目的）| 绑定数据类型（源）| 回调对象是否管理上下文生命周期 |
-|-|---|---|---|
+| Chromium 支持 | 回调参数类型（目的）| 绑定数据类型（源）| 回调对象是否管理上下文生命周期 |
+|---|---|---|---|
 | `std::ref/cref()` | `T&` / `const T&` | `T&` / `const T&` | 否，自己保证上下文有效性 |
 | `base::Unretained()` | `T*` | `T*` | 否，自己保证上下文有效性 |
 | `base::WeakPtr<>` | `T*` | `base::WeakPtr<>` | 否，弱引用保证上下文有效性 |
@@ -164,25 +205,35 @@ Chromium 区分回调的可调用次数：一方面，在语义上更明确；�
 | `base::RetainedRef()` | `T*` | `scoped_refptr<>` | 是，`~scoped_refptr()` |
 | `scoped_refptr<>` | `scoped_refptr<>` | `scoped_refptr<>` | 是，`~scoped_refptr()` |
 
-- 在构造回调时，使用 `std::forward` 构造上下文变量
-  - 提供辅助函数
-- 在执行回调时，通过拷贝还是移动传递上下文
-
-> Chromium 实现细节：
+> 注：
 > 
-> - 对于 `base::OnceCallback` 使用 `base::internal::Invoker::RunOnce`，使用 `std::move` 移动上下文（右值引用）
-> - 对于 `base::RepeatingCallback` 使用 `base::internal::Invoker::Run`，直接传递上下文（左值引用）
+> - 主要参考 [Quick reference for advanced binding | Callback<> and Bind()](https://github.com/chromium/chromium/blob/master/docs/callback.md#quick-reference-for-advanced-binding)
+> - [`scoped_refptr`](https://github.com/chromium/chromium/blob/master/base/memory/weak_ptr.h) 也属于 Chromium 提供的 **侵入式** _(intrusive)_ 智能指针，通过对象内部引用计数，实现类似 `std::shared_ptr` 的功能
+> - `base::Unretained/Owned/RetainedRef()` 类似于 `std::ref/cref()`，构造特殊类型数据的封装（参考：[Customizing the behavior | Callback<> and Bind()](https://github.com/chromium/chromium/blob/master/docs/callback.md#customizing-the-behavior)）
 
-**可拷贝** _(copyable)_
+上述表格中，[强引用关系](../2018/Resource-Management.md#资源和对象的映射关系) **一般不能随意拷贝**：
 
-- `std::bind` 由上下文决定是否可拷贝
-- `std::function` 必须可拷贝的
-- `base::OnceCallback` 不可拷贝
-- `base::RepeatingCallback` 使用 `scoped_refptr<BindStateBase>`
+- `base::Owned()` / `std::unique_ptr<>` 属于 **互斥所有权** _(exclusive ownership)_，只能移动，不能拷贝
+- `base::RetainedRef()` / `scoped_refptr<>` 属于 **共享所有权** _(shared ownership)_，拷贝会新增所有权的共享者
+
+然而，STL 原生的 `std::bind`/`lambda` + `std::function` 并没有明确 **如何处理上下文的拷贝**：
+
+- `std::bind`/`lambda` 由上下文决定是否可拷贝
+- `std::function` 必须是 **可拷贝** _(copyable)_
+
+对于 Chromium 的回调机制，则可以有效避免回调上下文的拷贝：
+
+- 在构造回调对象时，使用 `std::forward` **完美转发** _(perfect forwarding)_ 上下文，不会发生拷贝
+- 在执行回调时，通过移动/引用传递上下文，不会发生拷贝
+  - 对于 `base::OnceCallback` 使用 `base::internal::Invoker::RunOnce`，使用 `std::move` 把上下文移动到执行的函数里（右值引用）
+  - 对于 `base::RepeatingCallback` 使用 `base::internal::Invoker::Run`，把上下文直接传递给要执行的函数（左值引用）
+- 在拷贝回调对象时，不会导致上下文的拷贝
+  - `base::OnceCallback` 不可拷贝
+  - `base::RepeatingCallback` 内部通过 `scoped_refptr<BindStateBase>` 实现共享所有权；所以，拷贝回调对象的操作只是 **浅拷贝** _(shallow copy)_，不会拷贝上下文
 
 ### 何时销毁捕获的上下文
 
-对于 C 语言里的回调 **没有闭包的概念**，如果需要在异步回调里传递上下文，一般需要由 **发送者申请、填充内存**，由 **接收者销毁、释放内存**。例如，使用 libevent 监听 socket 可写事件，实现异步/非阻塞发送数据（[例子来源](../2017/Callback-vs-Interface.md#C-语言中的回调)）：
+对于 C 语言里的回调 **没有闭包的概念**，如果需要在异步回调里传递上下文，一般需要 **发送时申请、填充内存**，**接收时销毁、释放内存**。例如，使用 libevent 监听 socket 可写事件，实现异步/非阻塞发送数据（[例子来源](../2017/Callback-vs-Interface.md#C-语言中的回调)）：
 
 ``` c
 // callback code

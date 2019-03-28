@@ -20,9 +20,9 @@
 - **绑定** _(bound)_ 的数据，即回调的 **上下文**（在回调构造时捕获）
 - **未绑定** _(unbound)_ 的数据，即执行回调时需要额外传入的数据
 
-不带绑定数据的回调，只是单纯的函数（例如 C 语言的函数指针）；带有绑定数据的回调，又叫做 **闭包**。（参考：[对编程范式的简单思考](Thinking-Programming-Paradigms.md)）
+不带上下文的回调，只是单纯的函数（例如 C 语言的函数指针）；带有上下文的回调，又叫做 **闭包**。（参考：[对编程范式的简单思考](Thinking-Programming-Paradigms.md)）
 
-从实现上看，在面向对象语言中，闭包表示为一个对象（例如 `std::function`），闭包和上下文之间可能是 [关联/组合/聚合关系](https://en.wikipedia.org/wiki/Class_diagram#Instance-level_relationships)。这要求在设计时，明确上下文的 **所有权** _(ownership)_，实现对象的 **生命周期管理** _(lifetime management)_。（参考：[资源管理小记](../2018/Resource-Management.md#资源和对象的映射关系)）
+从实现上看，在面向对象语言中，闭包表示为一个对象（例如 `std::function`），闭包和上下文之间可能是 [关联/组合/聚合关系](https://en.wikipedia.org/wiki/Class_diagram#Instance-level_relationships)；所以要求在设计时，明确上下文的 **所有权** _(ownership)_，实现对象的 **生命周期管理** _(lifetime management)_。（参考：[资源管理小记](../2018/Resource-Management.md#资源和对象的映射关系)）
 
 从所有权/生命周期的角度看，上下文又分为两种：
 
@@ -41,13 +41,13 @@
 
 ## 回调是同步还是异步的
 
-**同步回调** _(sync callback)_ 是立即被执行的调用，会在 **构造回调** 的 **调用栈** _(call stack)_ 里 **局部执行**。例如，累加一组得分（使用 `lambda` 表达式捕获上下文 `total`）：
+**同步回调** _(sync callback)_ 在 **构造回调** 的 **调用栈** _(call stack)_ 里 **局部执行**。例如，累加一组得分（使用 `lambda` 表达式捕获上下文 `total`）：
 
 ``` cpp
 int total = 0;
 std::for_each(std::begin(scores), std::end(scores),
               [&total](auto score) { total += score; });
-//             ^ context variable |total| is always valid
+            // ^ context variable |total| is always valid
 ```
 
 - **绑定的数据**：`total`，局部变量的上下文（弱引用）
@@ -78,27 +78,25 @@ deactivate Current Thread
 
 ![Accumulate Sync](Inside-Cpp-Callback/accumulate-sync.svg)
 
-**异步回调** _(async callback)_ 是之后可能被执行的调用，一般在构造后存储起来，在 **未来某个时刻**（不同的调用栈里）**非局部执行**。例如，用户界面为了不阻塞 **UI 线程** 响应用户输入，在 **后台线程** 从文件里异步加载背景图片，加载完成后再从 **UI 线程** 显示到界面上：
+**异步回调** _(async callback)_ 一般在构造后存储起来，在 **未来某个时刻**（不同的调用栈里）**非局部执行**。例如，用户界面为了不阻塞 **UI 线程** 响应用户输入，在 **后台线程** 异步加载背景图片，加载完成后再从 **UI 线程** 显示到界面上：
 
 ``` cpp
-Image LoadImageFromFile(const std::string& filename);
-
+// callback code
 void View::LoadImageCallback(const Image& image) {
   // WARNING: |this| may be invalid now!
   if (background_image_view_)
     background_image_view_->SetImage(image);
 }
 
-void View::FetchImageAsync(const std::string& filename) {
-  base::PostTaskAndReplyWithResult(
-      FROM_HERE, base::Bind(&LoadImageFromFile, filename),
-      base::Bind(&View::LoadImageCallback, this));
-  //                                       ^ use raw |this|
-}
+// client code
+FetchImageAsync(
+    filename,
+    base::Bind(&View::LoadImageCallback, this));
+               // use raw |this| pointer ^
 ```
 
-- **绑定的数据**：代码第二个 `base::Bind` 捕获了 `View` 对象的 `this` 指针（弱引用）
-- **未绑定的数据**：`View::LoadImageCallback`/`lambda` 表达式 的参数 `const Image& image`
+- **绑定的数据**：`base::Bind` 捕获了 `View` 对象的 `this` 指针（弱引用）
+- **未绑定的数据**：`View::LoadImageCallback` 的参数 `const Image& image`
 
 <!--
 title fetch-image-async
@@ -143,27 +141,29 @@ deactivate UI thread
 
 > 注：
 > 
-> - `base::PostTaskAndReplyWithResult` 属于 Chromium 的多线程任务模型（参考：[Keeping the Browser Responsive | Threading and Tasks in Chrome](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#keeping-the-browser-responsive)）
-> - 第二个 `base::Bind` 使用 C++ 11 lambda 表达式可以等效为：
+> - `View::FetchImageAsync` 基于 Chromium 的多线程任务模型（参考：[Keeping the Browser Responsive | Threading and Tasks in Chrome](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#keeping-the-browser-responsive)）
+> - 使用 C++ 11 lambda 表达式可以等效为：
 > 
 > ``` cpp
-> base::Bind([this](const Image& image) {
->   // WARNING: |this| may be invalid now!
->   if (background_image_view_)
->     background_image_view_->SetImage(image);
-> })
+> FetchImageAsync(
+>     filename,
+>     base::Bind([this](const Image& image) {
+>       // WARNING: |this| may be invalid now!
+>       if (background_image_view_)
+>         background_image_view_->SetImage(image);
+>     }));
 > ```
 
 ### 回调时（弱引用）上下文会不会失效
 
 对于 **同步回调** 执行时的调用栈和构造时一致，只要设计思路清晰，一般不会出现上下文失效的情况。而 **异步回调** 执行时的调用栈往往和构造时的不一致，在回调的 **调用时刻**，构造时捕获的 **弱引用上下文 可能失效**。
 
-例如 `View::FetchImageAsync` 的代码里，在 `LoadImageFromFile` 返回时，执行 `View::LoadImageCallback` 回调：
+例如 异步加载背景图片 的代码里，在执行 `View::LoadImageCallback` 时：
 
 - 如果界面还在显示，`View` 对象仍然有效，则执行 `background_image_view_->SetImage(image)`
 - 如果界面已经退出，`background_image_view_` 变成 [野指针 _(wild pointer)_](https://en.wikipedia.org/wiki/Dangling_pointer)，调用导致 **崩溃**
 
-其实，上述两段代码都无法编译（Chromium 做了对应的 **静态断言** _(static assert)_）—— 因为第二个 `base::Bind` 的参数传递都是 **不安全的**：
+其实，上述两段代码（包括 C++ 11 lambda 表达式版本）都无法编译（Chromium 做了对应的 **静态断言** _(static assert)_）—— 因为 `base::Bind` 的参数传递都是 **不安全的**：
 
 - 传递普通对象的 **裸指针**，容易导致悬垂引用
 - 传递捕获了上下文的 lambda 表达式，**无法检查** lambda 表达式捕获的弱引用的有效性
@@ -175,19 +175,17 @@ deactivate UI thread
 
 ### 如何处理失效的（弱引用）上下文
 
-如果捕获的弱引用上下文失效，回调应该 **及时取消**。对于异步加载图片的例子，可以给第二个 `base::Bind` 传递 `View` 对象的 **弱引用指针**，即 `base::WeakPtr<View>`：
+如果捕获的弱引用上下文失效，回调应该 **及时取消**。对于异步加载图片的例子，可以给 `base::Bind` 传递 `View` 对象的 **弱引用指针**，即 `base::WeakPtr<View>`：
 
 ``` cpp
-void View::FetchImageAsync(const std::string& filename) {
-  base::PostTaskAndReplyWithResult(
-      FROM_HERE, base::Bind(&LoadImageFromFile, filename),
-      base::Bind(&View::LoadImageCallback,
-                 weak_factory_.GetWeakPtr()));
-  //             ^ use |WeakPtr| rather than raw |this|
+FetchImageAsync(
+    filename,
+    base::Bind(&View::LoadImageCallback, AsWeakPtr()));
+ // use |WeakPtr| rather than raw |this| ^
 }
 ```
 
-在 `LoadImageFromFile` 返回时，执行 `View::LoadImageCallback` 回调：
+在执行 `View::LoadImageCallback` 时：
 
 - 如果界面还在显示，`View` 对象仍然有效，则执行 `background_image_view_->SetImage(image)`
 - 否则，弱引用失效，**不执行回调**（因为界面已经退出，**没必要** 在设置图片了）

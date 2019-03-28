@@ -7,7 +7,6 @@
   <title class="articlesTitleSec">Loading...</title>
   <link rel="stylesheet" href="/stylesheets/github-markdown.css">
   <link rel="stylesheet" href="/stylesheets/bot-frame.css">
-  <link rel="stylesheet" href="/stylesheets/live2d-hijiki.css">
   <!-- Math Support -->
   <link rel="stylesheet" href="/stylesheets/katex.min.css">
   <!-- Highlight Support -->
@@ -89,13 +88,11 @@
     </header>
     <section class="markdown-body"></section>
     <footer class="footerSec"></footer>
-    <canvas id="live2d" width="160" height="160"></canvas>
   </div>
   <!-- Basic Rendering -->
   <script src="/javascripts/marked.js"></script>
   <script src="/javascripts/bot-mark.js"></script>
   <script src="/javascripts/bot-frame.js"></script>
-  <script src="/javascripts/live2d.min.js"></script>
   <!-- Math Support -->
   <script src="/javascripts/katex.min.js"></script>
   <script src="/javascripts/auto-render.min.js"></script>
@@ -365,11 +362,6 @@
       // Done
       title(titleStr);
     });
-
-    // Model from https://github.com/xiazeyu/live2d-widget-models
-    try {
-      loadlive2d("live2d", "/static/hijiki/hijiki.model.json");
-    } catch (e) { }
   </script>
 </body>
 </html>

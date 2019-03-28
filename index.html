@@ -7,7 +7,6 @@
   <title>Loading...</title>
   <link rel="stylesheet" href="/stylesheets/github-markdown.css">
   <link rel="stylesheet" href="/stylesheets/bot-frame.css">
-  <link rel="stylesheet" href="/stylesheets/live2d-hijiki.css">
   <style>
     .markdown-body {
       padding: 20px 0;
@@ -32,12 +31,10 @@
     </header>
     <section class="markdown-body"></section>
     <footer class="footerSec"></footer>
-    <canvas id="live2d" width="160" height="160"></canvas>
   </div>
   <script src="/javascripts/marked.js"></script>
   <script src="/javascripts/bot-mark.js"></script>
   <script src="/javascripts/bot-frame.js"></script>
-  <script src="/javascripts/live2d.min.js"></script>
   <script>
     loadLayout('/static/home.md', function (md, title) {
       var renderer = new MarkdownRenderer();
@@ -45,11 +42,6 @@
         .innerHTML = renderer.render(md);
       title('Home');
     });
-
-    // Model from https://github.com/xiazeyu/live2d-widget-models
-    try {
-      loadlive2d("live2d", "/static/hijiki/hijiki.model.json");
-    } catch (e) { }
   </script>
 </body>
 </html>

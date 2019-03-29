@@ -10,7 +10,7 @@
 
 - 如果你还不知道什么是 **回调** _(callback)_，欢迎阅读 [如何浅显的解释回调函数](../2017/Callback-Explained.md)
 - 如果你还不知道什么是 **回调上下文** _(callback context)_ 和 **闭包** _(closure)_，欢迎阅读 [对编程范式的简单思考](Thinking-Programming-Paradigms.md)（本文主要讨论基于 **闭包** 的回调，而不是基于 C 语言函数指针的回调）
-- 如果你还不清楚 **可调用对象** _(callable object)_ 和 **回调接口** _(callback interface)_ 的区别，欢迎阅读 [回调 vs 接口](../2017/Callback-vs-Interface.md)（本问主要讨论类似 `std::function` 的 **可调用对象**，而不是基于接口的回调）
+- 如果你还不清楚 **可调用对象** _(callable object)_ 和 **回调接口** _(callback interface)_ 的区别，欢迎阅读 [回调 vs 接口](../2017/Callback-vs-Interface.md)（本文主要讨论类似 `std::function` 的 **可调用对象**，而不是基于接口的回调）
 - 如果你还不知道对象的 **所有权** _(ownership)_ 和 **生命周期管理** _(lifetime management)_，欢迎阅读 [资源管理小记](../2018/Resource-Management.md)
 
 回调是被广泛应用的概念：
@@ -161,12 +161,12 @@ deactivate UI thread
 
 ### 回调时（弱引用）上下文会不会失效
 
-由于闭包拥有 **强引用上下文** 的所有权，只有 **弱引用上下文** 可能出现失效的情况：
+由于闭包拥有 **强引用上下文**，会一直有效，所以只有 **弱引用上下文** 可能失效：
 
-- 对于 **同步回调**，只要设计思路清晰，很少会出现上下文失效的情况
-- 而 **异步回调** 的 **调用时刻** 可能在 **所引用的上下文失效后**，需要注意
+- 对于 **同步回调**，上下文的生命周期比闭包长，很少可能失效
+- 而在 **异步回调** 调用时，上下文可能已经失效了
 
-例如 异步加载图片 的代码，在执行 `View::LoadImageCallback` 时：
+例如 异步加载图片 的场景：在等待加载时，用户可能已经退出了界面。所以，在执行 `View::LoadImageCallback` 时：
 
 - 如果界面还在显示，`View` 对象仍然有效，则执行 `ImageView::SetImage` 显示背景图片
 - 如果界面已经退出，`background_image_view_` 变成 [野指针 _(wild pointer)_](https://en.wikipedia.org/wiki/Dangling_pointer)，调用 `ImageView::SetImage` 导致 **崩溃**
@@ -209,6 +209,20 @@ FetchImageAsync(
 
 软件设计里，只有三个数 —— [`0`，`1`，`∞`（无穷）](https://en.wikipedia.org/wiki/Zero_one_infinity_rule)。类似的，不管是同步回调还是异步回调，我们只关心它被执行 `0` 次，`1` 次，还是多次。
 
+根据可调用次数，Chromium 把回调分为两种：
+
+| | `base::OnceCallback` | `base::RepeatingCallback` |
+|-|----------------------|---------------------------|
+| 最多可调用次数 | 一次 | 多次 |
+| 构造方法 | `base::BindOnce` | `base::BindRepeating` |
+| 调用方法 | `R Run(Args...) &&`，只能通过 `std::move(callback).Run(...)` 一次性调用 | `R Run(Args...) const &`，可以通过 `callback.Run(...)` 多次调用 |
+| 调用后状态 | 进入 **失效状态**，无法再调用 | 一直处于 **有效状态** |
+
+> 注：
+> 
+> - 写在成员函数后的 **引用限定符** _(reference qualifier)_ `&&` / `const &`，分别表示 在对象处于 右值/非右值 状态时调用
+> - `base::RepeatingCallback` 也支持 `R Run(Args...) &&` 调用，调用后也进入失效状态
+
 ### 为什么要区分一次和多次回调
 
 我们先举个 **反例 —— 基于 C 语言函数指针的回调**：
@@ -242,23 +256,6 @@ event_new(event_base, fd, EV_WRITE, do_send, buffer);
 
 ### 何时销毁（强引用）上下文
 
-根据回调次数，Chromium 把回调分为两种：
-
-| | `base::OnceCallback` | `base::RepeatingCallback` |
-|-|----------------------|---------------------------|
-| 最多可调用次数 | 一次 | 多次 |
-| 构造方法 | `base::BindOnce` | `base::BindRepeating` |
-| 是否可拷贝 | 否 | 是 |
-| 调用方法 | `R Run(Args...) &&`，只能通过 `std::move(callback).Run(...)` 一次性调用 | `R Run(Args...) const &`，可以通过 `callback.Run(...)` 多次调用 |
-| 调用后状态 | 进入 **失效状态**，无法再调用 | 一直处于 **有效状态** |
-
-> 注：
-> 
-> - 写在成员函数后的 **引用限定符** _(reference qualifier)_ `&&` / `const &`，分别表示 在对象处于 右值/非右值 状态时调用
-> - `base::RepeatingCallback` 也支持 `R Run(Args...) &&` 调用，调用后也进入失效状态
-
-解决了一次和多次回调的问题，还有一个问题：如果回调 **没被执行**（`0` 次回调）**上下文又该何时销毁**？
-
 在执行 `base::Bind` 时，传递的每个上下文参数 **存储在闭包里**，上下文的 **所有权属于闭包**。例如，改写 异步/非阻塞发送数据 的代码：
 
 > 假设 `using Event::Callback = base::OnceCallback<void()>;`
@@ -275,8 +272,8 @@ event->SetCallback(base::BindOnce(&DoSendOnce,
                                   std::move(buffer)));
 ```
 
-- 构造闭包时：`buffer` 移动到 `base::OnceCallback` 内
-- 回调执行时：`buffer` 从 `base::OnceCallback` 的上下文移动到 `DoSendOnce` 的参数里，并在回调结束时销毁（**所有权转移**，`DoSendOnce` **销毁 强引用参数**）
+- 构造闭包时：`buffer` **移动到** `base::OnceCallback` 内
+- 回调执行时：`buffer` 从 `base::OnceCallback` 的上下文 **移动到** `DoSendOnce` 的参数里，并在回调结束时销毁（**所有权转移**，`DoSendOnce` **销毁 强引用参数**）
 - 闭包销毁时：如果回调没有执行，`buffer` 未被销毁，则此时销毁（**保证销毁且只销毁一次**）
 
 > 假设 `using Event::Callback = base::RepeatingCallback<void()>;`
@@ -293,21 +290,29 @@ event->SetCallback(base::BindRepeating(&DoSendRepeating,
                                        base::Owned(buffer)));
 ```
 
-- 构造闭包时：`buffer` 移动到 `base::RepeatingCallback` 内
-- 回调执行时：每次传递 `buffer` 指针，`DoSendRepeating` 也只使用 `buffer` 的数据（`DoSendRepeating` **不销毁 弱引用参数**）
+- 构造闭包时：`buffer` **移动到** `base::RepeatingCallback` 内
+- 回调执行时：每次传递 `buffer` 指针，`DoSendRepeating` **只使用** `buffer` 的数据（`DoSendRepeating` **不销毁 弱引用参数**）
 - 闭包销毁时：总是由闭包销毁 `buffer`（**有且只有一处销毁的地方**）
 
 > 注：
 > 
 > - `base::Owned` 是 Chromium 提供的 **高级绑定方式**，将在下文提到
 
-这里又引入了另一个微妙的问题：由于 **一次回调** 的上下文 **销毁时机不确定**，上下文对象 **析构函数** 的调用时机 **也不确定**！
+基于面向对象资源管理的方法，上下文可以保证：
 
-如果上下文中包含了 **复杂析构函数** 的对象（例如，析构时做数据上报），那么析构时需要检查依赖条件的有效性（例如，检查数据上报环境是否有效），否则导致 **崩溃**。
+- 被销毁且只销毁一次（避免泄漏）
+- 销毁后不会被再使用（避免崩溃）
+
+但又引入了另一个微妙的问题：由于 **一次回调** 的 **上下文销毁时机不确定**，上下文对象 **析构函数** 的调用时机 **也不确定** —— 如果上下文中包含了 **复杂析构函数** 的对象（例如 析构时做数据上报），那么析构时需要检查依赖条件的有效性（例如 检查数据上报环境是否有效），否则导致 **崩溃**。
 
 ### 如何传递（强引用）上下文
 
-STL 原生的 `std::bind`/`lambda` + `std::function` 并没有明确 **可调用次数** 限制，强引用上下文的所有权也不够明确：
+根据 [可拷贝性](../2018/Resource-Management.md#资源和对象的映射关系)，强引用上下文有分为两类：
+
+- 不可拷贝的 **互斥所有权** _(exclusive ownership)_，例如 `std::unique_ptr`
+- 可拷贝的 **共享所有权** _(shared ownership)_，例如 `std::shared_ptr`
+
+STL 原生的 `std::bind`/`lambda` + `std::function` 不能完整实现 **互斥所有权** 语义：
 
 ``` cpp
 // OK, pass |std::unique_ptr| by move construction
@@ -324,7 +329,17 @@ auto unique_bind = std::bind([](std::unique_ptr<int>) {},
 unique_bind();
 // Bad, require |unique_bind| copyable
 std::function<void()>{std::move(unique_bind)};
+```
 
+- `unique_lambda`/`unique_bind`
+  - 只能移动，不能拷贝
+  - 不能构造 `std::function`
+- `unique_lambda` 可以执行，上下文在 `lambda` 函数体内作为引用
+- `unique_bind` 不能执行，因为函数的接收参数要求拷贝 `std::unique_ptr`
+
+类似的，STL 提供的回调在处理 **共享所有权** 时，会导致多余的拷贝：
+
+``` cpp
 auto shared_lambda = [p = std::shared_ptr<int>{}]() {};
 std::function<void()>{shared_lambda};  // OK, copyable
 
@@ -339,22 +354,19 @@ auto copy_fn = shared_fn;                             // (5)
 assert(p.use_count() == 5);
 ```
 
-- `unique_lambda`/`unique_bind`
-  - 闭包只能移动，不能拷贝，不能用于构造 `std::function`
-  - `unique_lambda` 可以执行，上下文在 `lambda` 函数体内作为引用
-  - `unique_bind` 不能执行，因为函数的接收参数要求拷贝 `std::unique_ptr`
-- `shared_lambda`/`shared_bind`/`std::function`
-  - 闭包可以拷贝，对其拷贝也会拷贝闭包拥有的上下文
-  - `shared_lambda` 和对应的 `std::function` 可以执行，上下文在 `lambda` 函数体内作为引用
-  - `shared_bind` 和对应的 `std::function` 可以执行，上下文会拷贝成新的 `std::shared_ptr`
+- `shared_lambda`/`shared_bind`
+  - 可以拷贝，对其拷贝也会拷贝闭包拥有的上下文
+  - 可以构造 `std::function`
+- `shared_lambda` 和对应的 `std::function` 可以执行，上下文在 `lambda` 函数体内作为引用
+- `shared_bind` 和对应的 `std::function` 可以执行，上下文会拷贝成新的 `std::shared_ptr`
 
-Chromium 的 `base::Callback` 优化了 STL 回调机制遇到的问题：
+Chromium 的 `base::Callback` 在各环节优化了上述问题：
 
 | | `lambda` | `bind` | `function` | `Repeating Callback` | `Once Callback` |
 |-|----------|--------|------------|---------------------|----------------|
 | 构造闭包 | 传值/引用 <td colspan=4> 使用 `std::forward` **完美转发** _(perfect forwarding)_ |
-| 执行回调 <td colspan=4> 把上下文作为左值，直接传递到函数的接收参数（**左值引用**）| 使用 `std::move` 移动上下文，转移所有权（**右值引用**）|
-| 拷贝闭包 <td colspan=2> 由 **上下文决定** 是否可拷贝（如果可以，拷贝上下文）| **可拷贝**，拷贝上下文 | **浅拷贝** _(shallow copy)_，通过 `scoped_refptr` 共享所有权 | **不可拷贝** |
+| 执行回调 <td colspan=4> 把上下文直接传递给函数的接收参数（**左值引用**）| 使用 `std::move` 转移所有权（**右值引用**）|
+| 拷贝闭包 <td colspan=2> **上下文决定** 可拷贝性（如果可以，拷贝上下文）| **可拷贝**，拷贝上下文 | **浅拷贝** _(shallow copy)_，使用 `scoped_refptr` 共享所有权 | **不可拷贝** |
 
 > 注：
 > 
@@ -363,21 +375,21 @@ Chromium 的 `base::Callback` 优化了 STL 回调机制遇到的问题：
 
 目前，Chromium 支持丰富的上下文 **绑定方式**：
 
-| 绑定方式 | 回调参数类型（目的）| 绑定数据类型（源）| 闭包是否拥有上下文 |
+| 绑定方式 | 回调参数类型（目的）| 绑定数据类型（源）|是否拥有上下文 |
 |---|---|---|---|
-| `std::ref/cref()` | `T&` / `const T&` | `T&` / `const T&` | 否，自己保证有效性 |
-| `base::Unretained()` | `T*` | `T*` | 否，自己保证有效性 |
-| `base::WeakPtr` | `T*` | `base::WeakPtr` | 否，弱引用指针保证有效性 |
+| `std::ref/cref()` | `T&`/`const T&` | `T&`/`const T&` | 否，不保证有效性 |
+| `base::Unretained()` | `T*` | `T*` | 否，不保证有效性 |
+| `base::WeakPtr` | `T*` | `base::WeakPtr` | 否，检查有效性 |
 | `base::Owned()` | `T*` | `T*` | 是，`delete` 销毁 |
-| `std::unique_ptr` | `std::unique_ptr` | `std::unique_ptr` | 是，`~std::unique_ptr()` 销毁 |
-| `base::RetainedRef()` | `T*` | `scoped_refptr` | 是，`~scoped_refptr()` 销毁 |
-| `scoped_refptr` | `scoped_refptr` | `scoped_refptr` | 是，`~scoped_refptr()` 销毁 |
+| `std::unique_ptr` | `std::unique_ptr` | `std::unique_ptr` | 是，析构销毁 |
+| `base::RetainedRef()` | `T*` | `scoped_refptr` | 是，析构销毁 |
+| `scoped_refptr` | `scoped_refptr` | `scoped_refptr` | 是，析构销毁 |
 
 > 注：
 > 
 > - 主要参考 [Quick reference for advanced binding | Callback<> and Bind()](https://github.com/chromium/chromium/blob/master/docs/callback.md#quick-reference-for-advanced-binding)
 > - `base::Unretained/Owned/RetainedRef()` 类似于 `std::ref/cref()`，构造特殊类型数据的封装（参考：[Customizing the behavior | Callback<> and Bind()](https://github.com/chromium/chromium/blob/master/docs/callback.md#customizing-the-behavior)）
-> - 表格中没有列出的 `base::Passed`：
+> - 表格中没有列出的 `base::Passed`
 >   - 主要用于在 `base::RepeatingCallback` 回调时，使用 `std::move` 移动上下文（语义上只能执行一次，但实现上无法约束）
 >   - 而 Chromium 建议直接使用 `base::OnceCallback` 明确语义
 

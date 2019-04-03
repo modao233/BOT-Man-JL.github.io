@@ -8,11 +8,12 @@
 - https://www.sumatrapdfreader.org/
 - https://www.google.com/intl/zh-CN_ALL/chrome/
 - https://www.visualstudio.com/
-  - https://marketplace.visualstudio.com/items?itemName=GitHub.GitHubExtensionforVisualStudio
   - https://marketplace.visualstudio.com/items?itemName=MadsKristensen.MarkdownEditor
   - https://marketplace.visualstudio.com/items?itemName=MadsKristensen.MultiEditMode
   - https://marketplace.visualstudio.com/items?itemName=MadsKristensen.ResetZoom
-  - https://marketplace.visualstudio.com/items?itemName=VisualStudioProductTeam.EditorGuidelines
+  - https://marketplace.visualstudio.com/items?itemName=PaulHarrington.EditorGuidelines
+  - https://marketplace.visualstudio.com/items?itemName=VisualStudioExptTeam.VSIntelliCode
+  - https://marketplace.visualstudio.com/items?itemName=GitHub.GitHubExtensionforVisualStudio
 - Sysinternals Tools -> %SystemRoot%
   - https://docs.microsoft.com/en-us/sysinternals/downloads/process-explorer
   - https://docs.microsoft.com/en-us/sysinternals/downloads/procmon

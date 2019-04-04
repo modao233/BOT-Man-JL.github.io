@@ -29,7 +29,7 @@
 - 把原来的 **自治 view 模式** 转换成了 **MVC 模式**
   - 原来是 view 直接修改 model，并修改展示的内容
   - 现在是 view 通过 controller 修改 model，model 的更新通知 view 修改展示的内容
-- 使用了 [观察者模式](Design-Patterns-Notes-3.md#observer)
+- 使用了 [观察者模式](Design-Patterns-Notes-3.md#Observer)
   - 避免了 model 对 view 的直接依赖
   - model 只有一个，而未来可能有更多的 view 加入，不能耦合
 

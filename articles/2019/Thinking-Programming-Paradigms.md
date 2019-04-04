@@ -177,7 +177,7 @@ class File {
 using FilePtr = std::unique_ptr<File>;
 ```
 
-定义命令接口 `Command`（利用 [命令模式 _(command pattern)_](../2017/Design-Patterns-Notes-3.md#command)，消除点击事件的 **接收者** 和 **发送者** 之间的依赖）：
+定义命令接口 `Command`（利用 [命令模式 _(command pattern)_](../2017/Design-Patterns-Notes-3.md#Command)，消除点击事件的 **接收者** 和 **发送者** 之间的依赖）：
 
 ``` cpp
 class Command {

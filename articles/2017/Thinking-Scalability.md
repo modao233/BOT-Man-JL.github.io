@@ -103,7 +103,7 @@ NoSQL 和 SQL 最大的区别在于：前者可以存储**非结构化 / 半结�
 
 - 由于业务逻辑处理上有着共同之处（例如，检查用户是否登录），我们需要把相同的逻辑抽象成 **统一的处理框架**
 - 框架是所有业务 **共有处理流程** 的抽象，并不涉及具体的业务；如果需要处理具体的业务，需要把具体的业务处理逻辑 **注入到框架**
-  - 一种方法是：使用 [模板方法 (template method)](Design-Patterns-Notes-3.md#template-method) 模式，通过 **继承**，**重载** 具体业务的处理逻辑
+  - 一种方法是：使用 [模板方法 (template method)](Design-Patterns-Notes-3.md#Template-Method) 模式，通过 **继承**，**重载** 具体业务的处理逻辑
   - 另一种方法是：使用 [依赖注入 (dependency injection)](https://martinfowler.com/articles/injection.html) 方法，通过 **组合**，**传入** 具体业务处理的对象
 - 根据消息专家原则 —— 与其 让不知道如何去做的人学习如何去做，不如 让知道如何做一件事情的人去做，从而 **减少知识传递的开销**
 

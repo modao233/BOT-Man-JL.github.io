@@ -15,7 +15,7 @@
 ## 为什么要写这篇文章
 
 - **观察者** _(observer)_ 模式和 **中介者** _(mediator)_ 模式
-  - [调用流程非常相似](Design-Patterns-Notes-3.md#decouple-sender-receiver)
+  - [调用流程非常相似](Design-Patterns-Notes-3.md#Decouple-Sender-Receiver)
   - 网上相关资料、代码对两者区别的解释不够清楚
   - 两个设计模式在 **图形界面** _(GUI)_ 编程中，被广泛使用
 - 学习的过程是：不知道 -> 知道 -> 能向别人解释清楚
@@ -29,7 +29,7 @@
 - 通过 **订阅-发布** _(subscribe-publish)_ 模型，消除组件之间双向依赖
 - 消息的 **发布者** _(subject)_ 不需要知道 **观察者** _(observer)_ 的存在
 - 两者只需要约定消息的格式（如何订阅、如何发布），就可以通信
-- [笔记链接](Design-Patterns-Notes-3.md#observer)
+- [笔记链接](Design-Patterns-Notes-3.md#Observer)
 
 ### 中介者 _(mediator)_ 模式
 
@@ -37,7 +37,7 @@
 - 所有的 **协同者** _(colleague)_ 只能通过 **中介者** _(mediator)_ 进行通信，
   而相互之间不知道彼此的存在
 - 当各个组件的消息出现循环时，消息中心可以消除组件之间的依赖混乱
-- [笔记链接](Design-Patterns-Notes-3.md#mediator)
+- [笔记链接](Design-Patterns-Notes-3.md#Mediator)
 
 ### 两者的联系
 

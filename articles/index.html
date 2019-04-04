@@ -205,8 +205,12 @@
 
       // handle invalid hash value
       try {
-        document.querySelector(decodeURI(location.hash)).scrollIntoView();
-      } catch (e) { }
+        document.querySelector(
+          '#' + new MarkdownRenderer().anchor(decodeURI(location.hash))
+        ).scrollIntoView();
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     // Load Share Section

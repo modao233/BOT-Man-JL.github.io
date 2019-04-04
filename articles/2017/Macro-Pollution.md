@@ -180,8 +180,8 @@ error C2039: 'PathAppendW': is not a member of 'PathHelper'
 
 具体的方法可以参考：
 
-- [Adapter Pattern](Design-Patterns-Notes-2.md#adapter)
-- [Bridge Pattern](Design-Patterns-Notes-2.md#bridge)
+- [Adapter Pattern](Design-Patterns-Notes-2.md#Adapter)
+- [Bridge Pattern](Design-Patterns-Notes-2.md#Bridge)
 - [Dependency Injection](https://martinfowler.com/articles/injection.html)
 
 ## 写在最后 [no-number]

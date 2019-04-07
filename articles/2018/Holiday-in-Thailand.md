@@ -159,7 +159,7 @@
 
 #### 芭提雅
 
-刚到芭提雅，我们感觉自己回到了乡村，交通远不如曼谷方便。最常用的交通方式是 **双条车** (minibus)。乘坐双条车之前一定要先看攻略！我们刚没做好功课，一上车就张口议价，从希尔顿酒店 (Hilton) 去真理寺 (Sanctuary of Truth) 就花了 150B/人。后来，我们才知道，双条车都有固定的运行线路，上车只需要招手，下车前按铃就行；更重要的是，不论远近，票价是固定的 10B/人。
+刚到芭提雅，我们感觉自己回到了乡村，交通远不如曼谷方便。最常用的交通方式是 **双条车** (minibus/songthaew)。乘坐双条车之前一定要先看攻略！我们刚没做好功课，一上车就张口议价，从希尔顿酒店 (Hilton) 去真理寺 (Sanctuary of Truth) 就花了 150B/人。后来，我们才知道，双条车都有固定的运行线路，上车只需要招手，下车前按铃就行；更重要的是，不论远近，票价是固定的 10B/人。
 
 由于双条车只在几条主干道上跑，如果要去一些双条车不能到达的地方，可以选择搭乘 **摩托车** (motobike taxi)。这个车比较危险，司机一般都戴着头盔，而乘客都没有头盔。。。一般在市区内根据距离 50-80B/人，离开城市到郊区大约 100-150B/人。
 
@@ -171,7 +171,7 @@
 
 如果你问酒店前台（很多都有和出租车司机的合作）或者出租车司机，从曼谷到芭提雅怎么走；他们常会告诉你 **打车** (taxi) 过去最方便，只需要 2500B（砍价可以看到 2200B）。。。
 
-但实际上，泰国本地人很少有人选择这种奢侈的交通方式。最便宜的是坐 **火车** (train)，但每天只有早上 6 点多一趟，我们没机会体验。比较方便的是汽车东站 (Eastern Bus Terminal) 的 **空调巴士** (bus)，30 分钟发一辆车，时长约 2 个半小时，只要 108B/人；抵达芭提雅车站后，只需要每人 50B，就可以坐 **双条车** (minibus) 回到酒店。
+但实际上，泰国本地人很少有人选择这种奢侈的交通方式。最便宜的是坐 **火车** (train)，但每天只有早上 6 点多一趟，我们没机会体验。比较方便的是汽车东站 (Eastern Bus Terminal) 的 **空调巴士** (bus)，30 分钟发一辆车，时长约 2 个半小时，只要 108B/人；抵达芭提雅车站后，只需要每人 50B，就可以坐 **双条车** (minibus/songthaew) 回到酒店。
 
 从芭提雅回曼谷的时候，我们坐的也是来时的空调大巴。但后来才知道，可以直接从芭提雅坐巴士到曼谷的素万纳普机场，没必要再回到曼谷市区了。
 
@@ -431,7 +431,7 @@ Galaxy Club 是芭提雅步行街的一个俄罗斯酒吧，里边的妹子全�
 - 15:00 toilet
   - 5B
 - 15:30 arr at hotel (check-in)
-  - minibus 50B
+  - songthaew 50B
 - 18:00 hospital
 - 18:30 dinner
   - bread from China
@@ -448,7 +448,7 @@ Galaxy Club 是芭提雅步行街的一个俄罗斯酒吧，里边的妹子全�
 - 19:00 dinner
   - Hinan style chicken rice 50B
 - 19:30 dep to BigEye
-  - minibus (forget to pay) 0B
+  - songthaew (forget to pay) 0B
 - 20:00 BigEye
   - ticket 1500B
 - 22:00 walk back from BigEye
@@ -463,10 +463,10 @@ Galaxy Club 是芭提雅步行街的一个俄罗斯酒吧，里边的妹子全�
 - 10:30 breakfast
   - McDonald's 120B
 - 11:00 Sanctuary of Truth
-  - minibus 300/2B
+  - songthaew 300/2B
   - ticket 500B
 - 13:00 arr at hotel
-  - minibus 300/2B
+  - songthaew 300/2B
 - 13:30 lunch
   - pork noodle 80B
   - Starbucks mocha 165B
@@ -596,7 +596,7 @@ Galaxy Club 是芭提雅步行街的一个俄罗斯酒吧，里边的妹子全�
 - 20:00 dinner
   - pork rice 80B
 - 20:30 chinatown/night market
-  - minibus 20/2B
+  - songthaew 20/2B
   - Rock Eagle T-shirt 250B
   - Rock Chang T-shirt 350B
 - 22:00 fruit
@@ -619,11 +619,11 @@ Galaxy Club 是芭提雅步行街的一个俄罗斯酒吧，里边的妹子全�
 - 15:00 Nana's lunch
   - mocha + Thai tea + spaghetti 100B
 - 15:30 Sawang Boriboon Temple
-  - minibus 20B
+  - songthaew 20B
   - charity for the death 150B
   - joss sticks and candles 50B
 - 17:00 Phra Tamnak Mountain
-  - minibus 20B
+  - songthaew 20B
   - motobike 100B
   - bread/icecream (for Thai) 20+0B
 - 18:30 Thai movie (nong pee teerak)

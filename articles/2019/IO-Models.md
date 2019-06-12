@@ -40,10 +40,10 @@ while (!len_to_send) {
 }
 ```
 
-- 可以使用 libevent 提供的 [`evutil_make_socket_nonblocking()`](https://github.com/libevent/libevent/blob/master/include/event2/util.h) 将 fd 设置为非阻塞
+- 可以使用 [libevent](http://libevent.org/) 提供的 [`evutil_make_socket_nonblocking()`](https://github.com/libevent/libevent/blob/master/include/event2/util.h) 将 fd 设置为非阻塞
 - 如果无法发送数据，[`EVUTIL_SOCKET_ERROR()`](https://github.com/libevent/libevent/blob/master/include/event2/util.h) 返回 `EAGAIN` / `EWOULDBLOCK`
 
-如果需要 **提高 I/O 吞吐率**，可以采用 [I/O 复用（例如 libevent）](http://libevent.org/) 的形式（**用户态** 的 **异步、非阻塞**）。
+如果需要 **提高 I/O 吞吐率**，可以采用 [I/O 复用](https://en.wikipedia.org/wiki/Multiplexing) 的形式。（参考：[《epoll 的本质是什么》](https://my.oschina.net/editorial-story/blog/3052308)）
 
 ## 异步、非阻塞
 
@@ -58,7 +58,7 @@ fs.writeFile(file, data, (err) => {
 });
 ```
 
-由于系统使用异步 I/O，有很好的吞吐率。
+由于系统使用异步 I/O，有很好的吞吐率。一般基于 I/O 复用，实现 **用户态** 的 **异步、非阻塞**（例如 libevent）。
 
 ## 异步、阻塞
 
@@ -82,7 +82,9 @@ let ret = await send(fd, buffer, flags);
 - **非阻塞模型** 在 **提交 I/O 请求后** 立即返回，**不能保证** 往下执行的代码能获取到 **I/O 的结果**
   - 对于 **同步模型**，可以通过查询当前 I/O 状态，**不断检查** I/O 的执行情况
   - 对于 **异步模型**，系统会在 I/O 结束时，**回调** 注册的函数
-- 相对于非阻塞模型，**阻塞模型** 顺序描述 I/O 完成后的处理逻辑，看起来 **更连贯**
+- 相比较：
+  - **阻塞模型** 的代码 **顺序描述** I/O 完成后的处理逻辑，看起来更连贯
+  - **非阻塞模型** 的 “发起 I/O 请求” 和 “I/O 完成处理逻辑” 代码，执行 **不顺序、连贯**
 
 关于 **同步/异步**：
 

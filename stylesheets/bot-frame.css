@@ -40,6 +40,10 @@ blockquote {
     padding: 0 0 0 20px;
 }
 
+    blockquote strong {
+        color: #777;
+    }
+
 img {
     max-width: 100%;
 }
@@ -215,9 +219,9 @@ nav a:active {
     padding-left: 2em;
 }
 
-.cite-sec + ul :first-letter {
-    margin-left: -2em;
-}
+    .cite-sec + ul :first-letter {
+        margin-left: -2em;
+    }
 
 /* Slide Settings */
 

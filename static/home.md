@@ -12,8 +12,14 @@
 
 [align-center]
 
-![BOT Man](/static/botman.jpg)
-
-[align-center]
-
 > 关于 [BOT Frame](/articles/?post=../README) | [BOT Mark](/articles/?post=misc/BOT-Mark)
+
+<script>
+  function setBackground() {
+    var vertical = window.innerWidth > 940 ? 'bottom' : 'top';
+    document.body.style.background='url(/static/botman-light.jpg) repeat-y center center fixed';
+    document.body.style.backgroundSize = '100% auto';
+  }
+  setBackground();
+  window.onresize = setBackground;
+</script>

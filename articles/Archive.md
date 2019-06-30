@@ -77,6 +77,10 @@
 
 ## 生活 | Life
 
+#### 2019
+
+- [泰国自由行准备](2019/Free-Travel-to-Thailand.md)
+
 #### 2018
 
 - [泰国假日](2018/Holiday-in-Thailand.md)

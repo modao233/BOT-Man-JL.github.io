@@ -9,7 +9,9 @@
 - 护照
 - 机票 + 行程单
 - 酒店 + 确认单
-- 10000 泰铢/人（建议一半人民币一半泰铢）
+- 10000 泰铢或等额货币/人（建议带现金去当地换，因为换回来比较麻烦）
+  - [工行](http://www.icbc.com.cn/icbc/%e9%87%91%e8%9e%8d%e4%bf%a1%e6%81%af/%e5%a4%96%e6%b1%87%e7%89%8c%e4%bb%b7/%e4%ba%ba%e6%b0%91%e5%b8%81%e5%a4%96%e6%b1%87%e7%89%8c%e4%bb%b7/) 换泰铢便宜一些
+  - [中行](http://www.boc.cn/sourcedb/whpj/) 换人民币好一些
 - 落地签申请表（提前填好）
   - 英文：https://www.immigration.go.th/download/1486544488315.pdf
   - 中文：https://www.immigration.go.th/download/1486544706654.pdf

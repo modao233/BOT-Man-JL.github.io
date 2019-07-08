@@ -10,11 +10,9 @@
 - 机票 + 行程单
 - 酒店 + 确认单
 - 10000 泰铢或等额货币/人（建议带现金去当地换，因为换回来比较麻烦）
-  - [工行](http://www.icbc.com.cn/icbc/%e9%87%91%e8%9e%8d%e4%bf%a1%e6%81%af/%e5%a4%96%e6%b1%87%e7%89%8c%e4%bb%b7/%e4%ba%ba%e6%b0%91%e5%b8%81%e5%a4%96%e6%b1%87%e7%89%8c%e4%bb%b7/) 换泰铢便宜一些
-  - [中行](http://www.boc.cn/sourcedb/whpj/) 换人民币好一些
-- 落地签申请表（提前填好）
-  - 英文：https://www.immigration.go.th/download/1486544488315.pdf
-  - 中文：https://www.immigration.go.th/download/1486544706654.pdf
+  - 汇率：钱庄 > [工行](http://www.icbc.com.cn/icbc/%e9%87%91%e8%9e%8d%e4%bf%a1%e6%81%af/%e5%a4%96%e6%b1%87%e7%89%8c%e4%bb%b7/%e4%ba%ba%e6%b0%91%e5%b8%81%e5%a4%96%e6%b1%87%e7%89%8c%e4%bb%b7/) > [中行](http://www.boc.cn/sourcedb/whpj/) > 机场
+- 落地签申请表（现场人多）
+  - [英文](https://www.immigration.go.th/download/1486544488315.pdf) / [中文](https://www.immigration.go.th/download/1486544706654.pdf)
 - 2 寸白底照片
 - 电话卡（淘宝便宜一半）
 - 出入境卡（飞机上发）
@@ -67,7 +65,7 @@
   - 朱拉隆功大学
 - 晚上
   - Siam/Central/Terminal 21 商圈
-  - Nana Plaza/Cowboy Street/Thermae Coffee
+  - Massage(TH|JP)/Nana Plaza/Cowboy Street/Thermae Coffee
 
 ## 芭提雅
 
@@ -77,6 +75,6 @@
   - 兰坡海鲜市场
 - 晚上
   - 夜市
-  - 大浴室/步行街
   - Max 泰拳馆（周五 > 周六日 > 平时）
   - 秀场
+  - Massage(TH)/Walking Street/Soi6/LK Metro/Clubs

@@ -4,6 +4,26 @@
 
 EN | [中文](CV-zh.md)
 
+## Career
+
+#### 2018.7 - now
+
+- **QQ Browser, Tencent / Windows C++ developer**
+- Developing **universal extension API**, simplifying operation development
+- Developing **native rendering solution**, optimizing browsing experience
+- Participating **Hippy cross-platform project**, normalizing C++ code
+- Promoting **unit tests** and **modern C++**
+
+#### 2017.7 - 2018.7
+
+- **QQ Browser, Tencent** (Internship)
+- **Back-end developer** (Node.js)
+  - Developing **welcome page operation service** and **navigation page crawler**
+  - Maintaining **task dispatching filter** module
+- **Windows developer** (C++ Win32)
+  - Developing **bookmark on Mini browser**
+  - Adding **coding style lint/format** support
+
 ## Education
 
 #### 2014.9 - 2018.6
@@ -18,27 +38,7 @@ EN | [中文](CV-zh.md)
 - **State Key Laboratory** of Networking and Switching Technology, BUPT (Studying **Virtual Network Embedding Algorithms**)
 - Paper: [_Clustering Based Energy-Aware Virtual Network Embedding_](http://journals.sagepub.com/doi/full/10.1177/1550147717726714)
 
-## Career
-
-#### 2018.7 - now
-
-- Working at **QQ Browser, Tencent**
-- Ranking **T1.3**
-- Awarded **4-star staff** in the second half of 2018
-- **Windows desktop developer** (C++ Win32)
-  - Developing **universal extension API**, simplifying operation development
-  - Maintaining **could control extension/skin/sidebar/downloader/omnibox** etc. modules
-  - Promoting **unit tests** (gtest/gmock) and **modern C++**
-
-#### 2017.7 - 2018.7
-
-- Internship at **QQ Browser, Tencent**
-- **Back-end developer** (Node.js)
-  - Developing **welcome page operation service**, **navigation page content crawler**
-  - Maintaining **task dispatching filter** module of **cloud control service**
-- **Windows desktop developer** (C++ Win32)
-  - Developing **bookmark feature of Mini browser**
-  - Supporting **code style lint/format** (cpplint/clang-format)
+[page-break]
 
 ## Technique
 
@@ -58,14 +58,13 @@ EN | [中文](CV-zh.md)
 - 2018 - Designing a **anti-sniffer** [Windows traffic redirection driver](https://github.com/BOT-Man-JL/WFP-Traffic-Redirection-Driver) for anonymous communication
 - 2017 - Contributing to a [_markdown editor_](https://github.com/madskristensen/MarkdownEditor) on Visual Studio
 - 2016 - Designing a **strong-typed**, **compile-time** [_object relation mapping (ORM)_](https://github.com/BOT-Man-JL/ORM-Lite) in **modern C++**
-- 2015 – Designing a **lightweight, cross-platform C++** [_graphics (GUI) library_](https://github.com/BOT-Man-JL/EggAche-GL), dedicated to those who have no knowledge of GUI
+- 2015 – Designing a **lightweight, cross-platform C++** [_graphics (GUI) library_](https://github.com/BOT-Man-JL/EggAche-GL)
 
 ## Experience
 
 - 2017 - Building a [_music transcription app_](https://github.com/YuJianghao/YouPu) in _College Innovation Project_ | **Music Theory, Machine Learning** [(DEMO)](https://bot-man-jl.github.io/YouPu)
-- 2016 – Joining in [_Microsoft (MSRA) Elites Plan_](https://studentclub.msra.cn/project/97)
 - 2016 – Building a [_kid education app_](https://github.com/BOT-Man-JL/Better-Kids) in _Microsoft More Personal Computing Hackathon_ | **Microsoft Cognitive Services**
 - 2016 – Building a [_speech helper BOT_](https://github.com/xinhuaRadioLAB/HackerX_slive) in _CareerX-Tsinghua Hackathon_ | **Slack BOT, Office add-in**
-- 2016 - Building a [_mixed reality IOT assistant_](https://github.com/BOT-Man-JL/IOT-Holo-Assistant) in _Microsoft (MSRA) Student Summer Camp_ | **Microsoft HoloLens, Unity 3D**
+- 2016 - Building a [_mixed reality IOT assistant_](https://github.com/BOT-Man-JL/IOT-Holo-Assistant) in _Microsoft (MSRA) Student Summer Camp_ | **HoloLens, Unity 3D**
 - 2016 - Building & Maintaining a [_data collecting website_](https://github.com/ZhangYuef/Survey_Platform_ccer) for _CCER, PKU_ | **ASP.NET core**
-- 2015 – Building a [_choice making app_](https://www.microsoft.com/store/apps/Random%20Master/9NBLGGH6HCP7) in _Microsoft (MSRA) Campus Hackathon_ | **Microsoft Cortana, NLP**
+- 2015 – Building a [_choice making app_](https://www.microsoft.com/store/apps/Random%20Master/9NBLGGH6HCP7) in _Microsoft (MSRA) Campus Hackathon_ | **Cortana, NLP**

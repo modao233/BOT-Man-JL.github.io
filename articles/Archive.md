@@ -44,7 +44,7 @@
 - [如何设计一个 更好的 C++ ORM](2016/How-to-Design-a-Better-Cpp-ORM.md)
 - [如何设计一个 简单的 C++ ORM](2016/How-to-Design-a-Naive-Cpp-ORM.md)
 
-## 幻灯片 | Slides
+## 分享 | Share
 
 #### 2019
 
@@ -59,7 +59,7 @@
 
 - [深入 C++ 元组 (tuple) 实现](2017/Inside-Cpp-Tuple-Share.md)
 - [浅谈 C++ 元编程](2017/Cpp-Metaprogramming-Share.md)
-- [Virtual Network Embedding Algorithm Study](2017/Virtual-Network-Embedding-Study.md)
+- [Virtual Network Embedding Algorithm Study](2017/Virtual-Network-Embedding-Study-Share.md)
 
 ## 笔记 | Notes
 

@@ -2,7 +2,7 @@
 
 > 2017/4/22
 >
-> 在 [学习虚拟网络映射算法](Virtual-Network-Embedding-Study.md) 过程中，和图聚类算法相关的学习
+> 在 [学习虚拟网络映射算法](Virtual-Network-Embedding-Study-Share.md) 过程中，和图聚类算法相关的学习
 
 [heading-numbering]
 

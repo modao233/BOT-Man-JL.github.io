@@ -28,7 +28,7 @@ struct Future {
 
     auto final_suspend() {
       std::cout << "final_suspend" << std::endl;
-      return std::experimental::suspend_never{};
+      return std::experimental::suspend_always{};
     }
 
     void unhandled_exception() {
@@ -70,7 +70,7 @@ struct Generator {
 
     auto final_suspend() {
       std::cout << "final_suspend" << std::endl;
-      return std::experimental::suspend_never{};
+      return std::experimental::suspend_always{};
     }
 
     void unhandled_exception() {

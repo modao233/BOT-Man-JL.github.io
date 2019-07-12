@@ -11,6 +11,8 @@
 - 护照
 - 机票 + 行程单
 - 酒店 + 确认单
+  - 价格：[携程](https://hotels.ctrip.com/international/) < [Agoda](https://www.agoda.com/) < [Booking](https://www.booking.com/)
+  - 携程一般有“中宾”优惠
 - 10000 泰铢或等额货币/人
   - 建议多带现金去当地换，因为换回来比较麻烦
   - 海关快速通道需要 200 泰铢/人
@@ -52,11 +54,6 @@
 - 雨伞
 - 防晒霜/阳伞
 - 水杯（机场喝水）
-
-## 酒店预订
-
-- 价格：携程 < Agoda < Booking
-- 携程一般有“中宾”优惠
 
 ## 曼谷
 

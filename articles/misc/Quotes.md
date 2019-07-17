@@ -134,3 +134,5 @@
 127. 一个摄影师在可可西里看到一只来打招呼的小藏羚羊，便喂它水喝，突然旁边的藏羚羊保护队队长很凶地把小羊赶跑了。摄影师问他为什么这样做，他回答说你这样会让它们以为人类是善良的。——《他知道风从哪个方向来》玖月晞
 128. 梦到一个卖花的两手空空跟我说，人要先感到幸福，才能看到玫瑰。—— 李诞
 129. 你只闻到我的香水，却没有看到我的汗水。—— 陈欧
+130. It is man’s luck —— in adulthood as in childhood —— to be made to take the most arduous roads but the surest ones; woman’s misfortune is that she is surrounded by nearly irresistible temptations; everything incites her to take the easy way out: instead of being encouraged to fight on her own account, she is told that she can let herself get by and she will reach enchanted paradises; when she realizes she was fooled by a mirage, it is too late; she has been worn out in this adventure. —— The Second Sex, Simone de Beauvoir
+131. Whatever you give a woman, she will make greater. If you give her sperm, she’ll give you a baby. If you give her a house, she’ll give you a home. If you give her groceries, she’ll give you a meal. If you give her a smile, she’ll give you her heart. She multiplies and enlarges what is given to her. So, if you give her any crap, be ready to receive a ton of shit! —— Erick S. Gray

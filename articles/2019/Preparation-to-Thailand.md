@@ -1,4 +1,4 @@
-﻿# 泰国自由行准备
+﻿# 泰国出行准备
 
 > 泰国自由行最简记录
 >
@@ -10,6 +10,7 @@
 
 - 护照
 - 机票 + 行程单
+  - 体验：海航直飞 > 国航直飞 > 深航转机
 - 酒店 + 确认单
   - 价格：[携程](https://hotels.ctrip.com/international/) < [Agoda](https://www.agoda.com/) < [Booking](https://www.booking.com/)
   - 携程一般有“中宾”优惠
@@ -19,7 +20,7 @@
   - 汇率：钱庄 > [工行](http://www.icbc.com.cn/icbc/%e9%87%91%e8%9e%8d%e4%bf%a1%e6%81%af/%e5%a4%96%e6%b1%87%e7%89%8c%e4%bb%b7/%e4%ba%ba%e6%b0%91%e5%b8%81%e5%a4%96%e6%b1%87%e7%89%8c%e4%bb%b7/) > [中行](http://www.boc.cn/sourcedb/whpj/) > 机场
 - 落地签申请表（现场人多）
   - [英文](https://www.immigration.go.th/download/1486544488315.pdf) / [中文](https://www.immigration.go.th/download/1486544706654.pdf)
-- 2 寸白底照片
+- 2 寸照片（亲测 白底/蓝底 都可以）
 - 电话卡（淘宝便宜一半）
 - 出入境卡（飞机上发）
 
@@ -29,7 +30,8 @@
 - Google Map（地图）
 - Google Translate（翻译）
 - 飞猪/马蜂窝/携程（一日游/门票）
-- 王权免税店（线上购买）
+- 王权免税店（线上购物）
+  - 优惠力度：市区 > [线上](https://kingpower.com) > 机场
 
 ## 衣服
 

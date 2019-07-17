@@ -80,7 +80,7 @@
 
 #### 2019
 
-- [泰国自由行准备](2019/Free-Travel-to-Thailand.md)
+- [泰国出行准备](2019/Preparation-to-Thailand.md)
 
 #### 2018
 

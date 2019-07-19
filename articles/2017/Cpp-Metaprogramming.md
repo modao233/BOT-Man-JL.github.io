@@ -188,7 +188,7 @@ std::string ToString (T val) {
 
 假设是脚本语言，这段代码是没有问题的：因为脚本语言没有编译的概念，所有函数的绑定都在 **运行时** 完成；而静态语言的函数绑定是在 **编译时** 完成的。为了使得代码 [code|bad-test-type] 的风格用于元编程，C++ 17 引入了 `constexpr-if` [cppref-constexpr-if] —— 只需要把以上代码 [code|bad-test-type] 中的 `if` 改为 `if constexpr` 就可以编译了。
 
-`constexpr-if` 的引入让模板测试更加直观，提高了模板代码的可读性（[sec|复杂性]）。代码 [code|fixed-test-type] 展示了如何使用 `constexpr-if` 解决编译时选择的问题。
+`constexpr-if` 的引入让模板测试更加直观，提高了模板代码的可读性（[sec|复杂性]）。代码 [code|fixed-test-type] 展示了如何使用 `constexpr-if` 解决编译时选择的问题；而且不再需要定义 `isBad<T>` 谓词模板，直接使用 `static_assert (false)` 断言。
 
 [code||fixed-test-type]
 
@@ -197,7 +197,7 @@ template <typename T>
 std::string ToString (T val) {
     if constexpr (isNum<T>) return std::to_string (val);
     else if constexpr (isStr<T>) return std::string (val);
-    else static_assert (!isBad<T>, "neither arithmetic nor string");
+    else static_assert (false, "neither arithmetic nor string");
 }
 ```
 

@@ -22,6 +22,21 @@
 
 ---
 
+### 应用 - 同步下载
+
+``` cpp
+std::string DownloadSync() {
+  auto res = Fetch("https://xxx");
+  if (!res.empty())
+    return res;
+  return Fetch("https://yyy");
+}
+
+std::cout << DownloadSync();
+```
+
+---
+
 ### 应用 - 异步下载
 
 ``` cpp
@@ -32,7 +47,7 @@ Future<std::string> DownloadAsync() {
   co_return co_await Fetch("https://yyy");
 }
 
-std::cout << DownloadAsync.get();
+std::cout << DownloadAsync().get();
 ```
 
 ---
@@ -41,8 +56,8 @@ std::cout << DownloadAsync.get();
 
 ``` cpp
 Generator<char> ReadFile() {
-  for (auto ch : Read("file.txt")) {
-    if (ch == EOF)
+  for (char ch : Read("file.txt")) {
+    if (can_stop)
       co_return;
     co_yield toupper(ch);
   }
@@ -57,10 +72,10 @@ for (char upper_ch : ReadFile())
 ### 概念
 
 - C++ 协程（[N4775](http://open-std.org/JTC1/SC22/WG21/docs/papers/2018/n4775.pdf)）：
-  - 含有 `co_` 关键字的函数 `Ret(Args...)`
+  - 包含以下 `co_` 关键字的函数 `Ret(Args...)`
   - **要求** `Ret` 符合 `Coroutine` 概念
 - `co_return`：
-  - 返回 `Coroutine` 函数
+  - 退出 `Coroutine` 协程函数
   - 返回 `Future (Coroutine)` 概念的结果
 - `co_yield`：返回 `Generator (Coroutine)` 概念的结果
 - `co_await`：等待 `Awaitable` 概念的返回结果
@@ -218,7 +233,7 @@ if (!awaiter.await_ready()) {
 
 优势：
 
-- **异步 + 阻塞** = 执行高效 + 使用简单
+- **异步 + 阻塞** = 执行高效 + 调用简单
 - 使用 `try-catch` **统一处理异常**
 
 不足：

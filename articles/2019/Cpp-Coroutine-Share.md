@@ -178,6 +178,21 @@ co_await __promise.yield_value(val);
 
 ---
 
+### 原理 - `std::coroutine_handle<>`
+
+``` cpp
+struct coroutine_handle<> {
+  void resume();      // resume coroutine
+  void destroy();     // destroy coroutine
+  bool done() const;  // suspended at final
+};
+
+template <typename Promise>
+struct coroutine_handle : coroutine_handle<>;
+```
+
+---
+
 ### 原理 - `Awaitable` 概念
 
 ``` cpp
@@ -195,21 +210,6 @@ auto await_resume(Awaitable&);
 
 ---
 
-### 原理 - `std::coroutine_handle<>`
-
-``` cpp
-struct coroutine_handle<> {
-  void resume();      // resume coroutine
-  void destroy();     // destroy coroutine
-  bool done() const;  // suspended at final
-};
-
-template <typename Promise>
-struct coroutine_handle : coroutine_handle<>;
-```
-
----
-
 ### 原理 - `co_await` 展开
 
 ``` cpp
@@ -222,8 +222,41 @@ if (!awaiter.await_ready()) {
 ```
 
 - `__switch_context__` **当前线程** 切换到其他协程
-- `await_suspend` 可以把 `__handle` 传递给 **其他线程**
+- `await_suspend()` 可以把 `__handle` 传递给 **其他线程**
 - 调用 `__handle.resume();` 激活协程（注意 **数据竞争**）
+
+---
+
+### 原理 - `Awaitable` 概念（改进版）
+
+``` cpp
+concept Awaitable {
+  bool await_ready();
+  bool await_suspend(std::coroutine_handle<>);
+  auto await_resume();
+};
+
+bool await_ready(Awaitable&);
+bool await_suspend(Awaitable&,
+                   std::coroutine_handle<>);
+auto await_resume(Awaitable&);
+```
+
+---
+
+### 原理 - `co_await` 展开（改进版）
+
+``` cpp
+// /* ret = */ co_await awaiter;
+if (!awaiter.await_ready() &&
+    awaiter.await_suspend(__handle)) {
+  __switch_context__
+}
+/* ret = */ awaiter.await_resume();
+```
+
+- `await_suspend()` 检查状态决定是否挂起
+- 参考：[Gor Nishanov, C++ Coroutines – a negative overhead abstraction](https://www.slideshare.net/SergeyPlatonov/gor-nishanov-c-coroutines-a-negative-overhead-abstraction)
 
 ---
 

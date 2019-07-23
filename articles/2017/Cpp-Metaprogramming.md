@@ -124,9 +124,9 @@ static_assert (isZero<0>, "compile error");
 
 **是否满足某些条件** 的判断，在代码 [code|test-type] 中，展示了如何将 C 语言的基本类型数据，转换为 `std::string` 的函数 `ToString`。代码具体分为三个部分：
 
-1. 首先定义三个 **变量模板** `isNum`，`isStr`，`isBad`，分别对应了三个类型条件的谓词（使用了 `type_tratis` 中的 `std::is_arithmetic` 和 `std::is_same`）；
+1. 首先定义三个 **变量模板** `isNum`/`isStr`/`isBad`，分别对应了三个类型条件的谓词（使用了 `type_tratis` 中的 `std::is_arithmetic` 和 `std::is_same`）；
 2. 根据 **SFINAE** _(Substitution Failure Is Not An Error)_ 规则 [cppref-SFINAE]（直接使用了 `type_traits` 中的 `std::enable_if`）重载函数 `ToString`，分别对应了数值、C 风格字符串和非法类型；
-3. 在前两个重载中，分别调用 `std::to_string` 和 `std::string` 构造函数；在最后一个重载中，直接使用 `static_assert` 编译报错。
+3. 在前两个重载中，分别调用 `std::to_string` 和 `std::string` 构造函数；在最后一个重载中，通过 **类型依赖** _(type-dependent)_ 的 `false` 表达式（例如 `sizeof (T) == 0`）静态断言直接报错（无法直接使用 `static_assert (false)` 断言）。
 
 [code||test-type]
 
@@ -152,7 +152,7 @@ std::enable_if_t<isStr<T>, std::string> ToString (T str) {
 
 template <typename T>
 std::enable_if_t<isBad<T>, std::string> ToString (T bad) {
-    static_assert (!isBad<T>, "neither arithmetic nor string");
+    static_assert (sizeof (T) == 0, "neither Num nor Str");
 }
 
 auto a = ToString (1);  // std::to_string (num);
@@ -176,7 +176,7 @@ template <typename T>
 std::string ToString (T val) {
     if (isNum<T>) return std::to_string (val);
     else if (isStr<T>) return std::string (val);
-    else static_assert (!isBad<T>, "neither arithmetic nor string");
+    else static_assert (!isBad<T>, "neither Num nor Str");
 }
 ```
 
@@ -184,11 +184,11 @@ std::string ToString (T val) {
 
 代码 [code|bad-test-type] - 编译时测试类型的错误用法
 
-代码 [code|bad-test-type] 中的错误在于：编译代码的函数 `ToString` 时，对于给定的类型 `T`，需要进行两次函数绑定 —— `val` 作为参数分别调用 `std::to_string (val)` 和 `std::string (val)`，再进行一次静态断言 —— 判断 `!isBad<T>` 是否为 `true`。这会使得两次绑定中，有一次会失败。假设调用 `ToString ("str")`，在编译这段代码时，`std::string (const char *)` 可以正确的重载，但是 `std::to_string (const char *)` 并不能找到正确的重载，导致编译失败。
+代码 [code|bad-test-type] 中的错误在于：编译代码的函数 `ToString` 时，对于给定的类型 `T`，需要进行两次函数绑定 —— `val` 作为参数分别调用 `std::to_string (val)` 和 `std::string (val)`，再进行一次静态断言 —— 判断 `!isBad<T>` 是否为 `true`。这会导致：两次绑定中，有一次会失败。假设调用 `ToString ("str")`，在编译这段代码时，`std::string (const char *)` 可以正确的重载，但是 `std::to_string (const char *)` 并不能找到正确的重载，导致编译失败。
 
 假设是脚本语言，这段代码是没有问题的：因为脚本语言没有编译的概念，所有函数的绑定都在 **运行时** 完成；而静态语言的函数绑定是在 **编译时** 完成的。为了使得代码 [code|bad-test-type] 的风格用于元编程，C++ 17 引入了 `constexpr-if` [cppref-constexpr-if] —— 只需要把以上代码 [code|bad-test-type] 中的 `if` 改为 `if constexpr` 就可以编译了。
 
-`constexpr-if` 的引入让模板测试更加直观，提高了模板代码的可读性（[sec|复杂性]）。代码 [code|fixed-test-type] 展示了如何使用 `constexpr-if` 解决编译时选择的问题；而且不再需要定义 `isBad<T>` 谓词模板，直接使用 `static_assert (false)` 断言。
+`constexpr-if` 的引入让模板测试更加直观，提高了模板代码的可读性（[sec|复杂性]）。代码 [code|fixed-test-type] 展示了如何使用 `constexpr-if` 解决编译时选择的问题；而且最后的 **兜底** _(catch-all)_ 语句，可以使用类型依赖的 `false` 表达式进行静态断言，不再需要 `isBad<T>` 谓词模板。[cppref-constexpr-if]
 
 [code||fixed-test-type]
 
@@ -197,7 +197,7 @@ template <typename T>
 std::string ToString (T val) {
     if constexpr (isNum<T>) return std::to_string (val);
     else if constexpr (isStr<T>) return std::string (val);
-    else static_assert (false, "neither arithmetic nor string");
+    else static_assert (sizeof (T) == 0, "neither Num nor Str");
 }
 ```
 

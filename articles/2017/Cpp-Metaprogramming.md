@@ -2,7 +2,7 @@
 
 > 2017/5/2
 >
-> 本文是对 C++ 元编程 相关内容的理解和总结，为 2017 程序设计语言结课论文。
+> 原文为 2017 程序设计语言结课论文，现已根据 C++ 17 标准更新。
 
 [heading-numbering]
 
@@ -10,7 +10,7 @@
 
 ## [no-number] [no-toc] 摘要
 
-随着标准的不断更新，C++ 得到了极大的完善和补充。元编程作为一种新兴的编程方式，受到了越来越多的广泛关注。结合已有文献和个人实践，对有关 C++ 元编程进行了系统的分析。首先介绍了 C++ 元编程中的相关概念和背景，然后利用科学的方法分析了元编程的 **演算规则**、**基本应用** 和实践过程中的 **主要难点**，最后提出了对 C++ 元编程发展的 **展望**。
+随着 C++ 11/14/17 标准的不断更新，C++ 语言得到了极大的完善和补充。元编程作为一种新兴的编程方式，受到了越来越多的广泛关注。结合已有文献和个人实践，对有关 C++ 元编程进行了系统的分析。首先介绍了 C++ 元编程中的相关概念和背景，然后利用科学的方法分析了元编程的 **演算规则**、**基本应用** 和实践过程中的 **主要难点**，最后提出了对 C++ 元编程发展的 **展望**。
 
 [align-center]
 
@@ -64,7 +64,7 @@ C++ 的元编程主要依赖于语言提供的模板机制。除了模板，现�
 
 **别名模板** 和 **变量模板** 分别在 C++ 11 和 C++ 14 引入，分别提供了具有模板特性的 **类型别名** _(type alias)_ 和 **常量** _(constant)_ 的简记方法。前者只能用于简记 已知类型，并不产生新的类型；后者则可以通过 函数模板返回值 等方法实现。尽管这两类模板不是必须的，但可以增加程序的可读性（[sec|复杂性]）。例如，C++ 14 中的 **别名模板** `std::enable_if_t<T>` 等价于 `typename std::enable_if<T>::type`。
 
-C++ 中的 **模板参数** _(template parameter / argument)_ 可以分为三种：值参数，类型参数，模板参数。[cppref-template-param] 从 C++ 11 开始，C++ 支持了 **变长模板** _(variadic template)_，即模板参数的个数可以是不确定的。标准库中的 **元组** _(tuple)_ —— `std::tuple` 就是变长模板的一个应用（元组的 **类型参数** 是不定长的，可以用 `template<typename... Ts> ...` 匹配）。
+C++ 中的 **模板参数** _(template parameter / argument)_ 可以分为三种：值参数，类型参数，模板参数。[cppref-template-param] 从 C++ 11 开始，C++ 支持了 **变长模板** _(variadic template)_：模板参数的个数可以不确定，变长参数折叠为一个 **参数包** _(parameter pack)_ [parameter-pack]，使用时通过编译时迭代，遍历各个参数（[sec|变长模板的迭代]）。标准库中的 **元组** _(tuple)_ —— `std::tuple` 就是变长模板的一个应用（元组的 **类型参数** 是不定长的，可以用 `template<typename... Ts>` 匹配）。
 
 尽管 模板参数 也可以当作一般的 类型参数 进行传递（模板也是一个类型），但之所以单独提出来，是因为它可以实现对传入模板的参数匹配。[sec|类型推导] 的例子（代码 [code|orm-to-nullable]）使用 `std::tuple` 作为参数，然后通过匹配的方法，提取 `std::tuple` 内部的变长参数。
 
@@ -126,7 +126,7 @@ static_assert (isZero<0>, "compile error");
 
 1. 首先定义三个 **变量模板** `isNum`/`isStr`/`isBad`，分别对应了三个类型条件的谓词（使用了 `type_tratis` 中的 `std::is_arithmetic` 和 `std::is_same`）；
 2. 根据 **SFINAE** _(Substitution Failure Is Not An Error)_ 规则 [cppref-SFINAE]（直接使用了 `type_traits` 中的 `std::enable_if`）重载函数 `ToString`，分别对应了数值、C 风格字符串和非法类型；
-3. 在前两个重载中，分别调用 `std::to_string` 和 `std::string` 构造函数；在最后一个重载中，通过 **类型依赖** _(type-dependent)_ 的 `false` 表达式（例如 `sizeof (T) == 0`）静态断言直接报错（无法直接使用 `static_assert (false)` 断言）。
+3. 在前两个重载中，分别调用 `std::to_string` 和 `std::string` 构造函数；在最后一个重载中，通过 **类型依赖** _(type-dependent)_ 的 `false` 表达式（例如 `sizeof (T) == 0`）静态断言直接报错（根据 **两阶段名称查找** _(two-phase name lookup)_ [two-phase-name-lookup] 的规定，如果直接使用 `static_assert (false)` 断言，会在模板还没实例化的第一阶段无法通过编译）。
 
 [code||test-type]
 
@@ -188,7 +188,7 @@ std::string ToString (T val) {
 
 假设是脚本语言，这段代码是没有问题的：因为脚本语言没有编译的概念，所有函数的绑定都在 **运行时** 完成；而静态语言的函数绑定是在 **编译时** 完成的。为了使得代码 [code|bad-test-type] 的风格用于元编程，C++ 17 引入了 `constexpr-if` [cppref-constexpr-if] —— 只需要把以上代码 [code|bad-test-type] 中的 `if` 改为 `if constexpr` 就可以编译了。
 
-`constexpr-if` 的引入让模板测试更加直观，提高了模板代码的可读性（[sec|复杂性]）。代码 [code|fixed-test-type] 展示了如何使用 `constexpr-if` 解决编译时选择的问题；而且最后的 **兜底** _(catch-all)_ 语句，可以使用类型依赖的 `false` 表达式进行静态断言，不再需要 `isBad<T>` 谓词模板。[cppref-constexpr-if]
+`constexpr-if` 的引入让模板测试更加直观，提高了模板代码的可读性（[sec|复杂性]）。代码 [code|fixed-test-type] 展示了如何使用 `constexpr-if` 解决编译时选择的问题；而且最后的 **兜底** _(catch-all)_ 语句，可以使用类型依赖的 `false` 表达式进行静态断言 [cppref-constexpr-if]，不再需要 `isBad<T>` 谓词模板（也不能直接使用 `static_assert (false)` 断言）。
 
 [code||fixed-test-type]
 
@@ -211,7 +211,9 @@ std::string ToString (T val) {
 
 **编译时迭代** 和面向过程编程中的 **循环语句** _(loop statement)_ 类似，用于实现与 `for` / `while` / `do` 类似的循环逻辑。
 
-和普通的编程不同，元编程的演算规则是纯函数的，不能通过 变量迭代 实现编译时迭代，只能用 **递归** _(recursion)_ 和 **特化** 的组合实现。一般思路是：提供两类重载 —— 一类接受 **任意参数**，内部 **递归** 调用自己；另一类是前者的 **模板特化** 或 **函数重载**，直接返回结果，相当于 **递归终止条件**。它们的重载条件可以是 表达式 或 类型（[sec|编译时测试]）。
+在 C++ 17 之前，和普通的编程不同，元编程的演算规则是纯函数的，不能通过 变量迭代 实现编译时迭代，只能用 **递归** _(recursion)_ 和 **特化** 的组合实现。一般思路是：提供两类重载 —— 一类接受 **任意参数**，内部 **递归** 调用自己；另一类是前者的 **模板特化** 或 **函数重载**，直接返回结果，相当于 **递归终止条件**。它们的重载条件可以是 表达式 或 类型（[sec|编译时测试]）。
+
+而 C++ 17 提出了 **折叠表达式** _(fold expression)_ 的语法，化简了迭代的写法。
 
 #### 定长模板的迭代
 
@@ -255,13 +257,35 @@ constexpr auto Sum (T arg, Ts... args) {
     return arg + Sum<T> (args...);
 }
 
-static_assert (Sum (1) == 1, "compile error");
-static_assert (Sum (1, 2, 3) == 6, "compile error");
+static_assert (Sum () == 0, "compile error");
+static_assert (Sum (1, 2.0, 3) == 6, "compile error");
 ```
 
 [align-center]
 
 代码 [code|calc-sum] - 编译时迭代计算和（$\Sigma$）
+
+#### 使用折叠表达式化简编译时迭代
+
+在 C++ 11 引入变长模板时，就支持了在模板内直接展开参数包的语法 [parameter-pack]；但该语法仅支持对参数包里的每个参数进行 **一元操作** _(unary operation)_；为了实现参数间的 **二元操作** _(binary operation)_，必须借助额外的模板实现（例如，代码 [code|calc-sum] 定义了两个 `Sum` 函数模板，其中一个展开参数包进行递归调用）。
+
+而 C++ 17 引入了折叠表达式，允许直接遍历参数包里的各个参数，对其应用 **二元运算符** _(binary operator)_ 进行 **左折叠** _(left fold)_ 或 **右折叠** _(right fold)_。[fold-expression] 代码 [code|calc-sum-fold] 使用初始值为 `0` 的左折叠表达式，对代码 [code|calc-sum] 进行改进。
+
+[code||calc-sum-fold]
+
+``` cpp
+template <typename... Ts>
+constexpr auto Sum (Ts... args) {
+    return (0 + ... + args);
+}
+
+static_assert (Sum () == 0, "compile error");
+static_assert (Sum (1, 2.0, 3) == 6, "compile error");
+```
+
+[align-center]
+
+代码 [code|calc-sum-fold] - 编译时折叠表达式计算和（$\Sigma$）
 
 [align-center]
 
@@ -275,7 +299,7 @@ static_assert (Sum (1, 2, 3) == 6, "compile error");
 
 作为元编程的最早的应用，数值计算可以用于 **编译时常数计算** 和 **优化运行时表达式计算**。
 
-**编译时常数计算** 能让程序员使用程序设计语言，写编译时确定的常量；而不是直接写常数（**迷之数字** _(magic number)_）或 在运行时计算这些常数。例如，[sec|编译时迭代] 的两个例子（代码 [code|calc-factor], [code|calc-sum]）都是编译时对常数的计算。
+**编译时常数计算** 能让程序员使用程序设计语言，写编译时确定的常量；而不是直接写常数（**迷之数字** _(magic number)_）或 在运行时计算这些常数。例如，[sec|编译时迭代] 的几个例子（代码 [code|calc-factor], [code|calc-sum], [code|calc-sum-fold]）都是编译时对常数的计算。
 
 最早的有关元编程 **优化表达式计算** 的思路是 Todd Veldhuizen 提出的。[expr-template] 利用表达式模板，可以实现部分求值、惰性求值、表达式化简等特性。
 
@@ -339,7 +363,12 @@ BOT Man 提出了一种基于 **编译时多态** _(compile-time polymorphism)_ 
 
 由于元编程的语言层面上的限制较大，所以许多的元编程代码使用了很多的 **编译时测试** 和 **编译时迭代** 技巧，**可读性** _(readability)_ 都比较差。另外，由于巧妙的设计出编译时能完成的演算也是很困难的，相较于一般的 C++ 程序，元编程的 **可写性** _(writability)_ 也不是很好。
 
-现代 C++ 也不断地增加语言的特性，致力于降低元编程的复杂性。例如，[sec|元编程的语言支持] 的 **别名模板** 提供了对模板中的类型的简记方法，**变量模板** 提供了对模板中常量的简记方法，都增强可读性；C++ 17 的 `constexpr-if`（[sec|使用 `if` 进行编译时测试]）提供了 **编译时测试** 的新写法，增强可写性。
+现代 C++ 也不断地增加语言的特性，致力于降低元编程的复杂性：
+
+- C++ 11 的 **别名模板**（[sec|元编程的语言支持]）提供了对模板中的类型的简记方法；
+- C++ 14 的 **变量模板**（[sec|元编程的语言支持]）提供了对模板中常量的简记方法；
+- C++ 17 的 **`constexpr-if`**（[sec|使用 `if` 进行编译时测试]）提供了 **编译时测试** 的新写法；
+- C++ 17 的 **折叠表达式**（[sec|使用折叠表达式化简编译时迭代]）降低了 **编译时迭代** 的编写难度。
 
 基于 C++ 14 的 **泛型 lambda 表达式**（[sec|泛型 lambda 表达式]），元编程库 Boost.Hana 提出了 **不用模板就能元编程** 的理念，宣告从 **模板元编程** _(template metaprogramming)_ 时代进入 **现代元编程** _(modern metaprogramming)_ 时代。[boost-hana] 其核心思想是：只需要使用 C++ 14 的泛型 lambda 表达式和 C++ 11 的 `constexpr`/`decltype`，就可以快速实现元编程的基本演算了。
 
@@ -347,7 +376,7 @@ BOT Man 提出了一种基于 **编译时多态** _(compile-time polymorphism)_ 
 
 模板的实例化 和 函数的绑定 不同：在编译前，前者对传入的参数是什么，没有太多的限制；而后者则根据函数的声明，确定了应该传入参数的类型。而对于模板实参内容的检查，则是在实例化的过程中完成的（[sec|实例化错误]）。所以，程序的设计者在编译前，很难发现实例化时可能产生的错误。
 
-为了减少可能产生的错误，Bjarne Stroustrup 等人提出了在 **语言层面** 上，给模板上引入 **概念** _(concept)_。[cpp-pl] 利用概念，可以对传入的参数加上 **限制** _(constraint)_，即只有满足特定限制的类型才能作为参数传入模板。[cppref-concept] 例如，模板 `std::max` 限制接受支持运算符 `<` 的类型传入。但是由于各种原因，这个语言特性一直没有能正式加入 C++ 标准。尽管如此，编译时仍可以通过 **编译时测试** 和 **静态断言** 等方法（[sec|测试类型]）实现检查。
+为了减少可能产生的错误，Bjarne Stroustrup 等人提出了在 **语言层面** 上，给模板上引入 **概念** _(concept)_。[cpp-pl] 利用概念，可以对传入的参数加上 **限制** _(constraint)_，即只有满足特定限制的类型才能作为参数传入模板。[cppref-concept] 例如，模板 `std::max` 限制接受支持运算符 `<` 的类型传入。但是由于各种原因，这个语言特性一直没有能正式加入 C++ 标准（可能在 C++ 20 中加入）。尽管如此，编译时仍可以通过 **编译时测试** 和 **静态断言** 等方法（[sec|测试类型]）实现检查。
 
 另外，编译时模板的实例化出错位置，在调用层数较深处时，编译器会提示每一层实例化的状态，这使得报错信息包含了很多的无用信息，很难让人较快的发现问题所在。BOT Man 提出了一种 **短路编译** _(short-circuit compiling)_ 的方法，能让基于元编程的 **库** _(library)_，给用户提供更人性化的编译时报错。具体方法是，在 **实现** _(implementation)_ 调用需要的操作之前，**接口** _(interface)_ 先检查是传入的参数否有对应的操作；如果没有，就通过短路的方法，转到一个用于报错的接口，然后停止编译并使用 **静态断言** 提供报错信息。[better-orm] Paul Fultz II 提出了一种更通用的优化报错信息的方法。 [fit-lib]
 
@@ -388,7 +417,7 @@ public:
 
 元编程在运行时主要的难点在于：对模板代码的 **调试** _(debugging)_。如果需要调试的是一段通过很多次的 **编译时测试**（[sec|编译时测试]）和 **编译时迭代**（[sec|编译时迭代]）展开的代码，即这段代码是各个模板的拼接生成的（而且展开的层数很多）；那么，调试时需要不断地在各个模板的 **实例** _(instance)_ 间来回切换。这种情景下，调试人员很难把具体的问题定位到展开后的代码上。
 
-所以，一些大型项目很少使用复杂的代码生成技巧（[sec|代码生成]），而是通过传统的代码生成器生成重复的代码，易于调试。例如 chromium 的 **通用扩展接口** _(common extension api)_ 通过定义 JSON/IDL 文件，通过代码生成器生成相关的 C++ 代码。[chromium-common-extension-api]
+所以，一些大型项目很少使用复杂的代码生成技巧（[sec|代码生成]），而是通过传统的代码生成器生成重复的代码，易于调试。例如 Chromium 的 **通用扩展接口** _(common extension api)_ 通过定义 JSON/IDL 文件，通过代码生成器生成相关的 C++ 代码。[chromium-common-extension-api]
 
 [align-center]
 
@@ -416,11 +445,14 @@ This article is published under MIT License &copy; 2017, BOT Man
 - [cppref-constexpr]: cppreference.com. _constexpr specifier_ [EB/OL] http://en.cppreference.com/w/cpp/language/constexpr
 - [cppref-template]: cppreference.com. _Templates_ [EB/OL] http://en.cppreference.com/w/cpp/language/templates
 - [cppref-template-param]: cppreference.com. _Template parameters and template arguments_ [EB/OL] http://en.cppreference.com/w/cpp/language/template_parameters
+- [parameter-pack]: cppreference.com. _Parameter pack (since C++11)_ [EB/OL] https://en.cppreference.com/w/cpp/language/parameter_pack
 - [generic-lambda]: Faisal Vali, Herb Sutter, Dave Abrahams. _Generic (Polymorphic) Lambda Expressions (Revision 3)_ [EB/OL] http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3649.html
 - [template-turing-complete]: Todd L. Veldhuizen. _C++ Templates are Turing Complete_ [J] Indiana University Computer Science Technical Report. 2003.
 - [cppref-SFINAE]: cppreference.com. _SFINAE_ [EB/OL] http://en.cppreference.com/w/cpp/language/sfinae
+- [two-phase-name-lookup]: John Wilkinson, Jim Dehnert, Matt Austern. _A Proposed New Template Compilation Model_ [EB/OL] http://www.open-std.org/jtc1/sc22/wg21/docs/papers/1996/n0906.pdf
 - [cppref-constexpr-if]: cppreference.com. _if statement_ [EB/OL] http://en.cppreference.com/w/cpp/language/if
 - [vs-if-exists]: Microsoft Docs. _`__if_exists` Statement_ [EB/OL] https://docs.microsoft.com/en-us/cpp/cpp/if-exists-statement?view=vs-2017
+- [fold-expression]: cppreference.com. _fold expression (since C++17)_ [EB/OL] https://en.cppreference.com/w/cpp/language/fold
 - [expr-template]: Todd Veldhuizen. _Expression Templates_ [C] // S. B. Lippman. In _C++ Report_, 1995, 7(5): 26–31.
 - [gererative-programming]: K. Czarnecki, U. Eisenecker. _Generative Programming: Methods, Tools, and Applications_ [M] Addison-Wesley, 2000.
 - [naive-orm]: BOT Man JL. _How to Design a Naive C++ ORM_ [EB/OL] https://bot-man-jl.github.io/articles/?post=2016/How-to-Design-a-Naive-Cpp-ORM

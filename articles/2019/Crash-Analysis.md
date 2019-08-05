@@ -21,6 +21,16 @@
 - 例如 用户输入大量字符串
 - 再如 用户配置文件过大
 
+### 系统调用失败崩溃
+
+- 例如 DLLMain/WinProc 回调位置错误
+- 再如 QueryPerformanceFrequency 函数调用崩溃
+
+### 硬盘数据错误
+
+- FAILURE_PROBLEM_CLASS: `IN_PAGE_ERROR`
+- FAILURE_SYMBOL_NAME: `hardware_disk!Unknown`
+
 ## 程序的崩溃时机
 
 - 初始化
@@ -58,6 +68,7 @@
 
 - [Windbg 调试命令详解 - 张佩](http://yiiyee.cn/blog/2013/08/23/windbg/)
 - [利用 C++ 类对象的虚拟函数表指针在内存中搜索对象 - 张佩](https://blog.csdn.net/blog_index/article/details/7016696)
+- [从堆里寻找丢失的数据 - 张银奎](http://advdbg.org/blogs/advdbg_system/articles/3413.aspx)
 - [使用 Windbg 分析 C++ 的虚函数表原理 - bingoli](https://bingoli.github.io/2019/03/27/windbg-multi-inherit/)
 - [使用 Windbg 分析 C++ 的多重继承原理 - bingoli](https://bingoli.github.io/2019/03/21/virtual-table-by-windbg/)
 

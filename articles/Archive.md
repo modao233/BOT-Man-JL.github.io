@@ -64,6 +64,10 @@
 
 ## 笔记 | Notes
 
+#### 2019
+
+- [崩溃分析笔记](2019/Crash-Analysis.md)
+
 #### 2018
 
 - [Implementation Patterns Notes](2018/Implementation-Patterns-Notes.md)

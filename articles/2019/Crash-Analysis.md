@@ -2,40 +2,65 @@
 
 > 2019/8/4
 > 
-> Windows 崩溃分析笔记
+> Windows C++ 程序崩溃 Dump 分析笔记
 
-## 常见的崩溃类型
+[heading-numbering]
+
+## TOC [no-toc] [no-number]
+
+[TOC]
+
+## 崩溃时机
+
+- 启动时初始化
+- 处理窗口消息
+- 处理队列任务
+
+## 崩溃类型
+
+> 用户态程序的常见崩溃
+
+### 野指针崩溃
+
+- 调用栈下层传入的某个指针损坏
+- 调用栈上层收到的参数出现错误
+- 现象可能是内存访问越界崩溃，也可能是其他崩溃
+- Mini Dump 数据可能缺失，只能用 Full Dump 排查
 
 ### 空指针崩溃
 
-- 检查空指针位置
-- 排查空指针出现的逻辑
+- 回溯调用栈，可以发现空指针首次出现的位置，并推断出现的路径
+- 经常出现于调用前置条件改变，对条件的假设失效
 
-### 野指针崩溃（Mini Dump 数据可能缺失，最好使用 Full Dump）
+### 指针强转崩溃
 
-- 可能因为调用栈下边的某个指针损坏
-- 上层调用传入的参数都是错误的
+- 父类指针 `static_cast<>()` 转成子类时，类型不匹配导致数据错误
+- 可能不会立即崩溃，也可能破坏内存导致其他崩溃
 
-### 内存申请失败崩溃
+### 栈溢出崩溃
 
-- 例如 用户输入大量字符串
-- 再如 用户配置文件过大
+- 逻辑错误导致无穷递归调用
+- 可能是外部输入导致（例如通过发送 `WM_CLOSE`，导致无限弹出关闭确认对话框）
 
-### 系统调用失败崩溃
+### 除零崩溃
 
-- 例如 DLLMain/WinProc 回调位置错误
-- 再如 QueryPerformanceFrequency 函数调用崩溃
+- 包括 除法 `/` 和 取模 `%`
+- `idiv eax, ecx` -> `eax` 商 & `ecx` 余数
 
-### 硬盘数据错误
+### 内存申请崩溃
 
-- FAILURE_PROBLEM_CLASS: `IN_PAGE_ERROR`
-- FAILURE_SYMBOL_NAME: `hardware_disk!Unknown`
+- 用户输入大量字符串
+- 用户配置文件过大
 
-## 程序的崩溃时机
+### 外部调用崩溃
 
-- 初始化
-- 处理窗口消息
-- 处理队列任务
+- DLLMain/WinProc 回调位置错误
+- `QueryPerformanceFrequency`/`localtime(&-1)`/`wcsftime(..., nullptr)` 函数调用崩溃
+
+### 硬件错误崩溃
+
+- 内存加载 DLL 镜像出错 `MEMORY_CORRUPTION memory_corruption!MyDll`
+- 内存映射文件 `MEM_MAPPED` 磁盘错误 `IN_PAGE_ERROR hardware_disk!Unknown`
 
 ## Windbg 常用命令
 
@@ -47,24 +72,28 @@
 - `s -d 0 L?80000000 VAL` 搜索内存中是否存在 VAL 值
 - `!address ADDR` 查看地址属性（堆/栈，可读写性）
 
-## 判断对象的指针是否合法
+## 分析技巧
+
+> 快速分析 C++ 程序崩溃
+
+### 判断对象的指针是否合法
 
 - 如果 `__VFN_table` 有效，表示对象头部完整
-- 如果 `base::WeakPtrFactory::ptr_ == this` 表示对象尾部完整
+- 如果 [`base::WeakPtrFactory::ptr_ == this`](https://cs.chromium.org/chromium/src/base/memory/weak_ptr.h?q=base::WeakPtrFactory) 表示对象尾部完整
 - 通过 `ref_count_/size_` 等变量推测对象数据成员是否合法
 
-## 查找内存中的对象
+### 查找内存中的对象
 
 - `x` 列出类的（所有）虚函数表指针
 - `s -d` 搜索内存中的虚函数表指针（多重继承取最小指针）
 - `dt` 还原对象内存布局
 - 通过再次搜索（成员指针）或 减去偏移量（成员对象），找到对象的持有者
 
-## 排查异步回调任务
+### 排查异步回调任务
 
-- 查看 `base::PendingTask::posted_from` 定位任务抛出的来源
+- 通过 [`base::Location base::PendingTask::posted_from;`](https://cs.chromium.org/chromium/src/base/pending_task.h?q=base::PendingTask) 定位任务抛出的来源
 
-## 参考
+## 参考 [no-number]
 
 - [Windbg 调试命令详解 - 张佩](http://yiiyee.cn/blog/2013/08/23/windbg/)
 - [利用 C++ 类对象的虚拟函数表指针在内存中搜索对象 - 张佩](https://blog.csdn.net/blog_index/article/details/7016696)

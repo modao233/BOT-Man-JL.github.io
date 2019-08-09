@@ -10,6 +10,11 @@
 
 [TOC]
 
+## 知识储备
+
+- 了解 编译原理、汇编指令
+- 熟悉 C++ 内存布局、函数调用、虚函数调用、构造析构调用
+
 ## 崩溃时机
 
 - 启动时初始化
@@ -25,7 +30,7 @@
 - 调用栈下层传入的某个指针损坏
 - 调用栈上层收到的参数出现错误
 - 现象可能是内存访问越界崩溃，也可能是其他崩溃
-- Mini Dump 数据可能缺失，只能用 Full Dump 排查
+- Mini Dump 数据不全，只能用 Full Dump 排查
 
 ### 空指针崩溃
 
@@ -49,17 +54,18 @@
 
 ### 内存申请崩溃
 
-- 用户输入大量字符串
-- 用户配置文件过大
+- 输入大量字符串
+- 配置文件过大
 
 ### 外部调用崩溃
 
-- DLLMain/WinProc 回调位置错误
+- `DLLMain`/`WinProc` 回调位置错误
 - `QueryPerformanceFrequency`/`localtime(&-1)`/`wcsftime(..., nullptr)` 函数调用崩溃
 
 ### 硬件错误崩溃
 
-- 内存加载 DLL 镜像出错 `MEMORY_CORRUPTION memory_corruption!MyDll`
+- 指令寄存器 `eip` 指令对齐错误 `MISALIGNED_CODE`（可能导致汇编指令错误）
+- 内存加载错误 `MEMORY_CORRUPTION memory_corruption!MyDll`（可能导致汇编指令错误）
 - 内存映射文件 `MEM_MAPPED` 磁盘错误 `IN_PAGE_ERROR hardware_disk!Unknown`
 
 ## Windbg 常用命令
@@ -74,7 +80,7 @@
 
 ## 分析技巧
 
-> 快速分析 C++ 程序崩溃
+> 利用符号、代码，分析 C++ 程序崩溃
 
 ### 判断对象的指针是否合法
 

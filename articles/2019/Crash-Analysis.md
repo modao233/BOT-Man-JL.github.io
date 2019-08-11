@@ -2,7 +2,7 @@
 
 > 2019/8/4
 > 
-> Windows C++ 程序崩溃 Dump 分析笔记
+> TODO
 
 [heading-numbering]
 
@@ -12,18 +12,65 @@
 
 ## 知识储备
 
-- 了解 编译原理、汇编指令
-- 熟悉 C++ 内存布局、函数调用、虚函数调用、构造析构调用
+### 操作系统/汇编指令
 
-## 崩溃时机
+- CPU/内存/GPU/磁盘/网卡
+- 进程 _(Process)_/线程 _(Thread)_
+  - 不同线程 有独立的 调用栈 + 寄存器状态
+- 进程地址空间 _(Process Address Space)_
+  - TEXT 代码
+  - DATA 常量数据
+  - BSS 静态变量
+  - HEAP 堆
+  - MEM_MAPPED 内存映射
+  - STACK 栈
+- 调用栈 _(Call Stack)_
+  - 参数传递，参考【调用约定】
+  - 返回数值/指针，通过 `eax` 返回（包括堆上分配的对象）
+  - 返回对象，通过第一个参数传入为对象预留的栈上空间地址
+- 栈帧 _(Stack Frame)_
+  - `eip` 当前指令，自动修改
+  - `ebp` 当前栈底，需要手动修改
+  - `esp` 当前栈顶，自动修改
+- 调用约定 _(Calling Convention)_
+  - `__cdecl` 右到左压栈，调用者清栈（默认，支持变长参数)
+  - `__stdcall` 右到左压栈，被调用者清栈（代码更小）
+  - `__fastcall` 前两个参数放入寄存器，其余的右到左压栈，被调用者清栈
+  - _this call_ `this` 放入 `ecx`，右到左压栈，调用者清栈
+  - _nacked call_ 不修改栈内存 `push/pop ebp`？
+- 调用优化 _(Optimization)_
+  - 优先使用寄存器（存储局部变量、传递参数）
+  - 如果寄存器不够用，再使用栈上空间
 
-- 启动时初始化
-- 处理窗口消息
-- 处理队列任务
+### C++ 编译
+
+- 对象内存布局
+- 虚函数调用
+- 堆内存管理
+  - 调用 `operator new/delete` 申请内存
+- 构造函数调用
+- 析构函数调用
+
+### 上层知识
+
+- 基础概念
+  - 智能指针/设计模式/回调/单例/弱引用/消息循环
+  - 日志/字符串操作/时间/文件/系统/i18n/调试辅助
+- 代码组织结构
+- 软件生命周期模型
+  - 客户端模型 = 启动时初始化 -> 处理窗口消息 + 处理队列任务 -> 退出时反初始化
+- 进程/线程模型
+  - [Chromium 进程](https://developers.google.cn/web/updates/2018/09/inside-browser-part1) = 1 Browser + n Renderer + 1 GPU + x Util
+  - [Chromium 线程](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#threads) = 1 UI (Browser)/Main (Renderer) + 1 IO (for IPC) + x Spec + n Worker (Pool)
+- [对象生命周期模型](../2018/Resource-Management.md)
+  - 互斥所有权 `std::unique_ptr`
+  - 共享所有权 `std::shared_ptr`
+  - 弱引用 `std::weak_ptr/base::WeakPtr`
+  - 通过外部消息管理 `Class::OnDestroy() { delete this; }`
 
 ## 崩溃类型
 
-> 用户态程序的常见崩溃
+> Windows 用户态 C++ 程序的常见崩溃
 
 ### 野指针崩溃
 
@@ -70,23 +117,24 @@
 
 ## Windbg 常用命令
 
-- `dv` 查看当前栈上变量的值
-- `dt ADDR [TYPE]` 查看 TYPE 类型对象在 ADDR 上的内存布局
-- `dx ((TYPE *)ADDR)` 还原 ADDR 上基类 TYPE 对应的派生类
-- `dps __VFN_table` 查看虚函数表对应的成员函数
+- `dv` 列举当前栈上所有变量的值
+- `dt ADDR TYPE` 查看 TYPE 类型对象在 ADDR 上的内存布局
+- `dx ((TYPE *)ADDR)` 还原 ADDR 上 TYPE 实际的派生类
+- `dps __VFN_table` 查看虚函数表指针对应的虚函数地址
 - `x MOD!SYM*` 匹配符号（包括虚函数表指针）
-- `s -d 0 L?80000000 VAL` 搜索内存中是否存在 VAL 值
+- `s -d 0 L80000000 VAL` 搜索内存中是否存在 VAL 值
 - `!address ADDR` 查看地址属性（堆/栈，可读写性）
 
 ## 分析技巧
 
-> 利用符号、代码，分析 C++ 程序崩溃
+> 利用符号、代码，分析 C++ 程序崩溃 Dump
 
-### 判断对象的指针是否合法
+### 判断对象是否有效
 
 - 如果 `__VFN_table` 有效，表示对象头部完整
 - 如果 [`base::WeakPtrFactory::ptr_ == this`](https://cs.chromium.org/chromium/src/base/memory/weak_ptr.h?q=base::WeakPtrFactory) 表示对象尾部完整
-- 通过 `ref_count_/size_` 等变量推测对象数据成员是否合法
+- 通过 `ref_count_/size_` 等变量推测对象数据成员是否有效
+- 判断是否执行过析构函数（例如 `ptr_ = nullptr;`）；但如果内存被回收再利用，新数据可能覆盖写入
 
 ### 查找内存中的对象
 

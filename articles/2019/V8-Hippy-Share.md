@@ -21,11 +21,10 @@
 
 ### Chromium 架构
 
-- 浏览器 = 外框（标签/窗口）+ **内核**
-- 内核 = 书签/历史/同步 + 插件/扩展 + 安全/表单 + 拼写/翻译 + 浏览（[content](https://www.chromium.org/developers/content-module)）/**渲染**
-- 渲染引擎（[blink](https://www.chromium.org/blink)）= DOM/样式/布局 + 绘制（[Skia](https://skia.org/)）/动画 + 输入 + **JavaScript 引擎** 绑定
-- JavaScript 引擎（[V8](https://v8.dev/)）= 编译/运行 JavaScript 代码 + 分配/回收内存 + 绑定扩展功能（console/DOM/...）
-- 演进：WebKit -> blink，JavaScriptCore (JSC) -> V8（但 iOS 策略限制 WebKit/JSC）
+- 浏览器 ([Chromium](https://developers.google.cn/web/updates/2018/09/inside-browser-part1)) = 窗口/标签 + 历史/下载/书签/打印 + 插件/扩展 + 网络/安全 + 浏览/渲染 ([content](https://www.chromium.org/developers/content-module))
+- 渲染引擎 ([blink](https://www.chromium.org/blink)) = DOM 解析/样式/布局 + 绘制 ([Skia](https://skia.org/))/动画/合成 (GPU) + 输入 + devtools + **JavaScript 引擎** 绑定
+- JavaScript 引擎 ([V8](https://v8.dev/)) = 编译/运行 JavaScript 代码 + 分配/回收内存 + 绑定扩展功能 (console/DOM/...)
+- 演进：WebKit -> blink，JavaScriptCore (JSC) -> V8 (但 iOS 策略限制只能用 WebKit/JSC 🤮)
 
 ---
 

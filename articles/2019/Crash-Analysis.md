@@ -18,9 +18,11 @@
 
 > 推荐阅读：《C++ 反汇编与逆向分析技术揭秘》钱林松 赵海旭
 
-- CPU/内存/GPU/磁盘/网卡
+- 计算机结构 _(Computer Architecture)_
+  - CPU/内存/磁盘/网卡/GPU
 - 进程 _(Process)_/线程 _(Thread)_
-  - 不同线程 有独立的 调用栈 + 寄存器状态
+  - 进程（正在执行的程序的一个实例）= 代码 + 运行状态（内存/线程/资源...）
+  - 线程（系统最小可调度的指令序列）= 调用栈 + 寄存器状态
 - 进程地址空间 _(Process Address Space)_
   - TEXT 代码
   - DATA 常量数据
@@ -37,17 +39,20 @@
   - `ebp` 当前栈底，需要手动修改
   - `esp` 当前栈顶，自动修改（自平衡）或 手动修改（手动平衡）
 - 调用约定 _(Calling Convention)_
-  - `__cdecl` 右到左压栈，调用者清栈（默认，支持变长参数)
-  - `__stdcall` 右到左压栈，被调用者清栈（代码更小）
-  - `__fastcall` 前两个参数放入寄存器，其余的右到左压栈，被调用者清栈
-  - _this call_ `this` 放入 `ecx`，右到左压栈，调用者清栈
-  - _nacked call_ 不修改栈内存 `push/pop ebp`？
-- 调用优化 _(Calling Optimization)_
-  - 优先使用寄存器（存储局部变量、传递参数）
-  - 如果寄存器不够用，再使用栈上空间
-- 选择/循环控制流
+  - `__cdecl` 右到左压栈，调用者退栈（默认，支持变长参数)
+  - `__stdcall` 右到左压栈，被调用者退栈（代码更小）
+  - `__fastcall` 前两个参数放入寄存器，其余的右到左压栈，被调用者退栈
+  - `this call` 把 this 指针放入 `ecx`，右到左压栈，调用者退栈
+  - `nacked call` 不修改栈内存，不执行 `push/pop ebp`
+- 作用域 _(Scope)_
+  - 全局（静态）对象：存放在 BSS，进程退出时销毁
+  - 局部（栈/参数/返回值）对象：存放在 STACK，超出局部作用域时销毁
+  - 堆对象：存放在 HEAP，代码逻辑控制销毁
+- 引用 _(Reference)_
+  - 编译器转换为 指针 _(pointer)_ 实现
+- 条件/循环控制流 _(Conditional/Loop Control Flow)_
   - 通过 `jxx [ADDR]` 跳转实现
-- 异常控制流
+- 异常控制流 _(Exception Control Flow)_
   - [Google 风格](https://google.github.io/styleguide/cppguide.html#Exceptions) **已禁用**
 - 虚函数表 _(Virtual Function Table)_
   - 有虚函数的基类，有一个虚函数表；派生类针对每个基类，有多个虚函数表
@@ -62,22 +67,22 @@
   - 派生类布局：`[基类1布局-基类2布局-...]-[数据成员1-数据成员2-...]`
   - 通过 `[this+-n]` 访问对象的数据成员
   - 对于多重继承，调用成员函数时，需要先把 this 指针移动到对应类的偏移上
-  - 对于 私有继承 `class Derived : private Base` 和 组合对象 `class Super { private: Sub member_; }` 内存布局一致
+  - 对于多重继承，基类的析构函数必须声明为虚函数，否则直接用派生类 this 指针调用基类析构函数
+  - 对于私有继承 `class Derived : private Base {};`，内存布局和 组合对象 `class Super { private: Sub member_; };` 一致
 - 菱形继承 _(Diamond Inheritance)_
   - TODO
 - 虚函数调用 _(Virtual Function Call)_
-  - `lea ecx, [OBJ]` 存入对象 `OBJ` 的 `this` 指针
+  - `lea ecx, [OBJ]` 存入对象 `OBJ` 的 this 指针
   - `mov eax, [ecx+n]` 取出对象 `OBJ` 的偏移 `n` 对应的虚函数表指针
   - `call dword ptr [eax+n]` 调用虚函数表的偏移 `n` 对应的虚函数
 - 堆内存管理
   - 调用 `operator new/delete` 申请内存
-  - TODO：系统调用
-- 引用 _(reference)_：编译器转换为 指针 _(pointer)_ 实现
+  - TODO
 - 构造函数调用
   - 顺序：基类1构造函数->基类2构造函数->...->成员1构造函数->成员2构造函数->...
 - 析构函数调用
   - 顺序：成员2析构函数->成员1析构函数->...->基类2析构函数->基类1析构函数->...（和构造相反）
-  - 虚函数表指针顺序：TODO
+  - 析构派生类时，需要还原基类的虚函数表指针，否则找不到基类的析构函数的虚函数 TODO
 
 ### 上层知识
 
@@ -86,16 +91,16 @@
   - 日志/字符串操作/时间/文件/系统/i18n/调试辅助
 - 业务代码组织结构
 - 应用生命周期模型
-  - 客户端模型 = 启动时初始化 -> 处理窗口消息 + 处理队列任务 -> 退出时反初始化
-  - 后台模型
-- 进程/线程模型
-  - [Chromium 进程](https://developers.google.cn/web/updates/2018/09/inside-browser-part1) = 1 Browser + n Renderer + 1 GPU + x Util
-  - [Chromium 线程](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#threads) = 1 UI (Browser)/Main (Renderer) + 1 IO (for IPC) + x Spec + n Worker (Pool)
+  - 桌面客户端模型 = 启动时初始化 -> 处理窗口消息 + 处理队列任务 -> 退出时反初始化
+  - 移动客户端模型/后台服务模型...
 - [对象生命周期模型](../2018/Resource-Management.md)
   - 互斥所有权 `std::unique_ptr`
   - 共享所有权 `std::shared_ptr`
-  - 弱引用 `std::weak_ptr/base::WeakPtr`
+  - 弱引用关系 `std::weak_ptr`/[`base::WeakPtr`](https://cs.chromium.org/chromium/src/base/memory/weak_ptr.h?q=base::WeakPtr)
   - 外部调用管理 `Class::OnDestroy() { delete this; }`
+- 进程/线程模型
+  - [Chromium 进程](https://developers.google.cn/web/updates/2018/09/inside-browser-part1) = 1 Browser + n Renderer + 1 GPU + x Util
+  - [Chromium 线程](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#threads) = 1 UI (Browser)/Main (Renderer) + 1 IO (for IPC) + x Spec + n Worker (Pool)
 
 ## 崩溃类型
 

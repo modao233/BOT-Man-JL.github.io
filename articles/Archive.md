@@ -66,7 +66,8 @@
 
 #### 2019
 
-- [崩溃分析笔记](2019/Crash-Analysis.md)
+- [C++ 反汇编 笔记](2019/Cpp-Disassembly-Notes.md)
+- [崩溃分析 笔记](2019/Crash-Analysis-Notes.md)
 
 #### 2018
 
@@ -84,6 +85,7 @@
 
 #### 2019
 
+- [泰国假日 2](2019/Holiday-in-Thailand-2.md)
 - [泰国出行准备](2019/Preparation-to-Thailand.md)
 
 #### 2018

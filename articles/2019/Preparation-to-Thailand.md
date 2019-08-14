@@ -92,5 +92,6 @@
   - 秀场
   - Massage(TH)/Walking Street/Soi6/LK Metro/Clubs
 - 不推荐
+  - 唐人街附近（商业街，水果不新鲜）
   - 芭提雅海滩（比较脏）
   - 东芭乐园/迷你暹罗/四方水上市场（商业化）

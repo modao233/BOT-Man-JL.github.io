@@ -31,15 +31,21 @@
 - MEM_MAPPED 内存映射（高到低）
 - STACK 栈（高到低）
 
+### 字节序 (Byte Order/Endianness)
+
+- 大端：低到高
+- 小端：高到低
+
 ## 函数调用
 
 ### 调用栈 _(Call Stack)_
 
-- 函数签名 = 函数名 + 各个参数类型
 - 参数（小于等于 4-byte）传递：优先使用寄存器，再使用栈内存
-- 参数（大于 4-byte）传递：TODO
+- 参数（大于 4-byte）传递：在栈上拷贝对象（空间为 `sizeof(obj)`，可能调用拷贝构造函数）
 - 返回值（小于等于 4-byte）传递：通过 `eax` 返回
-- 返回值（大于 4-byte）传递：第一个参数传入为对象预留的栈上内存地址
+- 返回值（大于 4-byte 对象）传递：
+  - 第一个参数传入为对象预留的栈上内存地址，作为 this 指针调用构造函数
+  - 通过 `eax` 返回对象 this 指针（和传入的地址一致）
 
 ### 栈帧 _(Stack Frame)_
 
@@ -53,7 +59,7 @@
   - 函数出口 `pop ebp` 手动还原
 - `esp` 当前栈顶
   - `push/pop REG` 自动修改
-  - `sub/add esp n` 手动修改（申请/释放 局部变量的空间）
+  - `sub/add esp n` 手动修改（申请/释放 参数或局部变量，复写传播优化）
   - 函数出口 `ret n`（用于 被调用者退栈）
     - 先弹出 `[n/4]` 个 4-byte 大小的参数（相当于 `add esp n`）
     - 再弹出 4-byte 大小的 `RetAddr`（相当于 `pop eip`）
@@ -62,30 +68,74 @@
   - `RetAddr` 上一个函数的 返回地址，即下一个指令的 `eip`（访问方式：`[ebp+4]`）
   - `ChildEBP` 上一个函数的 基地址 `ebp`（访问方式：`[ebp]`）
   - 局部变量（访问方式：`[ebp-n], n >= 4`）
+- 基于 _Frame Pointer Omission (FPO)_ 的内存布局（高到低）
+  - 传入参数（访问方式：`[esp+x+n], n >= 4`）
+  - `RetAddr` 上一个函数的 返回地址，即下一个指令的 `eip`（访问方式：`[esp+x]`）
+  - 局部变量（访问方式：`[ebp+x-n], x > n >= 4`）
+  - （`esp` 寻址：根据栈顶找到栈底 `esp+x` 后寻址，当前局部变量占用 x-byte 空间，并省略 `ebp` 压栈）
 
 ### 调用约定 _(Calling Convention)_
 
-- `__cdecl` 右到左压栈，调用者退栈（默认，支持变长参数)
-- `__stdcall` 右到左压栈，被调用者退栈
-- `__fastcall` 前两个参数放入寄存器，其余的右到左压栈，被调用者退栈
-- `this call` 把 this 指针放入 `ecx`，右到左压栈，调用者退栈
-- `nacked call` 不修改栈帧，不执行 `push/pop ebp`
+- 参数压栈方向：右到左
+- 不稳定 _(volatile)_ 寄存器：`eax`/`ecx`/`edx` 需要调用者保存；其余由被调用者保存
+- 调用者清理 _(caller clean-up)_
+  - `__cdecl`（默认方式，支持变长参数）
+- 被调用者退栈 _(callee clean-up)_
+  - `__stdcall`
+  - `__fastcall` 前两个参数放入 `ecx`/`edx`，其余参数压栈
+- 根据有没有变长常数决定
+  - `thiscall` 把 this 指针放入 `ecx`，参数压栈
 
 ## C++ 语言
 
-### 引用 _(Reference)_
+### 编译 _(Compile)_
 
-- 编译器转换为 指针 _(pointer)_ 实现
+- 静态成员 _(static member)_ -> 全局（静态）对象
+- 默认参数 _(default argument)_/成员变量默认值 _(default value)_ -> 硬编码调用参数
+- 内联函数 _(inline function)_ -> 不生成 `call`/`ret`
+- Lambda 表达式 -> 生成 functor 类
+- `new`/`delete` -> 先申请内存再调用构造函数/先调用析构函数再释放内存
+- 引用 _(reference)_ -> 指针 _(pointer)_，仅在编译时检查左值/右值
+- 成员访问控制 _(member access control)_，仅在编译时检查
+- 函数签名 _(function signature)_ = 函数名 + 参数类型列表，仅在编译时检查
+- 预处理 _(preprocess)_ 编译前计算
+- `static_assert`/`constexpr` 编译时运算
 
-### 条件/循环控制流 _(Conditional/Loop Control Flow)_
+### 控制流 _(Control Flow)_
 
-- 通过 `jxx [ADDR]` 跳转实现
+- `if`
+  - `jxx END`
+- `if-else`
+  - `jxx ELSE-IF/ELSE`
+  - `jmp END`
+- `switch` 直接跳转
+  - `jxx CASE`
+  - `break` -> `jmp END`
+- `switch` 线性跳表
+  - `jxx DEFAULT/END`
+  - `jmp dword ptr [eax*4+CASE_TABLE]`
+  - `break` -> `jmp END`
+- `switch` 非线性索引表
+  - `jxx DEFAULT/END`
+  - `xor eax, eax` + `mov al, byte ptr (INDEX_TABLE)[reg]`
+  - `jmp dword ptr [eax*4+CASE_TABLE]`
+  - `break` -> `jmp END`
+- `do`
+  - `jxx BEG`
+- `while`
+  - `jxx END`
+  - `jmp BEG`
+- `for`
+  - INIT -> `jmp CMP`
+  - STEP
+  - CMP -> `jxx END`
+  - BODY -> `jmp STEP`
+  - END
 
-### 异常控制流 _(Exception Control Flow)_
+### 异常 _(Exception)_
 
 - [Google 风格](https://google.github.io/styleguide/cppguide.html#Exceptions) **已禁用**
 - Windows 通过 [Structured Exception Handling (SEH)](https://docs.microsoft.com/en-us/cpp/cpp/structured-exception-handling-c-cpp) 实现
-- TODO
 
 ### 作用域 _(Scope)_
 
@@ -93,8 +143,9 @@
 - 局部（栈/参数/返回值）对象：存放在 STACK，超出局部作用域时销毁
 - 堆对象：存放在 HEAP，代码逻辑控制销毁
 
-### 堆内存管理
+### 堆内存管理 _(Heap Memory Management)_
 
+- 一般由 C 运行时 _(C Runtime)_ 管理
 - 堆段 _(segment/bin)_：
   - 固定大小，由操作系统管理，给程序使用；满了继续申请，空了还给系统
   - Windows 上：申请 `HeapCreate`，释放 `HeapDestroy`
@@ -105,6 +156,14 @@
 
 ## C++ 面向对象
 
+### 对象内存布局 _(Object Memory Layout)_
+
+- 基类布局：`[虚表指针 (opt)]-[数据成员1-数据成员2-...]`
+- 派生类布局：`[基类1布局-基类2布局-...]-[数据成员1-数据成员2-...]`
+- 对于继承 `class Derived : private Base {};` 的内存布局，和组合 `class Super { private: Sub member_; };` 一样
+- 对于空类，占用 1-byte 空间
+- 连续内存，x86 程序按照 4-byte 对齐
+
 ### 虚函数表 _(Virtual Function Table)_
 
 - 基类如果有虚函数，就有一个虚表；派生类针对每个基类，有不同的虚表
@@ -112,14 +171,6 @@
 - 派生类布局：`[类型信息指针 (opt)]-[基类虚函数1指针-基类虚函数2指针-...]-[派生类虚函数1指针-派生类虚函数2指针-... (opt)]`
 - 如果禁用 [RTII](https://en.cppreference.com/w/cpp/types)，则没有类型信息指针
 - 对于纯虚函数，虚函数指针指向 [`_purecall`](../2017/Cpp-Windows-Crash.md)
-
-### 对象内存布局 _(Object Memory Layout)_
-
-- 连续内存，32-bit 程序按照 4-byte 对齐
-- 基类布局：`[虚函数指针 (opt)]-[数据成员1-数据成员2-...]`
-- 派生类布局：`[基类1布局-基类2布局-...]-[数据成员1-数据成员2-...]`
-- 访问数据成员：`[this+-n]`
-- 对于继承 `class Derived : private Base {};` 的内存布局，和组合 `class Super { private: Sub member_; };` 一样
 
 ### 多重继承 _(Multiple Inheritance)_
 
@@ -144,12 +195,7 @@
 - 调用顺序（两者严格相反）：
   - 构造：基类1构造函数->基类2构造函数->...->成员1构造函数->成员2构造函数->...
   - 析构：成员2析构函数->成员1析构函数->...->基类2析构函数->基类1析构函数->...
-- 构造的本质：
-  - 先根据不同作用域，分配 `sizeof(Obj)` 的内存
-  - 再把内存起始地址作为 this 指针，通过 `this call` 方式调用构造函数
-- 析构的本质：
-  - 先通过 `this call` 调用析构函数
-  - 再根据不同作用域，释放对象的内存
+- 本质：把对象内存起始地址作为 this 指针，通过 `thiscall` 方式调用
 - 避免在构造/析构时调用虚函数：
   - 对于直接调用，编译器已知虚函数指针，不需要查虚表
   - 对于间接调用（调用的非虚函数调用了虚函数），[如果调用了纯虚函数，就会出现崩溃](../2017/Cpp-Windows-Crash.md)
@@ -196,6 +242,7 @@
 - [使用 Windbg 分析 C++ 的多重继承原理 - bingoli](https://bingoli.github.io/2019/03/21/virtual-table-by-windbg/)
 - [Dance In Heap（一）：浅析堆的申请释放及相应保护机制 - hellowuzekai](https://www.freebuf.com/articles/system/151372.html)
 - [浅析 Windows 下堆的结构 - hellowuzekai](https://www.freebuf.com/articles/system/156174.html)
+- [FPO - Larry Osterman's WebLog](https://blogs.msdn.microsoft.com/larryosterman/2007/03/12/fpo/)
 
 如果有什么问题，**欢迎交流**。😄
 

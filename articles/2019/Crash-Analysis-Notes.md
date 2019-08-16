@@ -45,7 +45,7 @@
 ### 除零崩溃
 
 - 包括 除法 `/` 和 取模 `%`
-- `idiv eax, ecx` -> `eax` 商 & `ecx` 余数
+- `cdq; idiv eax, ?` -> `eax` 商 & `edx` 余数
 
 ### 内存申请崩溃（业务相关）
 
@@ -59,8 +59,8 @@
 
 ### 硬件/指令错误崩溃（不可控）
 
-- 指令寄存器 `eip` 指令对齐/解析错误 `MISALIGNED_CODE`/`ILLEGAL_INSTRUCTION`，导致汇编指令错误（标识：常见于长指令）
-- 内存加载错误 `MEMORY_CORRUPTION memory_corruption!MyDll`，导致汇编指令错误（标识：语义和代码不符，和正常加载的代码不一样）
+- 指令对齐/解析错误 `MISALIGNED_CODE`/`ILLEGAL_INSTRUCTION`（可能是注入导致）
+- 内存加载错误 `MEMORY_CORRUPTION memory_corruption!MyDll`，导致汇编指令错误
 - 内存映射文件 `MEM_MAPPED` 磁盘错误 `IN_PAGE_ERROR hardware_disk!Unknown`
 
 ## Windbg 常用命令
@@ -70,6 +70,7 @@
 - `!analyze -v; .ecxr` 定位崩溃位置
 - `|`/`~`/`.frame` 进程/线程/栈帧
 - `kPL` 查看调用栈和参数，并隐藏代码位置
+- `kvL` 查看调用栈和调用约定，并隐藏代码位置
 - `dv` 列举当前栈帧上 参数、局部变量 的值
 - `dt ADDR TYPE` 查看 TYPE 类型对象在 ADDR 上的内存布局
 - `dx ((TYPE *)ADDR)`
@@ -79,11 +80,25 @@
 - `u [ADDR]`/`ub [ADDR]`/`uf [ADDR/SYM]` 反汇编/往前反汇编/反汇编函数
 - `x MOD!SYM*` 匹配函数符号（包括虚函数表指针）
 - `s -d 0 L80000000 VAL` 搜索内存中是否存在 VAL 值
-- `!address ADDR` 查看地址属性（堆/栈，可读写性）
+- `!address ADDR` 查看地址属性（堆/栈/代码区，可读/可写/可执行）
 
 ## 分析技巧
 
 > 利用符号、代码，分析 C++ 程序崩溃 Dump
+
+### 判断代码是否有效-1
+
+- `uf eip` 查看崩溃代码的指令
+- `lm a eip` 查看崩溃代码对应模块的地址范围，记录 `START1`
+- `?eip-START1` 计算崩溃代码在模块中的偏移量，记录 `OFFSET`
+- 本地运行相同版本的模块 `MODULE`
+- `lm m MODULE` 查看正常代码对应模块的地址范围，记录 `START2`
+- `uf START2+OFFSET` 查看正常代码的指令，和崩溃代码比较
+
+### 判断代码是否有效-2
+
+- `uf eip` 查看崩溃函数的指令
+- 检查是否有明显逻辑错误（例如，`push ebp; mov ebp, esp` 被篡改）
 
 ### 判断对象是否有效
 

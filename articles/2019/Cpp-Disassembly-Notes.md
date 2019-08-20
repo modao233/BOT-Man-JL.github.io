@@ -23,6 +23,7 @@
 
 ### 进程地址空间 _(Process Address Space)_
 
+- 对于 32-bit 程序 `0x0 - 0x80000000`
 - TEXT 代码
 - READONLY_DATA 常量数据
 - DATA 静态数据（已初始化）
@@ -139,20 +140,20 @@
 
 ### 作用域 _(Scope)_
 
-- 全局（静态）对象：存放在 BSS，进程退出时销毁
-- 局部（栈/参数/返回值）对象：存放在 STACK，超出局部作用域时销毁
-- 堆对象：存放在 HEAP，代码逻辑控制销毁
+- 全局（静态）对象：存放在 BSS，`main()` 进入前构造（静态对象在函数开头构造），`main()` 退出后析构
+- 局部（栈/参数/返回值）对象：存放在 STACK，超出局部作用域时析构
+- 堆对象：存放在 HEAP，代码逻辑控制析构
 
 ### 堆内存管理 _(Heap Memory Management)_
 
-- 一般由 C 运行时 _(C Runtime)_ 管理
+- 由 系统 和 C 运行时 _(C Runtime, CRT)_ 共同管理
 - 堆段 _(segment/bin)_：
   - 固定大小，由操作系统管理，给程序使用；满了继续申请，空了还给系统
-  - Windows 上：申请 `HeapCreate`，释放 `HeapDestroy`
-- 堆块 _(block/entry/chunk)_：
-  - 在堆段上分配，包括 本块大小、前一堆块大小、对齐信息、数据部分；对于 C++ 代码只能访问数据部分
+  - Windows 上：申请 `VirtualAlloc`/`HeapCreate`，释放 `VirtualFree`/`HeapDestroy`
+- 堆块 _(block/chunk)_：
+  - 在堆段上分配，包括 本块大小、前一堆块大小、对齐信息）+ 数据部分（C++ 代码可见）
   - Windows 上：申请 `HeapAlloc`，释放 `HeapFree`
-  - C++ 层面：申请 `malloc`/`operator new`，释放 `free`/`operator delete`
+  - C++ 层面：申请 `malloc`/`new`，释放 `free`/`delete`
 
 ## C++ 面向对象
 
@@ -229,12 +230,12 @@
 
 ### 基础概念
 
-- 智能指针/设计模式/回调/单例/弱引用/消息循环
-- 日志/字符串操作/时间/文件/系统/i18n/调试辅助
+- 设计模式/RAII/智能指针/弱引用/回调/消息循环
+- 日志/字符串操作/时间/i18n/操作系统/文件/网络/调试辅助
 
 ### C++ 标准库
 
-- 理解 STL 中隐含的概念，和 STL 的基本实现原理（也可以借助 [NatVis](https://docs.microsoft.com/en-us/visualstudio/debugger/create-custom-views-of-native-objects) 可视化查看对象）
+- 理解 STL 中的概念，和 STL 的基本实现原理（可以借助 [NatVis](https://docs.microsoft.com/en-us/visualstudio/debugger/create-custom-views-of-native-objects) 可视化查看对象）
 - 从 `std::string` 内存中定位 `c_str_/size_/capacity_` 数据
 - 从 智能指针 内存中定位 `ptr_/ref_count_` 等数据
 

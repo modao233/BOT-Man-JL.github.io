@@ -2,16 +2,17 @@
 
 > 2019/8/4
 > 
-> 我们的工作价值并不在于如何调试问题，而是在于调试问题的速度和准确度。—— Mark Russinovich
+> We all earn our pay and reputations not by how we debug, but by how quickly and accurately we do it. —— Mark Russinovich
 
 [heading-numbering]
 
 通过崩溃现场排查问题，是一件很有意思的事情 —— 像是 “侦探推理” ——
 
-- 一方面，你只能看到崩溃瞬间的状态（崩溃时转储为 Dump 文件），从有限的信息里收集线索
-- 另一方面，你需要掌握更全面的知识（了解 操作系统/编译原理/C++，熟悉被分析的代码），从有限的线索里大胆假设、仔细验证
+- 你只能看到崩溃瞬间的状态（崩溃时转储为 Dump 文件），从有限的信息里收集线索
+- 你可能看不到崩溃的位置的代码（例如第三方模块），需要利用“逆向”思维来大胆假设
+- 你需要掌握更全面的知识（了解 操作系统/编译原理/C++，熟悉被分析的代码），从有限的线索里验证猜想
 
-本文是对最近 Windows/C++ 崩溃分析工作的一些总结。
+最近的 Windows/C++ 崩溃分析工作，让我再次学到了如何 “从底层的视角，看上层的事物”。
 
 ## 目录 [no-toc] [no-number]
 
@@ -19,7 +20,7 @@
 
 ## 崩溃类型
 
-> Windows 用户态 C++ 程序的常见崩溃
+> 如何提高感知力和控制力，就像学游泳一样，要到水中练，去亲近水。——《格蠹汇编》张银奎
 
 ### 野指针崩溃
 
@@ -63,7 +64,7 @@
 ### 硬件/指令错误崩溃（不可控）
 
 - 指令对齐/解析错误 `MISALIGNED_CODE`/`ILLEGAL_INSTRUCTION`（可能是注入导致）
-- 内存加载错误 `MEMORY_CORRUPTION memory_corruption!MyDll`，导致汇编指令错误
+- 内存错误 `MEMORY_CORRUPTION memory_corruption!MyDll`，可能导致指令错误
 - 内存映射文件 `MEM_MAPPED` 磁盘错误 `IN_PAGE_ERROR hardware_disk!Unknown`
 
 ## Windbg 常用命令
@@ -73,21 +74,22 @@
 - `!analyze -v; .ecxr` 定位崩溃位置
 - `|`/`~`/`.frame` 进程/线程/栈帧
 - `kPL` 查看调用栈和参数，并隐藏代码位置
-- `kvL` 查看调用栈和调用约定，并隐藏代码位置
+- `kvL` 查看调用栈和FPO/调用约定，并隐藏代码位置
 - `dv` 列举当前栈帧上 参数、局部变量 的值
-- `dt ADDR TYPE` 查看 TYPE 类型对象在 ADDR 上的内存布局
+- `dt TYPE [ADDR]` 查看 TYPE 类型对象（在 ADDR 上）的内存布局
 - `dx ((TYPE *)ADDR)`
   - 使用 [NatVis](https://docs.microsoft.com/en-us/visualstudio/debugger/create-custom-views-of-native-objects) 查看 TYPE 可视化数据（内置 STL 支持）
   - 根据 对象内存布局 + 虚函数表指针，还原 ADDR 上 TYPE 实际的派生类
 - `dps __VFN_table` 查看虚函数表指针对应的虚函数地址
-- `u [ADDR]`/`ub [ADDR]`/`uf [ADDR/SYM]` 反汇编/往前反汇编/反汇编函数
+- `u ADDR`/`ub ADDR`/`uf ADDR/SYM` 反汇编/往前反汇编/反汇编函数
 - `x MOD!SYM*` 匹配函数符号（包括虚函数表指针）
 - `s -d 0 L?80000000 VAL` 搜索内存中是否存在 VAL 值
 - `!address ADDR` 查看地址属性（堆/栈/代码区，可读/可写/可执行）
+- `!heap -a [SEGMENT]` 查看（堆段 SEGMENT 上）内存分配详情
 
 ## 分析技巧
 
-> 利用符号、代码，分析 C++ 程序崩溃 Dump
+> Dump 文件就像照片，每个文件都可能让我们想起一段故事，时间越长，越值得回味。——《格蠹汇编》张银奎
 
 ### 判断代码是否有效-1
 
@@ -127,6 +129,7 @@
 - 发布线上运营任务，触达之前的不常用路径
 - 外部软件注入导致崩溃，崩溃的调用栈相对分散，不易于聚合统计
 - 修改了某些崩溃，可能引发后续执行的代码崩溃
+- 可以通过筛选视图查看崩溃规律：加载模块/其他进程/安全软件/操作系统/硬件 等
 
 ## 参考 [no-number]
 

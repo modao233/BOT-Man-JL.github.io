@@ -19,11 +19,10 @@
 ### 进程 _(Process)_/线程 _(Thread)_
 
 - 进程（正在执行的程序的一个实例）= 代码 + 运行状态（内存/线程/资源...）
-- 线程（系统最小可调度的指令序列）= 调用栈 + 寄存器状态
+- 线程（系统最小可调度的执行单元）= 栈内存 + 寄存器状态 + 线程本地存储 _(Thread Local Storage, TLS)_
 
 ### 进程地址空间 _(Process Address Space)_
 
-- 对于 32-bit 程序 `0x0 - 0x80000000`
 - TEXT 代码
 - READONLY_DATA 常量数据
 - DATA 静态数据（已初始化）
@@ -36,6 +35,14 @@
 
 - 大端：低到高
 - 小端：高到低
+
+### 虚拟内存 _(Virtual Memory)_
+
+- 虚拟内存：32-bit 进程内存（`0x0 - 0x7FFFFFFF`）按照 4k-byte 分段/分页
+- 页表 _(page table)_：物理内存大小可能小于虚拟内存，需要将虚拟内存映射到物理内存上
+- 缺页 _(page fault)_：如果虚拟内存不在物理内存中，产生缺页中断
+- 分页管理器 _(paging supervisor)_：系统通过 I/O 置换内存，处理缺页中断
+- 固定页 _(pinned page)_：避免从物理内存中，把内存页置换出去
 
 ## 函数调用
 
@@ -151,7 +158,7 @@
   - 固定大小，由操作系统管理，给程序使用；满了继续申请，空了还给系统
   - Windows 上：申请 `VirtualAlloc`/`HeapCreate`，释放 `VirtualFree`/`HeapDestroy`
 - 堆块 _(block/chunk)_：
-  - 在堆段上分配，包括 本块大小、前一堆块大小、对齐信息）+ 数据部分（C++ 代码可见）
+  - 在堆段上分配，包括 本块大小、前一堆块大小、使用/空闲等 + 数据部分（C++ 代码可见）
   - Windows 上：申请 `HeapAlloc`，释放 `HeapFree`
   - C++ 层面：申请 `malloc`/`new`，释放 `free`/`delete`
 
@@ -259,6 +266,7 @@
 ## 参考 [no-number]
 
 - 《C++ 反汇编与逆向分析技术揭秘》钱林松 赵海旭
+- 《软件调试》张银奎
 - [图说 C++ 对象模型：对象内存布局详解 - melonstreet](https://www.cnblogs.com/QG-whz/p/4909359.html)
 - [使用 Windbg 分析 C++ 的虚函数表原理 - bingoli](https://bingoli.github.io/2019/03/27/windbg-multi-inherit/)
 - [使用 Windbg 分析 C++ 的多重继承原理 - bingoli](https://bingoli.github.io/2019/03/21/virtual-table-by-windbg/)

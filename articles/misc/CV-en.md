@@ -12,6 +12,7 @@ EN | [中文](CV-zh.md)
 - Developing **universal extension API**, simplifying operation development
 - Developing **native rendering solution**, optimizing browsing experience
 - Participating **Hippy cross-platform project**, normalizing C++ code
+- Reducing **UI crash rate** 40%/50% _(0.112%/0.038% -> 0.065%/0.019%)_
 - Promoting **unit tests** and **modern C++**
 
 #### 2017.7 - 2018.7

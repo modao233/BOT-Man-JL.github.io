@@ -22,57 +22,75 @@
 
 > 如何提高感知力和控制力，就像学游泳一样，要到水中练，去亲近水。——《格蠹汇编》张银奎
 
-### 野指针崩溃
+### 内存破坏崩溃
 
-- 调用栈下层传入的某个指针损坏（或为空）
-- 调用栈上层收到的参数出现错误
-- 现象可能是内存访问越界崩溃，也可能是其他崩溃
-- 排查：Mini Dump 数据不全，只能用 Full Dump 分析
-- 可能恰好无效地址附近数据为空，访问数据成员时，变为空指针崩溃（标识：[sec|判断对象是否有效] 判断对象是否有效）
+- 原因：
+  - 野指针：释放资源后使用
+  - 指针强转：基类指针 `static_cast<>()` 转成错误的派生类，数据对齐错误
+- 排查：
+  - Mini Dump 数据不全，只能用 Full Dump 分析（[sec|判断对象是否有效]）
+  - 如果没有立即崩溃，由于数据损坏，可能导致 **其他崩溃**
+- 辅助：
+  - 添加日志/上报
+  - 检查堆破坏（例如 Application Verifier / 页堆 Pageheap）
+  - 检查栈破坏（例如 secure_cookie `/Gs`）
+  - 使用立即崩溃（例如 `assert`/`CHECK`）
 
 ### 空指针崩溃
 
-- 回溯调用栈，可以发现空指针首次出现的位置，并推断出现的路径
-- 常见于 函数的前置条件改变，调用者对条件的假设（例如 `assert`/`DCHECK`）失效
-- 可能加上 offset 再访问数据成员，变为野指针崩溃（标识：指针值小于对象大小）
-
-### 指针强转崩溃
-
-- 基类指针 `static_cast<>()` 转成派生类时，类型不匹配导致数据错误
-- 可能不会立即崩溃，也可能破坏内存导致其他崩溃
+- 原因：
+  - 函数的前置条件改变，调用者对条件的假设（例如 `debug_assert`/`DCHECK`）失效
+  - 内存破坏导致
+- 排查：
+  - 回溯调用栈，可以发现空指针首次出现的位置，并推断出现的路径
+  - 空指针加上 offset 再访问数据成员，变为野指针崩溃（标识：指针值小于对象大小）
 
 ### 除零崩溃
 
-- 包括 除法 `/` 和 取模 `%`
-- `cdq; idiv eax, ?` -> `eax` 商 & `edx` 余数
+- 原因：
+  - 除 `/` 0
+  - 取模 `%` 0
+- 原理：`cdq; idiv eax, ?` -> `eax` 商 & `edx` 余数
 
 ### 栈溢出崩溃
 
-- 逻辑错误导致无穷递归调用
-- 可能是外部输入导致（例如 发送 `WM_CLOSE`，导致无限弹出关闭确认对话框）
+- 原因：
+  - 逻辑错误，导致无穷递归调用
+  - 可能是外部输入导致（例如 发送 `WM_CLOSE`，导致无限弹出关闭确认对话框）
+- 排查：
+  - 回溯调用栈，找到递归调用的函数范围，并推断出错原因
 
-### 内存申请崩溃（业务相关）
+### 内存申请崩溃
 
-- 输入大量字符串
-- 配置文件过大
+- 原因：
+  - 输入大量字符串
+  - 配置文件过大
+- 排查：
+  - 校验外部输入合法性
 
-### 外部调用崩溃（不可控）
+### 系统调用崩溃
 
-- `QueryPerformanceFrequency`/`localtime(&-1)`/`wcsftime(..., nullptr)` 函数调用崩溃
-- `DLLMain`/`WinProc` 回调位置错误
+- 现象：
+  - `QueryPerformanceFrequency`/`localtime(&-1)`/`wcsftime(..., nullptr)` 函数调用崩溃
+  - `DLLMain`/`WinProc` 回调位置错误（被重定向到无效函数）
+- 原因：
+  - 系统内部错误
+  - 外部代码注入
 
-### 硬件/指令错误崩溃（不可控）
+### 硬件/指令错误崩溃
 
-- 指令对齐/解析错误 `MISALIGNED_CODE`/`ILLEGAL_INSTRUCTION`（可能是注入导致）
-- 内存错误 `MEMORY_CORRUPTION memory_corruption!MyDll`，可能导致指令错误
-- 内存映射文件 `MEM_MAPPED` 磁盘错误 `IN_PAGE_ERROR hardware_disk!Unknown`
+- `ILLEGAL_INSTRUCTION`/`MISALIGNED_CODE`/`PRIVILEGED_INSTRUCTION`
+  - 指令 无效/不对齐/无法执行
+  - 原因：可能是外部注入导致
+- `IN_PAGE_ERROR`
+  - 内存映射文件 `MEM_MAPPED` 读取时，磁盘 `hardware_disk` 错误
 
 ## Windbg 常用命令
 
 > 工欲善其事，必先利其器。——《论语·卫灵公》
 
 - `!analyze -v; .ecxr` 定位崩溃位置
-- `|`/`~`/`.frame` 进程/线程/栈帧
+- `version`/`|`/`~`/`.frame` 系统/进程/线程/栈帧
 - `kPL` 查看调用栈和参数，并隐藏代码位置
 - `kvL` 查看调用栈和FPO/调用约定，并隐藏代码位置
 - `dv` 列举当前栈帧上 参数、局部变量 的值
@@ -82,9 +100,9 @@
   - 根据 对象内存布局 + 虚函数表指针，还原 ADDR 上 TYPE 实际的派生类
 - `dps __VFN_table` 查看虚函数表指针对应的虚函数地址
 - `u ADDR`/`ub ADDR`/`uf ADDR/SYM` 反汇编/往前反汇编/反汇编函数
-- `x MOD!SYM*` 匹配函数符号（包括虚函数表指针）
+- `x MOD!SYM*` 匹配函数符号（包括虚函数表符号）
 - `s -d 0 L?80000000 VAL` 搜索内存中是否存在 VAL 值
-- `!address ADDR` 查看地址属性（堆/栈/代码区，可读/可写/可执行）
+- `!address ADDR` 查看地址属性（堆/栈/代码区，可读/可写/可执行，已提交/保留）
 - `!heap -a [SEGMENT]` 查看（堆段 SEGMENT 上）内存分配详情
 
 ## 分析技巧
@@ -107,11 +125,14 @@
 
 ### 判断对象是否有效
 
-- 如果 `__VFN_table` 有效，表示对象头部完整
-- 如果 [`base::WeakPtrFactory::ptr_ == this`](https://cs.chromium.org/chromium/src/base/memory/weak_ptr.h?q=base::WeakPtrFactory) 表示对象尾部完整
-- 通过 `ref_count_/size_` 等变量推测对象数据成员是否有效
-- 如果对象内存没被覆写：判断是否执行过析构函数（例如 `ptr_ = nullptr;`）
-- 如果对象内存已被覆写：通过 `db/da/du` 查看是否被写成字符串
+- 如果对象内存 **没被覆写**：
+  - 如果 `__VFN_table` 有效，表示头部完整
+  - 如果 [`base::WeakPtrFactory::ptr_ == this`](https://cs.chromium.org/chromium/src/base/memory/weak_ptr.h?q=base::WeakPtrFactory)，表示尾部完整
+  - 通过 `ref_count_/size_` 等变量推测数据成员是否有效
+  - 判断是否执行过析构函数（例如 `ptr_ = nullptr;`）
+- 如果对象内存 **已被覆写**：
+  - 通过 `db/da/du` 查看是否被写成 字符串
+  - 通过 `dps` 查看是否被写成 其他对象
 
 ### 查找内存中的对象
 
@@ -124,12 +145,20 @@
 
 - 通过 [`base::Location base::PendingTask::posted_from;`](https://cs.chromium.org/chromium/src/base/pending_task.h?q=base::PendingTask) 定位任务抛出的来源
 
+### 考虑崩溃时机
+
+- `main()` 前初始化
+- 启动时初始化
+- 消息循环阶段
+- 退出时反初始化
+- `main()` 后反初始化
+
 ### 考虑外部原因
 
 - 发布线上运营任务，触达之前的不常用路径
-- 外部软件注入导致崩溃，崩溃的调用栈相对分散，不易于聚合统计
-- 修改了某些崩溃，可能引发后续执行的代码崩溃
-- 可以通过筛选视图查看崩溃规律：加载模块/其他进程/安全软件/操作系统/硬件 等
+- 外部代码注入（调用栈分散，不易于聚合统计）
+- 修复某些崩溃，引发后续执行代码的崩溃
+- 通过筛选视图，查看崩溃规律：加载模块/其他进程/安全软件/操作系统/硬件
 
 ## 参考 [no-number]
 

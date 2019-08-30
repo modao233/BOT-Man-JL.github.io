@@ -40,8 +40,17 @@
 
 - 虚拟内存：32-bit 进程内存（`0x0 - 0x7FFFFFFF`）按照 4k-byte 分段/分页
 - 页表 _(page table)_：物理内存大小可能小于虚拟内存，需要将虚拟内存映射到物理内存上
-- 缺页 _(page fault)_：如果虚拟内存不在物理内存中，产生缺页中断
-- 分页管理器 _(paging supervisor)_：系统通过 I/O 置换内存，处理缺页中断
+- 缺页 _(page fault)_：如果进程访问的虚拟内存不在进程的物理内存中，产生缺页中断
+- 硬中断 _(hard fault)_：从磁盘中加载
+  - 页面文件 _(page file)_：存放被置换的虚拟内存
+  - 内存映射文件 _(memory-mapped file)_：能直接映射到虚拟内存中（包括 PE 镜像）
+- 软中断 _(soft fault)_：从物理内存中加载
+  - 待命列表 _(standby list)_：已被释放、没被修改，可以直接丢弃后再利用
+  - 修改列表 _(modified list)_：已被释放、已被修改，需要写回磁盘后再利用
+- 进程内存大小：
+  - 私用大小 _(private bytes)_：进程申请的总内存（物理内存 + 页面文件）
+  - 工作集 _(working set)_：进程占用的物理内存（私用大小 + 共享内存/内存映射文件）
+  - 虚拟大小 _(virtual bytes)_：私用大小 + 共享内存/内存映射文件 + 修改列表 + 待命列表
 - 固定页 _(pinned page)_：避免从物理内存中，把内存页置换出去
 
 ## 函数调用
@@ -252,16 +261,6 @@
 - 共享所有权 `std::shared_ptr`
 - 弱引用关系 `std::weak_ptr`/[`base::WeakPtr`](https://cs.chromium.org/chromium/src/base/memory/weak_ptr.h?q=base::WeakPtr)
 - 外部调用管理 `Class::OnDestroy() { delete this; }`
-
-### 应用进程/线程模型
-
-- [Chromium 进程](https://developers.google.cn/web/updates/2018/09/inside-browser-part1) = 1 Browser + n Renderer + 1 GPU + x Util
-- [Chromium 线程](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#threads) = 1 UI (Browser)/Main (Renderer) + 1 IO (for IPC) + x Spec + n Worker (Pool)
-
-### 应用生命周期模型
-
-- 桌面客户端模型 = 启动时初始化 -> 处理窗口消息 + 处理队列任务 -> 退出时反初始化
-- 移动客户端模型/后台服务模型...
 
 ## 参考 [no-number]
 

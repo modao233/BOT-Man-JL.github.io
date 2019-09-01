@@ -84,7 +84,7 @@
   - 解释：指令 无效/不对齐/无法执行/不在可执行段内
   - 原因：可能是外部注入导致指令损坏，或内存破坏导致跳转错误
   - 特点：调用栈分散，不易于聚合统计
-  - 解决：[禁止第三方注入](https://blog.chromium.org/2017/11/reducing-chrome-crashes-caused-by-third.html)、与第三方沟通、保证 PE 文件完整性
+  - 解决：[禁止第三方注入](https://blog.chromium.org/2017/11/reducing-chrome-crashes-caused-by-third.html)、与第三方沟通、保证可执行文件完整性
 - `IN_PAGE_ERROR`
   - 内存映射文件 `MEM_MAPPED` 读取时，磁盘 `hardware_disk` 错误
 
@@ -182,6 +182,8 @@
 - [Windbg 调试命令详解 - 张佩](http://yiiyee.cn/blog/2013/08/23/windbg/)
 - [利用 C++ 类对象的虚拟函数表指针在内存中搜索对象 - 张佩](https://blog.csdn.net/blog_index/article/details/7016696)
 - [从堆里寻找丢失的数据 - 张银奎](http://advdbg.org/blogs/advdbg_system/articles/3413.aspx)
+
+> Debugging is twice as hard as writing the code in the first place. —— Kernighan’s Law
 
 如果有什么问题，**欢迎交流**。😄
 

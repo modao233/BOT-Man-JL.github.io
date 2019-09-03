@@ -207,6 +207,7 @@
   - 在堆段上分配，包括 本块大小、前一堆块大小、使用/空闲等 + 数据部分（C++ 代码可见）
   - Windows 上：申请 `HeapAlloc`，释放 `HeapFree`
   - C++ 层面：申请 `malloc`/`new`，释放 `free`/`delete`
+- 低碎片堆 _(Low Fragmentation Heap, LFH)_
 
 ## C++ 面向对象
 
@@ -298,6 +299,7 @@
 - 共享所有权 `std::shared_ptr`
 - 弱引用关系 `std::weak_ptr`/[`base::WeakPtr`](https://cs.chromium.org/chromium/src/base/memory/weak_ptr.h?q=base::WeakPtr)
 - 外部调用管理 `Class::OnDestroy() { delete this; }`
+- 线程安全：创建、访问、销毁
 
 ## 参考 [no-number]
 

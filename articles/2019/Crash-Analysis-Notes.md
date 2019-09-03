@@ -25,7 +25,7 @@
 ### 内存破坏崩溃
 
 - 原因：
-  - 野指针：释放资源后使用
+  - 野指针：释放资源后 再使用/重复释放，可能覆写正常对象内存
   - 指针强转：基类指针 `static_cast<>()` 转成错误的派生类，数据对齐错误
   - 数据竞争：非线程安全对象被其他线程 创建/访问/销毁（例如 UI 数据只允许 UI 线程 **访问**，可能重入字体缓存）
 - 排查：
@@ -33,8 +33,8 @@
   - 如果没有立即崩溃，由于数据损坏，可能导致 **其他崩溃**
 - 辅助：
   - 添加日志/上报
-  - 检查堆破坏（例如 页堆 Pageheap 在正常页后插入栅栏页）
-  - 检查栈破坏（例如 secure_cookie `/Gs`）
+  - 检查堆破坏（例如 Pageheap/AddressSanitizer）
+  - 检查栈破坏（例如 `__security_cookie`/`__chkesp`/`0xCC`/StackVars）
   - 使用立即崩溃（例如 `assert`/`CHECK`）
 
 ### 空指针崩溃
@@ -56,10 +56,11 @@
 ### 栈溢出崩溃
 
 - 原因：
-  - 逻辑错误，导致无穷递归调用
-  - 导火索可能是非法外部输入（例如 发送 `WM_CLOSE`，导致无限弹出关闭确认对话框）
+  - 逻辑缺陷导致无穷递归调用（例如 发送 `WM_CLOSE` 导致无限弹出关闭确认对话框，阻塞代码）
+  - 在栈上申请较大的局部变量，耗尽栈内存
 - 排查：
-  - 回溯调用栈，找到递归调用的函数范围，并推断出错原因
+  - 回溯调用栈，找到递归调用的函数区间
+  - 通过 `ChildEBP` 分析各个栈帧内存使用情况
 
 ### 内存申请崩溃
 
@@ -75,18 +76,30 @@
   - `QueryPerformanceFrequency`/`localtime(&-1)`/`wcsftime(..., nullptr)` 函数调用崩溃
   - `DLLMain`/`WinProc` 回调位置错误（被重定向到无效函数）
 - 原因：
-  - 系统内部错误
+  - 系统内部缺陷
   - 外部代码注入
 
-### 指令/硬件错误崩溃
+### 指令错误崩溃
 
-- `ILLEGAL_INSTRUCTION`/`MISALIGNED_CODE`/`PRIVILEGED_INSTRUCTION`/`SOFTWARE_NX_FAULT`
-  - 解释：指令 无效/不对齐/无法执行/不在可执行段内
-  - 原因：可能是外部注入导致指令损坏，或内存破坏导致跳转错误
-  - 特点：调用栈分散，不易于聚合统计
-  - 解决：[禁止第三方注入](https://blog.chromium.org/2017/11/reducing-chrome-crashes-caused-by-third.html)、与第三方沟通、保证可执行文件完整性
-- `IN_PAGE_ERROR`
-  - 内存映射文件 `MEM_MAPPED` 读取时，磁盘 `hardware_disk` 错误
+- 类型：
+  - `ILLEGAL_INSTRUCTION` 指令无效
+  - `MISALIGNED_CODE` 指令不对齐
+  - `PRIVILEGED_INSTRUCTION` 无权限执行
+  - `SOFTWARE_NX_FAULT` 不在可执行段内
+- 原因：
+  - 外部注入导致指令损坏
+  - 内存破坏导致跳转错误
+- 特点：调用栈分散，不易于聚合统计
+- 解决：
+  - [禁止第三方注入](https://blog.chromium.org/2017/11/reducing-chrome-crashes-caused-by-third.html)
+  - 检查可执行文件完整性
+
+### 磁盘错误崩溃
+
+- 现象：内存映射文件 `MEM_MAPPED` 读取时，磁盘 `hardware_disk` 错误 `IN_PAGE_ERROR`
+- 原因：
+  - 磁盘损坏/磁盘驱动错误
+  - 文件存放于网络位置，但网络不稳定（例如 网吧无盘系统）
 
 ## Windbg 常用命令
 
@@ -107,6 +120,13 @@
 - `s -d 0 L?80000000 VAL` 搜索内存中是否存在 VAL 值
 - `!address ADDR` 查看地址属性（堆/栈/代码区，可读/可写/可执行，已提交/保留）
 - `!heap -a [SEGMENT]` 查看（堆段 SEGMENT 上）内存分配详情
+
+> 调试常用命令：
+> 
+> - `bp`/`bu`/`bm` 设置断点/设置未加载模块断点/设置特定符号断点
+> - `ba [e|r|w] [1|2|4] ADDR` 设置访问特定地址的断点
+> - `b? ... "CMD"` 中断后执行 CMD 命令（例如 `r eax=0;g` 复现崩溃）
+> - `bl`/`bc` 列举断点/清除断点
 
 ## 分析技巧
 
@@ -174,7 +194,7 @@
 ### 进程与线程
 
 - 由于崩溃以进程为边界，[Chromium 多进程架构](https://developers.google.cn/web/updates/2018/09/inside-browser-part1) _(1 Browser + n Renderer + 1 GPU + n Extension + x Util)_ 能有效的避免因为某一进程崩溃导致的程序不可用。（例如，页面崩溃后仍然可以使用浏览器）
-- 由于线程共享进程的内存，[Chromium 多线程架构](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#threads) _(1 UI-Browser/Main-Renderer + 1 IO-IPC + x Spec + n Worker-Pool)_ 中某个线程出错，可能导致其他线程的崩溃，难以直接排查。（例如，逻辑错误导致内存损坏）
+- 由于线程共享进程的内存，[Chromium 多线程架构](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#threads) _(1 UI-Browser/Main-Renderer + 1 IO-IPC + x Spec + n Worker-Pool)_ 中某个线程出错 或 操作了其他线程的非线程安全数据，可能导致其他线程的崩溃，难以直接排查。（例如，逻辑错误导致内存损坏）
 
 ## 参考 [no-number]
 

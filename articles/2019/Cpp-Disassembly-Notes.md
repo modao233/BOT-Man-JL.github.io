@@ -48,7 +48,7 @@
 - DATA 静态数据（已初始化）
 - BSS 静态数据（未初始化）
 - HEAP 堆（低到高）
-- MEM_MAPPED 内存映射（高到低）
+- MEM_MAPPED 内存映射（低到高）
 - STACK 栈（固定大小，高到低）
 
 ### 虚拟内存 _(Virtual Memory)_

@@ -35,7 +35,7 @@
   - 添加日志/上报
   - 检查堆破坏（例如 Pageheap/AddressSanitizer）
   - 检查栈破坏（例如 `__security_cookie`/`__chkesp`/`0xCC`/StackVars）
-  - 使用立即崩溃（例如 `assert`/`CHECK`）
+  - 逻辑错误立即崩溃（例如 `assert`/`CHECK`）
 
 ### 空指针崩溃
 
@@ -134,7 +134,9 @@
 
 ### 聚合统计维度
 
-- 顶部调用栈：头几个调用指令在模块中的相对位置（哈希值）
+- 顶部调用栈（哈希值）：
+  - 所有模块的前 K 个指令在模块中的偏移
+  - 特定模块的前 K 个指令在模块中的偏移
 - 加载模块/外部进程/安全软件：查找共同的注入模块/外部环境
 - 操作系统/硬件情况
 
@@ -190,11 +192,6 @@
 - 发布线上运营任务，触达之前的不常用路径
 - 第三方注入经常导致 指令错误崩溃
 - 修复某些崩溃，引发后续执行代码的崩溃
-
-### 进程与线程
-
-- 由于崩溃以进程为边界，[Chromium 多进程架构](https://developers.google.cn/web/updates/2018/09/inside-browser-part1) _(1 Browser + n Renderer + 1 GPU + n Extension + x Util)_ 能有效的避免因为某一进程崩溃导致的程序不可用。（例如，页面崩溃后仍然可以使用浏览器）
-- 由于线程共享进程的内存，[Chromium 多线程架构](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#threads) _(1 UI-Browser/Main-Renderer + 1 IO-IPC + x Spec + n Worker-Pool)_ 中某个线程出错 或 操作了其他线程的非线程安全数据，可能导致其他线程的崩溃，难以直接排查。（例如，逻辑错误导致内存损坏）
 
 ## 参考 [no-number]
 

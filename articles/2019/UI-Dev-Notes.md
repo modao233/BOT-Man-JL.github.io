@@ -4,7 +4,7 @@
 > 
 > Windows Chromium Direct-UI 开发相关笔记
 
-## Chromium UI
+## 架构
 
 - 组件通过 View 实现，而不是 MFC/WTL 的子窗口形式
 
@@ -88,9 +88,9 @@
   - 将异步任务闭包封装为统一的 Task
   - 记录 Task 抛出来源，易于排查问题
 
-## 架构
+## 项目
 
-- 浏览器 + 插件（独立升级）+ 云控（灰度/策略/运营/捞取）+ 攻防（驱动/服务）
+- [浏览器](V8-Hippy-Share.md#Chromium-架构) + 插件（独立升级）+ 云控（灰度/策略/运营/捞取）+ 攻防（驱动/服务）
 - [Chromium 多进程架构](https://developers.google.cn/web/updates/2018/09/inside-browser-part1) = 1 Browser + n Renderer + 1 GPU + n Extension + x Util
 - 拆分 Browser/UI
   - 开发时，工程独立：快速编译/快速升核/支持多核

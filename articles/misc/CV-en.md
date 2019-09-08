@@ -8,16 +8,16 @@ EN | [中文](CV-zh.md)
 
 #### 2018.7 - now
 
-- **QQ Browser, Tencent / Windows C++ developer**
-- Developing **universal extension API**, simplifying operation development
-- Developing **native rendering solution**, optimizing browsing experience
-- Participating **Hippy cross-platform project**, normalizing C++ code
-- Reducing **UI crash rate** 40%/50% _(0.112%/0.038% -> 0.065%/0.019%)_
+- **Tencent QQ Browser C++ developer** (4+5 awards)
+- Designing **universal extension API**, simplifying operation development
+- Designing **native rendering solution**, optimizing browsing experience
+- Developing **cross-platform mobile framework**, normalizing C++ code
+- Reducing **UI crash rate** by 40%~50%
 - Promoting **unit tests** and **modern C++**
 
 #### 2017.7 - 2018.7
 
-- **QQ Browser, Tencent** (Internship)
+- **Tencent QQ Browser** (Internship)
 - **Back-end developer** (Node.js)
   - Developing **welcome page operation service** and **navigation page crawler**
   - Maintaining **task dispatching filter** module
@@ -44,7 +44,7 @@ EN | [中文](CV-zh.md)
 ## Technique
 
 - Modern C++ (**Advanced**)
-  - Win32 Software (Experienced)
+  - Win32 Software (**Advanced**)
 - C (Experienced)
   - WFP Callout Driver (Basic)
 - JavaScript (Experienced)

@@ -66,8 +66,8 @@
 ## 线程
 
 - [Chromium 多线程架构](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#threads)：
-  - Browser 进程：1 UI + 1 IO (IPC) + x Spec + n Worker-Pool
-  - Render 进程：1 Main + 1 IO (IPC) + x Spec + n Worker-Pool
+  - Browser 进程：1 UI + 1 IO (IPC) + x Spec + Worker-Pool
+  - Renderer 进程：1 Main + 1 IO (IPC) + 1 Compositor + 1 Raster + n Worker + x Spec
 - 无锁架构：可以通过 [`base::PostTaskAndReply`](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#keeping-the-browser-responsive) 将 I/O 任务抛到 Worker 线程池执行，保证 UI 响应
 - 200ms 原则：不能在 UI 线程进行耗时操作（例如  I/O 操作、大量数据 CPU 密集计算、部分系统调用），可以利用 [`base::ThreadRestrictions`](https://github.com/chromium/chromium/blob/master/base/threading/thread_restrictions.h) 检查
 - 数据竞争：不能在 非 UI 线程访问/操作 UI 数据（例如 缓存字体相关布局信息）
@@ -91,7 +91,19 @@
 ## 项目
 
 - [浏览器](V8-Hippy-Share.md#Chromium-架构) + 插件（独立升级）+ 云控（灰度/策略/运营/捞取）+ 攻防（驱动/服务）
-- [Chromium 多进程架构](https://developers.google.cn/web/updates/2018/09/inside-browser-part1) = 1 Browser + n Renderer + 1 GPU + n Extension + x Util
+- [多进程架构](https://developers.google.cn/web/updates/2018/09/inside-browser-part1)
+  - 1 Browser + n Renderer + n Extension (Renderer) + 1 GPU + (1 Plugin) + x Util
+  - 服务化：Browser 进程作为中心节点，Renderer 进程在沙盒内运行，Util 进程功能拆分为 网络服务/渲染服务/加密服务...（崩溃/卡顿 隔离）
+  - 优缺点：Browser 进程可以快速恢复其他进程的崩溃，但占用更多内存（内存不足时可以合并）
+- 多窗口架构
+  - n 主窗口 (Browser) + n 渲染 Host 窗口 (Browser) + 1 立即 D3D 窗口 (GPU)
+  - Browser 进程统一管理窗口，Renderer 进程通过 IPC 传输渲染数据
+- 跨进程通信
+  - 上层概念：RPC (Proxy + Stub)，底层实现：管道 / COM 组件对象模型
+  - 路由问题：操作注册/映射
+  - 类型问题：输入合法性检查
+  - 安全问题：对端合法性校验
+  - 顺序问题：相对于原始的管道，RPC 不保证消息顺序
 - 拆分 Browser/UI
   - 开发时，工程独立：快速编译/快速升核/支持多核
   - 运行时，进程独立：快速启动/崩溃隔离与恢复

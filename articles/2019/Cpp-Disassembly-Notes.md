@@ -22,14 +22,6 @@
 - 进程（正在执行的程序的一个实例）= 代码 + 运行状态（内存/线程/资源...）
 - 线程（系统最小可调度的执行单元）= 栈内存 + 寄存器 + 线程本地存储 _(Thread Local Storage, TLS)_
 
-### 跨进程通信 _(Interprocess Communication)_
-
-- 共享内存
-- 消息传递 = 直接通信 + 间接通信
-  - Socket：Server + Client
-  - 远程过程调用：Proxy + Stub
-  - 管道：Sender + Receiver
-
 ### 地址绑定 _(Address Binding)_
 
 - 编译时：绝对代码

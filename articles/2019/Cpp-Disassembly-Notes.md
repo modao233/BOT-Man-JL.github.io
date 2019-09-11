@@ -45,22 +45,42 @@
 
 ### 虚拟内存 _(Virtual Memory)_
 
-- 进程虚拟内存：
-  - 32-bit 进程 2G 内存（`0x0 - 0x7FFFFFFF`）
-  - 按照 4k-byte 分页
-  - 按照 进程地址空间 分段（部分段可能多进程共享）
-- 页表 _(page table)_：物理内存大小可能小于虚拟内存，需要将虚拟内存映射到物理内存上
-- 缺页 _(page fault)_：如果进程访问的虚拟内存不在进程的物理内存中，产生缺页中断
+- 32-bit 进程虚拟内存：
+  - 空间：进程 2G 内存（`0x0 - 0x7FFFFFFF`）系统 2G 内存（`0x80000000-0xFFFFFFFF`）
+  - 分页：4k-byte 分页
+  - 分段：进程地址空间（部分段可能多进程共享）
+- 类型：
+  - Image：可执行文件（TEXT/READONLY_DATA）
+  - Sharable/Shared：
+    - Mapped File：file-backup 文件映射（MEM_MAPPED）
+    - Sharable Memory：memory-backup 文件映射（MEM_MAPPED）
+  - Private：
+    - Heap：堆内存（HEAP）
+    - Stack：栈内存（STACK）
+    - Static：静态数据（DATA/BSS）
+    - Process/Thread Environment Table（无法直接访问）
+  - Page Table：内核维护的 当前进程页表（无法直接访问）
+- 大小：
+  - Private Size：进程申请的私有内存（Working Set + In Page File）
+  - Working Set：进程使用中的物理内存（Private Size + Sharable/Shared Size）
+  - Committed Size：进程提交的总内存（Private Size + Sharable/Shared Size）
+  - Virtual Size：进程占用的总内存（Committed Size + Reserved Size）
+- VirtualAlloc 流程：
+  - Reserve：增加 Virtual Size
+  - Commit：增加 Committed Size / Private Size
+  - Read/Write/Exec：增加 Working Set
+  - Decommit：减少 Committed Size / Private Size / Working Set
+  - Release：减少 Virtual Size
+
+### 缺页中断 _(Page Fault)_
+
+- 如果进程访问的虚拟内存不在进程的物理内存中，产生缺页中断
 - 硬中断 _(hard fault)_：从磁盘中加载
   - 页面文件 _(page file)_：存放被置换的虚拟内存
   - 内存映射文件 _(memory-mapped file)_：按需映射到虚拟内存中（包括可执行文件）
 - 软中断 _(soft fault)_：在物理内存中共享（支持 Copy-on-Write）
-  - 待命列表 _(standby list)_：已被释放、没被修改，可以直接丢弃后再利用
-  - 修改列表 _(modified list)_：已被释放、已被修改，需要写回磁盘后再利用
-- 进程内存大小：
-  - 私用大小 _(private bytes)_：进程申请的总内存（物理内存 + 页面文件）
-  - 工作集 _(working set)_：进程使用的物理内存（私用大小 + 共享大小），系统基于局部性原则优化
-  - 虚拟大小 _(virtual bytes)_：私用大小 + 共享大小 + 修改列表 + 待命列表
+  - Standby List：已被释放、没被修改，可以直接丢弃后再利用
+  - Modified List：已被释放、已被修改，需要写回磁盘后再利用
 - 固定页 _(pinned page)_：避免从物理内存中，把内存页置换出去
 
 ## 函数调用

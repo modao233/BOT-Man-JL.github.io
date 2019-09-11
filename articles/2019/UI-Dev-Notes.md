@@ -6,7 +6,8 @@
 
 ## 架构
 
-- 组件通过 View 实现，而不是 MFC/WTL 的子窗口形式
+- 组件通过 Direct-UI View 实现，而不是 MFC/WTL 的子窗口形式
+- View 通过树形结构管理
 
 ## 布局
 
@@ -19,6 +20,11 @@
   - 通过适配器模式，底层支持 MFC/WTL/Chromium UI 元素创建/绑定
   - 支持 WebView 和 嵌套布局
 
+## 层次
+
+- 创建 View/窗口时，考虑 Z-Index
+- 支持 平移/旋转/缩放 变换
+
 ## 绘制
 
 - 双缓冲：
@@ -26,9 +32,6 @@
   - 用户看到的每一帧都是正确的，从而避免闪屏
 - 脏区域：
   - 每次只重绘 无效区域，不在区域内不需要绘制
-- ListView 复用：
-  - 只创建可见的 ListView（包括不完整显示的）
-  - 针对不同滚动位置，填充不同 ListItem 数据
 
 ## 动画
 
@@ -47,9 +50,11 @@
 
 - 封装系统 DragDrop 接口
 
-## 层次
+## 滚动
 
-- 创建 View/窗口时，考虑 Z-Index
+- ListView 复用：
+  - 只创建可见的 ListView（包括不完整显示的）
+  - 针对不同滚动位置，填充不同 ListItem 数据
 
 ## 事件
 
@@ -62,6 +67,14 @@
   - WM_NCDESTROY
 - 交互
   - Key/Mouse/Gesture
+  - Accelerator
+  - 系统事件
+
+## 其他
+
+- Tooltip 提示：鼠标 hover 时弹出气泡
+- ContextMenu 上下文菜单：右键位置弹出菜单
+- Accessibility 无障碍：支持朗读/选择
 
 ## 线程
 
@@ -78,15 +91,22 @@
   - Model 负责数据和通知变化
   - View 负责显示和监听数据变化
   - Controller 负责修改数据
-- Delegate（数据依赖注入）
+- Delegate
+  - 数据依赖注入
   - 将具体参数的填充委派到使用者
-- Listener/Handler（行为依赖注入）
-  - 一个关注者，处理若干个事件（例如 点击/加载完成）
-- Observer（行为依赖注入）
-  - 多个关注者，处理若干个事件（例如 状态变化）
-- Command（行为依赖注入）
-  - 将异步任务闭包封装为统一的 Task
-  - 记录 Task 抛出来源，易于排查问题
+- Host
+  - TODO
+- Client
+  - TODO
+- Listener/Handler
+  - 行为依赖注入
+  - 一个触发者，一个关注者，若干个事件（例如 点击/加载）
+- Observer
+  - 行为依赖注入
+  - 一个触发者，多个关注者，若干个事件（例如 状态变化）
+- Task
+  - 行为依赖注入
+  - 将异步任务闭包封装为统一的 Task，并记录抛出来源
 
 ## 项目
 

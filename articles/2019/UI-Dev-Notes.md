@@ -76,28 +76,30 @@
 - ContextMenu 上下文菜单：右键位置弹出菜单
 - Accessibility 无障碍：支持朗读/选择
 
-## 线程
-
-- [Chromium 多线程架构](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#threads)：
-  - Browser 进程：1 UI + 1 IO (IPC) + x Spec + Worker-Pool
-  - Renderer 进程：1 Main + 1 IO (IPC) + 1 Compositor + 1 Raster + n Worker + x Spec
-- 无锁架构：可以通过 [`base::PostTaskAndReply`](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#keeping-the-browser-responsive) 将 I/O 任务抛到 Worker 线程池执行，保证 UI 响应
-- 200ms 原则：不能在 UI 线程进行耗时操作（例如  I/O 操作、大量数据 CPU 密集计算、部分系统调用），可以利用 [`base::ThreadRestrictions`](https://github.com/chromium/chromium/blob/master/base/threading/thread_restrictions.h) 检查
-- 数据竞争：不能在 非 UI 线程访问/操作 UI 数据（例如 缓存字体相关布局信息）
-
 ## 模式
 
 - MVC
   - Model 负责数据和通知变化
   - View 负责显示和监听数据变化
   - Controller 负责修改数据
+- Host/Manager
+  - 管理器对象
+  - 管理其他对象的生命周期
+- Host/Proxy
+  - 代理对象
+  - 不直接处理实际逻辑
+- Impl
+  - 实现对象
+  - 处理实际逻辑，但一般不被直接调用（中间有 Host/Proxy）
+- Provider
+  - 抽象工厂
+  - 生成不同抽象类的实现
 - Delegate
   - 数据依赖注入
-  - 将具体参数的填充委派到使用者
-- Host
-  - TODO
+  - 将具体参数的计算委派到使用者
 - Client
-  - TODO
+  - 行为依赖注入
+  - 将回调行为的实现委派到使用者
 - Listener/Handler
   - 行为依赖注入
   - 一个触发者，一个关注者，若干个事件（例如 点击/加载）
@@ -108,19 +110,22 @@
   - 行为依赖注入
   - 将异步任务闭包封装为统一的 Task，并记录抛出来源
 - Singleton
-  - 通过 原子操作 置换，保证构造过程不会重入
-  - 通过 自旋锁 尝试置换，让重入线程 原地等待
-  - 如果不是 Leakey，会在 AtExitManager 里析构
+  - 通过 原子操作 置换标识，保证构造过程不会重入
+  - 通过 自旋锁 尝试置换，让重入线程 原地等待 直到构造完成
+  - 如果没有特征 Leakey，会在 AtExitManager 里析构
 - Traits
   - 模板元编程，类型对应的特征参数
+  - 在编译时根据特征，选择模板的逻辑（例如 析构时是否检查观察者全部移除，析构时是否需要释放单例）
 
-## 项目
+## 进程
 
-- [浏览器](V8-Hippy-Share.md#Chromium-架构) + 插件（独立升级）+ 云控（灰度/策略/运营/捞取）+ 攻防（驱动/服务）
-- [多进程架构](https://developers.google.cn/web/updates/2018/09/inside-browser-part1)
-  - 1 Browser + n Renderer + n Extension (Renderer) + 1 GPU + (1 Plugin) + x Util
-  - 服务化：Browser 进程作为中心节点，Renderer 进程在沙盒内运行，Util 进程功能拆分为 网络服务/渲染服务/加密服务...（崩溃/卡顿 隔离）
-  - 优缺点：Browser 进程可以快速恢复其他进程的崩溃，但占用更多内存（内存不足时可以合并）
+- [Chromium 多进程架构](https://developers.google.cn/web/updates/2018/09/inside-browser-part1)
+  - 划分：1 Browser + n Renderer + n Extension (Renderer) + 1 GPU + (1 Plugin) + x Util
+  - 模型：`process-per-site-instance`（内存最大）/`process-per-site`（内存相对小）/`process-per-tab`（默认）/`single-process`（内存最小，易于调试，Android WebView 使用该模型）
+- 进程服务化
+  - Browser 进程作为中心节点，能隔离/恢复其他进程的崩溃
+  - Renderer/Plugin 进程在沙箱内运行，不能直接访问系统资源
+  - Util 进程功能拆分为 网络服务/渲染服务/加密服务/打印服务...
 - 多窗口架构
   - n 主窗口 (Browser) + n 渲染 Host 窗口 (Browser) + 1 立即 D3D 窗口 (GPU)
   - Browser 进程统一管理窗口，Renderer 进程通过 IPC 传输渲染数据
@@ -130,6 +135,27 @@
   - 类型问题：输入合法性检查
   - 安全问题：对端合法性校验
   - 顺序问题：相对于原始的管道，RPC 不保证消息顺序
+- 渲染模型
+  - 软件渲染：共享内存/存储（多数情况下比 GPU 加速快）
+  - 硬件加速：指令缓存（Render 进程向 GPU 进程提交）+ 分层渲染（`//cc`）
+
+## 线程
+
+- [Chromium 多线程架构](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#threads)
+  - Browser 进程：1 UI + 1 IO (IPC) + x Spec + Worker-Pool
+  - Renderer 进程：1 Main + 1 IO (IPC) + 1 Compositor + 1 Raster + n Worker + x Spec
+- 无锁架构：可以通过 [`base::Post[Delayed]Task[AndReply[WithResult]]`](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#keeping-the-browser-responsive) 在线程间抛（定时）任务（并设置结果回调）
+  - UI 响应：从 UI 线程将 I/O 任务抛到 Worker 线程池执行，任务完成后再将结果抛回 UI 线程
+  - IPC 消息：在 IO 线程收到消息后，把任务抛到 UI 线程执行
+  - 200ms 原则：不能在 UI 线程进行耗时操作（例如  I/O 操作、大量数据 CPU 密集计算、部分系统调用），可以利用 [`base::ThreadRestrictions`](https://github.com/chromium/chromium/blob/master/base/threading/thread_restrictions.h) 检查
+- 消息泵：能同时处理 消息（窗口消息/libevent 回调/IO 完成消息）和 任务（普通/定时）
+  - 基于超时机制：在规定的时间内 等待/处理 消息，超时后 处理 任务
+  - 发送特殊消息：在等待消息时，发送 1 字节到管道，结束消息的等待，转到处理任务
+- 数据竞争：不能在 非 UI 线程访问/操作 UI 数据（例如 缓存字体相关布局信息）
+
+## 项目
+
+- [浏览器](V8-Hippy-Share.md#Chromium-架构) + 插件（独立升级）+ 云控（灰度/策略/运营/捞取）+ 攻防（驱动/服务）
 - 拆分 Browser/UI
   - 开发时，工程独立：快速编译/快速升核/支持多核
   - 运行时，进程独立：快速启动/崩溃隔离与恢复

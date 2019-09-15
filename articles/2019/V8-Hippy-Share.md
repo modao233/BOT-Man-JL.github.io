@@ -26,7 +26,7 @@
 - 渲染引擎 ([blink](https://www.chromium.org/blink)) = DOM 解析/样式/布局 + 绘制/动画/合成 (GPU) + 输入 + devtools + **JavaScript 引擎** 绑定
 - JavaScript 引擎 ([V8](https://v8.dev/)) = 编译/运行 JavaScript 代码 + 分配/回收内存 + 绑定扩展功能 (console/DOM/...)
 
-> - [Chromium Embedded Framework (CEF) 项目](https://github.com/chromiumembedded/cef) 基于浏览模块，封装可嵌入的浏览功能
+> - [Chromium Embedded Framework (CEF) 项目](https://github.com/chromiumembedded/cef) 基于浏览模块，封装可嵌入的浏览功能；headless 封装了无图形界面的浏览功能
 > - 演进：WebKit -> blink，JavaScriptCore (JSC) -> V8 (但 iOS 策略限制只能用 WebKit/JSC 🤮)
 
 ---

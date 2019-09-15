@@ -66,6 +66,8 @@
 
 #### 2019
 
+- [UI 开发笔记](2019/UI-Dev-Notes.md)
+- [性能 笔记](2019/Perf-Notes.md)
 - [C++ 反汇编 笔记](2019/Cpp-Disassembly-Notes.md)
 - [崩溃分析 笔记](2019/Crash-Analysis-Notes.md)
 

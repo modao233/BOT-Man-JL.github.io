@@ -74,14 +74,14 @@
 
 - Tooltip 提示：鼠标 hover 时弹出气泡
 - ContextMenu 上下文菜单：右键位置弹出菜单
-- Accessibility 无障碍：支持朗读/选择
+- Accessibility 无障碍：支持朗读/选择，可用于 Direct-UI 自动化测试
 
 ## 模式
 
 - MVC
-  - Model 负责数据和通知变化
-  - View 负责显示和监听数据变化
-  - Controller 负责修改数据
+  - Model 管理数据，通知数据变化
+  - View 展示数据，监听数据变化
+  - Controller 处理操作，修改数据
 - Host/Manager
   - 管理器对象
   - 管理其他对象的生命周期

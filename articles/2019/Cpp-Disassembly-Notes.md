@@ -190,7 +190,7 @@
   - 包括 基本类型的 常量/字符串文字量
   - 放在 READONLY_DATA 段
 - 基本类型 全局/静态 变量：
-  - 包括 基本类型的 全局变量/类的静态成员/函数的静态变量
+  - 包括 基本类型的 全局变量/类的静态成员/函数局部的静态变量
   - 放在 DATA 段
 - 全局对象：
   - 包括 全局变量/类的静态成员
@@ -309,7 +309,7 @@
 
 - 互斥所有权 `std::unique_ptr`
 - 共享所有权 `std::shared_ptr`
-- 弱引用关系 `std::weak_ptr`/[`base::WeakPtr`](https://cs.chromium.org/chromium/src/base/memory/weak_ptr.h?q=base::WeakPtr)
+- 弱引用关系 `std::weak_ptr`
 - 外部调用管理 `Class::OnDestroy() { delete this; }`
 - 线程安全：创建、访问、销毁
 

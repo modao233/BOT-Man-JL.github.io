@@ -393,6 +393,7 @@ deactivate ConfigModel
 - （根治）重构逻辑，避免 **观察者同步修改被观察者状态**，例如
   - 让 `ConfigModel` 直接调用 `ConfigUpgrade` 检查/升级数据
   - 使 `SyncManager` 收到 `OnDataUpdated` 时，就拿到已是最新的数据了
+- （避免）在迭代时，使用标识检查是否重入（参考 [`base::ObserverList`](https://github.com/chromium/chromium/blob/master/base/observer_list.h)）
 
 ### 问题：顺序耦合
 

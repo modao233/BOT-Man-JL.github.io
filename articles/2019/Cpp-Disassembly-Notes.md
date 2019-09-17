@@ -21,6 +21,11 @@
 
 - 进程（正在执行的程序的一个实例）= 代码 + 运行状态（内存/线程/资源...）
 - 线程（系统最小可调度的执行单元）= 栈内存 + 寄存器 + 线程本地存储 _(Thread Local Storage, TLS)_
+- 状态变换
+  - dispatch: ready -> running
+  - interrupt: running -> ready
+  - I/O or event wait: running -> waiting
+  - I/O or event complete: waiting -> ready
 
 ### 地址绑定 _(Address Binding)_
 

@@ -101,9 +101,9 @@
 ## 线程
 
 - [Chromium 多线程架构](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#threads)
-  - Browser 进程：1 UI + 1 IO (IPC) + x Spec + Worker-Pool
-  - Renderer 进程：1 Main + 1 IO (IPC) + 1 Compositor + 1 Raster + n Worker + x Spec
-- 无锁架构：可以通过 [`base::Post[Delayed]Task[AndReply[WithResult]]`](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#keeping-the-browser-responsive) 在线程间抛（定时）任务（并设置结果回调）
+  - Browser 进程：1 UI + 1 IO (IPC/network) + x Spec + Worker-Pool
+  - Renderer 进程：1 Main + 1 IO (IPC/network) + 1 Compositor + 1 Raster + n Worker + x Spec
+- 无锁架构：可以在线程间抛（定时）任务（并设置结果回调）
   - 200ms 原则：不能在 UI 线程进行耗时操作（例如  I/O 操作、大量数据 CPU 密集计算、部分系统调用）
   - UI 响应：从 UI 线程将 I/O 任务抛到 Worker 线程池执行，任务完成后再将结果抛回 UI 线程
   - IPC 消息：在 IO 线程收到消息后，把任务抛到 UI 线程执行
@@ -147,6 +147,9 @@
 - Impl
   - 实现对象
   - 处理实际逻辑，但一般不被直接调用（中间有 Host/Proxy）
+- pImpl
+  - 前置声明实现对象，只保存实现对象的 `std::unique_ptr`
+  - 要求：不能在头文件中 inline 析构函数，因为在析构函数定义时实现对象没有定义
 - Provider
   - 抽象工厂
   - 生成不同抽象类的实现
@@ -190,9 +193,6 @@
   - `base::Time` 时间点
   - `base::TimeDelta` 时间间隔
   - `base::TimeTicks/ThreadTicks` 进程/线程 时钟 tick
-- 计时器
-  - `base::OneShotTimer` 一次
-  - `base::RepeatingTimer` 重复
 - 同步
   - `base::Lock` 锁
   - `base::ConditionVariable` 条件变量
@@ -201,17 +201,30 @@
   - `base::AtomicFlag` 原子标识
   - `base::AtomicRefCount` 原子计数器
   - `base::AtomicSequenceNumber` 原子自增器
-- 线程模型
-  - `base::Thread`/`base::SimpleThread` 带有/不带 消息循环的线程
-  - `base::ThreadLocalStorage` 线程本地存储 TLS
-  - `base::RunLoop` -> `base::MessageLoop` -> `base::MessagePump` -> `base::TaskRunner`/`base::SequencedTaskRunner`/`base::SingleThreadTaskRunner`
-  - `base::ThreadRestrictions` 检查当前线程是否允许 I/O 阻塞调用、非 Leakey 单例支持、同步原语、CPU 密集任务（标识存放在 线程本地存储，调用相关函数时检查）
-  - `base::SequenceChecker` 检查线程安全（对象构造时 关联线程，使用时/析构时 检查是否在同一线程）
-  - 参考：[Threading and Tasks in Chrome](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md)
 - 任务模型
   - `base::Bind/Callback` 生命周期严格的函数闭包，支持 弱引用检查/调用次数限制（参考：[深入 C++ 回调](Inside-Cpp-Callback.md)）
   - `base::PendingTask` 将异步任务封装为统一的 `void()` 闭包（调试：记录抛出来源 + 跟踪当前任务列表）
   - `base::CancelableTaskTracker` 支持 线程安全 取消已经抛出的任务（实现：存储 `base::RefCountedThreadSafe` 包装的 `base::AtomicFlag` 标识，记录是否被取消）
+- 底层线程模型
+  - `base::ThreadLocalStorage` 线程本地存储 TLS
+  - `base::PlatformThread` 系统线程
+  - `base::Thread`/`base::SimpleThread` 带有/不带 消息循环的线程
+  - `base::ThreadPoolInstance` 线程池
+  - `base::RunLoop` -> `base::MessageLoop` -> `base::MessagePump` -> `base::TaskRunner` 接口
+- 上层线程模型
+  - `base::TaskRunner` 线程池中的 并行调度 任务管理器
+  - `base::SequencedTaskRunner` 线程池中的 顺序调度 任务管理器
+  - `base::SingleThreadTaskRunner` 独立线程的（顺序调度）任务管理器
+  - `base::SequenceBound` 在其他序列上，管理 非序列安全 对象的生命周期（创建/使用/销毁）
+  - `base::Post[Delayed]Task[AndReply[WithResult]]` 抛出（定时）任务（并通过回调返回结果）
+  - Chromium 推荐使用 逻辑序列 而不是 物理线程，参考：[Prefer Sequences to Physical Threads | Threading and Tasks in Chrome](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#prefer-sequences-to-physical-threads)
+- 线程检查
+  - `base::ThreadRestrictions` 检查当前线程是否允许 I/O 阻塞调用、非 Leakey 单例支持、同步原语、CPU 密集任务（标识存放在 线程本地存储，调用相关函数时检查）
+  - `base::ThreadChecker/SequenceChecker` 检查线程/序列安全（对象构造时 关联当前线程/序列，使用时/析构时 检查是否在同一线程/序列）
+- 定时器
+  - `base::OneShotTimer` 执行一次
+  - `base::RepeatingTimer` 重复执行
+  - 允许指定运行的 逻辑序列，默认为 当前序列
 - 自动还原
   - `base::AutoReset` 自动还原 bool
   - `base::AutoLock` 自动还原锁（析构时调用 `Release`）

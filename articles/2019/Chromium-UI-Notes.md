@@ -6,12 +6,28 @@
 
 ## 架构
 
-- 组件通过 Direct-UI View 实现，而不是 MFC/WTL 的子窗口形式
-- View 通过树形结构管理
+- Direct-UI 核心思想：
+  - 虚拟 视图/控件，接管 布局、绘制、消息
+  - 对比：MFC/WTL 使用系统子窗口（效率低，占用大量句柄，通过窗口消息传递数据）
+- View 作为视图的基类，通过树形结构管理
+- Widget 封装了窗口的逻辑
+- View 相关：
+  - RootView 是 Widget 存储的树根，接收/分发窗口消息
+  - NonClientView 是 RootView 的唯一子节点，负责整个窗口
+  - NonClientFrameView 是 NonClientView 的非客户区部分（标题栏/系统栏）
+  - ClientView 是 NonClientView 的客户区的根节点，只有一个子节点
+- Widget 相关（Aura 引入是为了支持 `//cc` 和 GPU）：
+  - NativeWidget 是 Widget 在不同平台下的实现对象
+  - WindowTreeHost 是 Aura 的窗口管理器，继承于 NativeWidget
+  - Window 是 Aura 的窗口，被 WindowTreeHost 管理
+  - HWNDMessageHandler 是 Aura 在 Windows 平台的窗口消息处理器
 
 ## 布局
 
-- 父容器在 `Layout` 时，调用 `SetBounds` 导致子元素重新 `Layout`
+- LayoutManager 是布局管理器，实现子 View 的通用排版
+- 递归流程：
+  - 父容器在 `Layout` 时，调用 `GetPreferredSize` 计算子元素期望的尺寸
+  - 父容器在 `Layout` 时，调用 `SetBounds` 设置子元素实际大小，导致子元素 `Layout`
 - 内联/分块：Inline/Block
 - 栈式/网格：StackPanel/Grid
 - 边距/边框：Content -> Padding/Inset -> Border -> Margin
@@ -22,59 +38,85 @@
 
 ## 层次
 
-- 创建 View/窗口时，考虑 Z-Index
+- 创建 View/Widget 时，考虑 Z-Index
 - 支持 平移/旋转/缩放 变换
+- 在 Aura 中引入，支持 GPU 合成
 
 ## 绘制
 
-- 双缓冲：
-  - FrontBuffer 用于渲染，BackBuffer 用于当前绘制
-  - 用户看到的每一帧都是正确的，从而避免闪屏
+- Canvas 是绘制区域的载体，与窗口系统隔离
+- Background 封装了 View 的背景绘制逻辑
+- Border 封装了 View 的边框绘制逻辑
 - 脏区域：
-  - 每次只重绘 无效区域，不在区域内不需要绘制
+  - 自己维护脏区域，与窗口系统隔离
+  - 遍历整个 View 树，如果 View 不在无效区域 Rect，则不需要重新绘制
+- 双缓冲：
+  - FrontBuffer 用于渲染，BackBuffer（Canvas）用于当前绘制
+  - 用户看到的每一帧都是正确的，避免无效重绘，避免闪屏
+- 九宫格绘制：
+  - 拉伸一张切成九份的图片（中间无效），用于绘制 NonClientFrameView 的外层阴影边框
+
+## 焦点
+
+- FocusManager 是焦点管理器，处理焦点的切换
+- 使用 Widget 时，考虑是否 Inactive
+- 使用 View 时，考虑是否 Focusable
+
+## 快捷键
+
+- FocusManager 同时管理 View 的快捷键逻辑
+- AcceleratorTarget 是 View 提供的 响应快捷键 的接口
+- Accessibility 无障碍功能
+  - 支持朗读/选择
+  - 可用于 Direct-UI 自动化测试
+
+## 上下文菜单
+
+- ContextMenuController 是 View 提供的 上下文菜单 的接口
+- 使用者只需要设置 Controller 就可以在 View 上实现 右键/长按 菜单
+
+## 拖拽
+
+- DragController 是 View 提供的 处理拖拽逻辑 的接口
+- DragDropClient 是 NativeWidget 创建/管理的 拖拽处理组件
+
+## 提示气泡
+
+- Tooltip 是鼠标 hover 到 View 时弹出气泡
+
+## 滚动
+
+- ListView 复用优化：
+  - 只创建可见的 ListView（包括不完整显示的）
+  - 针对不同滚动位置，填充不同 ListItem 数据
 
 ## 动画
 
 - 周期：`时间间隔 == 1/帧率`
 - 进度：不同效果对应不同的 `时间-进度` 曲线 `f(t % Interval)`
+  - Linear 线性
+  - Ease In/Out 渐入/渐出
+  - Fast In/Out 快入/快出
+  - Slide 先正放，后倒放
+  - Throb 先正放，再暂停，后倒放（例如 hover）
 - 重绘：
   - 定时器触发后，根据当前时间对应的进度，修改布局/元素样式（变成脏区域）
   - 需要注意动画的变化范围，脏区域过大可能有性能问题
 
-## 焦点
-
-- 创建新的窗口时，考虑是否 Inactive
-- 创建新的 View 时，考虑是否 Focusable
-
-## 拖拽
-
-- 封装系统 DragDrop 接口
-
-## 滚动
-
-- ListView 复用：
-  - 只创建可见的 ListView（包括不完整显示的）
-  - 针对不同滚动位置，填充不同 ListItem 数据
-
-## 事件
+## 消息
 
 - 创建
   - WM_CREATE
+- 绘制
   - WM_PAINT
+  - WM_NCPAINT
 - 销毁
   - WM_CLOSE
   - WM_DESTROY
   - WM_NCDESTROY
 - 交互
   - Key/Mouse/Gesture
-  - Accelerator
-  - 系统事件
-
-## 其他
-
-- Tooltip 提示：鼠标 hover 时弹出气泡
-- ContextMenu 上下文菜单：右键位置弹出菜单
-- Accessibility 无障碍：支持朗读/选择，可用于 Direct-UI 自动化测试
+  - 通过 View 层次结构分发到所有子 View 上
 
 ## 进程
 

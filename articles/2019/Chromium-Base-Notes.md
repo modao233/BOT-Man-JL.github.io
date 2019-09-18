@@ -79,7 +79,7 @@
 - `base::RepeatingTimer` 重复执行
 - 允许指定运行的 逻辑序列，默认为 当前序列
 
-## 自动还原
+## ScopeGuard
 
 - `base::AutoReset` 自动还原 bool
 - `base::AutoLock` 自动还原锁（析构时调用 `Release`）
@@ -114,10 +114,10 @@
   - 如果没有 `Leakey` 特征，会在 `AtExitManager` 里 `delete` 析构
   - 使用：避免使用全局单例，可以改用函数局部的静态对象
 - `base::ObserverList`
-  - 支持 在被观察者析构时，检查所有观察者是否都被移除（[参考](Insane-Observer-Pattern.md#问题-被观察者先销毁)）
-  - 支持 在迭代过程中，检查是否有迭代重入（避免逻辑错误/死循环，[参考](Insane-Observer-Pattern.md#问题-死循环)）
-  - 支持 在迭代过程中，移除观察者（实现：标记为“待移除”，然后等迭代结束后移除，[参考](Insane-Observer-Pattern.md#问题-被观察者先销毁)）
-  - 支持 `base::CheckedObserver` 在通知前检查观察者的有效性，避免因为通知无效观察者导致崩溃（[参考](Insane-Observer-Pattern.md#问题-观察者先销毁)）
+  - 支持 在被观察者析构时，检查所有观察者是否都被移除（[参考：被观察者先销毁问题](Insane-Observer-Pattern.md#问题-被观察者先销毁)）
+  - 支持 在迭代过程中，检查是否有迭代重入（排查潜在的逻辑错误，[参考：死循环问题](Insane-Observer-Pattern.md#问题-死循环)）
+  - 支持 在迭代过程中，移除观察者（实现：标记为“待移除”，然后等迭代结束后移除，[参考：循环内删除迭代器](Insane-Observer-Pattern.md#问题-被观察者先销毁)）
+  - 支持 `base::CheckedObserver` 在通知前检查观察者的有效性，避免因为通知无效观察者导致崩溃（[参考：观察者先销毁问题](Insane-Observer-Pattern.md#问题-观察者先销毁)）
   - 线程安全：`base::ObserverListThreadSafe` 通过 `base::Lock` 实现异步通知/回调
 - `base::Value`
   - JSON 数据类型（None/Boolean/Integer/Double/String/Blob/Dictionary/List）

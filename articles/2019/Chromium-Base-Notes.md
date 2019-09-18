@@ -57,7 +57,6 @@
 ## 线程模型
 
 - 底层线程模型
-  - `base::ThreadLocalStorage` 线程本地存储 TLS
   - `base::PlatformThread` 系统线程
   - `base::Thread`/`base::SimpleThread` 带有/不带 消息循环的线程
   - `base::ThreadPoolInstance` 线程池
@@ -66,9 +65,12 @@
   - `base::TaskRunner` 线程池中的 并行调度 任务管理器
   - `base::SequencedTaskRunner` 线程池中的 顺序调度 任务管理器
   - `base::SingleThreadTaskRunner` 独立线程的（顺序调度）任务管理器
-  - `base::SequenceBound` 在其他序列上，管理 非序列安全 对象的生命周期（创建/使用/销毁）
   - `base::Post[Delayed]Task[AndReply[WithResult]]` 抛出（定时）任务（并通过回调返回结果）
   - Chromium 推荐使用 逻辑序列 而不是 物理线程，参考：[Prefer Sequences to Physical Threads | Threading and Tasks in Chrome](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#prefer-sequences-to-physical-threads)
+- 其他
+  - `base::ThreadLocalStorage` 线程本地存储 TLS
+  - `base::SequenceBound` 管理 其他序列上的 非序列安全的 对象生命周期（创建/使用/销毁）
+  - `base::WatchDog` 启动后台监控线程，定期检查是否 Arm，否则 Alarm 报警
 - 线程检查
   - `base::ThreadRestrictions` 检查当前线程是否允许 I/O 阻塞调用、非 Leakey 单例支持、同步原语、CPU 密集任务（标识存放在 线程本地存储，调用相关函数时检查）
   - `base::ThreadChecker/SequenceChecker` 检查线程/序列安全（对象构造时 关联当前线程/序列，使用时/析构时 检查是否在同一线程/序列）
@@ -111,7 +113,8 @@
 - `base::Singleton`
   - 通过 原子操作 标识状态（未构造/正在构造/已构造），保证构造过程不会重入
   - 通过 自旋锁 尝试置换，让重入线程 原地等待 直到构造完成
-  - 如果没有 `Leakey` 特征，会在 `AtExitManager` 里 `delete` 析构
+  - 如果没有 `Leakey` 特征，会在 `base::AtExitManager` 里 `delete` 析构
+  - 如果没有 `Leakey` 特征 或 非静态存储，不允许在 non-joinable 的线程上访问单例（`base::ThreadRestrictions` 会检查；如果主线程先退出并销毁单例，可能导致 non-joinable 线程访问野指针）
   - 使用：避免使用全局单例，可以改用函数局部的静态对象
 - `base::ObserverList`
   - 支持 在被观察者析构时，检查所有观察者是否都被移除（[参考：被观察者先销毁问题](Insane-Observer-Pattern.md#问题-被观察者先销毁)）

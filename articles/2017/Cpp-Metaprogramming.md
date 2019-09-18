@@ -46,7 +46,7 @@ C++ 的 **抽象机制** _(abstraction mechanisms)_ 主要有两种：**面向�
 
 ### C++ 元编程的历史
 
-1988 年，David R. Musser 和 Alexander A. Stepanov 提出了 **模板** [generic-programming]，并最早应用于 C++ 语言。Alexander A. Stepanov 等人在 Bjarne Stroustrup 的邀请下，参与了 **C++ 标准模板库** _(C++ Standard Template Library, C++ STL)_ （简称 **标准库**） 的设计。[cpp-evo] 模板的设计初衷仅是用于泛型编程，对数据结构和算法进行 **抽象** _(abstraction)_。
+1988 年，David R. Musser 和 Alexander A. Stepanov 提出了 **模板** [generic-programming]，并最早应用于 C++ 语言。Alexander A. Stepanov 等人在 Bjarne Stroustrup 的邀请下，参与了 **C++ 标准模板库** _(C++ Standard Template Library, C++ STL)_ （属于 **C++ 标准库** 的一部分） 的设计。[cpp-evo] 模板的设计初衷仅是用于泛型编程，对数据结构和算法进行 **抽象** _(abstraction)_。
 
 而在现代 C++ 的时代，人们发现模板可以用于元编程。1994 年的 C++ 标准委员会会议上，Erwin Unruh 演示了一段利用编译器错误信息计算素数的代码。[calc-prime] 1995 年的 Todd Veldhuizen 在 C++ Report 上，首次提出了 C++ **模板元编程** 的概念，并指出了其在数值计算上的应用前景。[using-cpp-tmp] 随后，Andrei Alexandrescu 提出了除了数值计算之外的元编程应用，并设计了一个通用的 C++ 的模板元编程库 —— Loki。[modern-cpp-design] 受限于 C++ 对模板本身的限制，Andrei Alexandrescu 等人又发明了 D 语言，把元编程提升为语言自身的一个特性。[d-lang]
 

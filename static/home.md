@@ -8,6 +8,14 @@
 
 [align-center]
 
+> 最新文章会第一时间在 **公众号** 推送（微信搜一搜 **BOTManJL**）
+
+<div style="margin:0 auto;width:30%">
+  <p id="qrCodeCanvas" style="text-align:center;"></p>
+</div>
+
+[align-center]
+
 # 🙈 [CV](/articles/?post=misc/CV-en) | [简历](/articles/?post=misc/CV-zh)
 
 [align-center]
@@ -22,4 +30,6 @@
   }
   setBackground();
   window.onresize = setBackground;
+
+  document.getElementById('qrCodeCanvas').innerHTML = qrCodeSVG('http://weixin.qq.com/r/zigHAx3EUtUuKVlgb31K', 320);
 </script>

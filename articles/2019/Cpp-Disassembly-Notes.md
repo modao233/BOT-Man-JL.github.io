@@ -21,7 +21,7 @@
 
 - 进程（正在执行的程序的一个实例）= 代码 + 运行状态（内存/线程/资源...）
 - 线程（系统最小可调度的执行单元）= 栈内存 + 寄存器 + 线程本地存储 _(Thread Local Storage, TLS)_
-- 状态变换
+- 进程状态变换：
   - dispatch: ready -> running
   - interrupt: running -> ready
   - I/O or event wait: running -> waiting
@@ -225,6 +225,24 @@
   - Windows 上：申请 `HeapAlloc`，释放 `HeapFree`
   - C++ 层面：申请 `malloc`/`new`，释放 `free`/`delete`
 - 低碎片堆 _(Low Fragmentation Heap, LFH)_
+
+### 内存模型 _(Memory Model)_
+
+- 最小可寻址单位是 Byte，但读写数据的最小单位是 内存位置
+- 内存位置 _(memory location)_：
+  - 一个标量对象（算术类型、指针类型、枚举类型、`std::nullptr_t`）
+  - 非零长 位域 (bit field) 最大连续序列
+- 数据竞争 _(data race)_：多个线程同时访问一个内存位置，且至少一个是写操作
+- 内存顺序 _(memory order)_：
+  - 原因：编译器/CPU 重排指令
+  - 现象：线程从某个内存位置读取值，可能读到：初值、同一线程所写入的值、另一线程所写入的值
+  - Relaxed：无顺序约束
+  - Consume：当前线程 依赖于被读取值的 读或写不能被重排到 此读取 前
+  - Acquire：当前线程 所有的 读或写不能被重排到 此读取 前
+  - Release：当前线程 所有的 读或写不能被重排到 此写入 后
+  - Acquire_Release：当前线程 所有的 读或写不能被重排到 此写入 前后
+  - Sequentially_Consistent：所有线程 以同一顺序观测到所有修改
+- 内存屏障 _(memory barrier)_：编译器/CPU 为了实现内存顺序，设置内存访问的同步点
 
 ## C++ 面向对象
 

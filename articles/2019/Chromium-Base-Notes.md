@@ -115,11 +115,12 @@
   - 存储：`alignas(T) char storage_[sizeof(T)]`
   - 创建：`new (storage_) T(...)`
 - `base::Singleton`
-  - 通过 原子操作 标识状态（未构造/正在构造/已构造），保证构造过程不会重入
-  - 通过 自旋锁 尝试置换，让重入线程 原地等待 直到构造完成
+  - 通过 AcquireLoad/ReleaseStore 原子操作标识状态（未构造/正在构造/已构造），避免构造过程不会重入
+  - 通过 AcquireLoad 原子操作检查状态，让重入线程 原地等待（`PlatformThread::YieldCurrentThread/Sleep`）直到构造完成
   - 如果没有 `Leakey` 特征，会在 `base::AtExitManager` 里 `delete` 析构
   - 如果没有 `Leakey` 特征 或 非静态存储，不允许在 non-joinable 的线程上访问单例（`base::ThreadRestrictions` 会检查）
   - 使用：避免使用全局单例，可以改用函数局部的静态对象
+  - 补充：双检查锁方案会有内存顺序问题，重入的线程可能会读取到正在构造的单例对象（[C++ and the Perils of Double-Checked Locking](https://www.aristeia.com/Papers/DDJ_Jul_Aug_2004_revised.pdf)）
 - `base::ObserverList`
   - 支持 在被观察者析构时，检查所有观察者是否都被移除（[参考：被观察者先销毁问题](Insane-Observer-Pattern.md#问题-被观察者先销毁)）
   - 支持 在迭代过程中，检查是否有迭代重入（排查潜在的逻辑错误，[参考：死循环问题](Insane-Observer-Pattern.md#问题-死循环)）

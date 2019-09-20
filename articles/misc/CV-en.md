@@ -38,7 +38,7 @@ EN | [中文](CV-zh.md)
 #### 2016.3 - 2017.4 | Project YePeida Acadamy (BUPT)
 
 - **State Key Laboratory** of Networking and Switching Technology, BUPT (Studying **Virtual Network Embedding Algorithms**)
-- Paper: [_Clustering Based Energy-Aware Virtual Network Embedding_](http://journals.sagepub.com/doi/full/10.1177/1550147717726714)
+- **SCI** Paper: [_Clustering Based Energy-Aware Virtual Network Embedding_](http://journals.sagepub.com/doi/full/10.1177/1550147717726714)
 
 [page-break]
 

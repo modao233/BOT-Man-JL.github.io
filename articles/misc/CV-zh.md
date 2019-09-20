@@ -38,7 +38,7 @@
 #### 2016.3 - 2017.4 | （北邮）叶培大学院项目
 
 - 北京邮电大学 网络技术研究院 网络与交换技术 **国家重点实验室**（方向：**虚拟网络映射算法**）
-- 论文：[_Clustering Based Energy-Aware Virtual Network Embedding_](http://journals.sagepub.com/doi/full/10.1177/1550147717726714)
+- **SCI** 论文：[_Clustering Based Energy-Aware Virtual Network Embedding_](http://journals.sagepub.com/doi/full/10.1177/1550147717726714)
 
 [page-break]
 

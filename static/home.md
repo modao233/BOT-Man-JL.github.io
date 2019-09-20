@@ -31,5 +31,7 @@
   setBackground();
   window.onresize = setBackground;
 
-  document.getElementById('qrCodeCanvas').innerHTML = qrCodeSVG('http://weixin.qq.com/r/zigHAx3EUtUuKVlgb31K', 320);
+  try {
+    document.getElementById('qrCodeCanvas').innerHTML = qrCodeSVG('http://weixin.qq.com/r/zigHAx3EUtUuKVlgb31K', 320);
+  } catch (e) {}
 </script>

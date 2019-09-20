@@ -6,36 +6,37 @@ EN | [中文](CV-zh.md)
 
 ## Career
 
-#### 2018.7 - now
+#### 2018.7 - Now | Tencent QQ Browser
 
-- **Tencent QQ Browser C++ developer** (4+5 awards)
-- Designing **universal extension API**, simplifying operation development
-- Designing **native rendering solution**, optimizing browsing experience
-- Developing **cross-platform mobile framework**, normalizing C++ code
-- Reducing **UI crash rate** by 40%~50%
+- **C++ client-side developer** (assessment **4+5 awards**)
+- Designing desktop **native XAML-based rendering solution**
+  - 50% users' first-page opening faster over 5s, improving 15% income
+- Designing desktop **universal JavaScript extension API**
+  - encapsulating browser SDK, simplifying operation development
+- Developing **cross-platform mobile framework** Hippy
+  - normalizing C++ code, refactoring mutil-threading task model
+- Reducing desktop browser **UI crash rate** by 40%~50%
 - Promoting **unit tests** and **modern C++**
+- **Tencent Knowledge Award**: 3 shortlisted articles, 1 awarded article
 
-#### 2017.7 - 2018.7
+#### 2017.7 - 2018.7 | Tencent QQ Browser (Internship)
 
-- **Tencent QQ Browser** (Internship)
 - **Back-end developer** (Node.js)
   - Developing **welcome page operation service** and **navigation page crawler**
-  - Maintaining **task dispatching filter** module
-- **Windows developer** (C++ Win32)
+  - Maintaining **task 'gray' dispatching** module
+- **Client-side developer** (C++/Windows)
   - Developing **bookmark on Mini browser**
-  - Adding **coding style lint/format** support
+  - Supporting QQ Browser **coding style**
 
 ## Education
 
-#### 2014.9 - 2018.6
+#### 2014.9 - 2018.6 | Beijing University of Posts and Telecommunications
 
-- Beijing University of Posts and Telecommunications (**BUPT**)
 - Majoring in **Computer Science**
 - GPA: 8.6/10.0; **Ranking: 10%**
 
-#### 2016.3 - 2017.4
+#### 2016.3 - 2017.4 | Project YePeida Acadamy (BUPT)
 
-- Project YePeida Acadamy
 - **State Key Laboratory** of Networking and Switching Technology, BUPT (Studying **Virtual Network Embedding Algorithms**)
 - Paper: [_Clustering Based Energy-Aware Virtual Network Embedding_](http://journals.sagepub.com/doi/full/10.1177/1550147717726714)
 
@@ -44,7 +45,7 @@ EN | [中文](CV-zh.md)
 ## Technique
 
 - Modern C++ (**Advanced**)
-  - Win32 Software (**Advanced**)
+  - Windows Desktop Software (**Advanced**)
 - C (Experienced)
   - WFP Callout Driver (Basic)
 - JavaScript (Experienced)
@@ -53,6 +54,7 @@ EN | [中文](CV-zh.md)
 - C# (Basic)
   - Universal Windows App (Experienced)
   - ASP.NET (core) MVC (Experienced)
+- **Tech Blog**：https://bot-man-jl.github.io
 
 ## Open Source
 

@@ -13,8 +13,8 @@ EN | [中文](CV-zh.md)
 
 ⚡ Reputation
 
-- 2018 2nd-half **assessment 4 star** ⭐
-- 2019 1st-half **assessment 5 star** ⭐
+- 2018 2nd-half **assessment 4 star**
+- 2019 1st-half **assessment 5 star**
 - **Tencent Knowledge Award**: 3 shortlisted, 1 awarded
 - Multi **tech sharing**, and assisting other teams with C++
 

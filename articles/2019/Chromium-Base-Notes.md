@@ -4,6 +4,8 @@
 > 
 > 读书破万卷，下笔如有神。—— 杜甫
 
+## 目录 [no-toc]
+
 [TOC]
 
 ## 常用宏
@@ -39,6 +41,7 @@
 ## 线程同步
 
 - `base::Lock` 锁
+- `base::internal::CheckedLock` 检查死锁
 - `base::ConditionVariable` 条件变量
 - `base::WaitableEvent` 事件
 
@@ -119,7 +122,7 @@
   - 通过 AcquireLoad 原子操作检查状态，让重入线程 原地等待（`PlatformThread::YieldCurrentThread/Sleep`）直到构造完成
   - 如果没有 `Leakey` 特征，会在 `base::AtExitManager` 里 `delete` 析构
   - 如果没有 `Leakey` 特征 或 非静态存储，不允许在 non-joinable 的线程上访问单例（`base::ThreadRestrictions` 会检查）
-  - 使用：避免使用全局单例，可以改用函数局部的静态对象
+  - 使用：避免使用全局单例，可以改用 函数局部静态对象/`std::call_once`（[CP.110: Do not write your own double-checked locking for initialization](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rconc-double)）
   - 补充：双检查锁方案会有内存顺序问题，重入的线程可能会读取到正在构造的单例对象（[C++ and the Perils of Double-Checked Locking](https://www.aristeia.com/Papers/DDJ_Jul_Aug_2004_revised.pdf)）
 - `base::ObserverList`
   - 支持 在被观察者析构时，检查所有观察者是否都被移除（[参考：被观察者先销毁问题](Insane-Observer-Pattern.md#问题-被观察者先销毁)）

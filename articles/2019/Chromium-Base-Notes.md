@@ -28,9 +28,9 @@
 
 ## 数值
 
-- `base::CheckedNumeric` 检查溢出/截断
-- `base::ClampedNumeric` 截断数值运算
-- `base::StrictNumeric` 安全类型转换
+> base/numeric 不依赖于其他项目
+
+- [漫谈 C++ 的各种检查](Cpp-Check.md#数值溢出检查)
 
 ## 时间
 
@@ -125,11 +125,7 @@
   - 使用：避免使用全局单例，可以改用 函数局部静态对象/`std::call_once`（[CP.110: Do not write your own double-checked locking for initialization](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rconc-double)）
   - 补充：双检查锁方案会有内存顺序问题，重入的线程可能会读取到正在构造的单例对象（[C++ and the Perils of Double-Checked Locking](https://www.aristeia.com/Papers/DDJ_Jul_Aug_2004_revised.pdf)）
 - `base::ObserverList`
-  - 支持 在被观察者析构时，检查所有观察者是否都被移除（[参考：被观察者先销毁问题](Insane-Observer-Pattern.md#问题-被观察者先销毁)）
-  - 支持 在迭代过程中，检查是否有迭代重入（排查潜在的逻辑错误，[参考：死循环问题](Insane-Observer-Pattern.md#问题-死循环)）
-  - 支持 在迭代过程中，移除观察者（实现：标记为“待移除”，然后等迭代结束后移除，[参考：循环内删除迭代器](Insane-Observer-Pattern.md#问题-被观察者先销毁)）
-  - 支持 `base::CheckedObserver` 在通知前检查观察者的有效性，避免因为通知无效观察者导致崩溃（[参考：观察者先销毁问题](Insane-Observer-Pattern.md#问题-观察者先销毁)）
-  - 线程安全：`base::ObserverListThreadSafe` 通过 `base::Lock` 实现异步通知/回调
+  - [漫谈 C++ 的各种检查](Cpp-Check.md#观察者模式检查)
 - `base::Value`
   - JSON 数据类型（None/Boolean/Integer/Double/String/Blob/Dictionary/List）
   - 派生类：`base::DictionaryValue`/`base::ListValue`

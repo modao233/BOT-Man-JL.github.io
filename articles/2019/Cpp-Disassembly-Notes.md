@@ -148,6 +148,7 @@
 - Lambda 表达式 -> 生成 functor 类
 - `new`/`delete` -> 先申请内存再调用构造函数/先调用析构函数再释放内存
 - 引用 _(reference)_ -> 指针 _(pointer)_，仅在编译时检查左值/右值
+- `const` 关键字，仅在编译时检查
 - 成员访问控制 _(member access control)_，仅在编译时检查
 - 函数签名 _(function signature)_ = 函数名 + 参数类型列表，仅在编译时检查
 - 预处理 _(preprocess)_ 编译前计算

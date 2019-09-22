@@ -223,7 +223,7 @@ FetchImageAsync(
 
 > 注：
 > 
-> - 写在成员函数后的 **引用限定符** _(reference qualifier)_ `&&` / `const &`，分别表示 在对象处于 右值/非右值 状态时调用
+> - 写在成员函数后的 **引用限定符** _(reference qualifier)_ `&&` / `const &`，区分 在对象处于 非 const 右值 / 其他 状态时的成员函数调用
 > - `base::RepeatingCallback` 也支持 `R Run(Args...) &&` 调用，调用后也进入失效状态
 
 ### 为什么要区分一次和多次回调

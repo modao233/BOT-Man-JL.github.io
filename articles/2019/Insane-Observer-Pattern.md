@@ -249,7 +249,7 @@ destroyafter bakery2
 - 被观察者销毁时，**通知观察者反注册**，例如
   - 在 `views::View` 析构时，通知观察者 [`views::ViewObserver::OnViewIsDeleting`](https://github.com/chromium/chromium/blob/master/ui/views/view_observer.h)
   - 注意：在回调时，不能直接从 `std::list`/`std::vector` 容器中移除观察者；而应该标记为“待移除”，然后等迭代结束后移除（参考 [`base::ObserverList::RemoveObserver`](https://github.com/chromium/chromium/blob/master/base/observer_list.h)）
-  - 循环内删除迭代器会导致迭代器失效：`for(auto it = c.begin(); it != c.end(); ++it) c.erase(it);  // bad`
+  - 循环内删除节点，会导致迭代器失效：`for(auto it = c.begin(); it != c.end(); ++it) c.erase(it);  // bad`
 - 用 **弱引用** 替换裸指针，移除时检查被观察者的有效性，例如
   - 使用 [`base::WeakPtr`](https://github.com/chromium/chromium/blob/master/base/memory/weak_ptr.h) 把 `Farm* farm_` 替换为 `base::WeakPtr<Farm> farm_`（比较灵活）
 

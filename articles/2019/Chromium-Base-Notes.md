@@ -63,6 +63,7 @@
   - `base::PlatformThread` 系统线程
   - `base::Thread`/`base::SimpleThread` 带有/不带 消息循环的线程
   - `base::ThreadPoolInstance` 线程池
+  - `base::SequenceManager` 序列管理器
   - `base::RunLoop` -> `base::MessageLoop` -> `base::MessagePump` -> `base::TaskRunner` 接口
 - 上层线程模型
   - `base::TaskRunner` 线程池中的 并行调度 任务管理器
@@ -72,15 +73,12 @@
   - Chromium 推荐使用 逻辑序列 而不是 物理线程，参考：[Prefer Sequences to Physical Threads | Threading and Tasks in Chrome](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#prefer-sequences-to-physical-threads)
 - 其他
   - `base::ThreadLocalStorage` 线程本地存储 TLS
+  - `base::SequenceLocalStorageSlot` 序列本地存储 SLS
   - `base::SequenceBound` 管理 其他序列上的 非序列安全的 对象生命周期（创建/使用/销毁）
   - `base::WatchDog` 启动后台监控线程，定期检查是否 Arm，否则 Alarm 报警
 - 线程检查
-  - `base::ThreadRestrictions` 检查当前线程是否允许特殊操作（标识存放在 线程本地存储，调用相关函数时检查）
-    - 阻塞调用：例如同步 I/O 操作，建议异步处理
-    - 同步原语：可能导致卡顿/死锁
-    - CPU 密集任务：可能导致 CPU 繁忙，建议异步处理
-    - 非 Leakey 单例支持：如果主线程先退出并销毁单例，导致 non-joinable 线程访问野指针，出现退出崩溃
-  - `base::ThreadChecker/SequenceChecker` 检查线程/序列安全（对象构造时 关联当前线程/序列，使用时/析构时 检查是否在同一线程/序列）
+  - `base::ThreadChecker/SequenceChecker` [漫谈 C++ 的各种检查](Cpp-Check.md#线程安全检查)
+  - `base::ThreadRestrictions` [漫谈 C++ 的各种检查](Cpp-Check.md#线程限制检查)
 
 ## 定时器
 

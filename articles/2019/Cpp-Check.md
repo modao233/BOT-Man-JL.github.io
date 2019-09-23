@@ -79,7 +79,7 @@ Chromium 还基于 [现代 C++ 元编程](../2017/Cpp-Metaprogramming.md) 技术
 
 最新的 Chromium 使用了 Clang 编译代码，通过扩展 **线程标记** _(thread annotation)_，[分析线程安全问题](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html)。（参考 [Thread Safety Annotations for Clang - DeLesley Hutchins](https://llvm.org/devmtg/2011-11/Hutchins_ThreadSafety.pdf)）
 
-其中，单元测试文件 [`thread_annotations_unittest.nc`](https://github.com/chromium/chromium/blob/master/base/thread_annotations_unittest.nc) 描述了一些 锁的错误使用场景 —— 假设数据 data 标记为  `GUARDED_BY` 锁 lock：
+其中，单元测试文件 [`thread_annotations_unittest.nc`](https://github.com/chromium/chromium/blob/master/base/thread_annotations_unittest.nc) 描述了一些 锁的错误使用场景 —— 假设数据 data 标记为  `GUARDED_BY()` 锁 lock：
 
 - 访问 data 之前，忘记获取 lock
 - 获取 lock 之后，忘记释放 lock
@@ -137,34 +137,94 @@ Chromium 还基于 [现代 C++ 元编程](../2017/Cpp-Metaprogramming.md) 技术
   - 问题：许多情况下，没有对重入进行特殊处理，可能会导致 [死循环问题](Insane-Observer-Pattern.md#问题-死循环)
   - 解决：模板参数 `allow_reentrancy` 若为 `false`，在迭代时断言 “正在通知迭代时 不允许重入”
 - 线程安全问题
-  - 问题：由于 `base::ObserverList` 不是线程安全的，在通知迭代中，需要保证其他操作在同一线程/序列
-  - 解决：被观察者成员 `iteration_sequence_checker_` 线程/序列检查器 在迭代开始时关联线程/序列，在结束时取消关联（参考 [sec|线程相关检查]）
+  - 问题：由于 `base::ObserverList` 不是线程安全的，在通知迭代中，需要保证其他操作在 同一线程/序列
+  - 解决：被观察者成员 `iteration_sequence_checker_` 在迭代开始时关联线程/序列，在结束时解除关联（参考 [sec|线程安全检查]）
 
-和 [`base::Singleton`](https://github.com/chromium/chromium/blob/master/base/memory/singleton.h) 一样，Chromium/base 的设计模式实现 堪称 C++ 里的典范 —— 无论是功能上，还是性能上，均为 “人无我有，人有我优”。
+和 [`base::Singleton`](https://github.com/chromium/chromium/blob/master/base/memory/singleton.h) 一样，Chromium/base 的设计模式实现 堪称 C++ 里的典范 —— 无论是功能上，还是性能上，均为 “**人无我有，人有我优**”。
 
 ### 线程相关检查
 
-多线程环境下，我们往往需要关注以下几个问题：
+最新的 Chromium/base 线程模型引入了线程池，并引入了 **序列** _(sequence)_ 的概念 —— 相对于线程池中的普通任务 乱序调度，同一序列的任务 能保证被 顺序调度 —— 因此，[推荐使用 逻辑序列 而不是 物理线程](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#prefer-sequences-to-physical-threads)：
 
-- 数据竞争 _(data race)_：保证某个对象在同一个 线程/序列 中 创建/访问/销毁，而不使用 锁 或 原子操作
-- 线程响应性 _(responsive)_：对于某些 线程/序列，不能进行 阻塞 / CPU 密集 / 涉及 `AtExit`/ 锁相关 操作
-- 死锁问题 _(deadlock)_：能在调试模式下，尽可能的发现死锁问题
+- 同一物理线程 只能同时运行 一个逻辑序列，使得 序列模型 等效于 单线程模型
+- 同一物理线程 可以用于运行 不同逻辑序列，提高 物理线程 的利用率
+
+线程/序列 相关的检查主要依赖于 **线程/序列本地存储**：
+
+- 每个线程有独立的 [`base::ThreadLocalStorage`](https://github.com/chromium/chromium/blob/master/base/threading/thread_local_storage.h) 线程本地存储 _(thread local storage, TLS)_
+- 每个序列有独立的 [`base::SequenceLocalStorageSlot`](https://github.com/chromium/chromium/blob/master/base/threading/sequence_local_storage_slot.h) 序列本地存储 _(sequence local storage, SLS)_
+- 当 逻辑序列 被放到 物理线程 上执行时，把当前线程的 TLS 切换为对应序列的 SLS
 
 #### 线程安全检查
 
-- `base::ThreadChecker/SequenceChecker` 检查对象 是否线程安全
-- 例如，`base::ObserverList` 在迭代时检查
+很多时候，某个对象只会在 **同一线程/序列** 中 **创建/访问/销毁**：
+
+- 正常情况下，**不涉及 线程安全问题**，**没必要保证 线程安全** _(thread-safety)_（因为 线程同步操作/原子操作 会带来不必要的开销）
+- 异常情况下，一旦被多个线程同时使用，访问冲突导致 **数据竞争** _(data race)_，可能出现 未定义行为
+
+为此，Chromium 借助 [`base::ThreadChecker`](https://github.com/chromium/chromium/blob/master/base/threading/thread_checker.h)/[`base::SequenceChecker`](https://github.com/chromium/chromium/blob/master/base/sequence_checker.h) **检查对象是否只在 同一线程/序列 中使用**：
+
+- `THREAD_CHECKER/SEQUENCE_CHECKER(checker)` 创建并关联 线程/序列 `checker`
+- `DCHECK_CALLED_ON_VALID_THREAD/DCHECK_CALLED_ON_VALID_SEQUENCE(checker)` 检查或关联 `checker` 和 当前执行环境对应的 线程/序列
+- `DETACH_FROM_THREAD/DETACH_FROM_SEQUENCE(checker)` 解除 `checker` 和 线程/序列 的关联
+- 另外，发布版的检查实现为 [空对象](https://en.wikipedia.org/wiki/Null_object_pattern)，即总是通过检查
+
+实现的 **核心思想** 非常简单：
+
+- 线程/序列 创建时，通过 TLS/SLS 记录 当前线程/序列的 ID（例如 线程 ID、序列 ID）
+- `checker` 构造时，记录 当前线程/序列的 ID
+- `checker` 检查时，读取 当前线程/序列的 ID，和 `checker` 记录的 ID 比较
+- `checker` 析构时，先执行检查（可以提前 解除关联）
+- 另外，`checker` 读写 数据成员时，需要进行互斥的 线程同步操作（锁）
+
+在 [sec|通知迭代检查] 提到，`base::ObserverList` 在迭代时借助 `iteration_sequence_checker_` 检查是否 序列安全：
+
+- 在迭代开始时，关联序列
+- 在迭代过程中，检查当前操作 `base::ObserverList` 的序列 和 `iteration_sequence_checker_` 关联的序列 是否一致
+- 在迭代结束时，解除关联
 
 #### 线程限制检查
 
-- `base::ThreadRestrictions` 检查调用 对线程的影响
-- `base::WatchDog` 启动后台线程，监控其他线程心跳情况
+程序中常常会有一些 **特殊用途的线程**（例如 客户端 UI 主线程），而这些线程往往有着 **特殊的限制**（例如，UI 线程要求保持 **响应性** _(responsive)_，[实时响应用户输入](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#keeping-the-browser-responsive)）。
+
+为此，Chromium 借助 [`base::ThreadRestrictions`](https://github.com/chromium/chromium/blob/master/base/threading/thread_restrictions.h) **检查 可能涉及线程限制的函数 在当前执行的线程上 是否允许**：
+
+- 阻塞 _(blocking)_ 操作
+  - 主要包括文件 I/O 操作（有可能被系统缓存，从而不阻塞）
+  - 可能导致线程 交出 CPU 执行机会，进入 wait 状态
+- 同步原语 _(sync primitive)_
+  - 执行 线程同步操作
+  - 可能导致线程 死锁 _(deadlock)_/卡顿 _(jank)_
+- CPU 密集工作 _(CPU intensive work)_
+  - 超过 100ms CPU 时间的操作
+  - 可能导致线程 卡顿 _(jank)_
+- 单例 _(singleton)_ 操作
+  - 对于 非泄露型 [`base::Singleton`](https://github.com/chromium/chromium/blob/master/base/memory/singleton.h)，会在 [`base::AtExitManager`](https://github.com/chromium/chromium/blob/master/base/at_exit.h) 注册 “退出时销毁单例对象”
+  - 如果主线程先退出，在 `base::AtExitManager` 中销毁单例，导致 non-joinable 线程再访问单例时，出现野指针崩溃
+
+实现的 **核心思想** 也很简单：
+
+- 通过 TLS 记录 当前线程的限制情况（每种限制用一个 TLS `bool` 存储）
+- 对于 可能涉及限制的函数，调用前先检查 当前线程 是否允许某个限制
+
+在最新的 Chromium/base 中，线程限制检查 被进一步封装为 [`base::ScopedBlockingCall`](https://github.com/chromium/chromium/blob/master/base/threading/scoped_blocking_call.h)，在大量文件 I/O 相关函数中检查。
 
 #### 死锁检查
 
-- `base::internal::CheckedLock` 检查死锁
+Chromium 通过 [`base::internal::CheckedLock`](https://github.com/chromium/chromium/blob/master/base/task/common/checked_lock.h) 检查 死锁 _(deadlock)_。
+
+实现的 **核心思想** 非常简单 —— 检查等待链是否成环：
+
+- 维护一个 全局的 <从每个 lock 到其 predecessor lock> 映射表（创建时添加，销毁时移除）
+- 维护一个 当前线程的 <已获取 lock> TLS 列表（获取时记录，释放时移除）
+- 创建时，检查 predecessor 已创建（如果 predecessor 不存在，可能顺序错误）
+- 获取时，检查 predecessor 是当前线程最近获取的 lock（若不是，可能顺序错误）
 
 ## 写在最后 [no-toc]
+
+> 站在巨人的肩膀上。—— 艾萨克·牛顿
+
+Chromium/base 库一直在 **迭代、优化**，**不断借鉴** 了许多其他开源项目。例如，[sec|线程标记检查] 使用的标记就来源于 [`abseil`](https://github.com/abseil/abseil-cpp)。
 
 由于 Chromium/base 改动频繁，本文某些细节 **可能会过期**。如果有什么新发现，**欢迎补充**~ 😉
 

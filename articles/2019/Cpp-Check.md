@@ -10,13 +10,13 @@
 
 项目中，降低开发门槛的方法有很多：除了 制定 **代码规范**、划分 **功能模块**、完善 **单元测试** _(unit test)_、推行 **代码审查** _(code review)_、整理 **相关文档** 之外，针对强类型的编译语言 C++，Chromium/base 库加入了大量的 **检查** _(check)_。
 
-为什么代码中需要各种检查？在 C++ 中调用一个函数、使用一个类、实例化一个模板时，对传入的参数、使用的时机，往往会有很多 **限制** _(constraint/restriction)_（例如，数值参数不能传入负数、对象的访问不是线程安全的、函数调用不能重入）；而处理限制问题的方法 大致分为三种：
+为什么代码中需要各种检查？在 C++ 中调用一个函数、使用一个类、实例化一个模板时，对传入的参数、使用的时机，往往会有很多 **限制** _(constraint/restriction)_（例如，数值参数不能传入负数、对象的访问不是线程安全的、函数调用不能重入）；而处理限制的方法有很多：
 
 1. 口口相传：在 **代码审查** 时，有经验的开发者 向 新手开发者 传授经验（很容易失传）
 2. 文档说明：在 **相关文档** 中，提示使用者 功能模块的各种隐含限制（很容易被忽略）
 3. 检查限制：在合理划分 **功能模块** 的前提下，对模块的隐含限制 进行检查，并加入针对检查的 **单元测试**（最安全的保障，单元测试即文档）
 
-本文主要分享 我对 Chromium/base 库中使用的限制检查的一些理解：
+本文主要分享 Chromium/base 库中使用的一些限制检查：
 
 [TOC]
 
@@ -28,28 +28,28 @@
 
 如何确保代码中添加的检查有效呢？最高效的方法是：为 “检查” 添加单元测试。但对于 编译时检查 遇到了一个 **难点** —— 如果检查失败，那么编译就无法通过。
 
-Chromium 为此支持了 [编译失败测试 _(no-compile test)_](https://dev.chromium.org/developers/testing/no-compile-tests)：
+为此，Chromium 支持 [编译失败测试 _(no-compile test)_](https://dev.chromium.org/developers/testing/no-compile-tests)：
 
 - 单元测试文件中，每个用例通过 `#ifdef` 切割
-- 每个用例中，标明 编译失败后出现的 报错细节
+- 每个用例中，标明 编译失败后期望的 报错细节
 - 通过 `#define` 运行各个用例
-- 在编译失败后，检查 报错细节 是否完全一致
+- 在编译失败后，检查 报错细节 是否和预期一致
 
 对应的单元测试文件后缀为 `*_unittest.nc`，通过 [`nocompile.gni`](https://github.com/chromium/chromium/blob/master/build/nocompile.gni) 加入单元测试工程。
 
 ### 可拷贝性检查
 
-C++ 语言本身加入了很多编译时检查（例如 类的成员访问控制 _(member access control)_、`const` 关键字 在编译成汇编语言后，不能反编译还原），但 C++ 对象默认是可拷贝的，从而带来了许多不必要的麻烦（参考 [资源管理小记](../2018/Resource-Management.md#资源和对象的映射关系)）。
+C++ 语言本身有很多编译时检查（例如 类的成员访问控制 _(member access control)_、`const` 关键字 在编译成汇编语言后，不能反编译还原），但 C++ 对象默认是可拷贝的，从而带来了许多问题（参考 [资源管理小记](../2018/Resource-Management.md#资源和对象的映射关系)）。
 
-> 尤其是 **多态** _(polymorphic)_ 类的默认拷贝行为，一般都不符合预期：
-> 
-> - [C.67: A polymorphic class should suppress copying](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-copy-virtual)
-> - [C.130: For making deep copies of polymorphic classes prefer a virtual clone function instead of copy construction/assignment](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-copy)
+尤其是 **多态** _(polymorphic)_ 类的默认拷贝行为，一般都不符合预期：
 
-为此，Chromium 提供了两个常用的宏：
+- [C.67: A polymorphic class should suppress copying](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-copy-virtual)
+- [C.130: For making deep copies of polymorphic classes prefer a virtual clone function instead of copy construction/assignment](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-copy)
+
+为此，Chromium 提供了两个 [常用的宏](https://github.com/chromium/chromium/blob/master/base/macros.h)：
 
 - `DISALLOW_COPY_AND_ASSIGN` 用于禁用类的 拷贝构造函数 和 拷贝赋值函数
-- `DISALLOW_IMPLICIT_CONSTRUCTORS` 用于禁用类的 默认构造函数
+- `DISALLOW_IMPLICIT_CONSTRUCTORS` 用于禁用类的 默认构造函数 和 拷贝行为
 
 由于 Chromium 大量使用了 C++ 的多态特性，这些宏随处可见。
 
@@ -57,32 +57,35 @@ C++ 语言本身加入了很多编译时检查（例如 类的成员访问控制
 
 Chromium 还基于 [现代 C++ 元编程](../2017/Cpp-Metaprogramming.md) 技术，通过 `static_assert` 进行静态断言。
 
-在之前写的 [深入 C++ 回调](Inside-Cpp-Callback.md) 中，分析了 Chromium 的 [`base::Callback<>` + `base::Bind()`](https://github.com/chromium/chromium/blob/master/docs/callback.md) 回调机制，提到了 `base::Bind` 的静态断言检查。
+在之前写的 [深入 C++ 回调](Inside-Cpp-Callback.md) 中，分析了 Chromium 的 [`base::Callback<>` + `base::Bind()`](https://github.com/chromium/chromium/blob/master/docs/callback.md) 回调机制，提到了相关的静态断言检查。
 
-`base::Bind` 为了 [处理失效的（弱引用）上下文](Inside-Cpp-Callback.md#如何处理失效的（弱引用）上下文)，针对弱引用指针 [`base::WeakPtr`](https://github.com/chromium/chromium/blob/master/base/memory/weak_ptr.h) 扩展了 `base::IsWeakReceiver` 检查，判断弱引用的上下文是否有效；并通过 静态断言检查传入参数，强制要求使用者 遵循弱引用检查的规范：
+`base::Bind` 为了 [处理失效的（弱引用）上下文](Inside-Cpp-Callback.md#如何处理失效的（弱引用）上下文)，针对弱引用指针 [`base::WeakPtr`](https://github.com/chromium/chromium/blob/master/base/memory/weak_ptr.h) 扩展了 `base::IsWeakReceiver` 检查，判断弱引用的上下文是否有效；并通过 静态断言检查传入参数，**强制要求使用者遵循** 弱引用检查的规范：
 
 - `base::Bind` 不允许直接将 **`this` 指针** 绑定到 类的成员函数 上，因为 `this` 裸指针可能失效 变成野指针
 - `base::Bind` 不允许绑定 **lambda 表达式**，因为 `base::Bind` 无法检查 lambda 表达式捕获的 弱引用 的 有效性
-- `base::Bind` 只允许将 `base::WeakPtr` 指针绑定到 **没有返回值的**（返回 `void`）类的成员函数 上，因为 当弱引用失效时不调用回调，也不会生成返回值
+- `base::Bind` 只允许将 `base::WeakPtr` 指针绑定到 **没有返回值的**（返回 `void`）类的成员函数 上，因为 当弱引用失效时不调用回调，也没有返回值
 
-`base::Callback` 区分 [回调只能执行一次还是可以多次](Inside-Cpp-Callback.md#回调只能执行一次还是可以多次)，通过引用限定符 `&&` / `const &`，区分 在对象处于 非 const 右值 / 其他 状态时的 `Run` 成员函数；并通过 静态断言检查对象状态，只允许一次回调 `base::OnceCallback` 在 非 const 右值 状态下调用 `Run` 函数，从而实现了更严谨的 [资源管理语义](../2018/Resource-Management.md#资源和对象的映射关系)：
+`base::Callback` 区分 [回调只能执行一次还是可以多次](Inside-Cpp-Callback.md#回调只能执行一次还是可以多次)，通过 引用限定符 _(reference qualifier)_ `&&` / `const &`，区分 在对象处于 非 const 右值 / 其他 状态时的 `Run` 成员函数，只允许一次回调 `base::OnceCallback` 在 非 const 右值 状态下调用 `Run` 函数，保证严谨的 [资源管理语义](../2018/Resource-Management.md#资源和对象的映射关系)：
 
-- 只有 `base::OnceClosure cb; std::move(cb).Run();` 可以编译
-  - `base::OnceClosure cb; cb.Run();` 编译错误
-  - `const base::OnceClosure cb; cb.Run();` 编译错误
-  - `const base::OnceClosure cb; std::move(cb).Run();` 编译错误
-- 此外，`base::OnceCallback` 支持绑定 `base::RepeatingCallback` 回调，反之不行
+``` cpp
+base::OnceClosure cb; std::move(cb).Run();        // OK
+base::OnceClosure cb; cb.Run();                   // not compile
+const base::OnceClosure cb; cb.Run();             // not compile
+const base::OnceClosure cb; std::move(cb).Run();  // not compile
+```
 
-另外，静态断言检查还广泛应用在 **容器**、**智能指针** 的模板实现中，用于生成 [可读性更好的](../2017/Cpp-Metaprogramming.md#实例化错误) **实例化错误信息**。
+另外，静态断言检查还广泛应用在 Chromium/base 的 **容器**、**智能指针** 模板的实现中，用于生成 [可读性更好的](../2017/Cpp-Metaprogramming.md#实例化错误) **实例化错误信息**。
 
 ### 线程标记检查
 
-最新的 Chromium 使用了 Clang 编译代码，通过扩展 **线程标记** _(thread annotation)_，[分析线程安全问题](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html)。（参考 [Thread Safety Annotations for Clang - DeLesley Hutchins](https://llvm.org/devmtg/2011-11/Hutchins_ThreadSafety.pdf)）
+最新的 Chromium 使用了 Clang 编译，通过扩展 **线程标记** _(thread annotation)_，[静态分析线程安全问题](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html)。（参考：[Thread Safety Annotations for Clang - DeLesley Hutchins](https://llvm.org/devmtg/2011-11/Hutchins_ThreadSafety.pdf)）
 
-其中，单元测试文件 [`thread_annotations_unittest.nc`](https://github.com/chromium/chromium/blob/master/base/thread_annotations_unittest.nc) 描述了一些 锁的错误使用场景 —— 假设数据 data 标记为  `GUARDED_BY()` 锁 lock：
+Chromium/base 的单元测试文件 [`thread_annotations_unittest.nc`](https://github.com/chromium/chromium/blob/master/base/thread_annotations_unittest.nc) 描述了一些 锁的错误使用场景（假设数据 data 被锁 lock 保护，定义标记为 `Type data GUARDED_BY(lock);`）：
 
 - 访问 data 之前，忘记获取 lock
 - 获取 lock 之后，忘记释放 lock
+
+这些错误能在编译时被 Clang 检查到，从而编译失败。
 
 ## 运行时检查
 
@@ -92,17 +95,17 @@ Chromium 还基于 [现代 C++ 元编程](../2017/Cpp-Metaprogramming.md) 技术
 
 ### 测试设施
 
-检查的方法很直观 —— 构造一个检查失败的场景，期望断言失败。Chromium/base 基础设施中的 `EXPECT_DCHECK_DEATH` 提供了这个功能。
+检查的方法很直观 —— 构造一个检查失败的场景，期望断言失败。
 
-对应的单元测试文件后缀为 `*_unittest.cc`。
+Chromium/base 基础设施中的 `EXPECT_DCHECK_DEATH` 提供了这个功能，对应的单元测试文件后缀为 `*_unittest.cc`。
 
 ### 数值溢出检查
 
-在 C++ 里，数值类型 都是固定大小的 [标量类型](https://en.cppreference.com/w/cpp/language/type) —— 如果存储超出范围的数据，会导致 **溢出** _(overflow)_。
+C++ 的数值类型，都是固定大小的 [标量类型](https://en.cppreference.com/w/cpp/language/type) —— 如果存储数值超出范围，会导致 **溢出** _(overflow)_。
 
-很多时候，溢出是一个非常令人头疼的问题。例如，尝试通过 **使用无符号数 避免出现负数**，往往是一个典型的徒劳之举。（比如 `unsigned(0) - unsigned(1) == UINT_MAX`，参考 [ES.106: Don’t try to avoid negative values by using `unsigned`](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Res-nonnegative)）
+例如，尝试通过 **使用无符号数 避免出现负数**，往往是一个典型的徒劳之举。（比如 `unsigned(0) - unsigned(1) == UINT_MAX`，参考 [ES.106: Don’t try to avoid negative values by using `unsigned`](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Res-nonnegative)）
 
-为此，Chromium 的 [base/numerics](https://github.com/chromium/chromium/tree/master/base/numerics) 提供了一个 无依赖 _(dependency-free)_、仅头文件 _(header-only)_ 的模板库，应对数值溢出问题：
+为此，Chromium 的 [base/numerics](https://github.com/chromium/chromium/tree/master/base/numerics) 提供了一个 无依赖 _(dependency-free)_、仅头文件 _(header-only)_ 的模板库，处理数值溢出问题：
 
 - `base::StrictNumeric`/`base::strict_cast<>()` **编译时 阻止溢出** —— 如果 类型转换 有溢出的可能性，通过静态断言报错
 - `base::CheckedNumeric`/`base::checked_cast<>()` **运行时 检查溢出** —— 如果 数值运算/类型转换 出现溢出，立即终止程序
@@ -110,11 +113,11 @@ Chromium 还基于 [现代 C++ 元编程](../2017/Cpp-Metaprogramming.md) 技术
 
 ### 观察者模式检查
 
-在之前写的 [令人抓狂的 观察者模式](Insane-Observer-Pattern.md) 中，介绍了如何通过 Chromium/base 提供的 [`base::ObserverList`](https://github.com/chromium/chromium/blob/master/base/observer_list.h)，检查 观察者模式 中一些潜在的问题。
+在之前写的 [令人抓狂的 观察者模式](Insane-Observer-Pattern.md) 中，介绍了如何通过 Chromium/base 提供的 [`base::ObserverList`](https://github.com/chromium/chromium/blob/master/base/observer_list.h)，检查 观察者模式 的一些潜在问题。
 
 #### 生命周期检查
 
-由于观察者和被观察者的生命周期往往是独立的，所以总会发生一些阴差阳错的问题：
+由于观察者和被观察者的生命周期往往是解耦的，所以总会出现一些阴差阳错的问题：
 
 - [观察者先销毁](Insane-Observer-Pattern.md#问题-观察者先销毁)
   - 问题：若 `base::ObserverList` 通知时不检查 观察者是否有效，可能导致 野指针崩溃
@@ -125,49 +128,49 @@ Chromium 还基于 [现代 C++ 元编程](../2017/Cpp-Metaprogramming.md) 技术
 
 #### 通知迭代检查
 
-观察者可能在 `base::ObserverList` 通知时访问 `base::ObserverList` 对象：
+观察者可能在 `base::ObserverList` 通知时，再访问同一个 `base::ObserverList` 对象：
 
 - 添加观察者
-  - 问题：是否需要在本次迭代中，继续通知新加入的观察者
-  - 解决：被观察者参数 `base::ObserverListPolicy` 决定迭代过程中，是否通知新加入的观察者
+  - 问题：是否需要在 本次迭代中，继续通知 新加入的观察者
+  - 解决：被观察者参数 [`base::ObserverListPolicy`](https://github.com/chromium/chromium/blob/master/base/observer_list.h) 决定迭代过程中，是否通知 新加入的观察者
 - 移除观察者
   - 问题：循环内（间接）删除迭代器，导致迭代器失效（崩溃）`for(auto it = c.begin(); it != c.end(); ++it) c.erase(it);`
   - 解决：迭代器对象成员 `MarkForRemoval()` 标记为 “待移除”，然后等迭代结束后移除
 - 通知迭代重入
-  - 问题：许多情况下，没有对重入进行特殊处理，可能会导致 [死循环问题](Insane-Observer-Pattern.md#问题-死循环)
+  - 问题：许多情况下，若不考虑 重入情况，可能会导致 [死循环问题](Insane-Observer-Pattern.md#问题-死循环)
   - 解决：模板参数 `allow_reentrancy` 若为 `false`，在迭代时断言 “正在通知迭代时 不允许重入”
 - 线程安全问题
-  - 问题：由于 `base::ObserverList` 不是线程安全的，在通知迭代中，需要保证其他操作在 同一线程/序列
+  - 问题：由于 `base::ObserverList` 不是线程安全的，在通知迭代时，需要保证其他操作在 同一线程/序列
   - 解决：被观察者成员 `iteration_sequence_checker_` 在迭代开始时关联线程/序列，在结束时解除关联（参考 [sec|线程安全检查]）
 
 和 [`base::Singleton`](https://github.com/chromium/chromium/blob/master/base/memory/singleton.h) 一样，Chromium/base 的设计模式实现 堪称 C++ 里的典范 —— 无论是功能上，还是性能上，均为 “**人无我有，人有我优**”。
 
 ### 线程相关检查
 
-最新的 Chromium/base 线程模型引入了线程池，并引入了 **序列** _(sequence)_ 的概念 —— 相对于线程池中的普通任务 乱序调度，同一序列的任务 能保证被 顺序调度 —— 因此，[推荐使用 逻辑序列 而不是 物理线程](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#prefer-sequences-to-physical-threads)：
+最新的 Chromium/base 线程模型引入了线程池，并支持了 **序列** _(sequence)_ 的概念 —— 相对于线程池中的普通任务 乱序调度，同一序列的任务 能保证被 顺序调度 —— 因此，[推荐使用 逻辑序列 而不是 物理线程](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#prefer-sequences-to-physical-threads)：
 
 - 同一物理线程 只能同时运行 一个逻辑序列，使得 序列模型 等效于 单线程模型
-- 同一物理线程 可以用于运行 不同逻辑序列，提高 物理线程 的利用率
+- 同一物理线程 可以用于运行 多个逻辑序列，提高 物理线程 的利用率
 
-线程/序列 相关的检查主要依赖于 **线程/序列本地存储**：
+线程/序列 相关的检查主要依赖于 **线程/序列 本地存储**：
 
 - 每个线程有独立的 [`base::ThreadLocalStorage`](https://github.com/chromium/chromium/blob/master/base/threading/thread_local_storage.h) 线程本地存储 _(thread local storage, TLS)_
 - 每个序列有独立的 [`base::SequenceLocalStorageSlot`](https://github.com/chromium/chromium/blob/master/base/threading/sequence_local_storage_slot.h) 序列本地存储 _(sequence local storage, SLS)_
-- 当 逻辑序列 被放到 物理线程 上执行时，把当前线程的 TLS 切换为对应序列的 SLS
+- 当 逻辑序列 被放到 物理线程 上执行时，把当前序列的 SLS 关联到 执行线程的 TLS
 
 #### 线程安全检查
 
 很多时候，某个对象只会在 **同一线程/序列** 中 **创建/访问/销毁**：
 
-- 正常情况下，**不涉及 线程安全问题**，**没必要保证 线程安全** _(thread-safety)_（因为 线程同步操作/原子操作 会带来不必要的开销）
+- 正常情况下，**不会出现 多线程同时访问的情况**，**没必要保证 线程安全** _(thread-safety)_（因为 线程同步操作/原子操作 会带来不必要的开销）
 - 异常情况下，一旦被多个线程同时使用，访问冲突导致 **数据竞争** _(data race)_，可能出现 未定义行为
 
 为此，Chromium 借助 [`base::ThreadChecker`](https://github.com/chromium/chromium/blob/master/base/threading/thread_checker.h)/[`base::SequenceChecker`](https://github.com/chromium/chromium/blob/master/base/sequence_checker.h) **检查对象是否只在 同一线程/序列 中使用**：
 
-- `THREAD_CHECKER/SEQUENCE_CHECKER(checker)` 创建并关联 线程/序列 `checker`
-- `DCHECK_CALLED_ON_VALID_THREAD/DCHECK_CALLED_ON_VALID_SEQUENCE(checker)` 检查或关联 `checker` 和 当前执行环境对应的 线程/序列
-- `DETACH_FROM_THREAD/DETACH_FROM_SEQUENCE(checker)` 解除 `checker` 和 线程/序列 的关联
-- 另外，发布版的检查实现为 [空对象](https://en.wikipedia.org/wiki/Null_object_pattern)，即总是通过检查
+- `[THREAD|SEQUENCE]_CHECKER(checker)` 创建并关联 线程/序列 `checker`
+- `DCHECK_CALLED_ON_VALID_[THREAD|SEQUENCE](checker)` 检查或关联 `checker` 和 当前执行环境的 线程/序列
+- `DETACH_FROM_[THREAD|SEQUENCE](checker)` 解除 `checker` 和 线程/序列 的关联
+- 另外，发布版的检查实现为 [空对象](https://en.wikipedia.org/wiki/Null_object_pattern)，即总能通过检查
 
 实现的 **核心思想** 非常简单：
 
@@ -177,7 +180,7 @@ Chromium 还基于 [现代 C++ 元编程](../2017/Cpp-Metaprogramming.md) 技术
 - `checker` 析构时，先执行检查（可以提前 解除关联）
 - 另外，`checker` 读写 数据成员时，需要进行互斥的 线程同步操作（锁）
 
-在 [sec|通知迭代检查] 提到，`base::ObserverList` 在迭代时借助 `iteration_sequence_checker_` 检查是否 序列安全：
+在 [sec|通知迭代检查] 提到，`base::ObserverList` 在迭代时借助 `iteration_sequence_checker_` 检查序列安全：
 
 - 在迭代开始时，关联序列
 - 在迭代过程中，检查当前操作 `base::ObserverList` 的序列 和 `iteration_sequence_checker_` 关联的序列 是否一致
@@ -213,7 +216,7 @@ Chromium 还基于 [现代 C++ 元编程](../2017/Cpp-Metaprogramming.md) 技术
 
 Chromium 通过 [`base::internal::CheckedLock`](https://github.com/chromium/chromium/blob/master/base/task/common/checked_lock.h) 检查 死锁 _(deadlock)_。
 
-实现的 **核心思想** 非常简单 —— 检查等待链是否成环：
+实现的 **核心思想** 非常简单 —— **检查等待链是否成环**：
 
 - 维护一个 全局的 <从每个 lock 到其 predecessor lock> 映射表（创建时添加，销毁时移除）
 - 维护一个 当前线程的 <已获取 lock> TLS 列表（获取时记录，释放时移除）

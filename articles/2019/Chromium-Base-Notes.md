@@ -40,22 +40,38 @@
 
 ## 线程同步
 
-- `base::Lock` 锁
-- `base::internal::CheckedLock` 检查死锁
+- `base::Lock` 互斥锁（类似 `std::mutex`）
+- `base::WaitableEvent`/`base::WaitableEventWatcher` 事件/监视器
 - `base::ConditionVariable` 条件变量
-- `base::WaitableEvent` 事件
+  - Wait 等待：
+    - 使用者 获取 Lock，检查 Cond
+    - 函数内 释放 Lock，等待 Event
+  - Signal 激活：
+    - 使用者 获取 Lock，设置 Cond，释放 Lock
+    - 函数内 激活 Event
+  - Wait 激活：
+    - 函数内 被 Event 唤醒后，获取 Lock
+    - 使用者 检查 Cond，不等待则需要自行释放 Lock
+  - 虚假唤醒 _(spurious signal)_：
+    - 被唤醒线程的 Cond 可能刚刚被其他线程修改，需要每次检查
+    - 为此 `std::condition_variable::wait` 封装了 `while (!pred()) wait(lock);`
+- `base::internal::CheckedLock` 检查死锁（[漫谈 C++ 的各种检查](Cpp-Check.md#死锁检查)）
 
 ## 原子操作
 
 - `base::AtomicFlag` 原子标识
 - `base::AtomicRefCount` 原子计数器
 - `base::AtomicSequenceNumber` 原子自增器
+- `base::[NoBarrier|Acquire|Release]_[Load|Store]` 无约束/获取/释放 读取/写入
+- `base::[NoBarrier|Acquire|Release]_CompareAndSwap` 无约束/获取/释放 比较相等则写入
+- `base::[NoBarrier|Barrier]_AtomicExchange` 无约束/有约束 读取后写入
+- `base::[NoBarrier|Barrier]_AtomicIncrement` 无约束/有约束 增加后读取
 
 ## 任务模型
 
 - `base::Bind/Callback` 生命周期严格的函数闭包，支持 弱引用检查/调用次数限制（参考：[深入 C++ 回调](Inside-Cpp-Callback.md)）
 - `base::PendingTask` 将异步任务封装为统一的 `void()` 闭包（调试：记录抛出来源 + 跟踪当前任务列表）
-- `base::CancelableTaskTracker` 支持 线程安全 取消已经抛出的任务（实现：存储 `base::RefCountedThreadSafe` 包装的 `base::AtomicFlag` 标识，记录是否被取消）
+- `base::CancelableTaskTracker` 支持 线程安全 取消已经抛出的任务（实现：存储 `base::RefCountedThreadSafe` 包装的原子标识，记录是否被取消）
 
 ## 线程模型
 

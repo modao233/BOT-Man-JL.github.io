@@ -128,8 +128,8 @@ C++ 的数值类型，都是固定大小的 [标量类型](https://en.cppreferen
 
 很多时候，某个对象只会在 **同一线程/序列** 中 **创建/访问/销毁**：
 
-- 正常情况下，**不会出现 多线程同时访问的情况**，**没必要保证 线程安全** _(thread-safety)_（因为 线程同步操作/原子操作 会带来不必要的开销）
-- 异常情况下，一旦被多个线程同时使用，访问冲突导致 **数据竞争** _(data race)_，可能出现 未定义行为
+- 正常情况下，**无竞争** _(contention-free)_ 模型没必要保证 **线程安全** _(thread-safety)_，因为 线程同步操作/原子操作 会带来 **不必要的开销**
+- 异常情况下，一旦被 多线程同时使用，访问冲突导致 **数据竞争** _(data race)_，可能出现 未定义行为
 
 为此，Chromium 借助 [`base::ThreadChecker`](https://github.com/chromium/chromium/blob/master/base/threading/thread_checker.h)/[`base::SequenceChecker`](https://github.com/chromium/chromium/blob/master/base/sequence_checker.h) **检查对象是否只在 同一线程/序列 中使用**：
 

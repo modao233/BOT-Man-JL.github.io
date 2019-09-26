@@ -151,14 +151,18 @@
 - 静态成员 _(static member)_ -> 全局（静态）对象
 - 默认参数 _(default argument)_/成员变量默认值 _(default value)_ -> 硬编码调用参数
 - 内联函数 _(inline function)_ -> 不生成 `call`/`ret`
-- Lambda 表达式 -> 生成 functor 类
+- 引用 _(reference)_ -> 指针 _(pointer)_
+- Lambda 表达式 -> 生成 Functor 内部类
 - `new`/`delete` -> 先申请内存再调用构造函数/先调用析构函数再释放内存
-- 引用 _(reference)_ -> 指针 _(pointer)_，仅在编译时检查左值/右值
-- `const` 关键字，仅在编译时检查
-- 成员访问控制 _(member access control)_，仅在编译时检查
-- 函数签名 _(function signature)_ = 函数名 + 参数类型列表，仅在编译时检查
-- 预处理 _(preprocess)_ 编译前计算
-- `static_assert`/`constexpr` 编译时运算
+- 编译前处理
+  - 预处理 _(preprocess)_
+- 编译时检查
+  - `const`
+  - `constexpr`
+  - `static_assert`
+  - 左值 _(lvalue)_ / 右值 _(rvalue)_
+  - 成员访问控制 _(member access control)_（`private`/`protected`/`public`）
+  - 函数签名 _(function signature)_（函数名 + 参数类型列表）
 
 ### 控制流 _(Control Flow)_
 
@@ -240,14 +244,25 @@
   - 一个标量对象（算术类型、指针类型、枚举类型、`std::nullptr_t`）
   - 非零长 位域 (bit field) 最大连续序列
 - 数据竞争 _(data race)_：多个线程同时访问一个内存位置，且至少一个是写操作
-  - 现象：线程从某个内存位置读取值，可能读到：初值、同一线程所写入的值、另一线程所写入的值
+  - 现象：线程从某个内存位置读取值，可能读到 初值、同一线程所写入的值、另一线程所写入的值
 - 内存顺序 _(memory order)_：
-  - Relaxed：无顺序约束
-  - Consume：当前线程 依赖于被读取值的 读或写不能被重排到 此读取 前
-  - Acquire：当前线程 所有的 读或写不能被重排到 此读取 前
-  - Release：当前线程 所有的 读或写不能被重排到 此写入 后
-  - Acquire_Release：当前线程 所有的 读或写不能被重排到 此写入 前后
-  - Sequentially_Consistent：所有线程 以同一顺序观测到所有修改
+  - Relaxed：无顺序约束，仅原子性
+  - Consume Load：
+    - 当前线程 **依赖于被读取值的** 读或写不能被重排到 **此前**（弱 向后保护）
+    - 其他线程 **依赖于被读取值的** Release 对当前线程 Consume 可见
+  - Acquire Load：
+    - 当前线程 读或写不能被重排到 **此前**（向后保护）
+    - 其他线程 Release 对当前线程 Acquire 可见
+  - Release Store：
+    - 当前线程 读或写不能被重排到 **此后**（向前保护）
+    - 当前线程 Release 对其他线程 Acquire 可见
+    - 当前线程 Release 对其他线程 **依赖于被读取值的** Consume 可见
+  - Acquire-Release Read-Modify-Write：
+    - 当前线程 读或写不能被重排到 **此前后**（局部保护）
+    - Acquire for Read + Release for Write
+  - Sequentially-Consistent：
+    - **所有线程** 以同一顺序观测到所有修改
+    - Acquire Load / Release Store / Acquire-Release Read-Modify-Write
 
 ## C++ 面向对象
 

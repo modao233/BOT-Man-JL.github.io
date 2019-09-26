@@ -52,7 +52,6 @@
 #### 2019
 
 - [C++ 20 协程](2019/Cpp-Coroutine-Share.md)
-- [从 V8 到 Hippy](2019/V8-Hippy-Share.md)
 
 #### 2018
 
@@ -71,7 +70,6 @@
 
 - [Chromium/base 库 笔记](2019/Chromium-Base-Notes.md)
 - [Chromium/ui 开发 笔记](2019/Chromium-UI-Notes.md)
-- [性能 笔记](2019/Perf-Notes.md)
 - [C++ 反汇编 笔记](2019/Cpp-Disassembly-Notes.md)
 - [崩溃分析 笔记](2019/Crash-Analysis-Notes.md)
 

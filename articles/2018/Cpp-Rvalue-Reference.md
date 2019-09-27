@@ -77,7 +77,7 @@ assert(*p == 1);       // OK: realive now
 ``` cpp
 std::unique_ptr<int> foo(std::unique_ptr<int>&& val) {
   //...
-  return val;    // not compiled, -> return std::move(val);
+  return val;    // not compile, -> return std::move(val);
 }
 ```
 
@@ -107,9 +107,9 @@ std::unique_ptr<int> bar() {
 
 > 如果已经了解了左右值引用基本概念，可以直接跳过这个部分。
 
-C++ 11 强化了左右值的概念：**左值** (lvalue, left value) 指的是可以通过变量名/指针/引用使用的值，**右值** (rvalue, right value) 指的是表达式返回的临时值。区分左右值的一个不完全正确的方法是：左值可以 **取地址**，而右值不行；另一个从概念上的区分方法是：可以给左值 **赋值**，但右值不行。
+C++ 11 强化了左右值的概念：**左值** _(lvalue, left value)_ 指的是可以通过变量名/指针/引用使用的值，**右值** _(rvalue, right value)_ 指的是表达式返回的临时值。区分左右值的一个不完全正确的方法是：左值可以 **取地址**，而右值不行；另一个从概念上的区分方法是：可以给左值 **赋值**，但右值不行。
 
-C++ 11 还引入了右值引用的概念：**左值引用** (l-ref, lvalue reference) 是指通过 `&` 符号引用左值对象；**右值引用** (r-ref, rvalue reference) 是指通过 `&&` 符号引用右值对象。而一旦 **右值引用被初始化** 后，就会立即 **退化成左值引用**（这个引用可以被取地址、被赋值；参考 [sec|误解：返回时，不移动右值引用参数] _误解：返回时，不移动右值引用参数_）。
+C++ 11 还引入了右值引用的概念：**左值引用** _(l-ref, lvalue reference)_ 是指通过 `&` 符号引用左值对象；**右值引用** _(r-ref, rvalue reference)_ 是指通过 `&&` 符号引用右值对象。而一旦 **右值引用被初始化** 后，就会立即 **退化成左值引用**（这个引用可以被取地址、被赋值；参考 [sec|误解：返回时，不移动右值引用参数] _误解：返回时，不移动右值引用参数_）。
 
 ``` cpp
 void f(Data&  data);  // 1, data is l-ref
@@ -117,7 +117,8 @@ void f(Data&& data);  // 2, data is r-ref
 
 Data   data;
 Data&  data1 = data;
-Data&& data2 = data;
+Data&& data2 = data;    // not compile: invalid binding
+Data&& data2 = Data{};  // OK
 
 f(data);    // 1, data is lvalue
 f(Data{});  // 2, data is rvalue
@@ -125,18 +126,38 @@ f(data1);   // 1, data1 is l-ref
 f(data2);   // 1, data2 degenerates to l-ref
 ```
 
-另外，C++ 还允许 **常引用** (c-ref, const reference) 作为参数的重载，同时接受左右值参数：
+另外，C++ 还允许 **常引用** _(c-ref, const reference)_ 作为参数的重载，**同时** 接受左值/右值参数：
 
 ``` cpp
-void f(const Data& data);  // data is c-ref
+void g(const Data& data);  // data is c-ref
 
-f(data);    // ok, data is lvalue
-f(Data{});  // ok, data is rvalue
+g(data);    // ok, data is lvalue
+g(Data{});  // ok, data is rvalue
+```
+
+> 2019/9/27 补充：
+
+右值引用 和 常引用 都能接受右值的绑定，有什么区别呢？
+
+- 对于通过 右值 初始化 右值引用/常引用，可以将 右值 [**生命周期扩展** _(lifetime extension)_](https://en.cppreference.com/w/cpp/language/reference_initialization#Lifetime_of_a_temporary) 到 绑定该右值的引用的生命周期
+- 对于 绑定了右值的 常引用，不能修改引用的右值；而对于 绑定了右值的 右值引用，可以修改引用的右值（因为退化为 左值引用；另外，**编译器优先重载** 右值引用 的绑定方式）
+
+``` cpp
+const Data& data1 = Data{};   // OK: extend lifetime
+data1.modify();               // not compile: const
+
+Data&& data2 = Data{};        // OK: extend lifetime
+data2.modify();               // OK: non-const
+
+void f(const Data& data);  // 1, data is c-ref
+void f(Data&& data);       // 2, data is r-ref
+
+f(Data{});  // 2, prefer 2 to 1 for rvalue
 ```
 
 ## 移动语义
 
-在 C++ 11 强化左右值概念后，我们可以针对右值进行优化。于是，C++ 11 中就提出了 **移动语义** (move semantic)：右值对象一般是临时对象；转移该对象时，内部包含的资源 **不需要先复制再删除**，只需要直接 **从旧对象移动到新对象**。
+在 C++ 11 强化左右值概念后，我们可以针对右值进行优化。于是，C++ 11 中就提出了 **移动语义** _(move semantic)_：右值对象一般是临时对象；转移该对象时，内部包含的资源 **不需要先复制再删除**，只需要直接 **从旧对象移动到新对象**。
 
 在 C++ 提出移动语义之前，编译器往往可以针对需要移动的对象进行 [sec|拷贝省略] 拷贝省略的优化。由于拷贝省略只是编译器可选的优化项，没有纳入标准，C++ 11 语言标准就引入了移动语义。
 
@@ -144,8 +165,8 @@ f(Data{});  // ok, data is rvalue
 
 针对一些包含了资源的对象，我们可以通过移动对象的资源进行优化。例如，我们常用的 STL 类模板都有：
 
-- 以常引用作为参数的 **拷贝构造函数** (copy constructor)
-- 以右值引用作为参数的 **移动构造函数** (move constructor)
+- 以常引用作为参数的 **拷贝构造函数** _(copy constructor)_
+- 以右值引用作为参数的 **移动构造函数** _(move constructor)_
 
 ``` cpp
 template<typename T> class vector {
@@ -186,7 +207,7 @@ vector::~vector() {
 
 析构函数 `vector::~vector` 检查 data_ 是否有效，决定是否需要释放资源。
 
-除了判断参数是否为左右值，我们还可以判断对象本身是否为左右值。例如，对成员函数加入 **引用限定符** (reference qualifier)，针对对象本身的左右值属性进行优化。
+除了判断参数是否为左右值，我们还可以判断对象本身是否为左右值。例如，对成员函数加入 **引用限定符** _(reference qualifier)_，针对对象本身的左右值属性进行优化。
 
 ``` cpp
 class Foo {
@@ -256,14 +277,14 @@ assert(v1[0] == v1[3]);
 
 ### 拷贝省略
 
-尽管有了移动语义，仍然有进一步优化的空间。编译器实现认为，与其调用一次没有太多意义的移动构造函数，不如直接让编译器把对象本身的内存拷贝过去。于是就有了 [拷贝省略](https://en.cppreference.com/w/cpp/language/copy_elision) (copy elision) 的优化。
+尽管有了移动语义，仍然有进一步优化的空间。编译器实现认为，与其调用一次没有太多意义的移动构造函数，不如直接让编译器把对象本身的内存拷贝过去。于是就有了 [拷贝省略 _(copy elision)_](https://en.cppreference.com/w/cpp/language/copy_elision) 的优化。
 
 很多人会把移动语义和拷贝省略 **混淆**：
 
 - 移动语义是 **语言标准** 提出的概念，通过编写遵守移动语义的移动构造函数、右值限定成员函数，**逻辑上** 实现优化 **对象内资源** 的转移流程
 - 拷贝省略是非标准的 **编译器优化**，跳过移动/拷贝构造函数，让编译器直接移动 **整个对象** 的内存
 
-在 C++ 14 标准中没有强制编译器支持这个优化，而 C++ 17 标准针对这项优化有了进一步的强制性。C++ 17 提出了 **纯右值** (prvalue, pure rvalue) 的概念，并要求编译器对纯右值进行拷贝省略优化。（[参考](https://jonasdevlieghere.com/guaranteed-copy-elision/)）
+在 C++ 14 标准中没有强制编译器支持这个优化，而 C++ 17 标准针对这项优化有了进一步的强制性。C++ 17 提出了 **纯右值** _(prvalue, pure rvalue)_ 的概念，并要求编译器对纯右值进行拷贝省略优化。（[参考](https://jonasdevlieghere.com/guaranteed-copy-elision/)）
 
 ``` cpp
 Data f() {
@@ -293,7 +314,7 @@ g(f());           // copy elision from prvalue (C++ 17)
 
 > Item 24: Distinguish universal references from rvalue references. —— Meyer Scott, _Effective Modern C++_
 
-[Meyer Scott 指出](https://isocpp.org/blog/2012/11/universal-references-in-c11-scott-meyers)：有时候符号 `&&` 并不一定代表右值引用，它也可能是左值引用 —— 如果一个引用符号需要通过左右值属性推导（模板推导或 `auto` 推导），那么这个符号可能是左值引用或右值引用 —— 这叫做 **通用引用** (universal reference)。
+[Meyer Scott 指出](https://isocpp.org/blog/2012/11/universal-references-in-c11-scott-meyers)：有时候符号 `&&` 并不一定代表右值引用，它也可能是左值引用 —— 如果一个引用符号需要通过左右值属性推导（模板推导或 `auto` 推导），那么这个符号可能是左值引用或右值引用 —— 这叫做 **通用引用** _(universal reference)_。
 
 ``` cpp
 // rvalue ref: no type deduction
@@ -353,7 +374,7 @@ unique_ptr<T> make_unique(Args&& ...args) {
 
 ### 完美转发
 
-上述代码使用了 `std::forward` 实现参数的 **完美转发** (perfect forwarding)：
+上述代码使用了 `std::forward` 实现参数的 **完美转发** _(perfect forwarding)_：
 
 - 如果参数传入前是 **左值引用**，我们要以 **左值引用** 的形式转发到下一个函数
 - 如果参数传入前是 **右值引用**，我们要先还原为 **右值引用** 的形式（使用 `std::move`），再转发到下一个函数

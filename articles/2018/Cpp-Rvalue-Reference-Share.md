@@ -55,7 +55,7 @@ UpdateQueryUrl(GetQueryUrlString(tag));
 using Ptr = std::unique_ptr<int>;
 Ptr fn(Ptr&& val) {
   //...
-  return val;  // not compiled
+  return val;  // not compile
                // -> return std::move(val);
 }
 ```
@@ -88,7 +88,8 @@ void f(Data&  data);  // 1, data is l-ref
 void f(Data&& data);  // 2, data is r-ref
 Data   data;
 Data&  data1 = data;
-Data&& data2 = data;
+Data&& data2 = data;    // not compile: invalid binding
+Data&& data2 = Data{};  // OK
 
 f(data);    // 1, data is lvalue
 f(Data{});  // 2, data is rvalue

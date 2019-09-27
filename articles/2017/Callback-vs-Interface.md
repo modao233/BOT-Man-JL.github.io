@@ -288,9 +288,9 @@ event_new(event_base, fd, EV_WRITE, do_send, buffer);
 
 - `std::function`
   - 装载不同类型的 **可调用实体** 全局函数 _(global function)_、成员函数 _(member function)_、函数对象 _(function object, functor)_、匿名函数 _(anonymous function, lambda)_ 等，把它们 **适配到统一的接口上**
-  - **抹除** 装载实体的 **类型**，**保留** 函数的 **签名**
-- `std::bind` 通过绑定参数，实现函数参数的 **[部分应用](https://en.wikipedia.org/wiki/Partial_application)**，从而 **修改** 函数的 **签名**
-- `std::mem_fn` 将 **类成员函数** 转换为以类对象为第一个参数的 **普通函数**，也 **修改了** 函数的 **签名**
+  - 对装载的实体 **类型擦除** _(type erasure)_，抹去实体原本的实际类型，仅 **保留** **函数签名** _(function signature)_
+- `std::bind` 通过绑定参数，实现函数参数的 **[部分应用](https://en.wikipedia.org/wiki/Partial_application)**，从而 **修改** 函数签名
+- `std::mem_fn` 将 **类成员函数** 转换为以类对象为第一个参数的 **普通函数**，也 **修改了** 函数签名
 
 很多人会好奇：`std::function` 是怎么实现的？这里有一个 [简单的实现原理](https://shaharmike.com/cpp/naive-std-function/)。（测试代码：[`std_function.cpp`](Callback-vs-Interface/std_function.cpp)）
 

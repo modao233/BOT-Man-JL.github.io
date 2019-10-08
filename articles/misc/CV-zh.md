@@ -68,7 +68,7 @@
 - **现代** C++ 11/14/17（**高级**）
   - Windows 桌面软件（**高级**）
 - C（熟练）
-  - WFP 标记驱动（基本）
+  - Windows WFP 驱动（基本）
   - Linux（基本）
 - JavaScript（熟练）
   - Node.js（熟练）

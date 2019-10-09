@@ -19,7 +19,7 @@
 
 ### 工作内容
 
-- Win32 客户端
+- Windows 客户端
   - Modern C++ (C++ 14)
   - [Chromium](https://www.chromium.org/)
   - [Visual Studio](https://visualstudio.microsoft.com/)
@@ -36,9 +36,9 @@
 - 注重基础
   - 公司基础设施
   - 个人基本知识
-- 大公司小团队
+- 大公司，小团队
   - 敏捷开发
-  - 弹性工作
+  - 小闭环，大协同
 - 用数据说话
   - 数据上报
   - 数据分析

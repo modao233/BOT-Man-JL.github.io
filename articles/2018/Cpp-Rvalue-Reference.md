@@ -34,6 +34,11 @@ else
 
 上述代码的问题在于：对临时值使用 `std::move`，会导致后续代码不能使用 `base_url`；如果使用，会出现 **未定义行为** _(undefined behavior)_。（参考：[`basic_string(basic_string&&)`](https://en.cppreference.com/w/cpp/string/basic_string/basic_string)）
 
+> 如何检查：
+> 
+> - 在运行时，将对象设置为无效状态，并在使用时检查
+> - 在编译时，使用 Clang 标记对移动语义进行静态检查（参考：[Consumed Annotation Checking | Attributes in Clang](https://clang.llvm.org/docs/AttributeReference.html#consumed-annotation-checking)）
+
 正确做法是封装成一个函数，只在返回值使用 `std::move`（这也符合函数式思想，尽可能减少临时值）：
 
 ``` cpp

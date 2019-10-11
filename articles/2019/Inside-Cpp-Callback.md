@@ -403,7 +403,7 @@ Chromium 的 `base::Callback` 在各环节优化了上述问题：
 - 要求程序员自己管理对象生命周期，对象 **从出生到死亡** 的各个环节都要想清楚
 - Chromium 的 Bind/Callback 实现基于 **现代 C++ 元编程**，实现起来很复杂（参考：[浅谈 C++ 元编程](../2017/Cpp-Metaprogramming.md)）
 
-对于专注内存安全的 [Rust 语言](https://en.wikipedia.org/wiki/Rust_%28programming_language%29)，在语言层面上支持了本文讨论的概念：
+对于专注内存安全的 [Rust 语言](https://en.wikipedia.org/wiki/Rust_%28programming_language%29)，在 [语言层面上支持](https://www.apriorit.com/dev-blog/520-rust-vs-c-comparison) 了本文讨论的概念：
 
 > @hghwng 在 2019/3/29 评论：
 > 

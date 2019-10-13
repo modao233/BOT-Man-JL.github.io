@@ -118,14 +118,19 @@ static_assert (isZero<0>, "compile error");
 
 #### 测试类型
 
-在元编程的很多应用场景中，需要对类型进行测试，即对不同的类型实现不同的功能。而常见的测试类型又分为两种：判断一个类型 **是否为特定的类型** 和 **是否满足某些条件**。前者可以通过对模板的 **特化** 直接实现；后者的测试可以通过 **测试表达式**（[sec|测试表达式]）间接完成的，即利用 C++ 11 的 `std::type_traits` 判断条件是否满足，生成出对应的常量表达式，再测试常量表达式。
+在元编程的很多应用场景中，需要对类型进行测试，即对不同的类型实现不同的功能。而常见的测试类型又分为两种：判断一个类型 **是否为特定的类型** 和 **是否满足某些条件**。前者可以通过对模板的 **特化** 直接实现；后者既能通过 **替换失败不是错误 SFINAE** _(Substitution Failure Is Not An Error)_ 规则进行最优匹配 [cppref-SFINAE]，又能通过 **标签派发** _(tag dispatch)_ 匹配可枚举的有限情况 [cppref-tag-dispatch]。
+
+为了更好的支持 SFINAE，C++ 11 的 `<type_traits>` 除了提供类型检查的谓词模板 `is_*`/`has_*`，还提供了两个重要的辅助模板 [cppref-SFINAE]：
+
+1. `std::enable_if` 将对条件的判断 **转化为常量表达式**，类似测试表达式（[sec|测试表达式]）实现重载的选择（但需要添加一个冗余的 函数参数/函数返回值/模板参数）；
+2. `std::void_t` 直接 **检查依赖** 的成员/函数是否存在，不存在则无法重载（可以用于构造谓词，再通过 `std::enable_if` 判断条件）。
 
 **是否为特定的类型** 的判断，类似于代码 [code|test-value]，将 `unsigned Val` 改为 `typename Type`；并把传入的模板参数由 值参数 改为 类型参数，根据最优原则匹配重载。
 
 **是否满足某些条件** 的判断，在代码 [code|test-type] 中，展示了如何将 C 语言的基本类型数据，转换为 `std::string` 的函数 `ToString`。代码具体分为三个部分：
 
-1. 首先定义三个 **变量模板** `isNum`/`isStr`/`isBad`，分别对应了三个类型条件的谓词（使用了 `type_tratis` 中的 `std::is_arithmetic` 和 `std::is_same`）；
-2. 根据 **SFINAE** _(Substitution Failure Is Not An Error)_ 规则 [cppref-SFINAE]（直接使用了 `type_traits` 中的 `std::enable_if`）重载函数 `ToString`，分别对应了数值、C 风格字符串和非法类型；
+1. 首先定义三个 **变量模板** `isNum`/`isStr`/`isBad`，分别对应了三个类型条件的谓词（使用了 `<type_traits>` 中的 `std::is_arithmetic` 和 `std::is_same`）；
+2. 然后根据 SFINAE 规则，使用 `std::enable_if` 重载函数 `ToString`，分别对应了数值、C 风格字符串和非法类型；
 3. 在前两个重载中，分别调用 `std::to_string` 和 `std::string` 构造函数；在最后一个重载中，通过 **类型依赖** _(type-dependent)_ 的 `false` 表达式（例如 `sizeof (T) == 0`）静态断言直接报错（根据 **两阶段名称查找** _(two-phase name lookup)_ [two-phase-name-lookup] 的规定，如果直接使用 `static_assert (false)` 断言，会在模板还没实例化的第一阶段无法通过编译）。
 
 [code||test-type]
@@ -449,6 +454,7 @@ This article is published under MIT License &copy; 2017, BOT Man
 - [generic-lambda]: Faisal Vali, Herb Sutter, Dave Abrahams. _Generic (Polymorphic) Lambda Expressions (Revision 3)_ [EB/OL] http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3649.html
 - [template-turing-complete]: Todd L. Veldhuizen. _C++ Templates are Turing Complete_ [J] Indiana University Computer Science Technical Report. 2003.
 - [cppref-SFINAE]: cppreference.com. _SFINAE_ [EB/OL] http://en.cppreference.com/w/cpp/language/sfinae
+- [cppref-tag-dispatch]: cppreference.com. _iterator category tags_ [EB/OL] https://en.cppreference.com/w/cpp/iterator/iterator_tags#Example
 - [two-phase-name-lookup]: John Wilkinson, Jim Dehnert, Matt Austern. _A Proposed New Template Compilation Model_ [EB/OL] http://www.open-std.org/jtc1/sc22/wg21/docs/papers/1996/n0906.pdf
 - [cppref-constexpr-if]: cppreference.com. _if statement_ [EB/OL] http://en.cppreference.com/w/cpp/language/if
 - [vs-if-exists]: Microsoft Docs. _`__if_exists` Statement_ [EB/OL] https://docs.microsoft.com/en-us/cpp/cpp/if-exists-statement?view=vs-2017

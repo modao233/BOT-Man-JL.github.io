@@ -80,8 +80,13 @@
 
 - [封装 _(encapsulation)_](https://en.wikipedia.org/wiki/Encapsulation_%28computer_programming%29)：将数据和计算放到一起，并引入访问控制
 - [继承 _(inheritance)_](https://en.wikipedia.org/wiki/Inheritance_%28object-oriented_programming%29)：共享数据和计算，避免冗余
-- [多态 _(polymorphism)_](https://en.wikipedia.org/wiki/Polymorphism_%28computer_science%29)：派发同一个消息（调用同一个方法），实现不同的操作（核心）
+- [多态 _(polymorphism)_](https://en.wikipedia.org/wiki/Polymorphism_%28computer_science%29)：派发同一个消息（调用同一个方法），实现不同的操作（面向对象的核心）
 
+> 通常，多态又分为两种：
+> 
+> - subtyping —— 运行时的 **重写** _(override)_
+> - ad-hoc —— 编译时的 **重载** _(overload)_
+> 
 > 参考：[浅谈面向对象编程](../2018/Object-Oriented-Programming.md)
 
 ### 函数式

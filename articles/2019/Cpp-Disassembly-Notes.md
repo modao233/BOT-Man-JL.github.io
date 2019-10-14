@@ -148,14 +148,15 @@
 
 ### 编译 _(Compile)_
 
-- 静态成员 _(static member)_ -> 全局（静态）对象
-- 默认参数 _(default argument)_/成员变量默认值 _(default value)_ -> 硬编码调用参数
-- 内联函数 _(inline function)_ -> 不生成 `call`/`ret`
-- 引用 _(reference)_ -> 指针 _(pointer)_
-- Lambda 表达式 -> 生成 Functor 内部类
-- `new`/`delete` -> 先申请内存再调用构造函数/先调用析构函数再释放内存
 - 编译前处理
   - 预处理 _(preprocess)_
+- 编译时转换
+  - 静态成员 _(static member)_ -> 全局（静态）对象
+  - 默认参数 _(default argument)_/成员变量默认值 _(default value)_ -> 硬编码调用参数
+  - 内联函数 _(inline function)_ -> 不生成 `call`/`ret`
+  - 引用 _(reference)_ -> 指针 _(pointer)_
+  - Lambda 表达式 -> 生成 Functor 内部类
+  - `new`/`delete` -> 先申请内存再调用构造函数/先调用析构函数再释放内存
 - 编译时检查
   - `const`
   - `constexpr`

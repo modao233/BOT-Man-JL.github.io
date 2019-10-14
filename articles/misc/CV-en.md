@@ -68,14 +68,14 @@ EN | [中文](CV-zh.md)
 - **Modern** C++ 11/14/17 (**Advanced**)
   - Windows Desktop Software (**Advanced**)
 - C (Experienced)
-  - Windows WFP Driver (Basic)
-  - Linux (Basic)
+  - Windows WFP Driver
+  - Linux
 - JavaScript (Experienced)
   - Node.js (Experienced)
-  - Web Frontend / Vue.js / Wechat App (Basic)
-- C# (Basic)
-  - Universal Windows App (Experienced)
-  - ASP.NET (core) MVC (Experienced)
+  - Web Frontend / Vue.js / Wechat App
+- C#
+  - Universal Windows App
+  - ASP.NET (core) MVC
 - **Tech Blog**：https://bot-man-jl.github.io
 
 ## Open Source

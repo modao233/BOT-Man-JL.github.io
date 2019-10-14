@@ -16,8 +16,8 @@
 
 ## STL 工具
 
-- `base::Contains` 支持 字符串 `::npos` / 线性容器 `std::find() != end()` / 关联容器 `.find() != end()`
-- `base::Erase[If]` 适配各类容器
+- `base::Contains` 支持 字符串 `::npos` / 线性容器 `std::find() != end()` / 关联容器 `.find() != end()`（[P0458R2](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0458r2.html)）
+- `base::Erase[If]` 适配各类容器（[P1209R0](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1209r0.html)）
 
 ## 容器
 
@@ -184,6 +184,7 @@
 - 编译时断言 no-compile test (`static_assert`)
 - 单元测试 unittest
 - 模糊测试 fuzzer
+- 错误检查 sanitizer
 
 ## 参考
 

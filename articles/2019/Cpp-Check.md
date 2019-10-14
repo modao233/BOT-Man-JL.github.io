@@ -230,6 +230,12 @@ Chromium/base 库一直在 **迭代、优化**，**学习、借鉴** 许多其�
 
 由于 Chromium/base 改动频繁，本文某些细节 **可能会过期**。如果有什么新发现，**欢迎补充**~ 😉
 
+> 另外，**检查虽好，但不要滥用**。Rostislav Khlebnikov 在 CppCon2019 的演讲 [Avoid Misuse of Contracts](https://github.com/CppCon/CppCon2019/blob/master/Presentations/avoid_misuse_of_contracts/avoid_misuse_of_contracts__rostislav_khlebnikov__cppcon_2019.pdf) 中提出如何合理的使用检查：
+> 
+> - 仅检查不能违反的限制（违反则出现 未定义行为 _(undefined behavior)_，而不是抛出/返回异常）
+> - 检查不能影响核心逻辑，不能产生 副作用 _(side effect)_
+> - 检查不能完全替代 测试/文档/输入合法性校验，需要适当权衡
+
 如果有什么问题，**欢迎交流**。😄
 
 Delivered under MIT License &copy; 2019, BOT Man

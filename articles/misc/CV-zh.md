@@ -68,14 +68,14 @@
 - **现代** C++ 11/14/17（**高级**）
   - Windows 桌面软件（**高级**）
 - C（熟练）
-  - Windows WFP 驱动（基本）
-  - Linux（基本）
+  - Windows WFP 驱动
+  - Linux
 - JavaScript（熟练）
   - Node.js（熟练）
-  - Web 前端/ Vue.js/微信小程序（基本）
-- C#（基本）
-  - Windows 通用应用（熟练）
-  - ASP.NET (core) MVC（熟练）
+  - Web 前端/ Vue.js/微信小程序
+- C#
+  - Windows 通用应用
+  - ASP.NET (core) MVC
 - **技术博客**：https://bot-man-jl.github.io
 
 ## 开源

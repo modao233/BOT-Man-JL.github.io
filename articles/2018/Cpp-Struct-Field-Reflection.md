@@ -394,7 +394,7 @@ ForEachField(SimpleStruct{1, "hello static reflection"},
 
 > **2019/2/19 补充**
 > 
-> 如果需要针对不同类型使用不同的操作，可以考虑 [重载 lambda 表达式](http://martinecker.com/martincodes/lambda-expression-overloading/)（[提案 p0051r3](http://open-std.org/JTC1/SC22/WG21/docs/papers/2018/p0051r3.pdf)）：
+> 如果需要针对不同类型使用不同的操作，可以考虑 [重载 lambda 表达式](http://martinecker.com/martincodes/lambda-expression-overloading/)（[提案 p0051r3](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0051r3.pdf)）：
 > 
 > ``` cpp
 > ForEachField(SimpleStruct{1, "hello static reflection"},

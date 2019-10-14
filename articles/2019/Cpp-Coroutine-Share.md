@@ -71,7 +71,7 @@ for (char upper_ch : ReadFile())
 
 ### 概念
 
-- C++ 协程（[N4775](http://open-std.org/JTC1/SC22/WG21/docs/papers/2018/n4775.pdf)）：
+- C++ 协程（[N4775](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4775.pdf)）：
   - 包含以下 `co_` 关键字的函数 `Ret(Args...)`
   - **要求** `Ret` 符合 `Coroutine` 概念
 - `co_return`：

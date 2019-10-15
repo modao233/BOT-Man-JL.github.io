@@ -99,7 +99,7 @@
   - 测试 常量表达式
   - 测试 类型
     - 是否为特定的类型 -> 特化
-    - 是否满足某些条件 -> `std::type_traits` + SFINAE => 常量表达式
+    - 是否满足某些条件 -> `type_traits` + SFINAE => 常量表达式
 - **编译时迭代** _(compile-time iteration)_ ~ **循环语句** _(loop statement)_
 
 ---
@@ -282,15 +282,14 @@ ORDER BY age
 
 ## Q & A
 
-[align-center]
-
-[img=width:30%]
-
-![Paper Q R Code](Cpp-Metaprogramming/Paper-QR-Code.png)
+<br/>
+<br/>
 
 [align-center]
 
 👉 原文：[浅谈 C++ 元编程](Cpp-Metaprogramming.md)
+
+<br/>
 
 [align-right]
 

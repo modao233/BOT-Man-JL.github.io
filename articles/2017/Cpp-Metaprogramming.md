@@ -131,7 +131,7 @@ static_assert (isZero<0>, "compile error");
 
 1. 首先定义三个 **变量模板** `isNum`/`isStr`/`isBad`，分别对应了三个类型条件的谓词（使用了 `<type_traits>` 中的 `std::is_arithmetic` 和 `std::is_same`）；
 2. 然后根据 SFINAE 规则，使用 `std::enable_if` 重载函数 `ToString`，分别对应了数值、C 风格字符串和非法类型；
-3. 在前两个重载中，分别调用 `std::to_string` 和 `std::string` 构造函数；在最后一个重载中，通过 **类型依赖** _(type-dependent)_ 的 `false` 表达式（例如 `sizeof (T) == 0`）静态断言直接报错（根据 **两阶段名称查找** _(two-phase name lookup)_ [two-phase-name-lookup] 的规定，如果直接使用 `static_assert (false)` 断言，会在模板还没实例化的第一阶段无法通过编译）。
+3. 在前两个重载中，分别调用 `std::to_string` 和 `std::string` 构造函数；在最后一个重载中，静态断言直接报错。
 
 [code||test-type]
 
@@ -170,6 +170,10 @@ auto d = ToString (std::string {});  // not compile :-(
 
 代码 [code|test-type] - 编译时测试类型
 
+根据 **两阶段名称查找** _(two-phase name lookup)_ [two-phase-name-lookup] 的规定：如果直接使用 `static_assert (false)` 断言，会在模板还没实例化的第一阶段编译失败；所以需要借助 **类型依赖** _(type-dependent)_ 的 `false` 表达式（一般依赖于参数 `T`）进行失败的静态断言。
+
+类似的，可以通过定义一个 **变量模板** `template <typename...> constexpr bool false_v = false;`，并使用 `false_v<T>` 替换 `sizeof (T) == 0`。[false-v]
+
 #### 使用 `if` 进行编译时测试
 
 对于初次接触元编程的人，往往会使用 `if` 语句进行编译时测试。代码 [code|bad-test-type] 是 代码 [code|test-type] 一个 **错误的写法**，很代表性的体现了元编程和普通编程的不同之处（[sec|什么是元编程]）。
@@ -193,7 +197,7 @@ std::string ToString (T val) {
 
 假设是脚本语言，这段代码是没有问题的：因为脚本语言没有编译的概念，所有函数的绑定都在 **运行时** 完成；而静态语言的函数绑定是在 **编译时** 完成的。为了使得代码 [code|bad-test-type] 的风格用于元编程，C++ 17 引入了 `constexpr-if` [cppref-constexpr-if] —— 只需要把以上代码 [code|bad-test-type] 中的 `if` 改为 `if constexpr` 就可以编译了。
 
-`constexpr-if` 的引入让模板测试更加直观，提高了模板代码的可读性（[sec|复杂性]）。代码 [code|fixed-test-type] 展示了如何使用 `constexpr-if` 解决编译时选择的问题；而且最后的 **兜底** _(catch-all)_ 语句，可以使用类型依赖的 `false` 表达式进行静态断言 [cppref-constexpr-if]，不再需要 `isBad<T>` 谓词模板（也不能直接使用 `static_assert (false)` 断言）。
+`constexpr-if` 的引入让模板测试更加直观，提高了模板代码的可读性（[sec|复杂性]）。代码 [code|fixed-test-type] 展示了如何使用 `constexpr-if` 解决编译时选择的问题；而且最后的 **兜底** _(catch-all)_ 语句，不再需要 `isBad<T>` 谓词模板，可以使用类型依赖的 `false` 表达式进行静态断言（但也不能直接使用 `static_assert (false)` 断言）。[cppref-constexpr-if]
 
 [code||fixed-test-type]
 
@@ -202,7 +206,7 @@ template <typename T>
 std::string ToString (T val) {
     if constexpr (isNum<T>) return std::to_string (val);
     else if constexpr (isStr<T>) return std::string (val);
-    else static_assert (sizeof (T) == 0, "neither Num nor Str");
+    else static_assert (false_v<T>, "neither Num nor Str");
 }
 ```
 
@@ -456,6 +460,7 @@ This article is published under MIT License &copy; 2017, BOT Man
 - [cppref-SFINAE]: cppreference.com. _SFINAE_ [EB/OL] http://en.cppreference.com/w/cpp/language/sfinae
 - [cppref-tag-dispatch]: cppreference.com. _iterator category tags_ [EB/OL] https://en.cppreference.com/w/cpp/iterator/iterator_tags#Example
 - [two-phase-name-lookup]: John Wilkinson, Jim Dehnert, Matt Austern. _A Proposed New Template Compilation Model_ [EB/OL] http://www.open-std.org/jtc1/sc22/wg21/docs/papers/1996/n0906.pdf
+- [false-v]: Arthur O’Dwyer. _Use-cases for `false_v`_ [EB/OL] https://quuxplusone.github.io/blog/2018/04/02/false-v/
 - [cppref-constexpr-if]: cppreference.com. _if statement_ [EB/OL] http://en.cppreference.com/w/cpp/language/if
 - [vs-if-exists]: Microsoft Docs. _`__if_exists` Statement_ [EB/OL] https://docs.microsoft.com/en-us/cpp/cpp/if-exists-statement?view=vs-2017
 - [fold-expression]: cppreference.com. _fold expression (since C++17)_ [EB/OL] https://en.cppreference.com/w/cpp/language/fold

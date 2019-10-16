@@ -2,12 +2,6 @@
 #include <future>
 #include <iostream>
 
-// built-in Future
-std::future<int> StdFuture(int x) {
-  co_return x;
-}
-
-// user-defined Future
 template <typename T>
 struct Future {
   struct promise_type;
@@ -49,7 +43,6 @@ struct Future {
   handle coro_;
 };
 
-// user-defined Generator
 template <typename T>
 struct Generator {
   struct promise_type;
@@ -83,6 +76,11 @@ struct Generator {
       promise_value = value;
       return std::experimental::suspend_always{};
     }
+
+    void return_void() {
+      std::cout << "return_void" << std::endl;
+      promise_value = T{};
+    }
   };
 
   const T& get() const { return coro_.promise().promise_value; }
@@ -102,14 +100,21 @@ struct Generator {
 
 Future<int> MyFuture() {
   std::cout << "MyFuture" << std::endl;
-  co_return co_await StdFuture(42);
+  co_return 42;
 }
 
 Generator<int> MyGenerator() {
   std::cout << "MyGenerator" << std::endl;
-  co_yield co_await StdFuture(1);
-  co_yield co_await StdFuture(2);
-  co_yield co_await StdFuture(3);
+  for (auto i = 1; i <= 3; ++i) {
+    co_yield i;
+  }
+}
+
+Generator<char> DanglingGenerator(const std::string& s) {
+  std::cout << "DanglingGenerator" << std::endl;
+  for (char ch : s) {
+    co_yield ch;
+  }
 }
 
 int main() {
@@ -122,6 +127,14 @@ int main() {
   auto generator = MyGenerator();
   while (generator.next()) {
     std::cout << "> " << generator.get() << std::endl;
+  }
+
+  std::cout << std::endl;
+
+  std::cout << "Dangling Generator:" << std::endl;
+  auto dangling_generator = DanglingGenerator("hello world");
+  while (dangling_generator.next()) {
+    std::cout << "> " << dangling_generator.get() << std::endl;
   }
 
   return 0;

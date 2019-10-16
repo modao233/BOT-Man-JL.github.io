@@ -137,8 +137,7 @@ final_suspend:
 concept Future : Coroutine {
   struct promise_type {
     void return_value(const T& value);
-
-    // or (exclusive)
+    // or
     void return_void();
   };
 };
@@ -152,8 +151,6 @@ concept Future : Coroutine {
 concept Generator : Coroutine {
   struct promise_type {
     Awaitable yield_value(const T& value);
-
-    // or (coexistent)
     void return_void();
   };
 };
@@ -262,17 +259,14 @@ if (!awaiter.await_ready() &&
 
 ### 体验
 
-[示例代码](Cpp-Coroutine/coroutine.cpp)
-
-优势：
-
-- **异步 + 阻塞** = 执行高效 + 调用简单
-- 使用 `try-catch` **统一处理异常**
-
-不足：
-
-- 人工编写 + 编译器生成 + STL 支持 = **关系混乱**
-- 执行 `co_await` 后，之前的 **上下文可能失效**
+- [示例代码](Cpp-Coroutine/coroutine.cpp)
+- 优势：
+  - **异步 + 阻塞** = 执行高效 + 调用简单
+  - 使用 `try-catch` **统一处理异常**
+- 不足：
+  - 人工编写 + 编译器生成 + STL 支持 = **关系混乱**
+  - 执行 `co_await` 后，之前的 **上下文可能失效**
+  - [C++2a Coroutines and Dangling References - Arthur O’Dwyer](https://quuxplusone.github.io/blog/2019/07/10/ways-to-get-dangling-references-with-coroutines/)
 
 ---
 

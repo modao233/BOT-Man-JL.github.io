@@ -295,6 +295,27 @@ event_new(event_base, fd, EV_WRITE, do_send, buffer);
 很多人会好奇：`std::function` 是怎么实现的？这里有一个 [简单的实现原理](https://shaharmike.com/cpp/naive-std-function/)。（测试代码：[`std_function.cpp`](Callback-vs-Interface/std_function.cpp)）
 
 > 2019/1/12 延伸：[深入 C++ 回调](../2019/Inside-Cpp-Callback.md) 更系统的讨论了 [sec|C++ 语言中的回调] 提到的几个问题，并分析了 [Chromium 的 Bind/Callback 机制](https://github.com/chromium/chromium/blob/master/docs/callback.md)
+> 
+> 2019/10/16 补充：Arthur O’Dwyer [设计 `std::function` 时需要考虑哪些问题](https://quuxplusone.github.io/blog/2019/03/27/design-space-for-std-function/)？
+> 
+> - 核心语义层面
+>   - 是否接管 Callable 的所有权
+>   - 如果接管了所有权，是否可拷贝（以及如何处理不可拷贝的 Callable）
+>   - 如果可拷贝，是否共享底层的 Callable 对象（针对有状态闭包）
+>   - 是否支持不可移动的 Callable
+> - 是否支持小缓存优化（以及相关问题）
+> - 是否支持空状态
+>   - 是否支持默认构造
+>   - 被移动后，是否进入空状态
+> - 类型擦除问题
+>   - 是否支持类型还原
+>   - 是否支持类型转换（签名兼容时可以转换）
+> - Callable 签名问题
+>   - 如何支持变长参数
+>   - 如何支持 `const`
+>   - 如何支持引用限定符
+>   - 如何支持 `noexcept`
+>   - 是否支持函数签名重载
 
 ## 写在最后 [no-number]
 

@@ -375,6 +375,7 @@ Chromium 的 `base::Callback` 在各环节优化了上述问题：
 > 
 > - [`scoped_refptr`](https://github.com/chromium/chromium/blob/master/base/memory/scoped_refptr.h) 也属于 Chromium 提供的 **侵入式** _(intrusive)_ 智能指针，通过对象内部引用计数，实现类似 `std::shared_ptr` 的功能
 > - [提案 P0228R3 `std::unique_function`](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p0228r3.html) 为 STL 添加类似 `base::OnceCallback` 的支持
+> - [提案 P0792R3 `std::function_ref`](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p0792r5.html) 为 STL 支持了不拷贝 Callable 对象的回调容器（可用于同步回调）
 
 目前，Chromium 支持丰富的上下文 **绑定方式**：
 

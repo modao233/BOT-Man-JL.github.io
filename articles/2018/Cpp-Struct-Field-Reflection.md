@@ -37,7 +37,7 @@
 - 基于 C++ **原生语法**，不需要引入第三方库
 - 支持 **非侵入式** _(nonintrusive)_ 接口，能直接应用到已有代码上
 - 提供 **声明式** _(declarative)_ 的方法，只需要声明格式，不需要写逻辑语句
-- 不会带来 **额外的运行时开销**，能达到和手写代码一样的运行时效率
+- 不会带来额外的 **运行时开销** _(runtime overhead)_，能达到和手写代码一样的运行时效率
 
 基于 [nlohmann 的 C++ JSON 库](https://github.com/nlohmann/json)，给定两个 C++ 结构体 `SimpleStruct` 和 `NestedStruct`：
 
@@ -506,7 +506,9 @@ DEFINE_STRUCT_SCHEMA(
     DEFINE_STRUCT_FIELD(vector_, "_vector"));
 ```
 
-于是，编译器就可以生成和 [sec|人工手写 序列化/反序列化 代码] 一致的代码了。
+> 参考：[无运行时开销 _(zero runtime overhead)_ 实验](https://godbolt.org/z/KQ3u8M)
+
+于是，编译器就可以生成和 [sec|人工手写 序列化/反序列化 代码] 一致的代码了 —— **没有额外的运行时开销**！
 
 [align-center]
 

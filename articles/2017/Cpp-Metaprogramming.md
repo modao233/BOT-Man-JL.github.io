@@ -24,6 +24,8 @@
 
 [TOC]
 
+[align-center]
+
 ## 引言
 
 ### 什么是元编程
@@ -62,7 +64,7 @@ C++ 的元编程主要依赖于语言提供的模板机制。除了模板，现�
 
 **类模板** 和 **函数模板** 分别用于定义具有相似功能的 **类** 和 **函数** _(function)_，是泛型中对 **类型** 和 **算法** 的抽象。在标准库中，**容器** _(container)_ 和 **函数** 都是 **类模板** 和 **函数模板** 的应用。
 
-**别名模板** 和 **变量模板** 分别在 C++ 11 和 C++ 14 引入，分别提供了具有模板特性的 **类型别名** _(type alias)_ 和 **常量** _(constant)_ 的简记方法。前者只能用于简记 已知类型，并不产生新的类型；后者则可以通过 函数模板返回值 等方法实现。尽管这两类模板不是必须的，但可以增加程序的可读性（[sec|复杂性]）。例如，C++ 14 中的 **别名模板** `std::enable_if_t<T>` 等价于 `typename std::enable_if<T>::type`。
+**别名模板** 和 **变量模板** 分别在 C++ 11 和 C++ 14 引入，分别提供了具有模板特性的 **类型别名** _(type alias)_ 和 **常量** _(constant)_ 的简记方法。前者 类模板的嵌套类 等方法实现，后者则可以通过 `constexpr` 函数、类模板的静态成员、函数模板的返回值 等方法实现。例如，C++ 14 中的 **别名模板** `std::enable_if_t<T>` 等价于 `typename std::enable_if<T>::type`，C++ 17 中的 **变量模板** `std::is_same<T, U>` 等价于 `std::is_same<T, U>::value`。尽管这两类模板不是必须的，但一方面可以增加程序的可读性（[sec|复杂性]），另一方面可以提高模板的编译性能（[sec|编译性能]）。
 
 C++ 中的 **模板参数** _(template parameter / argument)_ 可以分为三种：值参数，类型参数，模板参数。[cppref-template-param] 从 C++ 11 开始，C++ 支持了 **变长模板** _(variadic template)_：模板参数的个数可以不确定，变长参数折叠为一个 **参数包** _(parameter pack)_ [parameter-pack]，使用时通过编译时迭代，遍历各个参数（[sec|变长模板的迭代]）。标准库中的 **元组** _(tuple)_ —— `std::tuple` 就是变长模板的一个应用（元组的 **类型参数** 是不定长的，可以用 `template<typename... Ts>` 匹配）。
 
@@ -366,7 +368,7 @@ BOT Man 提出了一种基于 **编译时多态** _(compile-time polymorphism)_ 
 
 ## 元编程的主要难点
 
-由于 C++ 语言设计层面上没有专门考虑元编程的相关问题，所以实际元编程难度较大。元编程的难点主要有四类：复杂性、实例化错误、代码膨胀、调试模板。
+尽管元编程的能力丰富，但学习、使用的难度都很大。一方面，复杂的语法和运算规则，往往让初学者望而却步；另一方面，即使是有经验的 C++ 开发者，也可能掉进元编程 “看不见的坑” 里。
 
 ### 复杂性
 
@@ -379,7 +381,7 @@ BOT Man 提出了一种基于 **编译时多态** _(compile-time polymorphism)_ 
 - C++ 17 的 **`constexpr-if`**（[sec|使用 `if` 进行编译时测试]）提供了 **编译时测试** 的新写法；
 - C++ 17 的 **折叠表达式**（[sec|使用折叠表达式化简编译时迭代]）降低了 **编译时迭代** 的编写难度。
 
-基于 C++ 14 的 **泛型 lambda 表达式**（[sec|泛型 lambda 表达式]），元编程库 Boost.Hana 提出了 **不用模板就能元编程** 的理念，宣告从 **模板元编程** _(template metaprogramming)_ 时代进入 **现代元编程** _(modern metaprogramming)_ 时代。[boost-hana] 其核心思想是：只需要使用 C++ 14 的泛型 lambda 表达式和 C++ 11 的 `constexpr`/`decltype`，就可以快速实现元编程的基本演算了。
+基于 C++ 14 的 **泛型 lambda 表达式**（[sec|泛型 lambda 表达式]），Louis Dionne 设计的元编程库 Boost.Hana 提出了 **不用模板就能元编程** 的理念，宣告从 **模板元编程** _(template metaprogramming)_ 时代进入 **现代元编程** _(modern metaprogramming)_ 时代。[boost-hana] 其核心思想是：只需要使用 C++ 14 的泛型 lambda 表达式和 C++ 11 的 `constexpr`/`decltype`，就可以快速实现元编程的基本演算了。
 
 ### 实例化错误
 
@@ -387,13 +389,13 @@ BOT Man 提出了一种基于 **编译时多态** _(compile-time polymorphism)_ 
 
 为了减少可能产生的错误，Bjarne Stroustrup 等人提出了在 **语言层面** 上，给模板上引入 **概念** _(concept)_。[cpp-pl] 利用概念，可以对传入的参数加上 **限制** _(constraint)_，即只有满足特定限制的类型才能作为参数传入模板。[cppref-concept] 例如，模板 `std::max` 限制接受支持运算符 `<` 的类型传入。但是由于各种原因，这个语言特性一直没有能正式加入 C++ 标准（可能在 C++ 20 中加入）。尽管如此，编译时仍可以通过 **编译时测试** 和 **静态断言** 等方法（[sec|测试类型]）实现检查。
 
-另外，编译时模板的实例化出错位置，在调用层数较深处时，编译器会提示每一层实例化的状态，这使得报错信息包含了很多的无用信息，很难让人较快的发现问题所在。BOT Man 提出了一种 **短路编译** _(short-circuit compiling)_ 的方法，能让基于元编程的 **库** _(library)_，给用户提供更人性化的编译时报错。具体方法是，在 **实现** _(implementation)_ 调用需要的操作之前，**接口** _(interface)_ 先检查是传入的参数否有对应的操作；如果没有，就通过短路的方法，转到一个用于报错的接口，然后停止编译并使用 **静态断言** 提供报错信息。[better-orm] Paul Fultz II 提出了一种更通用的优化报错信息的方法。 [fit-lib]
+另外，编译时模板的实例化出错位置，在调用层数较深处时，编译器会提示每一层实例化的状态，这使得报错信息包含了很多的无用信息，很难让人较快的发现问题所在。BOT Man 提出了一种 **短路编译** _(short-circuit compiling)_ 的方法，能让基于元编程的 **库** _(library)_，给用户提供更人性化的编译时报错。具体方法是，在 **实现** _(implementation)_ 调用需要的操作之前，**接口** _(interface)_ 先检查是传入的参数否有对应的操作；如果没有，就通过短路的方法，转到一个用于报错的接口，然后停止编译并使用 **静态断言** 提供报错信息。[better-orm] Paul Fultz II 提出了一种类似于 C++ 20 “概念/限制” 的接口检查方法，通过定义概念对应的 **特性** _(traits)_ 模板，然后在使用前检查特性是否满足。[tick-lib]
 
 ### 代码膨胀
 
 由于模板会对所有不同模板实参都进行一次实例化，所以当参数的组合很多的时候，很可能会发生 **代码膨胀** _(code bloat)_，即产生体积巨大的代码。这些代码可以分为两种：**死代码**  _(dead code)_ 和 **有效代码** _(effective code)_。
 
-在元编程中，很多时候只关心推导的结果，而不是过程。例如，[sec|定长模板的迭代] 的代码 [code|calc-factor] 中，只关心最后的 `Factor<4> == 24`，而不需要中间过程中产生的临时模板。但是在 `N` 很大的时候，编译会产生很多临时模板。这些临时模板是 **死代码**，即不被执行的代码。所以，编译器会自动优化最终的代码生成，在 **链接时** _(link-time)_ 移除这些无用代码，使得最终的目标代码不会包含它们。
+在元编程中，很多时候只关心推导的结果，而不是过程。例如，[sec|定长模板的迭代] 的代码 [code|calc-factor] 中，只关心最后的 `Factor<4> == 24`，而不需要中间过程中产生的临时模板。但是在 `N` 很大的时候，编译会产生很多临时模板。这些临时模板是 **死代码**，即不被执行的代码。所以，编译器会自动优化最终的代码生成，在 **链接时** _(link-time)_ 移除这些无用代码，使得最终的目标代码不会包含它们。尽管如此，如果产生过多的死代码，会浪费宝贵的 **编译时间**。（在 [sec|编译性能] 中详细讨论）
 
 另一种情况下，展开的代码都是 **有效代码**，即都是被执行的，但是又由于需要的参数的类型繁多，最后的代码体积仍然很大。编译器很难优化这些代码，所以程序员应该在 **设计时编码代码膨胀**。Bjarne Stroustrup 提出了一种消除 **冗余运算** _(redundant calculation)_ 的方法，用于缩小模板实例体积。具体思路是，将不同参数实例化得到的模板的 **相同部分** 抽象为一个 **基类** _(base class)_，然后 “继承” 并 “重载” 每种参数情况的 **不同部分**，从而实现更多代码的共享。
 
@@ -422,11 +424,51 @@ public:
 
 代码 [code|spec-vector] - 特化 `std::vector` 避免代码膨胀 [cpp-pl]
 
+### 编译性能
+
+元编程尽管不会带来额外的 **运行时开销** _(runtime overhead)_，但如果过度使用，可能会大大增加编译时间（尤其是在大型项目中）。为了提高元编程的编译性能，需要使用特殊的技巧进行优化。为了衡量编译性能的优化效果，Louis Dionne 设计了一个基于 CMake 的编译时间基准测试框架。[metabench]
+
+Chiel Douwes 对元编程中的常用模板操作进行了深入分析，对比了几种 **模板操作的代价** _(Cost of operations: The Rule of Chiel)_（没有提到 C++ 14 的变量模板；从高到低）：[type-based]
+
+- 替换失败不是错误 SFINAE
+- 实例化 函数模板
+- 实例化 类模板
+- 使用 别名模板
+- 添加参数到 类模板
+- 添加参数到 别名模板
+- 使用 缓存的类型
+
+基于以上原则，Odin Holmes 设计了类型运算库 Kvasir，相比基于 C++ 98/11 的类型运算库，拥有极高的编译性能。[type-based]
+
+另外，Mateusz Pusz 总结了一些元编程性能的实践经验。例如，基于 C++ 11 别名模板的 `std::conditional_t` 和基于 C++ 14 变量模板的 `std::is_same_v` 都比基于 `std::conditional`/`std::is_same` 的传统方案更快。代码 [code|optimized-is-same] 展示了基于 `std::is_same` 和直接基于变量模板的 `std::is_same_v` 的实现。
+
+[code||optimized-is-same]
+
+``` cpp
+// traditional, slow
+template <typename T, typename U>
+struct is_same : std::false_type {};
+template <typename T>
+struct is_same<T, T> : std::true_type {};
+template <typename T, typename U>
+constexpr bool is_same_v = is_same<T, U>::value;
+
+// using variable template, fast
+template <typename T, typename U>
+constexpr bool is_same_v = false;
+template <typename T>
+constexpr bool is_same_v<T, T> = true;
+```
+
+[align-center]
+
+代码 [code|optimized-is-same] - 优化前后的 `std::is_same_v`
+
 ### 调试模板
 
 元编程在运行时主要的难点在于：对模板代码的 **调试** _(debugging)_。如果需要调试的是一段通过很多次的 **编译时测试**（[sec|编译时测试]）和 **编译时迭代**（[sec|编译时迭代]）展开的代码，即这段代码是各个模板的拼接生成的（而且展开的层数很多）；那么，调试时需要不断地在各个模板的 **实例** _(instance)_ 间来回切换。这种情景下，调试人员很难把具体的问题定位到展开后的代码上。
 
-所以，一些大型项目很少使用复杂的代码生成技巧（[sec|代码生成]），而是通过传统的代码生成器生成重复的代码，易于调试。例如 Chromium 的 **通用扩展接口** _(common extension api)_ 通过定义 JSON/IDL 文件，通过代码生成器生成相关的 C++ 代码。[chromium-common-extension-api]
+所以，一些大型项目很少使用复杂的代码生成技巧（[sec|代码生成]），而是通过传统的代码生成器生成重复的代码，易于调试。例如 Chromium 的 **通用扩展接口** _(common extension api)_ 通过定义 JSON/IDL 文件，通过代码生成器生成相关的 C++ 代码，同时还可以生成接口文档。[chromium-common-extension-api]
 
 [align-center]
 
@@ -471,5 +513,7 @@ This article is published under MIT License &copy; 2017, BOT Man
 - [reflect-struct]: BOT Man JL. _C++ Struct Field Reflection_ [EB/OL] https://bot-man-jl.github.io/articles/?post=2018/Cpp-Struct-Field-Reflection
 - [boost-hana]: Boost. _Your standard library for metaprogramming_ [EB/OL] https://github.com/boostorg/hana
 - [cppref-concept]: cppreference.com. _Constraints and concepts_ [EB/OL] http://en.cppreference.com/w/cpp/language/constraints
-- [fit-lib]: Paul Fultz II. _Goodbye metaprogramming, and hello functional: Living in a post-metaprogramming era in C++_ [EB/OL] https://github.com/boostcon/cppnow_presentations_2016/raw/master/03_friday/goodbye_metaprogramming_and_hello_functional_living_in_a_post_metaprogramming_era_in_cpp.pdf
+- [tick-lib]: Paul Fultz II. _Goodbye metaprogramming, and hello functional: Living in a post-metaprogramming era in C++_ [EB/OL] https://github.com/boostcon/cppnow_presentations_2016/blob/master/03_friday/goodbye_metaprogramming_and_hello_functional_living_in_a_post_metaprogramming_era_in_cpp.pdf
+- [metabench]: Louis Dionne. _A simple framework for compile-time benchmarks_ [EB/OL] https://github.com/ldionne/metabench
+- [type-based]: Odin Holmes. _Type Based Template Metaprogramming is Not Dead_ [EB/OL] https://github.com/boostcon/cppnow_presentations_2017/blob/master/05-17-2017_wednesday/type_based_template_metaprogramming_is_not_dead__odin_holmes__cppnow_05-17-2017.pdf
 - [chromium-common-extension-api]: Chromium. _Extension API Functions_ [EB/OL] https://github.com/chromium/chromium/blob/master/extensions/docs/api_functions.md

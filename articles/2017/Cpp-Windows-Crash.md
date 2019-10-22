@@ -82,8 +82,8 @@ class Derived : Base {
 
 为了方便编写代码，C++ 提出一个 [资源获取即初始化 _(Resource Acquisition Is Initialization, RAII)_](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization) 的设计思想。例如：
 
-- [智能指针 `unique_ptr`](http://en.cppreference.com/w/cpp/memory/unique_ptr) 让我们免受内存泄露和悬垂引用的危害
-- [智能锁 `lock_guard`](http://en.cppreference.com/w/cpp/thread/lock_guard) 让我们避免了上述锁资源泄露导致的死锁问题
+- [智能指针 `unique_ptr`](https://en.cppreference.com/w/cpp/memory/unique_ptr) 让我们免受内存泄露和悬垂引用的危害
+- [智能锁 `lock_guard`](https://en.cppreference.com/w/cpp/thread/lock_guard) 让我们避免了上述锁资源泄露导致的死锁问题
 
 ## 两件事结合在一起
 

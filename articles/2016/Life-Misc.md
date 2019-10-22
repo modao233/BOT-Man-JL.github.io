@@ -100,9 +100,9 @@ https://developer.xamarin.com & https://dev.botframework.com
 
 https://github.com/BOT-Man-JL/MarkDown.UWP
 
-具体在这里：http://daringfireball.net/projects/markdown
+具体在这里：https://daringfireball.net/projects/markdown/
 
 ## 其他东西
 
 [分享一个外国人眼里的“平行世界”——中国的互联网](
-http://www.fastcompany.com/3056721/most-innovative-companies/a-week-behind-the-great-firewall-of-china)
+https://www.fastcompany.com/3056721/most-innovative-companies/a-week-behind-the-great-firewall-of-china)

@@ -31,11 +31,11 @@
 
 ### #4 [no-toc]
 
-最近终于读懂了几篇 [王垠的博客](http://www.yinwang.org/)，大概能理解了文章的思想（虽然比较偏激，但论述非常严谨）：
+最近终于读懂了几篇 [王垠的博客](https://www.yinwang.org/)，大概能理解了文章的思想（虽然比较偏激，但论述非常严谨）：
 
-- [解密“设计模式”](http://www.yinwang.org/blog-cn/2013/03/07/design-patterns)：批判（面向对象）设计模式（[备份](Thinking-Programming-Paradigms/解密设计模式.html)）
+- [解密“设计模式”](https://www.yinwang.org/blog-cn/2013/03/07/design-patterns)：批判（面向对象）设计模式（[备份](Thinking-Programming-Paradigms/解密设计模式.html)）
 - [Purely functional languages and monads](https://yinwang0.wordpress.com/2013/11/16/pure-fp-and-monads/)：批判“纯”函数式（[备份](Thinking-Programming-Paradigms/Purely-functional-languages-and-monads_Surely-I-Am-Joking.html)）
-- [编程的宗派](http://www.yinwang.org/blog-cn/2015/04/03/paradigms)：批判“纯”面向对象、“纯”函数式 和 说“各有各的好处”的“好好先生”（[备份](Thinking-Programming-Paradigms/编程的宗派.html)）
+- [编程的宗派](https://www.yinwang.org/blog-cn/2015/04/03/paradigms)：批判“纯”面向对象、“纯”函数式 和 说“各有各的好处”的“好好先生”（[备份](Thinking-Programming-Paradigms/编程的宗派.html)）
 
 在《解密“设计模式”》提到，**面向对象** 的 “设计模式” 是为了解决 “一切皆对象” 思想导致的问题。即使是 Erich Gamma（设计模式作者之一）粉丝的我，也深有感触：
 
@@ -287,7 +287,7 @@ handlers_.at(action)();
 
 对于 C++，上面的代码 **本质** 上是通过 **面向对象** 实现的：
 
-- [`std::function`](https://en.cppreference.com/w/cpp/utility/functional/function) 是基于带有 `operator()(...)` 抽象类，在构造时利用泛型技巧，抹除传入的 [可调用 _(callable)_](http://en.cppreference.com/w/cpp/concept/Callable) 对象的类型，仅保留调用的签名（[原理](https://shaharmike.com/cpp/naive-std-function/) / [代码](../2017/Callback-vs-Interface/std_function.cpp)）
+- [`std::function`](https://en.cppreference.com/w/cpp/utility/functional/function) 是基于带有 `operator()(...)` 抽象类，在构造时利用泛型技巧，抹除传入的 [可调用 _(callable)_](https://en.cppreference.com/w/cpp/concept/Callable) 对象的类型，仅保留调用的签名（[原理](https://shaharmike.com/cpp/naive-std-function/) / [代码](../2017/Callback-vs-Interface/std_function.cpp)）
 - [lambda 表达式](https://en.cppreference.com/w/cpp/language/lambda) 会被编译为带有 `operator()(...)` 的类，并构造时捕获当前的上下文（类似前面的 `NewCommand`）；可以传入 `std::function` 封装为更抽象的可调用对象
 
 > 2019/2/22 补充：

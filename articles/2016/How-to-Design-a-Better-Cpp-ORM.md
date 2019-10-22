@@ -487,9 +487,9 @@ static inline auto TupleToNullable (const TupleType &tuple)
 - **展开的结果**放入一个 `std::tuple` 中，并构造/返回一个对象；
 
 具体参考：
-http://en.cppreference.com/w/cpp/language/parameter_pack
+https://en.cppreference.com/w/cpp/language/parameter_pack
 
-（另外分享一下：[如何使用 `index_sequence` 实现 Tuple Visitor](http://stackoverflow.com/questions/26902633/how-to-iterate-over-a-tuple-in-c-11/26902803#26902803)）
+（另外分享一下：[如何使用 `index_sequence` 实现 Tuple Visitor](https://stackoverflow.com/questions/26902633/how-to-iterate-over-a-tuple-in-c-11/26902803#26902803)）
 
 #### 直接拆解 `std::tuple` 取出元素
 
@@ -586,7 +586,7 @@ error C2039: '__this': is not a member of 'SessionModel'
 ### 5.2 使用 SFINAE 检查注入
 
 为了检测是否加入 `ORMAP`，我们可以使用
-[SFINAE](http://en.cppreference.com/w/cpp/language/sfinae)
+[SFINAE](https://en.cppreference.com/w/cpp/language/sfinae)
 编译时**检查**是否存在我们注入的某些**成员**；
 
 在我看来，**SFINAE** 简单说来就是**模板的最优匹配**
@@ -697,7 +697,7 @@ error C2338: Please Inject the Class with 'ORMAP' first
 ```
 
 具体参考：
-- http://en.cppreference.com/w/cpp/types/enable_if
+- https://en.cppreference.com/w/cpp/types/enable_if
 - https://blogs.msdn.microsoft.com/vcblog/2016/06/07/expression-sfinae-improvements-in-vs-2015-update-3/
 - https://blogs.msdn.microsoft.com/vcblog/2015/12/02/partial-support-for-expression-sfinae-in-vs-2015-update-1/
 
@@ -730,7 +730,7 @@ auto fn (...,
 当然，这个**带默认值的辅助参数**思想也可以用到**模板参数**上；
 
 具体参考（这里总结了上述三种方法）：
-http://stackoverflow.com/questions/17829874/understanding-sfinae/17830071#17830071
+https://stackoverflow.com/questions/17829874/understanding-sfinae/17830071#17830071
 
 ### 5.6 使用 `std::void_t` 改进 `HasInjected`
 
@@ -753,7 +753,7 @@ public:
 ```
 
 具体参考：
-http://en.cppreference.com/w/cpp/types/void_t
+https://en.cppreference.com/w/cpp/types/void_t
 
 ## 0xFF. 写在最后
 

@@ -394,7 +394,7 @@ ForEachField(SimpleStruct{1, "hello static reflection"},
 
 > **2019/2/19 补充**
 > 
-> 如果需要针对不同类型使用不同的操作，可以考虑 [重载 lambda 表达式](http://martinecker.com/martincodes/lambda-expression-overloading/)（[提案 p0051r3](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0051r3.pdf)）：
+> 如果需要针对不同类型使用不同的操作，可以考虑 [重载 lambda 表达式](https://martinecker.com/martincodes/lambda-expression-overloading/)（[提案 p0051r3](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0051r3.pdf)）：
 > 
 > ``` cpp
 > ForEachField(SimpleStruct{1, "hello static reflection"},
@@ -483,7 +483,7 @@ struct adl_serializer<T, std::enable_if_t<::has_schema<T>>> {
 - 和 [sec|人工手写 序列化/反序列化 代码] 的代码类似：
   - 使用 `j[name] = field` 序列化
   - 使用 `j.at(name).get_to(field)` 反序列化
-  - 针对可选字段检查字段是否存在，不存在则跳过（C++ 17 还可以使用 [`if constexpr`](http://en.cppreference.com/w/cpp/language/if) 实现选择性编译）
+  - 针对可选字段检查字段是否存在，不存在则跳过（C++ 17 还可以使用 [`if constexpr`](https://en.cppreference.com/w/cpp/language/if) 实现选择性编译）
 - 关于如何使用 `nlohmann::adl_serializer` 扩展自定义类型的序列化/反序列化操作，参考 [How do I convert third-party types? | nlohmann/json](https://github.com/nlohmann/json#how-do-i-convert-third-party-types)
 - 使用的两个简单的 **变量模板** _(variable template)_，具体见 [代码](Cpp-Struct-Field-Reflection/reflection_json.cc)
   - `has_schema<T>` 检查是否定义了 `StructSchema<T>`

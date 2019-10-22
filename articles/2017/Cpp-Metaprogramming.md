@@ -493,17 +493,17 @@ This article is published under MIT License &copy; 2017, BOT Man
 - [using-cpp-tmp]: Todd Veldhuizen. _Using C++ template metaprograms_ [C] // S. B. Lippman. In _C++ Report_, 1995, 7(4): 36-43.
 - [modern-cpp-design]: Andrei Alexandrescu. _Modern C++ Design_ [M] Addison-Wesley, 2001.
 - [d-lang]: D Language Foundation. _Home - D Programming Language_ [EB/OL] https://dlang.org/
-- [cppref-constexpr]: cppreference.com. _constexpr specifier_ [EB/OL] http://en.cppreference.com/w/cpp/language/constexpr
-- [cppref-template]: cppreference.com. _Templates_ [EB/OL] http://en.cppreference.com/w/cpp/language/templates
-- [cppref-template-param]: cppreference.com. _Template parameters and template arguments_ [EB/OL] http://en.cppreference.com/w/cpp/language/template_parameters
+- [cppref-constexpr]: cppreference.com. _constexpr specifier_ [EB/OL] https://en.cppreference.com/w/cpp/language/constexpr
+- [cppref-template]: cppreference.com. _Templates_ [EB/OL] https://en.cppreference.com/w/cpp/language/templates
+- [cppref-template-param]: cppreference.com. _Template parameters and template arguments_ [EB/OL] https://en.cppreference.com/w/cpp/language/template_parameters
 - [parameter-pack]: cppreference.com. _Parameter pack (since C++11)_ [EB/OL] https://en.cppreference.com/w/cpp/language/parameter_pack
 - [generic-lambda]: Faisal Vali, Herb Sutter, Dave Abrahams. _Generic (Polymorphic) Lambda Expressions (Revision 3)_ [EB/OL] http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3649.html
 - [template-turing-complete]: Todd L. Veldhuizen. _C++ Templates are Turing Complete_ [J] Indiana University Computer Science Technical Report. 2003.
-- [cppref-SFINAE]: cppreference.com. _SFINAE_ [EB/OL] http://en.cppreference.com/w/cpp/language/sfinae
+- [cppref-SFINAE]: cppreference.com. _SFINAE_ [EB/OL] https://en.cppreference.com/w/cpp/language/sfinae
 - [cppref-tag-dispatch]: cppreference.com. _iterator category tags_ [EB/OL] https://en.cppreference.com/w/cpp/iterator/iterator_tags#Example
 - [two-phase-name-lookup]: John Wilkinson, Jim Dehnert, Matt Austern. _A Proposed New Template Compilation Model_ [EB/OL] http://www.open-std.org/jtc1/sc22/wg21/docs/papers/1996/n0906.pdf
 - [false-v]: Arthur O’Dwyer. _Use-cases for `false_v`_ [EB/OL] https://quuxplusone.github.io/blog/2018/04/02/false-v/
-- [cppref-constexpr-if]: cppreference.com. _if statement_ [EB/OL] http://en.cppreference.com/w/cpp/language/if
+- [cppref-constexpr-if]: cppreference.com. _if statement_ [EB/OL] https://en.cppreference.com/w/cpp/language/if
 - [vs-if-exists]: Microsoft Docs. _`__if_exists` Statement_ [EB/OL] https://docs.microsoft.com/en-us/cpp/cpp/if-exists-statement?view=vs-2017
 - [fold-expression]: cppreference.com. _fold expression (since C++17)_ [EB/OL] https://en.cppreference.com/w/cpp/language/fold
 - [expr-template]: Todd Veldhuizen. _Expression Templates_ [C] // S. B. Lippman. In _C++ Report_, 1995, 7(5): 26–31.
@@ -512,7 +512,7 @@ This article is published under MIT License &copy; 2017, BOT Man
 - [better-orm]: BOT Man JL. _How to Design a Better C++ ORM_ [EB/OL] https://bot-man-jl.github.io/articles/?post=2016/How-to-Design-a-Better-Cpp-ORM
 - [reflect-struct]: BOT Man JL. _C++ Struct Field Reflection_ [EB/OL] https://bot-man-jl.github.io/articles/?post=2018/Cpp-Struct-Field-Reflection
 - [boost-hana]: Boost. _Your standard library for metaprogramming_ [EB/OL] https://github.com/boostorg/hana
-- [cppref-concept]: cppreference.com. _Constraints and concepts_ [EB/OL] http://en.cppreference.com/w/cpp/language/constraints
+- [cppref-concept]: cppreference.com. _Constraints and concepts_ [EB/OL] https://en.cppreference.com/w/cpp/language/constraints
 - [tick-lib]: Paul Fultz II. _Goodbye metaprogramming, and hello functional: Living in a post-metaprogramming era in C++_ [EB/OL] https://github.com/boostcon/cppnow_presentations_2016/blob/master/03_friday/goodbye_metaprogramming_and_hello_functional_living_in_a_post_metaprogramming_era_in_cpp.pdf
 - [metabench]: Louis Dionne. _A simple framework for compile-time benchmarks_ [EB/OL] https://github.com/ldionne/metabench
 - [type-based]: Odin Holmes. _Type Based Template Metaprogramming is Not Dead_ [EB/OL] https://github.com/boostcon/cppnow_presentations_2017/blob/master/05-17-2017_wednesday/type_based_template_metaprogramming_is_not_dead__odin_holmes__cppnow_05-17-2017.pdf

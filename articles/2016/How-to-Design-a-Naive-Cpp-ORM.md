@@ -303,7 +303,7 @@ inline void TupleVisitor_Impl (TupleType &tuple, ActionType action,
 
 - 其中使用了 `_SizeT` 巧妙的进行 `tuple` 下标的判断；
 - 具体参考
-  http://stackoverflow.com/questions/18155533/how-to-iterate-through-stdtuple
+  https://stackoverflow.com/questions/18155533/how-to-iterate-through-stdtuple
 
 最后，类似上边，实际的数据交换操作通过 `TupleVisitor` 完成：
 

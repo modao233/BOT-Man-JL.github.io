@@ -10,7 +10,7 @@
 
 ## [no-number] [no-toc] 摘要
 
-随着 C++ 11/14/17 标准的不断更新，C++ 语言得到了极大的完善和补充。元编程作为一种新兴的编程方式，受到了越来越多的广泛关注。结合已有文献和个人实践，对有关 C++ 元编程进行了系统的分析。首先介绍了 C++ 元编程中的相关概念和背景，然后利用科学的方法分析了元编程的 **演算规则**、**基本应用** 和实践过程中的 **主要难点**，最后提出了对 C++ 元编程发展的 **展望**。
+随着 C++ 11/14/17 标准的不断更新，C++ 语言得到了极大的完善和补充。元编程作为一种新兴的编程方式，受到了广泛的关注。结合已有文献和个人实践，对有关 C++ 元编程进行了系统的分析。首先介绍了 C++ 元编程中的相关概念和背景，然后利用科学的方法分析了元编程的 **演算规则**、**基本应用** 和实践过程中的 **主要难点**，最后提出了对 C++ 元编程发展的 **展望**。
 
 [align-center]
 
@@ -56,11 +56,11 @@ C++ 的 **抽象机制** _(abstraction mechanisms)_ 主要有两种：**面向�
 
 ### 元编程的语言支持
 
-C++ 的元编程主要依赖于语言提供的模板机制。除了模板，现代 C++ 还允许使用 `constexpr` 函数进行常量计算。[cppref-constexpr] 由于 `constexpr` 函数功能有限，所以目前的元编程程序主要基于模板。这一部分主要总结 C++ 模板机制相关的语言基础，包括 **狭义的模板** 和 **泛型 lambda 表达式**。
+C++ 的元编程主要依赖于语言提供的模板机制。除了模板，现代 C++ 还允许使用 `constexpr` 函数进行常量计算。[cppref-constexpr] 由于 `constexpr` 函数的功能有限，递归调用层数和计算次数还受编译器限制 [constexpr-limit]，而且编译性能较差 [constexpr-slow]，所以目前的元编程程序主要基于模板。这一部分主要总结 C++ 模板机制相关的语言基础，包括 **狭义的模板** 和 **泛型 lambda 表达式**。
 
 #### 狭义的模板
 
-目前最新的 C++ 将模板分成了 4 类：**类模板** _(class template)_，**函数模板** _(function template)_，**别名模板** _(alias template)_ 和 **变量模板** _(variable template)_。[cppref-template] 前两者能产生新的类型，属于 **类型构造器** _(type constructor)_；而后两者仅是语言提供的简化记法，属于 **语法糖** _(syntactic sugar)_。
+目前最新的 C++ 将模板分成了 4 类：**类模板** _(class template)_，**函数模板** _(function template)_，**别名模板** _(alias template)_ 和 **变量模板** _(variable template)_。[cppref-template] 前两者能产生新的类型，属于 **类型构造器** _(type constructor)_；而后两者是 C++ 为前两者补充的简化记法，属于 **语法糖** _(syntactic sugar)_。
 
 **类模板** 和 **函数模板** 分别用于定义具有相似功能的 **类** 和 **函数** _(function)_，是泛型中对 **类型** 和 **算法** 的抽象。在标准库中，**容器** _(container)_ 和 **函数** 都是 **类模板** 和 **函数模板** 的应用。
 
@@ -304,7 +304,7 @@ static_assert (Sum (1, 2.0, 3) == 6, "compile error");
 
 利用元编程，可以很方便的设计出 **类型安全** _(type safe)_、**运行时高效** _(runtime effective)_ 的程序。到现在，元编程已被广泛的应用于 C++ 的编程实践中。例如，Todd Veldhuizen 提出了使用元编程的方法构造 **表达式模板** _(expression template)_，使用表达式优化的方法，提升向量计算的运行速度 [expr-template]；K. Czarnecki 和 U. Eisenecker 利用模板实现 Lisp 解释器 [gererative-programming]。
 
-尽管元编程的应用场景各不相同，但都是三类基本应用的组合：**数值计算** _(numeric computation)_、**类型推导** _(type deduction)_ 和 **代码生成** _(code generation)_。例如，在 BOT Man 设计的 **对象关系映射** _(object-relation mapping, ORM)_ 中，主要使用了 类型推导 和 代码生成 的功能。根据 **对象** _(object)_ 在 C++ 中的类型，推导出对应数据库 **关系** _(relation)_ 中元组各个字段的类型；将对 C++ 对象的操作，映射到对应的数据库语句上，并生成相应的代码。[naive-orm] [better-orm]
+尽管元编程的应用场景各不相同，但都是三类基本应用的组合：**数值计算** _(numeric computation)_、**类型推导** _(type deduction)_ 和 **代码生成** _(code generation)_。例如，在 BOT Man 设计的 **对象关系映射 ORM** _(object-relation mapping)_ 中，主要使用了 类型推导 和 代码生成 的功能。根据 **对象** _(object)_ 在 C++ 中的类型，推导出对应数据库 **关系** _(relation)_ 中元组各个字段的类型；将对 C++ 对象的操作，映射到对应的数据库语句上，并生成相应的代码。[naive-orm] [better-orm]
 
 ### 数值计算
 
@@ -397,7 +397,7 @@ BOT Man 提出了一种基于 **编译时多态** _(compile-time polymorphism)_ 
 
 在元编程中，很多时候只关心推导的结果，而不是过程。例如，[sec|定长模板的迭代] 的代码 [code|calc-factor] 中，只关心最后的 `Factor<4> == 24`，而不需要中间过程中产生的临时模板。但是在 `N` 很大的时候，编译会产生很多临时模板。这些临时模板是 **死代码**，即不被执行的代码。所以，编译器会自动优化最终的代码生成，在 **链接时** _(link-time)_ 移除这些无用代码，使得最终的目标代码不会包含它们。尽管如此，如果产生过多的死代码，会浪费宝贵的 **编译时间**。（在 [sec|编译性能] 中详细讨论）
 
-另一种情况下，展开的代码都是 **有效代码**，即都是被执行的，但是又由于需要的参数的类型繁多，最后的代码体积仍然很大。编译器很难优化这些代码，所以程序员应该在 **设计时编码代码膨胀**。Bjarne Stroustrup 提出了一种消除 **冗余运算** _(redundant calculation)_ 的方法，用于缩小模板实例体积。具体思路是，将不同参数实例化得到的模板的 **相同部分** 抽象为一个 **基类** _(base class)_，然后 “继承” 并 “重载” 每种参数情况的 **不同部分**，从而实现更多代码的共享。
+另一种情况下，展开的代码都是 **有效代码**，即都是被执行的，但是又由于需要的参数的类型繁多，最后的代码体积仍然很大。编译器很难优化这些代码，所以程序员应该在 **设计时避免代码膨胀**。Bjarne Stroustrup 提出了一种消除 **冗余运算** _(redundant calculation)_ 的方法，用于缩小模板实例体积。具体思路是，将不同参数实例化得到的模板的 **相同部分** 抽象为共同的 函数或基类，然后通过 继承和重载 每种参数对应情况的 **不同部分**，从而实现更多代码的共享。
 
 例如，在 `std::vector` 的实现中，对 `T *` 和 `void *` 进行了特化；然后将所有的 `T *` 的实现 **继承** 到 `void *` 的实现上，并在公开的函数里通过强制类型转换，进行 `void *` 和 `T *` 的相互转换；最后这使得所有的指针的 `std::vector` 就可以共享同一份实现，从而避免了代码膨胀。（代码 [code|spec-vector]）
 
@@ -494,6 +494,8 @@ This article is published under MIT License &copy; 2017, BOT Man
 - [modern-cpp-design]: Andrei Alexandrescu. _Modern C++ Design_ [M] Addison-Wesley, 2001.
 - [d-lang]: D Language Foundation. _Home - D Programming Language_ [EB/OL] https://dlang.org/
 - [cppref-constexpr]: cppreference.com. _constexpr specifier_ [EB/OL] https://en.cppreference.com/w/cpp/language/constexpr
+- [constexpr-limit]: WG21. _Implementation quantities | Working Draft, Standard for Programming Language C++_ [EB/OL] http://eel.is/c++draft/implimits#2.38
+- [constexpr-slow]: Hana Dusíková. _Compile Time Regular Expressions with Deterministic Finite Automaton_ [EB/OL] https://compile-time.re/cppnow-2019/#/9/2/6
 - [cppref-template]: cppreference.com. _Templates_ [EB/OL] https://en.cppreference.com/w/cpp/language/templates
 - [cppref-template-param]: cppreference.com. _Template parameters and template arguments_ [EB/OL] https://en.cppreference.com/w/cpp/language/template_parameters
 - [parameter-pack]: cppreference.com. _Parameter pack (since C++11)_ [EB/OL] https://en.cppreference.com/w/cpp/language/parameter_pack

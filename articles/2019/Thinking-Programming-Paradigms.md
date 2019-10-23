@@ -16,7 +16,7 @@
 
 直到现在，我才发现，原来要理解回调函数，就需要先接受 [函数是一等公民 _(first-class function)_](https://en.wikipedia.org/wiki/First-class_function) 的事实（函数和数据一样都可以被存储、传递），然后理解 [高阶函数 _(higher-order function)_](https://en.wikipedia.org/wiki/Higher-order_function) 的概念（函数可以作为参数传递到另一个函数里）。
 
-这对于没有接触过 **函数式** 的人来说，简直是 **世界观的颠覆**：
+这对于没有接触过 **函数式** 的人来说，简直是 **世界观的颠覆**，因为：
 
 - **面向过程** 里，数据是数据、操作是操作
 - **面向对象** 里，数据和操作放到对象里，属于对象的一部分
@@ -25,9 +25,14 @@
 
 为了批判 **面向对象** 里 “操作必须放到对象里” 的回调思想，写了一篇文章 [回调 vs 接口](../2017/Callback-vs-Interface.md)（后来读到 陈硕 也有一篇类似的文章 [以 `boost::function` 和 `boost::bind` 取代虚函数](https://blog.csdn.net/Solstice/article/details/3066268)），但境界还不够，一直没有发现这个问题的 **本质** —— **函数式 vs 面向对象**。
 
+同样是实现 [依赖注入 _(dependency injection)_](https://martinfowler.com/articles/injection.html) 的功能：
+
+- **面向对象** 需要借助接口和继承（紧耦合）
+- **函数式** 高阶函数特性就能原生支持（松耦合）
+
 ### #3 [no-toc]
 
-之前我也 ~~跟风~~ 写过一篇 [高阶函数：消除循环和临时变量](../2018/Higher-Order-Functions.md)，讲的是如何使用 `all`/`any`/`map`/`filter`/`fold` 之类的高阶函数。现在想才明白了问题的 **本质** —— 使用 **函数式** 的方法，实现 **面向对象** 的 [内部迭代 _(internal iteration)_](https://en.wikipedia.org/wiki/Iterator#Internal_Iterators)（属于 [迭代器模式 _(iterator pattern)_](../2017/Design-Patterns-Notes-3.md#Iterator) 的一种），从而消除循环和迭代器临时变量。
+之前我也 ~~跟风~~ 写过一篇 [高阶函数：消除循环和临时变量](../2018/Higher-Order-Functions.md)，讲的是如何使用 `all`/`any`/`map`/`filter`/`fold` 之类的高阶函数。现在想才明白了问题的 **本质** —— 使用 **函数式** 的方法，实现 **面向对象** 的 [内部迭代 _(internal iteration)_](https://en.wikipedia.org/wiki/Iterator#Internal_Iterators)（类似 [访问者模式 _(visitor pattern)_](../2017/Design-Patterns-Notes-3.md#Visitor)，属于 [迭代器模式 _(iterator pattern)_](../2017/Design-Patterns-Notes-3.md#Iterator)），从而消除循环和迭代器临时变量。
 
 ### #4 [no-toc]
 
@@ -61,9 +66,9 @@
 
 | 范式 | 数据 | 计算 | 计算数据 |
 |-|---|---|---|
-| 面向过程 | 数据结构 | 函数 | 用数据调用函数 |
-| 面向对象 | 对象的字段 | 对象的方法 | 调用对象的方法，派发消息 |
-| 函数式 | 数据结构/闭包 | 函数 | 用数据/函数调用函数 |
+| 面向过程 | 数据结构 | 控制流（顺序/选择/循环）| 用控制流描述算法，修改数据 |
+| 面向对象 | 对象的字段 | 对象的方法+面向过程 | 调用对象的方法，派发消息 |
+| 函数式 | 数据结构/闭包 | 链式调用/模式匹配/递归调用 | 用数据/函数调用函数 |
 
 ### 面向过程
 

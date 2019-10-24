@@ -148,18 +148,20 @@ deactivate UI thread
 
 ![Fetch Image Async](Inside-Cpp-Callback/fetch-image-async.svg)
 
+使用 C++ 11 lambda 表达式实现等效为：
+
+``` cpp
+FetchImageAsync(
+    filename,
+    base::Bind([this](const Image& image) {
+      // WARNING: |this| may be invalid now!
+      if (background_image_view_)
+        background_image_view_->SetImage(image);
+    }));
+```
+
 > 注：
 > 
-> - 使用 C++ 11 lambda 表达式实现等效为：
-> ``` cpp
-> FetchImageAsync(
->     filename,
->     base::Bind([this](const Image& image) {
->       // WARNING: |this| may be invalid now!
->       if (background_image_view_)
->         background_image_view_->SetImage(image);
->     }));
-> ```
 > - `View::FetchImageAsync` 基于 Chromium 的多线程任务模型（参考：[Keeping the Browser Responsive | Threading and Tasks in Chrome](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#keeping-the-browser-responsive)）
 
 ### 回调时（弱引用）上下文会不会失效
@@ -184,6 +186,10 @@ deactivate UI thread
 - [F.52: Prefer capturing by reference in lambdas that will be used locally, including passed to algorithms](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rf-reference-capture)
 - [F.53: Avoid capturing by reference in lambdas that will be used nonlocally, including returned, stored on the heap, or passed to another thread](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rf-value-capture)
 
+> 注：
+> 
+> - [`base::BindLambdaForTesting`](https://github.com/chromium/chromium/blob/master/base/test/bind_test_util.h) 支持了 lambda 表达式的绑定，同时兼容可拷贝/不可拷贝的 lambda 表达式；但仍无法识别捕获的弱引用有效性，仅用于测试（参考：[Binding A Capturing Lambda (In Tests) | Callback<> and Bind()](https://github.com/chromium/chromium/blob/master/docs/callback.md#binding-a-capturing-lambda-in-tests)）
+
 ### 如何处理失效的（弱引用）上下文
 
 如果弱引用上下文失效，回调应该 **及时取消**。例如 异步加载图片 的代码，可以给 `base::Bind` 传递 `View` 对象的 **弱引用指针**，即 `base::WeakPtr<View>`：
@@ -204,7 +210,7 @@ FetchImageAsync(
 > 注：
 > 
 > - [`base::WeakPtr`](https://github.com/chromium/chromium/blob/master/base/memory/weak_ptr.h) 属于 Chromium 提供的 **侵入式** _(intrusive)_ 智能指针，非 **线程安全** _(thread-safe)_
-> - `base::Bind` 针对 `base::WeakPtr` 扩展了 `base::IsWeakReceiver` 检查，调用时增加 `if (!weak_ptr) return;` 的弱引用有效性检查（参考：[Customizing the behavior | Callback<> and Bind()](https://github.com/chromium/chromium/blob/master/docs/callback.md#customizing-the-behavior)）
+> - `base::Bind` 针对 `base::WeakPtr` 扩展了 `base::IsWeakReceiver<>` 检查，调用前判断弱引用有效性（参考：[Binding A Class Method With Weak Pointers | Callback<> and Bind()](https://github.com/chromium/chromium/blob/master/docs/callback.md#binding-a-class-method-with-weak-pointers)）
 
 基于弱引用指针，Chromium 封装了 **可取消** _(cancelable)_ 回调 [`base::CancelableCallback`](https://github.com/chromium/chromium/blob/master/base/cancelable_callback.h)，提供 `Cancel`/`IsCancelled` 接口。（参考：[Cancelling a Task | Threading and Tasks in Chrome](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#cancelling-a-task)）
 
@@ -373,7 +379,7 @@ Chromium 的 `base::Callback` 在各环节优化了上述问题：
 
 > 注：
 > 
-> - [`scoped_refptr`](https://github.com/chromium/chromium/blob/master/base/memory/scoped_refptr.h) 也属于 Chromium 提供的 **侵入式** _(intrusive)_ 智能指针，通过对象内部引用计数，实现类似 `std::shared_ptr` 的功能
+> - [`scoped_refptr`](https://github.com/chromium/chromium/blob/master/base/memory/scoped_refptr.h) 也属于 Chromium 提供的侵入式智能指针，通过对象内部引用计数，实现类似 `std::shared_ptr` 的功能
 > - [提案 P0228R3 `std::unique_function`](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p0228r3.html) 为 STL 添加类似 `base::OnceCallback` 的支持
 > - [提案 P0792R3 `std::function_ref`](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p0792r5.html) 为 STL 支持了不拷贝 Callable 对象的回调容器（可用于同步回调）
 
@@ -384,7 +390,7 @@ Chromium 的 `base::Callback` 在各环节优化了上述问题：
 | `std::ref/cref()` | `T&`/`const T&` | `T&`/`const T&` | 否，不保证有效性 |
 | `base::Unretained()` | `T*` | `T*` | 否，不保证有效性 |
 | `base::WeakPtr` | `T*` | `base::WeakPtr` | 否，检查有效性 |
-| `base::Owned()` | `T*` | `T*` | 是，`delete` 销毁 |
+| `base::Owned()` | `T*` | `T*` | 是，析构销毁 |
 | `std::unique_ptr` | `std::unique_ptr` | `std::unique_ptr` | 是，析构销毁 |
 | `base::RetainedRef()` | `T*` | `scoped_refptr` | 是，析构销毁 |
 | `scoped_refptr` | `scoped_refptr` | `scoped_refptr` | 是，析构销毁 |
@@ -392,7 +398,7 @@ Chromium 的 `base::Callback` 在各环节优化了上述问题：
 > 注：
 > 
 > - 主要参考 [Quick reference for advanced binding | Callback<> and Bind()](https://github.com/chromium/chromium/blob/master/docs/callback.md#quick-reference-for-advanced-binding)
-> - `base::Unretained/Owned/RetainedRef()` 类似于 `std::ref/cref()`，构造特殊类型数据的封装（参考：[Customizing the behavior | Callback<> and Bind()](https://github.com/chromium/chromium/blob/master/docs/callback.md#customizing-the-behavior)）
+> - `base::Unretained/Owned/RetainedRef()` 类似于 `std::ref/cref()`，支持 `base::BindUnwrapTraits<>` 扩展，构造特殊类型数据的封装（参考：[Customizing the behavior | Callback<> and Bind()](https://github.com/chromium/chromium/blob/master/docs/callback.md#customizing-the-behavior)）
 > - 表格中没有列出的 `base::Passed`
 >   - 主要用于在 `base::RepeatingCallback` 回调时，使用 `std::move` 移动上下文（语义上只能执行一次，但实现上无法约束）
 >   - 而 Chromium 建议直接使用 `base::OnceCallback` 明确语义
@@ -408,7 +414,7 @@ Chromium 的 `base::Callback` 在各环节优化了上述问题：
 
 > @hghwng 在 2019/3/29 评论：
 > 
-> 其实这一系列问题的根源，在我看，就是闭包所捕获变量的所有权的归属。或许是因为最近在写 Rust，编码的思维方式有所改变吧。所有权机制保证了不会有野指针，[Fn](https://doc.rust-lang.org/std/ops/trait.Fn.html)/[FnMut](https://doc.rust-lang.org/std/ops/trait.FnMut.html)/[FnOnce](https://doc.rust-lang.org/std/ops/trait.FnOnce.html) 对应了对闭包捕获变量操作的能力。
+> 其实这一系列问题的根源，在我看，就是闭包所捕获变量的 **所有权的归属**。或许是因为最近在写 Rust，编码的思维方式有所改变吧。所有权机制保证了不会有野指针，[Fn](https://doc.rust-lang.org/std/ops/trait.Fn.html)/[FnMut](https://doc.rust-lang.org/std/ops/trait.FnMut.html)/[FnOnce](https://doc.rust-lang.org/std/ops/trait.FnOnce.html) 对应了对闭包捕获变量操作的能力。
 > 
 > 前一段时间在写事件驱动的程序，以组合的方式写了大量的 Future，开发（让编译通过）效率很低。最后反而觉得基于 Coroutine 来写异步比较直观（不过这又需要保证闭包引用的对象不可移动，Pin 等一系列问题又出来了）。可能这就是为什么 Go 比较流行的原因吧：**Rust 的安全检查再强，C++ 的模板再炫，也需要使用者有较高的水平保证内存安全**（无论是运行时还是编译期）。有了 GC，就可以抛弃底层细节，随手胡写了。
 

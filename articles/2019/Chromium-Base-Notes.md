@@ -70,7 +70,7 @@
 ## 任务模型
 
 - `base::Bind/Callback` 生命周期严格的函数闭包，支持 弱引用检查/调用次数限制（参考：[深入 C++ 回调](Inside-Cpp-Callback.md)）
-- `base::PendingTask` 将异步任务封装为统一的 `void()` 闭包（调试：记录抛出来源 + 跟踪当前任务列表）
+- `base::PendingTask` 将异步任务封装为统一的 `void()` 闭包（调试：`base::Location` + `base::debug::TaskTrace`）
 - `base::CancelableTaskTracker` 支持 线程安全 取消已经抛出的任务（实现：存储 `base::RefCountedThreadSafe` 包装的原子标识，记录是否被取消）
 
 ## 线程模型
@@ -110,8 +110,24 @@
 
 ## 调试
 
-- `base::debug::WaitForDebugger`/`base::debug::BreakDebugger` 等待调试器/调试器中断
-- `base::debug::StackTrace` 打印调用栈
+- `IMMEDIATE_CRASH()` 立即崩溃
+- `base::debug::WaitForDebugger` 等待调试器
+- `base::debug::BreakDebugger` 调试器中断
+- `base::Location` 运行位置
+  - 静态部分：文件名/函数名/行号
+  - 动态部分：PC 寄存器
+- `base::debug::StackTrace` 调用栈
+- `base::debug::TaskTrace` 任务链
+  - 例如 `a.then(b).then(c)` -> `c: [a, b]`
+  - 存储 PC 寄存器，调试版可通过内置符号还原
+- `base::TaskAnnotator` 崩溃前，记录调试信息：
+  - 正在执行的 `base::PendingTask` 任务
+  - 拷贝当前 `base::PendingTask` 的任务链
+  - IPC 上下文（可选）
+  - 任务序号
+  - 任务抛出时刻
+  - ~~任务执行时刻~~
+- `base::debug::Alias` 崩溃前，保留栈上局部变量的内存（必要时，前后可以加上 magic number 验证完整性）
 
 ## 其他
 

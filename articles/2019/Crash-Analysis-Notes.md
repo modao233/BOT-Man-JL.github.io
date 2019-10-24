@@ -181,7 +181,9 @@
 
 ### 排查异步回调任务
 
-- 通过 [`base::Location base::PendingTask::posted_from;`](https://cs.chromium.org/chromium/src/base/pending_task.h?q=base::PendingTask) 定位任务抛出的来源
+- 切换 [`base::TaskAnnotator::RunTask()`](https://cs.chromium.org/chromium/src/base/task/common/task_annotator.cc?q=base::TaskAnnotator::RunTask) 栈帧，查看异步调试信息（借助 magic number 判断数据完整性）
+- 通过 [`base::Location base::PendingTask::posted_from;`](https://cs.chromium.org/chromium/src/base/location.h?q=base::Location) 定位任务抛出的位置（静态部分：文件名/函数名/行号 + 动态部分：PC 寄存器）
+- 通过 [`base::debug::TaskTrace base::PendingTask::task_backtrace;`](https://cs.chromium.org/chromium/src/base/debug/task_trace.h?q=base::debug::TaskTrace) 查看任务链（当前任务的所有前继任务）
 
 ### 考虑崩溃时机
 

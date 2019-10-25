@@ -4,18 +4,19 @@
 > 
 > C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off. —— Bjarne Stroustrup
 
-这段时间抽空看了一遍今年的 CppCon 演讲，找一下有意思的推荐给大家~
+这段时间抽空看了一些今年的 [CppCon 演讲](https://github.com/CppCon/CppCon2019)，选一些 **我觉得有意思的** 推荐给大家~
 
 ## 使用指导
 
 - [C++ at 40](https://github.com/CppCon/CppCon2019/blob/master/Presentations/cpp_at_40/cpp_at_40__bjarne_stroustrup__cppcon_2019.pdf) by Bjarne Stroustrup —— 四十岁的 C++ 发展的现状和趋势
-- [Avoid Misuse of Contracts](https://github.com/CppCon/CppCon2019/blob/master/Presentations/avoid_misuse_of_contracts/avoid_misuse_of_contracts__rostislav_khlebnikov__cppcon_2019.pdf) by Rostislav Khlebnikov —— 如何合理使用约定与检查
+- [Avoid Misuse of Contracts](https://github.com/CppCon/CppCon2019/blob/master/Presentations/avoid_misuse_of_contracts/avoid_misuse_of_contracts__rostislav_khlebnikov__cppcon_2019.pdf) by Rostislav Khlebnikov —— 如何合理使用契约（虽然契约从 C++ 20 中移除了，但内容仍有指导意义）
   - 仅检查不能违反的限制（违反则出现 未定义行为 _(undefined behavior)_，而不是抛出/返回异常）
   - 检查不能影响核心逻辑，不能产生 副作用 _(side effect)_
   - 检查不能完全替代 测试/文档/输入合法性校验，需要适当权衡
 - [Rethinking the Way We Do Templates in C++](https://github.com/CppCon/CppCon2019/blob/master/Presentations/rethinking_the_way_we_do_templates_in_cpp/rethinking_the_way_we_do_templates_in_cpp__mateusz_pusz__cppcon_2019.pdf) by Mateusz Pusz —— 从使用体验、语言新特性、性能的角度，讨论 C++ 模板（关于 concept 和模板性能 的讨论非常精彩）
-- [Are We Macro-free Yet](https://github.com/CppCon/CppCon2019/blob/master/Presentations/are_we_macrofree_yet/are_we_macrofree_yet__zhihao_yuan__cppcon_2019.pdf) by Zhihao Yuan —— 如何用现代 C++ 新特性，摆脱对宏的依赖
 - [How to Choose the Right Standard Library Container](https://github.com/CppCon/CppCon2019/blob/master/Presentations/how_to_choose_the_right_standard_library_container/how_to_choose_the_right_standard_library_container__alan_talbot__cppcon_2019.pdf) by Alan Talbot —— 如何选择 STL 容器（关于 vector/list 的一些不易察觉的细节）
+- [C++ Code Smells](https://github.com/CppCon/CppCon2019/blob/master/Presentations/cpp_code_smells/cpp_code_smells__jason_turner__cppcon_2019.pdf) by Jason Turner —— 细数 C++ 代码中的“坏味道”
+- [Are We Macro-free Yet](https://github.com/CppCon/CppCon2019/blob/master/Presentations/are_we_macrofree_yet/are_we_macrofree_yet__zhihao_yuan__cppcon_2019.pdf) by Zhihao Yuan —— 如何用现代 C++ 新特性，摆脱对宏的依赖
 - [Naming is Hard: Let's Do Better](https://github.com/CppCon/CppCon2019/blob/master/Presentations/naming_is_hard_lets_do_better/naming_is_hard_lets_do_better__kate_gregory__cppcon_2019.pdf) by Kate Gregory —— ~~C++ 程序~~ 通用命名原则
 
 ## 标准前瞻
@@ -48,10 +49,12 @@
 ## 效率工具
 
 - [(Ab)using compiler tools](https://github.com/CppCon/CppCon2019/blob/master/Presentations/abusing_compiler_tools/abusing_compiler_tools__reka_kovacs__cppcon_2019.pdf) by Reka Kovacs —— [Bloaty](https://github.com/google/bloaty) 分析二进制文件空间占用，[BOLT](https://github.com/facebookincubator/BOLT) 优化二进制布局（类似 PGO）
-- [Clang Based Refactoring](https://github.com/CppCon/CppCon2019/blob/master/Presentations/clang_based_refactoring/clang_based_refactoring__fred_tingaud__cppcon_2019.pdf) by Fred Tingaud —— Clang-Tidy 原理与应用
+- [Clang Based Refactoring](https://github.com/CppCon/CppCon2019/blob/master/Presentations/clang_based_refactoring/clang_based_refactoring__fred_tingaud__cppcon_2019.pdf) by Fred Tingaud —— [Clang-Tidy](http://clang.llvm.org/extra/clang-tidy/) 原理与应用
 - [How to Write a Heap Memory Profiler](https://github.com/CppCon/CppCon2019/blob/master/Presentations/how_to_write_a_heap_memory_profiler/how_to_write_a_heap_memory_profiler__milian_wolff__cppcon_2019.pdf) by Milian Wolff —— [heaptrack](https://github.com/KDE/heaptrack) 堆内存分析工具
 - [Lifetime analysis for everyone](https://github.com/CppCon/CppCon2019/blob/master/Presentations/lifetime_analysis_for_everyone/lifetime_analysis_for_everyone__matthias_gehre_gabor_horvath__cppcon_2019.pptx) by Matthias Gehre, Gabor Horvath —— Visual Studio 生命周期分析工具
 
-如果有什么问题，**欢迎交流**。😄
+由于 CppCon 2019 刚刚结束，相关资料还在持续上传，欢迎关注 **原文持续更新**。😉
+
+以上只是一些 **个人见解**。如果有什么问题，**欢迎交流**。😄
 
 Delivered under MIT License &copy; 2019, BOT Man

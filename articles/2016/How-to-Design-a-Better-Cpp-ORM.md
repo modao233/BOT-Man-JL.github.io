@@ -11,6 +11,11 @@
 关于这个设计的代码和样例 😊：
 https://github.com/BOT-Man-JL/ORM-Lite/tree/v1.1
 
+> **WARNING：早期文章不足之处较多，推荐阅读**：
+> 
+> - [浅谈 C++ 元编程](../2017/Cpp-Metaprogramming.md)
+> - [简单的 C++ 结构体字段 反射](../2018/Cpp-Struct-Field-Reflection.md)
+
 ## [no-toc] TOC
 
 [TOC]

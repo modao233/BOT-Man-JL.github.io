@@ -7,8 +7,16 @@
 阅读这篇文章前，你最好知道什么是
 [_Object Relation Mapping (ORM)_](https://en.wikipedia.org/wiki/Object-relational_mapping)
 
+关于这个设计的代码和样例 😊：
+https://github.com/BOT-Man-JL/ORM-Lite/tree/v1.0
+
 阅读这篇文章后，欢迎阅读下一篇 [如何设计一个更好的 C++ ORM](How-to-Design-a-Better-Cpp-ORM.md)
 😉
+
+> **WARNING：早期文章不足之处较多，推荐阅读**：
+> 
+> - [浅谈 C++ 元编程](../2017/Cpp-Metaprogramming.md)
+> - [简单的 C++ 结构体字段 反射](../2018/Cpp-Struct-Field-Reflection.md)
 
 ## [no-toc] TOC
 
@@ -64,9 +72,6 @@ C++大作业需要实现一个在线的对战游戏，其中的游戏信息需�
 所以我打算封装一个直接操作 **原始模型** 的 ORM； 😎
 
 ## 一个简单的设计 —— ORM Lite
-
-关于这个设计的代码和样例 😊：
-https://github.com/BOT-Man-JL/ORM-Lite/tree/v1.0
 
 ### 0. 这个ORM要做什么
 

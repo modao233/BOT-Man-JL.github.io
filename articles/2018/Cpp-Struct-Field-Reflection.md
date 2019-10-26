@@ -392,6 +392,16 @@ ForEachField(SimpleStruct{1, "hello static reflection"},
 - 针对 `int` 类型字段，`ForEachField` 调用 `fn(simple.int_, "int")`
 - 针对 `std::string` 类型字段，`ForEachField` 调用 `fn(simple.string_, "string")`
 
+最后 `ForEachField(SimpleStruct{...}, [](...) { ... });` 经过 [**内联** _(inline)_](https://en.cppreference.com/w/cpp/language/inline) 后，编译器生成的代码和下面的代码一致（参考：[KQ3u8M@GodBolt](https://godbolt.org/z/KQ3u8M)）：
+
+``` cpp
+{
+  SimpleStruct simple{1, "hello static reflection"};
+  std::cout << "int" << ": " << simple.int_ << std::endl;
+  std::cout << "string" << ": " << simple.string_ << std::endl;
+}
+```
+
 > **2019/2/19 补充**
 > 
 > 如果需要针对不同类型使用不同的操作，可以考虑 [重载 lambda 表达式](https://martinecker.com/martincodes/lambda-expression-overloading/)（[提案 p0051r3](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0051r3.pdf)）：
@@ -428,20 +438,6 @@ ForEachField(SimpleStruct{1, "hello static reflection"},
 >              GenericFunctor{/* ... context data */});
 > ```
 
-最后 `ForEachField(SimpleStruct{...}, [](...) { ... });` 经过 [**内联** _(inline)_](https://en.cppreference.com/w/cpp/language/inline) 后，生成的代码非常简单：
-
-``` cpp
-{
-  SimpleStruct simple{1, "hello static reflection"};
-  std::cout << "int" << ": " << simple.int_ << std::endl;
-  std::cout << "string" << ": " << simple.string_ << std::endl;
-}
-```
-
-> 基于静态反射的开源库：
-> 
-> - https://github.com/qicosmos/iguana
-
 使用编译时静态反射，相对于运行时动态反射，有许多优点：
 
 | | 动态反射 | 静态反射 |
@@ -449,6 +445,10 @@ ForEachField(SimpleStruct{1, "hello static reflection"},
 | 使用难度 |（难）需要 **编写注册代码**，调用 `RegisterField` 动态绑定字段信息 |（易）可以通过 **声明式** 的方法，静态定义字段信息 |
 | 运行时开销 |（有）需要动态构造 `converter` 对象，需要通过 **虚函数表** _(virtual table)_ 实现面向对象的多态 |（无）**编译时** 静态展开代码，和直接手写一样 |
 | 可复用性 |（差）每个 `converter` 对象绑定了各个 **字段类型** 的具体 **映射方法**；如果需要进行不同转换操作，则需要另外创建 `converter` 对象 |（好）在调用 `ForEachField` 时，**映射方法** 作为参数传入；利用 **编译时多态** 的机制，为不同的 **字段类型** 选择合适的操作 |
+
+> 基于静态反射的开源库：
+> 
+> - https://github.com/qicosmos/iguana
 
 ## 编译器生成 序列化/反序列化 代码
 
@@ -506,8 +506,6 @@ DEFINE_STRUCT_SCHEMA(
     DEFINE_STRUCT_FIELD(vector_, "_vector"));
 ```
 
-> 参考：[无运行时开销 _(zero runtime overhead)_ 实验](https://godbolt.org/z/KQ3u8M)
-
 于是，编译器就可以生成和 [sec|人工手写 序列化/反序列化 代码] 一致的代码了 —— **没有额外的运行时开销**！
 
 [align-center]
@@ -534,7 +532,7 @@ DEFINE_STRUCT_SCHEMA(
 > - [Modern C++ 元编程应用 by 祁宇](http://purecpp.org/purecpp/static/1699861ac67c43b1809284fbe77aed87.pdf)
 > - [C++ 反射的应用与实践 by 卜恪](http://purecpp.org/purecpp/static/47b2b7e63efb458da091913a1f526811.pdf)
 
-感谢 fredwyan 关于适配 C++ 11 的补充。
+感谢 fredwyan 关于适配 C++ 11 的实践和补充。
 
 如果有什么问题，**欢迎交流**。😄
 

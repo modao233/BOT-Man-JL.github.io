@@ -122,7 +122,7 @@ C++ 的数值类型，都是固定大小的 [标量类型](https://en.cppreferen
 
 - 每个线程有独立的 [`base::ThreadLocalStorage`](https://github.com/chromium/chromium/blob/master/base/threading/thread_local_storage.h) 线程本地存储 _(thread local storage, TLS)_
 - 每个序列有独立的 [`base::SequenceLocalStorageSlot`](https://github.com/chromium/chromium/blob/master/base/threading/sequence_local_storage_slot.h) 序列本地存储 _(sequence local storage, SLS)_
-- 当 逻辑序列 被放到 物理线程 上执行时，把当前序列的 SLS 关联到 执行线程的 TLS
+- 当 逻辑序列 被放到 物理线程 上执行时，把当前序列的 SLS 关联到 执行线程的 TLS 上
 
 #### 线程安全检查
 

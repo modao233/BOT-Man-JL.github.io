@@ -250,7 +250,7 @@ event_new(event_base, fd, EV_WRITE, do_send, buffer);
 
 ### 脚本语言 Javascript 中的回调
 
-在 JavaScript 里，**回调、[**闭包** _(closure)_](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures)** 是一个最基本的概念。
+在 JavaScript 里，**回调**、[**闭包** _(closure)_](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures) 是一个最基本的概念。
 
 在网页里，我们常常使用回调来处理用户的输入：
 

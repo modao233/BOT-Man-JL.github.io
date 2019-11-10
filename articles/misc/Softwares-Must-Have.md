@@ -7,13 +7,18 @@
 - https://www.7-zip.org/
 - https://www.sumatrapdfreader.org/
 - https://www.google.com/intl/zh-CN_ALL/chrome/
-- https://www.visualstudio.com/
+- https://visualstudio.microsoft.com/
   - https://marketplace.visualstudio.com/items?itemName=MadsKristensen.MarkdownEditor
-  - https://marketplace.visualstudio.com/items?itemName=MadsKristensen.MultiEditMode
   - https://marketplace.visualstudio.com/items?itemName=MadsKristensen.ResetZoom
   - https://marketplace.visualstudio.com/items?itemName=PaulHarrington.EditorGuidelines
-  - https://marketplace.visualstudio.com/items?itemName=VisualStudioExptTeam.VSIntelliCode
   - https://marketplace.visualstudio.com/items?itemName=GitHub.GitHubExtensionforVisualStudio
+- https://code.visualstudio.com/
+  - [vscode-settings.json](vscode-settings.json)
+  - https://marketplace.visualstudio.com/items?itemName=bot-man.vs-keybindings
+  - https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools
+  - https://marketplace.visualstudio.com/items?itemName=VisualStudioExptTeam.vscodeintellicode
+  - https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens
+  - https://marketplace.visualstudio.com/items?itemName=mhutchie.git-graph
 - Sysinternals Tools -> %SystemRoot%
   - https://docs.microsoft.com/en-us/sysinternals/downloads/process-explorer
   - https://docs.microsoft.com/en-us/sysinternals/downloads/procmon

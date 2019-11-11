@@ -6,9 +6,8 @@
 
 [heading-numbering]
 
-> 实现代码：
->
-> https://github.com/BOT-Man-JL/WFP-Traffic-Redirection-Driver
+实现代码：
+https://github.com/BOT-Man-JL/WFP-Traffic-Redirection-Driver
 
 ## [no-toc] [no-number] TOC
 
@@ -288,8 +287,8 @@ TCP/IP 驱动 (`tcpip.sys`) 从功能上可以划分为三层（如下图所示�
 
 设计一个在特定位置过滤/拦截/修改流量的方案，需要对 TCP/IP 协议有足够的了解。在设计 Windows 匿名通信客户端的过程中，我深入学习了 TCP/IP 协议实现原理。
 
-如果有什么问题，**欢迎交流**。😄
-
 > 延伸阅读：[匿名通信 Windows 客户端的设计与实现](Anonymous-Communication-Client-Design.md)
+
+如果有什么问题，**欢迎交流**。😄
 
 Delivered under MIT License &copy; 2018, BOT Man

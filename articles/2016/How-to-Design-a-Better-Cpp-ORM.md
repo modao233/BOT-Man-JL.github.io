@@ -703,8 +703,8 @@ error C2338: Please Inject the Class with 'ORMAP' first
 
 具体参考：
 - https://en.cppreference.com/w/cpp/types/enable_if
-- https://blogs.msdn.microsoft.com/vcblog/2016/06/07/expression-sfinae-improvements-in-vs-2015-update-3/
-- https://blogs.msdn.microsoft.com/vcblog/2015/12/02/partial-support-for-expression-sfinae-in-vs-2015-update-1/
+- https://devblogs.microsoft.com/cppblog/expression-sfinae-improvements-in-vs-2015-update-3/
+- https://devblogs.microsoft.com/cppblog/partial-support-for-expression-sfinae-in-vs-2015-update-1/
 
 ### 5.5 其他 `std::enable_if` 的用法
 

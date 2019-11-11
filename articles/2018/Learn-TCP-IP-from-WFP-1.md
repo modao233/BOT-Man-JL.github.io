@@ -66,7 +66,7 @@ https://github.com/BOT-Man-JL/WFP-Traffic-Redirection-Driver
 
 > 彼节者有间
 
-微软的 TCP/IP 驱动设计时，为了提供更好的 **灵活性**（例如定制 TCP/IP 协议，实现 NAT、IPsec 等），在 TCP/IP 协议栈上 应用层、传输层、网络层（Windows 8 加入了 MAC 子层）暴露一系列 [Windows Filter Platform _(WFP)_](https://msdn.microsoft.com/en-us/library/windows/desktop/aa366510%28v=vs.85%29.aspx) 接口。
+微软的 TCP/IP 驱动设计时，为了提供更好的 **灵活性**（例如定制 TCP/IP 协议，实现 NAT、IPsec 等），在 TCP/IP 协议栈上 应用层、传输层、网络层（Windows 8 加入了 MAC 子层）暴露一系列 [Windows Filter Platform _(WFP)_](https://docs.microsoft.com/en-us/windows/win32/fwp/windows-filtering-platform-start-page) 接口。
 
 > 以无厚入有间
 

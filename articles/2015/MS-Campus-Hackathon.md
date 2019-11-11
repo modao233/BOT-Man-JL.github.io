@@ -154,8 +154,8 @@ Day1中，我已经了解了和Cortana集成所需要的基本知识，
 
 附上参考链接（看完大概可以写了）
 
-https://msdn.microsoft.com/en-us/library/windows/apps/mt185598.aspx
-https://msdn.microsoft.com/en-us/library/windows/apps/xaml/hh779077.aspx
+- https://docs.microsoft.com/en-us/windows/uwp/design/input/cortana-interactions
+- https://docs.microsoft.com/en-us/previous-versions/windows/apps/hh779077(v=vs.140)
 
 ## 项目总结
 

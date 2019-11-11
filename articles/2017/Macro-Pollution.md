@@ -71,7 +71,7 @@ auto validArgumentCount = std::(((argc) < (2)) ? (argc) : (2));
 
 ### 另一段代码 —— 掉到了自己挖的坑里
 
-实现 `PathHelper` 的一个[功能](https://msdn.microsoft.com/en-us/library/windows/desktop/bb773565.aspx)：拼接两个路径，可以识别 `..\` 等路径转换符。
+实现 `PathHelper` 的一个[功能](https://docs.microsoft.com/en-us/windows/win32/api/shlwapi/nf-shlwapi-pathappenda)：拼接两个路径，可以识别 `..\` 等路径转换符。
 
 例如，可以利用这个函数返回当前工作路径：
 

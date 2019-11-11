@@ -70,7 +70,7 @@ class Derived : Base {
 { Derived obj; }  // crash again!
 ```
 
-在 MSVC 版本的 CRT _(C Runtime)_ 下，上面的崩溃会调用 [`_purecall`](https://docs.microsoft.com/zh-cn/cpp/c-runtime-library/reference/purecall)，从而引发 `R6025: pure virtual function call` 错误。而在 g++/clang++ 默认使用的 CRT 下，上面的崩溃会导致 `pure virtual method called`，从而引起 `core dump`。
+在 MSVC 版本的 CRT _(C Runtime)_ 下，上面的崩溃会调用 [`_purecall`](https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/purecall)，从而引发 `R6025: pure virtual function call` 错误。而在 g++/clang++ 默认使用的 CRT 下，上面的崩溃会导致 `pure virtual method called`，从而引起 `core dump`。
 
 ### 删除用户对象前，必须销毁对应的系统对象
 

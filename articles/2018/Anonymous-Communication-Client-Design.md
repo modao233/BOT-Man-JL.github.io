@@ -855,20 +855,20 @@ Windows 匿名通信客户端将在下一阶段的完善中，解决存在问题
 - [os-market-share]: NetMarketShare. Operating System Market Share. https://www.netmarketshare.com/operating-system-market-share.aspx
 - [windows-internals]: Mark E. Russinovich, David A. Solomon, Alex Ionescu. Windows Internals, 6th Edition (Part 1). Microsoft Press. 2012
 - [ng-tcp-ip-stack]: Wikipedia. Windows Vista networking technologies. https://en.wikipedia.org/wiki/Windows_Vista_networking_technologies
-- [wfp-overview]: Microsoft MSDN. Windows Filtering Platform. https://msdn.microsoft.com/en-us/library/windows/desktop/aa366510(v=vs.85).aspx
-- [wfp-architecture]: Microsoft MSDN. WFP Architecture. https://msdn.microsoft.com/en-us/library/windows/desktop/aa366509(v=vs.85).aspx
+- [wfp-overview]: Microsoft MSDN. Windows Filtering Platform. https://docs.microsoft.com/en-us/windows/win32/fwp/windows-filtering-platform-start-page
+- [wfp-architecture]: Microsoft MSDN. WFP Architecture. https://docs.microsoft.com/en-us/windows/win32/fwp/windows-filtering-platform-architecture-overview
 - [wfp-callout-drivers]: Microsoft Docs. Windows Filtering Platform Callout Drivers. https://docs.microsoft.com/en-us/windows-hardware/drivers/network/windows-filtering-platform-callout-drivers2
 - [ndis-wiki]: Wikipedia. Network Driver Interface Specification. https://en.wikipedia.org/wiki/Network_Driver_Interface_Specification
 - [ndis-drivers]: Microsoft Docs. NDIS driver types. https://docs.microsoft.com/en-us/windows-hardware/drivers/network/ndis-drivers
 - [protocol-drivers]: Microsoft Docs. Protocol drivers. https://docs.microsoft.com/en-us/windows-hardware/drivers/network/ndis-protocol-drivers2
-- [filter-drivers]: Microsoft Docs. Filter drivers. https://docs.microsoft.com/zh-cn/windows-hardware/drivers/network/ndis-filter-drivers
+- [filter-drivers]: Microsoft Docs. Filter drivers. https://docs.microsoft.com/en-us/windows-hardware/drivers/network/ndis-filter-drivers
 - [layer2-filtering]: Microsoft Docs. Using Layer 2 Filtering. https://docs.microsoft.com/en-us/windows-hardware/drivers/network/using-layer-2-filtering
 - [wireshark-winpcap]: Wireshark Wiki. WinPcap. https://wiki.wireshark.org/WinPcap
 - [winpcap]: Fulvio Risso, Loris Degioanni. An Architecture for High Performance Network Analysis. Proceedings of ISCC 2001, Hammamet. 2001, 05: 686-693
 - [win10pcap]: SoftEtherVPN. Win10Pcap. https://github.com/SoftEtherVPN/Win10Pcap
 - [npcap]: nmap. npcap. https://github.com/nmap/npcap
 - [network-monitor]: Microsoft Support. Information about Network Monitor 3. https://support.microsoft.com/en-us/help/933741/information-about-network-monitor-3
-- [raw-socket]: Microsoft MSDN. TCP/IP Raw Sockets (Windows). https://msdn.microsoft.com/en-us/library/windows/desktop/ms740548(v=vs.85).aspx
+- [raw-socket]: Microsoft MSDN. TCP/IP Raw Sockets (Windows). https://docs.microsoft.com/en-us/windows/win32/winsock/tcp-ip-raw-sockets-2
 - [winsock-sniffer]: Silver Moon. Packet Sniffer Code in C using Winsock. https://www.binarytides.com/packet-sniffer-code-in-c-using-winsock/
 - [winpcap-dev]: WinPcap. Using WinPcap in your programs. https://www.winpcap.org/docs/docs_412/html/group__wpcapsamps.html
 - [oid-packet-filter]: Microsoft Docs. OID_GEN_CURRENT_PACKET_FILTER. https://docs.microsoft.com/en-us/windows-hardware/drivers/network/oid-gen-current-packet-filter

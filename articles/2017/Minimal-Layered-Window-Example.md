@@ -14,7 +14,7 @@
 
 ## 需求
 
-根据 [MSDN](https://msdn.microsoft.com/en-us/library/ms997507.aspx) 描述，为了提升 Windows 应用程序视觉效果，Windows 2000 引入了 **分层窗口** _(Layered Window)_ 的概念。
+根据 [MSDN](https://docs.microsoft.com/en-us/previous-versions/ms997507%28v=msdn.10%29) 描述，为了提升 Windows 应用程序视觉效果，Windows 2000 引入了 **分层窗口** _(Layered Window)_ 的概念。
 
 什么是 **分层窗口**？我们一般看到的 Windows 应用程序窗口都是 **矩形窗口** _(rectangle)_ —— 上边是标题栏，下边是窗口内容区域。使用这样的窗口，我们不需要太多额外的学习成本。
 
@@ -38,7 +38,7 @@ Window 2000 之后，系统为我们提供的接口可以用很少的代码实�
 下面的代码用最简单的方式实现了上述需求。
 
 - [完整代码](Minimal-Layered-Window-Example/minimal-layered-window-example.cpp) 加了注释只有 100 行
-- 使用的 GDI 和 GDI+ 基础，MSDN 有 [入门教程](https://msdn.microsoft.com/en-us/library/windows/desktop/ff381409.aspx)
+- 使用的 GDI 和 GDI+ 基础，MSDN 有 [入门教程](https://docs.microsoft.com/en-us/windows/win32/learnwin32/your-first-windows-program)
 - [可执行文件下载](Minimal-Layered-Window-Example/virtual-pet.zip)
 
 ### 创建窗口

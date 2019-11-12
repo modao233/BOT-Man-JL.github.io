@@ -2,18 +2,30 @@
 
 > For Windows 10.
 
-- Ubuntu/WSL -> bash
-- IIS -> localhost
-- https://www.7-zip.org/
-- https://www.sumatrapdfreader.org/
-- https://www.google.com/intl/zh-CN_ALL/chrome/
+- Everyday
+  - IIS -> bot-man-jl.github.io
+  - https://www.7-zip.org/
+  - https://www.sumatrapdfreader.org/
+  - https://www.google.com/intl/zh-CN_ALL/chrome/
+  - [opt] https://office.qq.com/
+  - [opt] https://www.office.com/
+  - [opt] Sony Vegas `vegaspro13.0.428`
+- Devtools
+  - https://docs.microsoft.com/en-us/windows/wsl/install-win10
+  - http://releases.llvm.org/download.html
+  - https://git-scm.com/download/win
+  - [opt] https://tortoisegit.org/download/
+  - [opt] http://www.telerik.com/fiddler
+  - [opt] https://www.wireshark.org/
 - https://visualstudio.microsoft.com/
+  - Node.js
+  - Python
   - https://marketplace.visualstudio.com/items?itemName=MadsKristensen.MarkdownEditor
   - https://marketplace.visualstudio.com/items?itemName=MadsKristensen.ResetZoom
   - https://marketplace.visualstudio.com/items?itemName=PaulHarrington.EditorGuidelines
   - https://marketplace.visualstudio.com/items?itemName=GitHub.GitHubExtensionforVisualStudio
 - https://code.visualstudio.com/
-  - [vscode-settings.json](vscode-settings.json)
+  - Replace [settings.json](vscode-settings.json)
   - https://marketplace.visualstudio.com/items?itemName=bot-man.vs-keybindings
   - https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools
   - https://marketplace.visualstudio.com/items?itemName=VisualStudioExptTeam.vscodeintellicode
@@ -23,9 +35,4 @@
   - https://docs.microsoft.com/en-us/sysinternals/downloads/process-explorer
   - https://docs.microsoft.com/en-us/sysinternals/downloads/procmon
   - https://docs.microsoft.com/en-us/sysinternals/downloads/debugview
-- http://im.qq.com/
-- https://www.office.com/
-- [opt] http://www.telerik.com/fiddler
-- [opt] https://www.wireshark.org/
-- [opt] Sony Vegas `vegaspro13.0.428`
 - [opt] https://github.com/googlehosts/hosts

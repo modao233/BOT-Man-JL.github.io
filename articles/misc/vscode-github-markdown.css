@@ -3,6 +3,7 @@
   Adapted from https://raw.githubusercontent.com/sindresorhus/github-markdown-css/gh-pages/github-markdown.css
   - Replace .markdown-body with body
   - Set body font-size to 14px
+  - Set body pre font-size to 14px
   - Set blockquote border-left color to #666666
 */
 
@@ -391,7 +392,7 @@ body dd {
 body code,
 body pre {
   font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 body pre {

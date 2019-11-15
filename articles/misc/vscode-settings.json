@@ -16,11 +16,12 @@
         "panel.background": "#ebebeb",
         "tab.inactiveBackground": "#f3f3f3",
         "tab.hoverBackground": "#eeeeee",
+        "editor.selectionBackground": "#0078d780",
+        "editor.selectionHighlightBackground": "#bfcddb80",
+        "editor.lineHighlightBackground": "#f3f3f3",
         "sideBar.border": "#bbbbbb",
         "editorGroup.border": "#bbbbbb",
-        "editorOverviewRuler.border": "#ff000000",
-        "editor.selectionBackground": "#0078d780",
-        "editor.selectionHighlightBackground": "#bfcddb80"
+        "editorOverviewRuler.border": "#ff000000"
     },
     "workbench.sideBar.location": "right",
     "search.location": "panel",
@@ -37,7 +38,8 @@
         "ms-vscode.cpptools",
         "VisualStudioExptTeam.vscodeintellicode",
         "eamodio.gitlens",
-        "mhutchie.git-graph"
+        "mhutchie.git-graph",
+        "npxms.hide-gitignored"
     ],
     "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\cmd.exe",
     "markdown.preview.markEditorSelection": false,
@@ -54,6 +56,7 @@
     "C_Cpp.experimentalFeatures": "Enabled",
     "editor.suggestSelection": "first",
     "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+    "gitlens.codeLens.enabled": false,
     "gitlens.views.repositories.location": "scm",
     "gitlens.views.fileHistory.location": "scm",
     "gitlens.views.lineHistory.location": "scm",

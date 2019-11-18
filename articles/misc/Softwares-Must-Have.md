@@ -28,6 +28,7 @@
   - Replace [settings.json](vscode-settings.json)
   - https://marketplace.visualstudio.com/items?itemName=bot-man.vs-keybindings
   - https://marketplace.visualstudio.com/items?itemName=sgryjp.japanese-word-handler
+  - https://marketplace.visualstudio.com/items?itemName=vscode-icons-team.vscode-icons
   - https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools
   - https://marketplace.visualstudio.com/items?itemName=VisualStudioExptTeam.vscodeintellicode
   - https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens

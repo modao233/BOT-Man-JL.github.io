@@ -4,6 +4,7 @@
     "editor.wordWrap": "on",
     "editor.wrappingIndent": "deepIndent",
     "editor.minimap.enabled": false,
+    "editor.overviewRulerBorder": false,
     "editor.lineNumbers": "off",
     "editor.rulers": [
         80
@@ -18,10 +19,12 @@
         "tab.hoverBackground": "#eeeeee",
         "editor.selectionBackground": "#0078d780",
         "editor.selectionHighlightBackground": "#bfcddb80",
-        "editor.lineHighlightBackground": "#f3f3f3",
+        "editor.lineHighlightBackground": "#bbbbbb44",
+        "scrollbarSlider.background": "#bbbbbb44",
+        "scrollbarSlider.hoverBackground": "#bbbbbb66",
+        "scrollbarSlider.activeBackground": "#bbbbbb88",
         "sideBar.border": "#bbbbbb",
-        "editorGroup.border": "#bbbbbb",
-        "editorOverviewRuler.border": "#ff000000"
+        "editorGroup.border": "#bbbbbb"
     },
     "workbench.sideBar.location": "right",
     "search.location": "panel",
@@ -57,13 +60,12 @@
     "editor.suggestSelection": "first",
     "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
     "gitlens.codeLens.enabled": false,
-    "gitlens.views.repositories.location": "scm",
-    "gitlens.views.fileHistory.location": "scm",
-    "gitlens.views.lineHistory.location": "scm",
-    "gitlens.views.compare.location": "scm",
-    "gitlens.views.search.location": "scm",
+    "gitlens.statusBar.enabled": false,
+    "gitlens.currentLine.enabled": false,
     "git-graph.showCurrentBranchByDefault": true,
     "git-graph.fetchAvatars": true,
     "git-graph.dateFormat": "Relative",
-    "git-graph.commitDetailsViewLocation": "Docked to Bottom"
+    "git-graph.commitDetailsViewLocation": "Docked to Bottom",
+    "workbench.iconTheme": "vscode-icons",
+    "vsicons.projectDetection.autoReload": true
 }

@@ -6,10 +6,12 @@
     "editor.minimap.enabled": false,
     "editor.overviewRulerBorder": false,
     "editor.lineNumbers": "off",
+    "editor.renderWhitespace": "boundary",
     "editor.rulers": [
         80
     ],
     "editor.suggest.maxVisibleSuggestions": 15,
+    "problems.decorations.enabled": false,
     "workbench.colorTheme": "Default Light+",
     "workbench.colorCustomizations": {
         "editor.background": "#ebebeb",
@@ -57,6 +59,10 @@
     "C_Cpp.clang_format_fallbackStyle": "Chromium",
     "C_Cpp.workspaceSymbols": "All",
     "C_Cpp.experimentalFeatures": "Enabled",
+    "python.jediEnabled": false,
+    "python.formatting.autopep8Args": [
+        "--max-line-length=80"
+    ],
     "editor.suggestSelection": "first",
     "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
     "gitlens.codeLens.enabled": false,

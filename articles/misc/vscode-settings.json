@@ -11,6 +11,17 @@
         80
     ],
     "editor.suggest.maxVisibleSuggestions": 15,
+    "editor.wordSeparators": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?·～！￥…（）—【】、；：‘’“”，。《》？",
+    "[markdown]": {
+        "editor.quickSuggestions": {
+            "other": true,
+            "comments": true,
+            "strings": true
+        },
+        "editor.tabCompletion": "on",
+        "editor.snippetSuggestions": "top",
+        "editor.wordSeparators": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?·～！￥…（）—【】、；：‘’“”，。《》？_"
+    },
     "problems.decorations.enabled": false,
     "workbench.colorTheme": "Default Light+",
     "workbench.colorCustomizations": {

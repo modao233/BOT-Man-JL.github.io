@@ -78,3 +78,8 @@
 - 工具时代：用户反馈 -> 远程联系 -> 手动定位
 - 系统时代：自动监控 -> 后台系统 -> 自动分析
 - AI 时代：采集数据 -> 训练模型 -> 行为预判
+
+## 后台
+
+- [如何回答性能优化的问题，才能打动阿里面试官？](https://mp.weixin.qq.com/s/snQ3T86usv4rXz0MMQvFfQ)
+- [性能优化策略总结](https://developer.aliyun.com/article/727625)

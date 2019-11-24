@@ -31,8 +31,12 @@
 
 ## 关于能力
 
-- 人和动物的区别：使用工具，例如 F12/shell
+- 人和动物的区别：使用工具，例如 F12+bash
+  - https://docs.python.org/2/faq/design.html
+  - https://docs.python.org/3/faq/design.html
+  - `JSON.stringify($('#contents ul li ul li').map((i, e) => $(e).text()).toArray())`
 - 概念/背景 + 行文/惯用法
+  - 借助 IDE 只能提示写代码
 - 想清楚事情背后的来龙去脉，需要深入基础，例如 崩溃分析，程序员的基本修养
 - 知识体系融汇贯通，例如 从时空的维度看 I/O 模型
 
@@ -51,7 +55,7 @@
   - 生活追求 房子？户口？
   - 技术追求 https://abcdabcd987.com/google-internship-2019/
 - 焦虑
-  - 差距 山外有山，好多不知道的东西，例如 并发设计，编程语言
+  - 差距 山外有山，越学越不会，例如 并发设计，编程语言
   - 得失
 - 浮躁
   - 知识爆炸 定期取关，分类整理

@@ -12,6 +12,12 @@
     ],
     "editor.suggest.maxVisibleSuggestions": 15,
     "editor.wordSeparators": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?·～！￥…（）—【】、；：‘’“”，。《》？",
+    "[python]": {
+        "editor.tabSize": 4,
+        "editor.rulers": [
+            79
+        ]
+    },
     "[markdown]": {
         "editor.quickSuggestions": {
             "other": true,

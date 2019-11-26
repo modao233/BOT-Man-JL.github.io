@@ -6,7 +6,7 @@
 
 写给 **非脚本语言用户**（比如学习 Python 之前的我）。
 
-运行时才发现参数个数/参数类型问题。。
+没有编译器的检查，只有运行时才发现参数 个数/类型 错误。
 
 ## Intro
 
@@ -23,7 +23,7 @@ try:
 
         strip_line = line.rstrip()
         if len(strip_line):
-            print('%2d: %s' % (line_num, strip_line))
+            print('{:2}: {}'.format(line_num, strip_line))
             line_num += 1
 finally:
     file.close()
@@ -41,12 +41,13 @@ finally:
 ``` python
 with open(__file__) as file:
     for line_num, line in enumerate(filter(len, map(str.rstrip, file)), 1):
-        print('%d: %s' % (line_num, line))
+        print(f'{line_num}: {line}')
 ```
 
 - with 类似 RAII
 - for-iterable
 - map-filter-print
+  - https://www.python.org/dev/peps/pep-0498/
 - enumerate 代替 increment
 
 ## generator/comprehensions

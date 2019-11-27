@@ -90,5 +90,59 @@
     "git-graph.dateFormat": "Relative",
     "git-graph.commitDetailsViewLocation": "Docked to Bottom",
     "workbench.iconTheme": "vscode-icons",
-    "vsicons.projectDetection.autoReload": true
+    "vsicons.projectDetection.autoReload": true,
+    "commands.commands": [
+        {
+            "text": "$(terminal) 1",
+            "command": "workbench.action.terminal.focusAtIndex1",
+            "tooltip": "Focus to terminal #1"
+        },
+        {
+            "text": "$(terminal) 2",
+            "command": "workbench.action.terminal.focusAtIndex2",
+            "tooltip": "Focus to terminal #2"
+        },
+        {
+            "text": "$(arrow-both) G",
+            "command": "workbench.action.joinAllGroups",
+            "tooltip": "Join All Editor Groups"
+        },
+        {
+            "text": "$(chevron-down) P",
+            "command": "workbench.action.togglePanel",
+            "tooltip": "Toggle Panel"
+        },
+        {
+            "text": "$(chevron-right) S",
+            "command": "workbench.action.toggleSidebarVisibility",
+            "tooltip": "Toggle Sidebar"
+        },
+        {
+            "text": "$(screen-full)",
+            "command": "workbench.action.toggleFullScreen",
+            "tooltip": "Toggle FullScreen",
+            "alignment": "right"
+        },
+        {
+            "text": "-",
+            "command": "editor.action.fontZoomOut",
+            "tooltip": "Font Zoom Out",
+            "alignment": "right"
+        },
+        {
+            "text": "+",
+            "command": "editor.action.fontZoomIn",
+            "tooltip": "Font Zoom In",
+            "alignment": "right"
+        },
+        {
+            "text": "$(text-size)",
+            "command": "editor.action.fontZoomReset",
+            "tooltip": "Font Zoom Reset",
+            "alignment": "right"
+        }
+    ],
+    "partialDiff.commandsOnContextMenu": {
+        "togglePreComparisonTextNormalizationRules": false
+    }
 }

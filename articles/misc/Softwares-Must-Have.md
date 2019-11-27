@@ -34,6 +34,8 @@
   - https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens
   - https://marketplace.visualstudio.com/items?itemName=mhutchie.git-graph
   - https://marketplace.visualstudio.com/items?itemName=npxms.hide-gitignored
+  - https://marketplace.visualstudio.com/items?itemName=fabiospampinato.vscode-commands
+  - https://marketplace.visualstudio.com/items?itemName=ryu1kn.partial-diff
 - Sysinternals Tools -> %SystemRoot%
   - https://docs.microsoft.com/en-us/sysinternals/downloads/process-explorer
   - https://docs.microsoft.com/en-us/sysinternals/downloads/procmon

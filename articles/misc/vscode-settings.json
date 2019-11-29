@@ -10,6 +10,8 @@
     "editor.rulers": [
         80
     ],
+    "editor.formatOnType": true,
+    "editor.find.autoFindInSelection": "multiline",
     "editor.suggest.maxVisibleSuggestions": 15,
     "editor.wordSeparators": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?·～！￥…（）—【】、；：‘’“”，。《》？",
     "[python]": {
@@ -51,18 +53,11 @@
     "search.quickOpen.includeSymbols": true,
     "files.autoGuessEncoding": true,
     "files.simpleDialog.enable": true,
+    "explorer.autoReveal": false,
     "extensions.ignoreRecommendations": true,
     "git.autofetch": true,
     "git.confirmSync": false,
     "git.enableSmartCommit": true,
-    "remote.SSH.showLoginTerminal": true,
-    "remote.SSH.defaultExtensions": [
-        "ms-vscode.cpptools",
-        "VisualStudioExptTeam.vscodeintellicode",
-        "eamodio.gitlens",
-        "mhutchie.git-graph",
-        "npxms.hide-gitignored"
-    ],
     "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\cmd.exe",
     "markdown.preview.markEditorSelection": false,
     "markdown.preview.doubleClickToSwitchToEditor": false,
@@ -70,6 +65,16 @@
     "markdown.preview.scrollPreviewWithEditor": false,
     "markdown.styles": [
         "https://bot-man-jl.github.io/articles/misc/vscode-github-markdown.css"
+    ],
+    "remote.SSH.defaultExtensions": [
+        "ms-vscode.cpptools",
+        "ms-python.python",
+        "VisualStudioExptTeam.vscodeintellicode",
+        "eamodio.gitlens",
+        "mhutchie.git-graph",
+        "npxms.hide-gitignored",
+        "fabiospampinato.vscode-commands",
+        "ryu1kn.partial-diff"
     ],
     "C_Cpp.default.cppStandard": "c++14",
     "C_Cpp.default.cStandard": "c11",
@@ -103,17 +108,17 @@
             "tooltip": "Focus to terminal #2"
         },
         {
-            "text": "$(arrow-both) G",
+            "text": "$(arrow-both) UnGroup",
             "command": "workbench.action.joinAllGroups",
             "tooltip": "Join All Editor Groups"
         },
         {
-            "text": "$(chevron-down) P",
+            "text": "$(chevron-down) Panel",
             "command": "workbench.action.togglePanel",
             "tooltip": "Toggle Panel"
         },
         {
-            "text": "$(chevron-right) S",
+            "text": "$(chevron-right) Sidebar",
             "command": "workbench.action.toggleSidebarVisibility",
             "tooltip": "Toggle Sidebar"
         },

@@ -11,7 +11,7 @@
 ## 常用宏
 
 - `DISALLOW_COPY_AND_ASSIGN` 禁用拷贝构造/赋值
-- `DISALLOW_IMPLICIT_CONSTRUCTORS` 禁用默认构造
+- `DISALLOW_IMPLICIT_CONSTRUCTORS` 禁用默认构造（一般只允许使用 `static` 函数）
 - `ignore_result` 忽略 WARN_UNUSED_RESULT 检查
 
 ## STL 工具

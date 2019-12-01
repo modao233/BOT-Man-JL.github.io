@@ -135,11 +135,11 @@ std::unique_ptr<int> bar() {
 
 ### 变量的初始化 vs 值的构造
 
-C++ 要求每个 **变量** _(variable)_ 在编译时确定其 **类型** _(type)_，[包括](https://en.cppreference.com/w/cpp/language/type)：基本类型/引用类型/指针类型/类的成员指针类型/数组类型/函数类型/枚举类型/类-联合类型、及上述类型对应的 `const/volatile` 类型。
+C++ 要求每个 **变量** _(variable)_ 在编译时确定其 [**类型** _(type)_](https://en.cppreference.com/w/cpp/language/type)：基本类型/引用类型/指针类型/类的成员指针类型/数组类型/函数类型/枚举类型/类-联合类型、及上述类型对应的 `const/volatile` 类型。
 
-变量的 **初始化** _(initialization)_ 是指 在变量创建时，为其提供 **初始值** _(initial value)_，即 把初始值绑定到变量上。对于不同类型的变量，有着 [不同的初始化方法](https://en.cppreference.com/w/cpp/language/initialization)。
+变量的 [**初始化** _(initialization)_](https://en.cppreference.com/w/cpp/language/initialization) 是指 在变量创建时，为其提供 **初始值** _(initial value)_，即 把初始值绑定到变量上。对于不同类型的变量，有着不同的初始化方法。
 
-而 **引用类型** 变量的初始化（包括：一般变量/类的成员变量/函数参数/函数返回值）和其他值类型变量的 [初始化不太一样](https://en.cppreference.com/w/cpp/language/reference_initialization)：
+而 [**引用类型** 变量的初始化](https://en.cppreference.com/w/cpp/language/reference_initialization)（包括：一般变量/类的成员变量/函数参数/函数返回值）和其他值类型变量的初始化 不太一样：
 
 - 创建时，**必须初始化**（和指针不同，**不允许空引用**；但也存在 **悬垂引用**）
 - 相当于是 其引用的值 的一个 **别名** _(alias)_（例如，对引用变量的 **赋值运算** _(assignment operation)_ 会赋值到 其引用的值 上）
@@ -149,16 +149,16 @@ C++ 要求每个 **变量** _(variable)_ 在编译时确定其 **类型** _(type
 
 ### 左值引用 vs 右值引用 vs 常引用
 
-C++ 11 强化了 左右值 的概念：**左值** _(lvalue, left value)_ 指的是可以通过变量名/指针/引用使用的值，**右值** _(rvalue, right value)_ 指的是表达式返回的临时值。
+C++ 11 强化了 [**值类别** _(value category)_](https://en.cppreference.com/w/cpp/language/value_category)：**左值** _(lvalue, left value)_ 指的是可以通过变量名/指针/引用使用的值，**右值** _(rvalue, right value)_ 指的是表达式返回的临时值。
 
 区分左右值的 “不完全正确” 的方法：
 
 - 左值可以 **取地址**，而右值不行
 - 可以给左值 **赋值**，但右值不行
 
-C++ 11 进一步引入了 左右值引用 的概念：**左值引用** _(l-ref, lvalue reference)_ 是指通过 `&` 符号引用左值；**右值引用** _(r-ref, rvalue reference)_ 是指通过 `&&` 符号引用右值。
+C++ 11 进一步引入了 [左右值 **引用** _(reference)_](https://en.cppreference.com/w/cpp/language/reference) 的概念：**左值引用** _(l-ref, lvalue reference)_ 是指通过 `&` 符号引用左值；**右值引用** _(r-ref, rvalue reference)_ 是指通过 `&&` 符号引用右值。
 
-注意：一旦 **右值引用被初始化** 后，就会在作用域内 **“退化” 为左值引用**（这个引用可以被取地址、被赋值；参考 [sec|误解：返回时，不移动右值引用参数] _误解：返回时，不移动右值引用参数_）。
+注意：一旦 **右值引用被初始化** 后，就会在作用域内 **“退化” 为左值引用**，这个引用可以被取地址、被赋值（参考：[sec|误解：返回时，不移动右值引用参数]）。
 
 ``` cpp
 void f(Data&  data);  // 1, data is l-ref
@@ -335,7 +335,7 @@ assert(v1[0] == v1[3]);
 - 移动语义是 **语言标准** 提出的概念，通过编写遵守移动语义的移动构造函数、右值限定成员函数，**逻辑上** 实现优化 **对象内资源** 的转移流程
 - 拷贝省略是非标准的 **编译器优化**（C++ 17 前），跳过移动/拷贝构造函数，让编译器直接使用 **移动后的对象内存** 构造 **被移动的对象内存**（例如 [sec|误解：返回时，移动临时值] 中，直接在 函数返回值对象 的内存上，构造 函数局部对象 `ret` —— 在 **不同作用域** 里，共享 **同一块内存**）
 
-由于 C++ 17 提出了更复杂的 **纯右值** _(prvalue, pure rvalue)_ 等概念，要求编译器对纯右值进行拷贝省略优化。（[参考](https://jonasdevlieghere.com/guaranteed-copy-elision/)）
+C++ 17 进一步细化了值类别，并要求编译器对 **纯右值** _(prvalue, pure rvalue)_ 进行拷贝省略优化。（[参考](https://jonasdevlieghere.com/guaranteed-copy-elision/)）
 
 ``` cpp
 Data f() {
@@ -394,7 +394,7 @@ C++ 11 引入了变长模板的概念，允许向模板参数里传入不同类�
 - 对于传入的左值引用 `const Args& ...args`，只要展开 `args...` 就可以转发这一组左值引用
 - 对于传入的右值引用 `Args&& ...args`，需要通过 `std::move` 转发出去，即 `std::move<Args>(args)...`
 
-> 为什么要用 `std::move` 转发，参考：[sec|误解：返回时，不移动右值引用参数]）。
+> 为什么要用 `std::move` 转发，参考：[sec|误解：返回时，不移动右值引用参数]。
 
 ``` cpp
 template<typename T, typename... Args>

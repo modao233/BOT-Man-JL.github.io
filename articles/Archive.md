@@ -5,6 +5,7 @@
 
 #### 2019
 
+- [Python 风格的函数式](2019/Pythonic-Functional.md)
 - [漫谈 C++ 的各种 检查](2019/Cpp-Check.md)（**荐**）
 - [从 时空维度 看 I/O 模型](2019/IO-Models.md)
 - [深入 C++ 回调](2019/Inside-Cpp-Callback.md)（**荐**）

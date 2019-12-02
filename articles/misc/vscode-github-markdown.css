@@ -4,7 +4,8 @@
   - Replace .markdown-body with body
   - Set body font-size to 14px
   - Set body pre font-size to 14px
-  - Set blockquote border-left color to #666666
+  - Set blockquote border-left color to #bbbbbb
+  - Remove body pre/code font-size: 85%
 */
 
 @font-face {
@@ -543,7 +544,7 @@ body hr {
 }
 
 body blockquote {
-  border-left: .25em solid #666666;
+  border-left: .25em solid #bbbbbb;
   color: #6a737d;
   padding: 0 1em;
 }
@@ -697,7 +698,6 @@ body img[align=left] {
 body code {
   background-color: rgba(27,31,35,.05);
   border-radius: 3px;
-  font-size: 85%;
   margin: 0;
   padding: .2em .4em;
 }
@@ -729,7 +729,6 @@ body .highlight pre,
 body pre {
   background-color: #f6f8fa;
   border-radius: 3px;
-  font-size: 85%;
   line-height: 1.45;
   overflow: auto;
   padding: 16px;

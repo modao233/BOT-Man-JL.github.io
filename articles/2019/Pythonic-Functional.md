@@ -114,7 +114,7 @@ filter(lambda x: x % 2, range(10))
 # [1, 3, 5, 7, 9]
 
 reduce(lambda d, s: dict(d, **{s: s.upper()}), ['aaa', 'bbb'], {})
-# {'aaa': 'AAA', 'bbb': 'BBB'}
+# {'aaa': 'AAA', 'bbb': 'BBB'}  (Trick: construct dict)
 ```
 
 > 注：
@@ -130,13 +130,13 @@ reduce(lambda d, s: dict(d, **{s: s.upper()}), ['aaa', 'bbb'], {})
 
 ## 生成器
 
-在 Python 2 中，高阶函数 [`map()`](https://docs.python.org/2/library/functions.html#map)/[`filter()`](https://docs.python.org/2/library/functions.html#filter) 会直接返回 [`list` 列表类型](https://docs.python.org/3/library/stdtypes.html#lists) 的结果，会导致两个问题：
+在 Python 2 中，高阶函数 [`map()`](https://docs.python.org/2/library/functions.html#map)/[`filter()`](https://docs.python.org/2/library/functions.html#filter) 以及 [`zip()`](https://docs.python.org/2/library/functions.html#zip)/[`range()`](https://docs.python.org/2/library/functions.html#range) 会直接返回 [`list` 列表类型](https://docs.python.org/3/library/stdtypes.html#lists) 的结果，会导致两个问题。
 
-一方面，**无用计算** 会带来的 **额外开销**，因为并不总是需要整个列表的数据：
+一方面，**无用计算** 会带来的 **额外开销**：
 
 - 例如，设计一个读取数据库的函数（表中有 1,000,000 行数据）
 - 假设该函数 [`return cursor.fetchall()`](https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-fetchall.html) 一次性返回所有数据
-- 如果使用者只需要前 10 个数据，会造成极大的浪费
+- 然而使用者 并不总是 需要 整个列表 的数据，取出不需要的部分 会造成浪费
 
 ``` python
 def get_data():
@@ -144,7 +144,7 @@ def get_data():
     return cursor.fetchall()
 
 data = get_data()
-# <1,000,000 rows>
+# <list of 1,000,000 rows>
 ```
 
 另一方面，**不支持** 表示 **无穷的** _(potential infinite)_ 数据结构：
@@ -154,12 +154,13 @@ data = get_data()
 - Python 3 [移除了 `sys.maxint`](https://docs.python.org/3.0/whatsnew/3.0.html#integers)，允许使用无限大数值，而 **无限长的列表** 无法在内存里存储
 
 ``` python
-print(range(sys.maxint))  # crash!!!
+range(sys.maxint)
+# MemoryError
 ```
 
 在函数式编程中，常用 [**惰性求值** _(lazy evaluation)_](https://en.wikipedia.org/wiki/Lazy_evaluation) 的方法解决上述问题。
 
-Python 提供的 [**生成器** _(generator)_](https://docs.python.org/3/library/stdtypes.html#generator-types) 基于和迭代器相同的接口 `next()`，通过 [`yield` 表达式](https://docs.python.org/3/reference/expressions.html#yield-expressions)，**按需** 生成并返回结果：
+什么是 [**生成器** _(generator)_](https://docs.python.org/3/library/stdtypes.html#generator-types) —— 带有 [`yield` 表达式](https://docs.python.org/3/reference/expressions.html#yield-expressions) 的函数，对外支持和迭代器相同的 `next()` 接口，按需 生成并返回结果，从而实现 惰性求值：
 
 - 对于读取数据库的函数，可以将 [`return`](https://docs.python.org/3/reference/simple_stmts.html#the-return-statement) 改为 [`yield`](https://docs.python.org/3/reference/simple_stmts.html#the-yield-statement)，通过 [`yield cursor.fetchone()`](https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-fetchone.html) 逐个返回结果
 
@@ -172,13 +173,33 @@ for row in get_data():
     print(row)
 ```
 
-- Python 2 支持了 [`itertools.imap()`](https://docs.python.org/2/library/itertools.html#itertools.imap)/[`itertools.ifilter()`](https://docs.python.org/2/library/itertools.html#itertools.ifilter) 返回迭代器，而不是列表
-- Python 3 修改了 `map()`/`filter()`/`range()` 等函数的返回值，[返回迭代器，而不是列表](https://docs.python.org/3.0/whatsnew/3.0.html#views-and-iterators-instead-of-lists)
-- Python 2/3 都提供了 [`itertools.count()`](https://docs.python.org/3/library/itertools.html#itertools.count)/[`itertools.cycle()`](https://docs.python.org/3/library/itertools.html#itertools.cycle)/[`itertools.repeat()`](https://docs.python.org/3/library/itertools.html#itertools.repeat) **无穷迭代器** _(infinite iterator)_
+- Python 2 额外支持了 [`itertools.imap()`](https://docs.python.org/2/library/itertools.html#itertools.imap)/[`itertools.ifilter()`](https://docs.python.org/2/library/itertools.html#itertools.ifilter)/[`itertools.izip()`](https://docs.python.org/2/library/itertools.html#itertools.izip)/[`xrange()`](https://docs.python.org/2/library/functions.html#xrange) 用于替换内置函数：返回迭代器，而不是列表
+- Python 3 直接修改了 [`map()`](https://docs.python.org/3/library/functions.html#map)/[`filter()`](https://docs.python.org/3/library/functions.html#filter)/[`zip()`](https://docs.python.org/3/library/functions.html#zip)/[`range()`](https://docs.python.org/3/library/functions.html#func-range) 等内置函数：[返回迭代器，而不是列表](https://docs.python.org/3.0/whatsnew/3.0.html#views-and-iterators-instead-of-lists)（替换了 `itertools.i*()`/`xrange()` 函数）
 
 ``` python
-print(range(sys.maxsize))
+range(sys.maxsize)
 # range(0, 9223372036854775807)
+
+list(range(sys.maxsize))
+# [0, 1, 2, ...] (MemoryError)
+
+zip(*[[1, 2], [3, 4], [5, 6]])
+# <zip object at 0x000001F9BCD2AB88>
+
+list(zip(*[[1, 2], [3, 4], [5, 6]]))
+# [(1, 3, 5), (2, 4, 6)]  (Trick: matrix transpose)
+```
+
+- Python 还提供了 [`itertools.count()`](https://docs.python.org/3/library/itertools.html#itertools.count)/[`itertools.cycle()`](https://docs.python.org/3/library/itertools.html#itertools.cycle)/[`itertools.repeat()`](https://docs.python.org/3/library/itertools.html#itertools.repeat) **无穷迭代器** _(infinite iterator)_
+
+``` python
+dict(zip(itertools.count(), ['a', 'b', 'c']))
+# {0: 'a', 1: 'b', 2: 'c'}  (Trick: enumerate)
+
+list(itertools.repeat('{}', 3))
+# ['{}', '{}', '{}']  (Trick: sequence repetition)
+#   ['{}'] * 3 == ['{}', '{}', '{}']
+#    '{}'  * 3 ==      '{}{}{}'
 ```
 
 ## 推导式
@@ -235,27 +256,10 @@ list(filter(
 
 ## 其他技巧
 
-- https://docs.python.org/3/library/stdtypes.html#common-sequence-operations
-
-``` python
-nums = [10, 20, 30]
-('[' + ', '.join(['0x{:02X}'] * len(nums)) + ']').format(*nums)
-```
-
-- https://docs.python.org/3/tutorial/datastructures.html#nested-list-comprehensions
-
-``` python
-matrix = [[1, 2], [3, 4], [5, 6]]
-list(zip(*matrix))
-```
-
 - https://docs.python.org/3/tutorial/datastructures.html#looping-techniques
-
-TODO
-
 - https://docs.python.org/3/tutorial/datastructures.html#more-on-conditions
-
-TODO
+- https://docs.python.org/3/howto/functional.html#the-itertools-module
+- https://docs.python.org/3/howto/functional.html#the-functools-module
 
 ## 最后聊聊 Python 这个语言
 

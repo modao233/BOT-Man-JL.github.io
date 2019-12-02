@@ -12,11 +12,13 @@
 
 > 三人行，必有我师焉；择其善者而从之，其不善者而改之。——《论语‧述而》
 
-Python 为了提高 **可读性** _(readability)_，提供了很多 **语法糖** _(syntactic sugar)_，开创了别具一格的 **Python 风格** _(Pythonic)_ 的 **函数式编程**。
+Python 为了提高 **可读性** _(readability)_，提供了很多 **语法糖** _(syntactic sugar)_，开创了别具一格的 **Python 风格** _(Pythonic)_ 的 **函数式编程** _(functional programming)_。
+
+> 本文提到的所有概念 均可参考文中的 **链接**。😉
 
 [TOC]
 
-## 什么是 Pythonic
+## 什么是 Pythonic (TL;DR)
 
 举个例子，实现一个简单的需求：
 
@@ -54,10 +56,10 @@ with open(__file__) as file:
 
 - **异常安全** _(exception safe)_ 的打开/关闭文件
   - 前：将 `close()` 写在 [`finally` 语句](https://docs.python.org/3/reference/compound_stmts.html#the-try-statement) 内，避免异常时泄露
-  - 后：使用 [`with` 语句](https://docs.python.org/3/reference/compound_stmts.html#the-with-statement)（类似 C++ 的 RAII/scoped 思想）
+  - 后：使用 [`with` 语句](https://docs.python.org/3/reference/compound_stmts.html#the-with-statement)（类似 [C++ 的 **资源获取即初始化** _(Resource Acquisition Is Initialization, RAII)_](https://en.cppreference.com/w/cpp/language/raii) 思想）
 - **迭代** _(iterate)_ 读取脚本 文件的每一行
   - 前：使用 `while` 循环调用 `readline()` 函数，直到读到 `None` 时结束
-  - 后：使用 `for` 循环遍历 [**迭代器** _(iterator)_](https://docs.python.org/3/howto/functional.html#iterators) 的结果
+  - 后：使用 `for` 循环遍历 [**迭代器** _(iterator)_](https://docs.python.org/3/howto/functional.html#iterators) 获取结果
 - 去掉空字符、过滤空行
   - 前：使用临时变量存储每行 `rstrip()` 的结果，使用 `if` 判断 `len()` 是否为空
   - 后：使用高阶函数 [`map()`](https://docs.python.org/3/library/functions.html#map)/[`filter()`](https://docs.python.org/3/library/functions.html#filter) 消除循环和临时变量（[参考](../2018/Higher-Order-Functions.md)）
@@ -70,42 +72,118 @@ with open(__file__) as file:
 
 所以，什么是 Pythonic —— 用代码描述 **做什么** _(what-to-do)_，而不是 **怎么做** _(how-to-do)_ —— 提升可读性。
 
-## 迭代器 生成器
+## 迭代器
 
-先聊聊为什么需要 **迭代器**：
+什么是 [**迭代器** _(iterator)_](https://docs.python.org/3/library/stdtypes.html#iterator-types) —— 用于 **遍历容器中元素** 的对象，需要支持 [`next()`](https://docs.python.org/3/library/functions.html#next) 操作，每次返回一个值（类似于 [C++ 的 **输入迭代器** _(input iterator)_](https://en.cppreference.com/w/cpp/named_req/InputIterator)）：
 
-- lazy if possible: `return file.readlines()` vs `yield file.readline()`
+- 如果仍有元素，返回当前值（迭代器对象实现 [`__next__()` 函数](https://docs.python.org/3/library/stdtypes.html#iterator.__next__)）
+- 如果迭代结束，抛出 [`StopIteration` 异常](https://docs.python.org/3/library/exceptions.html#StopIteration)（[`for` 语句](https://docs.python.org/3/reference/compound_stmts.html#the-for-statement) 迭代时处理）
 
-Python 3 [返回 `generator`，而不是 `list`](https://docs.python.org/3.0/whatsnew/3.0.html#views-and-iterators-instead-of-lists)：
-
-- `range(sys.maxsize)`
-
-定义：
-
-- https://docs.python.org/3/howto/functional.html#iterators
-- https://docs.python.org/3/howto/functional.html#generator-expressions-and-list-comprehensions
-
-**惰性求值** _(lazy evaluation)_ 是一种 **使用时按需求值** 的求值策略（[参考](https://en.wikipedia.org/wiki/Lazy_evaluation)）：
-
-- 一方面，**减少** 无用计算带来的 **额外开销**，并对 **使用者** 完全 **透明**
-- 另一方面，支持了表示 **无穷** _(infinite)_ 的算法和数据结构（例如 无穷迭代器 [`itertools.count()`](https://docs.python.org/3/library/itertools.html#itertools.count)/[`itertools.cycle()`](https://docs.python.org/3/library/itertools.html#itertools.cycle)/[`itertools.repeat()`](https://docs.python.org/3/library/itertools.html#itertools.repeat)）
-
-### 高阶函数
+例如，迭代器是 **`for` 循环** 的基础：
 
 ``` python
-list(map(str.upper, ['aaa', 'bbb']))
-list(filter(lambda x: x % 2, range(10)))
-reduce(lambda d, s: dict(d, **{s: s.upper()}), ['aaa', 'bbb'], {})
+for i in [1, 2, 3]:
+    print(i)
 ```
 
-- functor
-  - function/method 例如 `len`/`str.upper`
-  - lambda 例如 `lambda x: x % 2`
-  - `partial` 绑定左边参数，比较奇怪
-  - `operator` 运算符
-- [移除 `reduce` 函数](https://docs.python.org/3.0/whatsnew/3.0.html#builtins)
+可以用 **`while` 循环** 等效实现为：
 
-### 推导式
+``` python
+it = iter([1, 2, 3])
+while True:
+    try:
+        i = next(it)
+        print(i)
+    except StopIteration:
+        break
+```
+
+Python 提出了 [可迭代对象](https://docs.python.org/3/glossary.html#term-iterable) 的概念，要求 `it == iter(it)`（即 “迭代器的迭代器 返回本身”）。
+
+## 高阶函数
+
+然而 **普通迭代器** 只能遍历容器的 **已有元素**；但在多数情况下，需要遍历并修改 **原始元素**，构造出 **新的元素**。
+
+在命令式编程中，常用 `for` 循环遍历已有元素，并用 临时变量 存储修改后的结果；而函数式编程中，常用 [**高阶函数** _(higher-order function)_](https://en.wikipedia.org/wiki/Higher-order_function) 消除循环和临时变量（[具体方法参考](../2018/Higher-Order-Functions.md)）：
+
+``` python
+map(str.upper, ['aaa', 'bbb'])
+# ['AAA', 'BBB']
+
+filter(lambda x: x % 2, range(10))
+# [1, 3, 5, 7, 9]
+
+reduce(lambda d, s: dict(d, **{s: s.upper()}), ['aaa', 'bbb'], {})
+# {'aaa': 'AAA', 'bbb': 'BBB'}
+```
+
+> 注：
+> 
+> - 上述代码仅用于 Python 2（原因见下文）
+> - Python 3 [移除了 `reduce` 内置函数](https://docs.python.org/3.0/whatsnew/3.0.html#builtins)，并放入 [`functools.reduce()`](https://docs.python.org/3/library/functools.html#functools.reduce)
+
+[align-center]
+
+[img=max-width:80%]
+
+[![emoji 版本的 map/filter/reduce 的解释](../2018/Higher-Order-Functions/emoji-map-filter-reduce.png)](http://modernescpp.com/index.php/higher-order-functions)
+
+## 生成器
+
+在 Python 2 中，高阶函数 [`map()`](https://docs.python.org/2/library/functions.html#map)/[`filter()`](https://docs.python.org/2/library/functions.html#filter) 会直接返回 [`list` 列表类型](https://docs.python.org/3/library/stdtypes.html#lists) 的结果，会导致两个问题：
+
+一方面，**无用计算** 会带来的 **额外开销**，因为并不总是需要整个列表的数据：
+
+- 例如，设计一个读取数据库的函数（表中有 1,000,000 行数据）
+- 假设该函数 [`return cursor.fetchall()`](https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-fetchall.html) 一次性返回所有数据
+- 如果使用者只需要前 10 个数据，会造成极大的浪费
+
+``` python
+def get_data():
+    # ...
+    return cursor.fetchall()
+
+data = get_data()
+# <1,000,000 rows>
+```
+
+另一方面，**不支持** 表示 **无穷的** _(potential infinite)_ 数据结构：
+
+- 例如，表示一个从 0 到 [`sys.maxint`](https://docs.python.org/2/library/sys.html#sys.maxint) 的范围 `range(sys.maxint)`
+- Python 2 中 [`range()`](https://docs.python.org/2/library/functions.html#range) 返回一个 **很长的列表**，占用大量内存
+- Python 3 [移除了 `sys.maxint`](https://docs.python.org/3.0/whatsnew/3.0.html#integers)，允许使用无限大数值，而 **无限长的列表** 无法在内存里存储
+
+``` python
+print(range(sys.maxint))  # crash!!!
+```
+
+在函数式编程中，常用 [**惰性求值** _(lazy evaluation)_](https://en.wikipedia.org/wiki/Lazy_evaluation) 的方法解决上述问题。
+
+Python 提供的 [**生成器** _(generator)_](https://docs.python.org/3/library/stdtypes.html#generator-types) 基于和迭代器相同的接口 `next()`，通过 [`yield` 表达式](https://docs.python.org/3/reference/expressions.html#yield-expressions)，**按需** 生成并返回结果：
+
+- 对于读取数据库的函数，可以将 [`return`](https://docs.python.org/3/reference/simple_stmts.html#the-return-statement) 改为 [`yield`](https://docs.python.org/3/reference/simple_stmts.html#the-yield-statement)，通过 [`yield cursor.fetchone()`](https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-fetchone.html) 逐个返回结果
+
+``` python
+def get_data():
+    # ...
+    yield cursor.fetchone()
+
+for row in get_data():
+    print(row)
+```
+
+- Python 2 支持了 [`itertools.imap()`](https://docs.python.org/2/library/itertools.html#itertools.imap)/[`itertools.ifilter()`](https://docs.python.org/2/library/itertools.html#itertools.ifilter) 返回迭代器，而不是列表
+- Python 3 修改了 `map()`/`filter()`/`range()` 等函数的返回值，[返回迭代器，而不是列表](https://docs.python.org/3.0/whatsnew/3.0.html#views-and-iterators-instead-of-lists)
+- Python 2/3 都提供了 [`itertools.count()`](https://docs.python.org/3/library/itertools.html#itertools.count)/[`itertools.cycle()`](https://docs.python.org/3/library/itertools.html#itertools.cycle)/[`itertools.repeat()`](https://docs.python.org/3/library/itertools.html#itertools.repeat) **无穷迭代器** _(infinite iterator)_
+
+``` python
+print(range(sys.maxsize))
+# range(0, 9223372036854775807)
+```
+
+## 推导式
+
+- https://docs.python.org/3/howto/functional.html#generator-expressions-and-list-comprehensions
 
 ``` python
 [s.upper() for s in ['aaa', 'bbb']]
@@ -195,6 +273,8 @@ _(A Conversation with Guido van Rossum)_](https://www.artima.com/intv/strongweak
 - 由于使用的是 Python 2，函数不能指定 参数/返回值 的类型，VSCode **智能提示** 经常失效
 
 尽管如此，Python 的 **核心语言** _(core language)_ 还算比较简单，很多概念都是 **良好定义** _(well-defined)_ 的；所以只要理解了基本原理，还是能很快排查各种错误的。
+
+优雅 _(elegant)_
 
 由于写本文时我的 Python 代码量不超过 1k 行，所以 如果有什么问题，**欢迎交流**。😄
 

@@ -14,7 +14,7 @@
 
 Python 为了提高 **可读性** _(readability)_，提供了很多 **语法糖** _(syntactic sugar)_，开创了别具一格的 **Python 风格** _(Pythonic)_ 的 **函数式编程** _(functional programming)_。
 
-> 本文提到的所有概念 均可参考文中的 **链接**。😉
+> 本文提到的所有概念 均可参考文中的 **链接**，实例代码包括了一些常见的 **Tricks**。😉
 
 [TOC]
 
@@ -65,10 +65,10 @@ with open(__file__) as file:
   - 后：使用高阶函数 [`map()`](https://docs.python.org/3/library/functions.html#map)/[`filter()`](https://docs.python.org/3/library/functions.html#filter) 消除循环和临时变量（[参考](../2018/Higher-Order-Functions.md)）
 - 记录行号
   - 前：使用自增的临时变量存储（如果少一个缩进，就会导致结果错误）
-  - 后：使用 [`enumerate()` 函数](https://docs.python.org/3/library/functions.html#enumerate) 从 `1` 开始生成下标
+  - 后：使用 [`enumerate()` 函数](https://docs.python.org/3/library/functions.html#enumerate) 从 `1` 开始生成下标，在迭代时 [**可迭代解包** _(iterable unpacking)_](https://docs.python.org/3/reference/simple_stmts.html#assignment-statements) 得到 `index` 和 `line`
 - 格式化输出
   - 前：使用常规的 [`format()` 函数](https://docs.python.org/3/library/stdtypes.html#str.format)
-  - 后：使用 [f-string _(formatted string literal)_](https://docs.python.org/3/reference/lexical_analysis.html#f-strings) 化简
+  - 后：使用特有的 [f-string _(formatted string literal)_](https://docs.python.org/3/reference/lexical_analysis.html#f-strings) 化简
 
 所以，什么是 Pythonic —— 用代码描述 **做什么** _(what-to-do)_，而不是 **怎么做** _(how-to-do)_ —— 提升可读性。
 
@@ -98,7 +98,7 @@ while True:
         break
 ```
 
-Python 提出了 [可迭代对象](https://docs.python.org/3/glossary.html#term-iterable) 的概念，要求 `it == iter(it)`（即 “迭代器的迭代器 返回本身”）。
+Python 提出了 [**可迭代** _(iterable)_](https://docs.python.org/3/glossary.html#term-iterable) 的概念，要求 `it == iter(it)`（即 “迭代器的迭代器 返回本身”）。
 
 ## 高阶函数
 
@@ -126,7 +126,7 @@ reduce(lambda d, s: dict(d, **{s: s.upper()}), ['aaa', 'bbb'], {})
 
 [img=max-width:80%]
 
-[![emoji 版本的 map/filter/reduce 的解释](../2018/Higher-Order-Functions/emoji-map-filter-reduce.png)](http://modernescpp.com/index.php/higher-order-functions)
+[![emoji 版本的 map/filter/reduce 的解释](../2018/Higher-Order-Functions/emoji-map-filter-reduce.png)](http://www.globalnerdy.com/2016/06/23/map-filter-and-reduce-explained-using-emoji/)
 
 ## 生成器
 
@@ -173,8 +173,8 @@ for row in get_data():
     print(row)
 ```
 
-- Python 2 额外支持了 [`itertools.imap()`](https://docs.python.org/2/library/itertools.html#itertools.imap)/[`itertools.ifilter()`](https://docs.python.org/2/library/itertools.html#itertools.ifilter)/[`itertools.izip()`](https://docs.python.org/2/library/itertools.html#itertools.izip)/[`xrange()`](https://docs.python.org/2/library/functions.html#xrange) 用于替换内置函数：返回迭代器，而不是列表
-- Python 3 直接修改了 [`map()`](https://docs.python.org/3/library/functions.html#map)/[`filter()`](https://docs.python.org/3/library/functions.html#filter)/[`zip()`](https://docs.python.org/3/library/functions.html#zip)/[`range()`](https://docs.python.org/3/library/functions.html#func-range) 等内置函数：[返回迭代器，而不是列表](https://docs.python.org/3.0/whatsnew/3.0.html#views-and-iterators-instead-of-lists)（替换了 `itertools.i*()`/`xrange()` 函数）
+- Python 2 额外支持了 [`itertools.imap()`](https://docs.python.org/2/library/itertools.html#itertools.imap)/[`itertools.ifilter()`](https://docs.python.org/2/library/itertools.html#itertools.ifilter)/[`itertools.izip()`](https://docs.python.org/2/library/itertools.html#itertools.izip)/[`xrange()`](https://docs.python.org/2/library/functions.html#xrange) 用于替换内置函数：返回迭代器（生成器），而不是列表
+- Python 3 直接修改了 [`map()`](https://docs.python.org/3/library/functions.html#map)/[`filter()`](https://docs.python.org/3/library/functions.html#filter)/[`zip()`](https://docs.python.org/3/library/functions.html#zip)/[`range()`](https://docs.python.org/3/library/functions.html#func-range) 等内置函数：[返回迭代器（生成器），而不是列表](https://docs.python.org/3.0/whatsnew/3.0.html#views-and-iterators-instead-of-lists)（替换了 `itertools.i*()`/`xrange()` 函数）
 
 ``` python
 range(sys.maxsize)
@@ -190,7 +190,7 @@ list(zip(*[[1, 2], [3, 4], [5, 6]]))
 # [(1, 3, 5), (2, 4, 6)]  (Trick: matrix transpose)
 ```
 
-- Python 还提供了 [`itertools.count()`](https://docs.python.org/3/library/itertools.html#itertools.count)/[`itertools.cycle()`](https://docs.python.org/3/library/itertools.html#itertools.cycle)/[`itertools.repeat()`](https://docs.python.org/3/library/itertools.html#itertools.repeat) **无穷迭代器** _(infinite iterator)_
+- Python 还提供了 [`itertools.count()`](https://docs.python.org/3/library/itertools.html#itertools.count)/[`itertools.cycle()`](https://docs.python.org/3/library/itertools.html#itertools.cycle)/[`itertools.repeat()`](https://docs.python.org/3/library/itertools.html#itertools.repeat) **无穷迭代器** _(infinite iterator)_（生成器）
 
 ``` python
 dict(zip(itertools.count(), ['a', 'b', 'c']))
@@ -204,44 +204,85 @@ list(itertools.repeat('{}', 3))
 
 ## 推导式
 
-- https://docs.python.org/3/howto/functional.html#generator-expressions-and-list-comprehensions
+Python 为了化简 `map()`/`filter()` 的高阶函数写法，借鉴了 [Haskell](https://wiki.haskell.org/List_comprehension)，提供了更直观的 [**列表/字典/集合 推导式** _(list/dict/set comprehensions)_ 和 **生成器表达式** _(generator expressions)_](https://docs.python.org/3/howto/functional.html#generator-expressions-and-list-comprehensions) 语法：
 
 ``` python
+(s.upper() for s in ['aaa', 'bbb'])
+# <generator object <genexpr> at 0x0000029CA8E65938>
+
 [s.upper() for s in ['aaa', 'bbb']]
+# ['AAA', 'BBB']
+
 [x for x in range(10) if x % 2]
+# [1, 3, 5, 7, 9]
+
 {s: s.upper() for s in ['aaa', 'bbb']}
+# {'aaa': 'AAA', 'bbb': 'BBB'}
 
 {s.upper() for s in ['aaa', 'bbb']}
+# {'AAA', 'BBB'}
 ```
 
-- https://treyhunner.com/2015/12/python-list-comprehensions-now-in-color/
-- https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
+- 一方面，可以使用 **生成器表达式** 快速构造 `map()`/`filter()` 等效的迭代器（生成器）
+- 另一方面，可以使用 **推导式** 直接构造对应的 列表/字典/集合 对象
 
-### 高阶函数 vs 推导式
+上边简单的例子看不出 推导式相对于高阶函数 的 **优势**，所以下边举一个求 0-100 之间所有 [毕达哥拉斯三元组](https://en.wikipedia.org/wiki/Pythagorean_triple) 的例子。
 
-- https://docs.python.org/3/library/itertools.html#itertools.product
+用 **命令式编程** 的直观方法是使用 **三层 for 循环** 实现：
 
 ``` python
-product = itertools.product
-list(filter(lambda t: t[0] < t[1] and t[0] ** 2 + t[1] ** 2 == t[2] ** 2,
-            product(range(1, 100), repeat=3)))
+ret = []
+for x in range(1, 100):
+    for y in range(1, 100):
+        for z in range(1, 100):
+            if x < y and x ** 2 + y ** 2 == z ** 2:
+                ret.append((x, y, z))
+# [(3, 4, 5), (5, 12, 13), ... (65, 72, 97)]
 ```
 
-- https://docs.python.org/3/library/itertools.html#itertools.chain
+用 **笛卡尔积** _(cartesian product)_ [`itertools.product()`](https://docs.python.org/3/library/itertools.html#itertools.product) 化简三层循环：
 
 ``` python
-flatten = itertools.chain.from_iterable
+ret = []
+for x, y, z in itertools.product(range(1, 100), repeat=3):
+    if x < y and x ** 2 + y ** 2 == z ** 2:
+        ret.append((x, y, z))
+```
+
+然而，笛卡尔积会 **存在冗余**，可以 **根据三元组定义** 进一步优化 遍历顺序、迭代下标、判断条件：
+
+``` python
+ret = []
+for z in range(1, 100):
+    for x in range(1, z + 1):
+        for y in range(x, z + 1):
+            if x ** 2 + y ** 2 == z ** 2:
+                ret.append((x, y, z))
+```
+
+用 **函数式编程** 的高阶函数 `map()`/`filter()` 可以 消除循环和临时变量：
+
+- 通过 [`itertools.chain.from_iterable()`](https://docs.python.org/3/library/itertools.html#itertools.chain) 链接迭代器列表，实现 [`flatmap()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap) 展开 二维数组 为 一维数组
+- 通过闭包嵌套，传递上一轮迭代的元素
+
+``` python
+def flatmap(*args):
+    return itertools.chain.from_iterable(map(*args))
 list(filter(
     lambda t: t[0] ** 2 + t[1] ** 2 == t[2] ** 2,
-    flatten(map(lambda z:
-                flatten(map(lambda x:
-                            map(lambda y: (x, y, z),
-                                range(x, z + 1)),
-                            range(1, z + 1))),
-                range(1, 100)))))
+    flatmap(lambda z:
+            flatmap(lambda x:
+                    map(lambda y:
+                        (x, y, z),
+                        range(x, z + 1)),
+                    range(1, z + 1)),
+            range(1, 100))))
 ```
 
-- https://docs.python.org/3/tutorial/datastructures.html#nested-list-comprehensions
+用 [**嵌套列表推导式** _(nested list comprehensions)_](https://docs.python.org/3/tutorial/datastructures.html#nested-list-comprehensions) 实现 **优雅** _(elegant)_ 的函数式代码：
+
+- 没有 **心智负担** _(cognitive load)_，不需要思考用 `map()` 还是 `flatmap()`
+- 在保证 **高效**（惰性求值）的情况下，**可读性** 最佳
 
 ``` python
 [(x, y, z) for z in range(1, 100)
@@ -250,36 +291,32 @@ list(filter(
            if x ** 2 + y ** 2 == z ** 2]
 ```
 
-不要滥用：
+> 延伸阅读：
+> 
+> - [Python List Comprehensions: Explained Visually](https://treyhunner.com/2015/12/python-list-comprehensions-now-in-color/) —— 可视化解释：如何把 高阶函数 转换为 列表推导式
+> - [Overusing list comprehensions and generator expressions in Python](https://treyhunner.com/2019/03/abusing-and-overusing-list-comprehensions-in-python/) —— 如何正确使用 列表推导式
+> - ["Modern" C++ Lamentations](http://aras-p.info/blog/2018/12/28/Modern-C-Lamentations/) —— 使用 C++ 20 range 实现上述代码的问题（编译慢、运行慢、心智负担）
+> - [The Surprising Limitations of C++ Ranges Beyond Trivial Cases](https://www.fluentcpp.com/2019/09/13/the-surprising-limitations-of-c-ranges-beyond-trivial-use-cases/) —— 如果你觉得上边为了 _make it right_ 而引入的 `flatmap()` 很复杂，读完这篇文章你会发现 C++ 里 _make it compile_ 的方式更复杂
 
-- https://treyhunner.com/2019/03/abusing-and-overusing-list-comprehensions-in-python/
+## 最后聊聊 Python 语言
 
-## 其他技巧
-
-- https://docs.python.org/3/tutorial/datastructures.html#looping-techniques
-- https://docs.python.org/3/tutorial/datastructures.html#more-on-conditions
-- https://docs.python.org/3/howto/functional.html#the-itertools-module
-- https://docs.python.org/3/howto/functional.html#the-functools-module
-
-## 最后聊聊 Python 这个语言
-
-虽然 Python 的可读性不错，但可写性并不好（对于 **其他语言用户** 不太友好；仁者见仁，智者见智）：
+首先，虽然 Python 的可读性不错，但对 **其他语言用户** 的可写性不好（仁者见仁，智者见智）：
 
 - `len(LIST)` 而不是 `LIST.length()`（参考：[Why does Python use methods for some functionality (e.g. list.index()) but functions for other (e.g. len(list))? | Design and History FAQ](https://docs.python.org/3/faq/design.html#why-does-python-use-methods-for-some-functionality-e-g-list-index-but-functions-for-other-e-g-len-list)）
 - `STR.join(LIST)` 而不是 `LIST.join(STR)`（但 `LIST.split(STR)` 却是有的，参考：[Why is join() a string method instead of a list or tuple method? | Design and History FAQ](https://docs.python.org/3/faq/design.html#why-is-join-a-string-method-instead-of-a-list-or-tuple-method)）
 - `COND ? EXPR1 : EXPR2` 运算符 写为 `EXPR1 if COND else EXPR`（参考：[Is there an equivalent of C’s “?:” ternary operator? | Programming FAQ](https://docs.python.org/3/faq/programming.html#is-there-an-equivalent-of-c-s-ternary-operator)）
 
-作为一个 **非脚本语言用户**，离开了 **编译器的检查** 和 IDE 强大的 **智能提示**，感觉自己不会写代码了：
+其次，作为一个 **非脚本语言用户**，离开了 **编译器的检查** 和 IDE 强大的 **智能提示**，感觉自己不会写代码了：
 
 - 由于 Python 是 **运行时强类型** 语言（参考：[Strong versus Weak Typing
 _(A Conversation with Guido van Rossum)_](https://www.artima.com/intv/strongweak.html#part2)）
-- 只有在 **运行时**，才能发现函数调用的参数（个数/类型）错误
-- 由于使用的是 Python 2，函数不能指定 参数/返回值 的类型，VSCode **智能提示** 经常失效
+- 只有在 **运行时**，才能发现函数的参数（个数/类型）**错误**
+- 另外，Python 2 的函数不能指定 参数/返回值 的类型，IDE 的 **智能提示** 经常失效
 
-尽管如此，Python 的 **核心语言** _(core language)_ 还算比较简单，很多概念都是 **良好定义** _(well-defined)_ 的；所以只要理解了基本原理，还是能很快排查各种错误的。
+> Life is short, you need Python. —— Bruce Eckel
 
-优雅 _(elegant)_
+最后，Python 的 **核心语言** _(core language)_ 还算 [比较简单](https://docs.python.org/3/reference/grammar.html)（反例：C++），很多概念都是 **良好定义** _(well-defined)_ 的 —— 只要理解基本原理，就能 **快速上手**。
 
-由于写本文时我的 Python 代码量不超过 1k 行，所以 如果有什么问题，**欢迎交流**。😄
+由于写本文时我的 Python 代码量未超过 1,000 行，所以 如果有什么问题，**欢迎交流**。😄
 
 Delivered under MIT License &copy; 2019, BOT Man

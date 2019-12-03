@@ -376,7 +376,7 @@ function flatArray(array) {
 > // 1 9 25 49 81 121 169 225 289 361 441 529 625 729 841 961
 > ```
 >
-> [再如](https://github.com/ericniebler/range-v3/blob/master/example/comprehensions.cpp)，找出 前 100 个 [毕达哥拉斯三元数组](https://en.wikipedia.org/wiki/Pythagorean_triple)：
+> [再如](https://github.com/ericniebler/range-v3/blob/master/example/comprehensions.cpp)，求 [毕达哥拉斯三元组](https://en.wikipedia.org/wiki/Pythagorean_triple)：
 >
 > ``` cpp
 > auto triples = view::for_each(view::ints(1), [] (int z) {
@@ -395,8 +395,10 @@ function flatArray(array) {
 > // (9,12,15)
 > // ...
 > ```
+>
+> 不过，C++ range 也存在许多问题，参考：[现代 C++ 的哀歌](http://aras-p.info/blog/2018/12/28/Modern-C-Lamentations/) —— 使用 C++ 20 range 实现上述代码的问题（编译慢、运行慢、心智负担）
 
-最后补上一张 [emoji 版本的 map/filter/reduce 的解释](http://modernescpp.com/index.php/higher-order-functions)：
+最后补上一张 [emoji 版本的 map/filter/reduce 的解释](http://www.globalnerdy.com/2016/06/23/map-filter-and-reduce-explained-using-emoji/)：
 
 [align-center]
 

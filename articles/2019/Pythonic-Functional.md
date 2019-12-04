@@ -54,10 +54,10 @@ with open(__file__) as file:
         print(f'{index}: {line}')
 ```
 
-- **异常安全** _(exception safe)_ 的打开/关闭文件
+- 安全的打开/关闭文件
   - 前：将 `close()` 写在 [`finally` 语句](https://docs.python.org/3/reference/compound_stmts.html#the-try-statement) 内，避免异常时泄露
   - 后：使用 [`with` 语句](https://docs.python.org/3/reference/compound_stmts.html#the-with-statement)（类似 [C++ 的 **资源获取即初始化** _(Resource Acquisition Is Initialization, RAII)_](https://en.cppreference.com/w/cpp/language/raii) 思想）
-- **迭代** _(iterate)_ 读取脚本 文件的每一行
+- 读取文件的每一行
   - 前：使用 `while` 循环调用 `readline()` 函数，直到读到 `None` 时结束
   - 后：使用 `for` 循环遍历 [**迭代器** _(iterator)_](https://docs.python.org/3/howto/functional.html#iterators) 获取结果
 - 去掉空字符、过滤空行
@@ -146,7 +146,7 @@ def get_data():
     return cursor.fetchall()
 
 data = get_data()
-# <list of 1,000,000 rows>
+# <list of 1,000,000 rows> (MemoryError)
 ```
 
 另一方面，**不支持** 表示 **无穷的** _(potential infinite)_ 数据结构：
@@ -162,10 +162,10 @@ range(sys.maxint)
 
 在函数式编程中，常用 [**惰性求值** _(lazy evaluation)_](https://en.wikipedia.org/wiki/Lazy_evaluation) 的方法解决上述问题。
 
-Python 使用 [**生成器** _(generator)_](https://docs.python.org/3/library/stdtypes.html#generator-types) 实现惰性求值 —— 带有 [`yield` 表达式](https://docs.python.org/3/reference/expressions.html#yield-expressions) 的函数，对外支持和迭代器相同的 `next()` 接口（对使用者透明），按需 生成并返回 结果：
+Python 使用 [**生成器** _(generator)_](https://docs.python.org/3/library/stdtypes.html#generator-types) 实现惰性求值 —— 带有 [`yield` 表达式](https://docs.python.org/3/reference/expressions.html#yield-expressions) 的函数，按需生成并返回结果 —— 对外提供和迭代器相同的 `__iter__()`/`__next__()` 接口，实现 **可迭代** 的概念（对使用者透明的 [**鸭子类型** _(duck typing)_](https://en.wikipedia.org/wiki/Duck_typing) —— 无需关心是迭代器还是生成器）：
 
 - 对于读取数据库的函数，可以将 [`return`](https://docs.python.org/3/reference/simple_stmts.html#the-return-statement) 改为 [`yield`](https://docs.python.org/3/reference/simple_stmts.html#the-yield-statement)，通过 [`yield cursor.fetchone()`](https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-fetchone.html) 逐个返回结果
-- 而使用者可以通过 和迭代器相同的方式（例如 `for` 循环），按需 使用或修改 数据
+- 而使用者可以通过 和迭代器相同的方式（例如 `for` 循环），按需使用或修改数据
 
 ``` python
 def get_data():
@@ -183,8 +183,9 @@ for row in get_data():
 range(sys.maxsize)
 # range(0, 9223372036854775807)
 
-list(range(sys.maxsize))
-# [0, 1, 2, ...] (MemoryError)
+for x in range(sys.maxsize):
+    print(x)
+# 0 1 2 3 ...
 
 zip(*[[1, 2], [3, 4], [5, 6]])
 # <zip object at 0x000001F9BCD2AB88>
@@ -285,7 +286,7 @@ list(filter(
 最后用 [**嵌套列表推导式** _(nested list comprehensions)_](https://docs.python.org/3/tutorial/datastructures.html#nested-list-comprehensions) 实现 **优雅** _(elegant)_ 的函数式代码：
 
 - 没有 **心智负担** _(cognitive load)_，不需要思考用 `map()` 还是 `flatmap()`
-- 在保证 **高效**（惰性求值）的情况下，**可读性** 最佳
+- 在保证 **高效**（惰性求值）的情况下，**可读性** 最佳（缩进最整齐的方案）
 
 ``` python
 [(x, y, z) for z in range(1, 100)

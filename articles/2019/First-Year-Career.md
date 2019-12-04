@@ -35,6 +35,7 @@
   - https://docs.python.org/2/faq/design.html
   - https://docs.python.org/3/faq/design.html
   - `JSON.stringify($('#contents ul li ul li').map((i, e) => $(e).text()).toArray())`
+  - `document.designMode`
 - 概念/背景 + 行文/惯用法
   - 借助 IDE 只能提示写代码
 - 想清楚事情背后的来龙去脉，需要深入基础，例如 崩溃分析，程序员的基本修养

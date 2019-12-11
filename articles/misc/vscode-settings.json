@@ -63,7 +63,6 @@
     "markdown.preview.markEditorSelection": false,
     "markdown.preview.doubleClickToSwitchToEditor": false,
     "markdown.preview.scrollEditorWithPreview": false,
-    "markdown.preview.scrollPreviewWithEditor": false,
     "markdown.styles": [
         "https://bot-man-jl.github.io/articles/misc/vscode-github-markdown.css"
     ],

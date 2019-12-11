@@ -23,7 +23,7 @@
 
 ### #2 [no-toc]
 
-为了批判 **面向对象** 里 “操作必须放到对象里” 的回调思想，写了一篇文章 [回调 vs 接口](../2017/Callback-vs-Interface.md)（后来读到 陈硕 也有一篇类似的文章 [以 `boost::function` 和 `boost::bind` 取代虚函数](https://blog.csdn.net/Solstice/article/details/3066268)），但境界还不够，一直没有发现这个问题的 **本质** —— **函数式 vs 面向对象**。
+为了批判 **面向对象** 里 “操作必须放到对象里” 的回调思想，写了一篇文章 [回调 vs 接口](../2017/Callback-vs-Interface.md)（后来读到 陈硕 也有一篇类似的文章 [《以 `boost::function` 和 `boost::bind` 取代虚函数》](https://github.com/downloads/chenshuo/documents/CppPractice.pdf)），但境界还不够，一直没有发现这个问题的 **本质** —— **函数式 vs 面向对象**。
 
 同样是实现 [依赖注入 _(dependency injection)_](https://martinfowler.com/articles/injection.html) 的功能：
 

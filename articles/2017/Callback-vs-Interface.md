@@ -191,7 +191,7 @@ void View::SetObserver() {
 
 > Favor object composition over class inheritance.（组合优于继承）—— GOF
 >
-> “继承就像一条贼船，上去就下不来了” —— [陈硕](https://blog.csdn.net/Solstice/article/details/3066268)
+> “继承就像一条贼船，上去就下不来了” —— [《以 `boost::function` 和 `boost::bind` 取代虚函数》陈硕](https://github.com/downloads/chenshuo/documents/CppPractice.pdf)
 
 另外，使用接口的方式还有一个问题：**实现了不同接口的可调用实体之间不能相互转换**。例如，我们定义了一个接受鼠标点击事件的接口 `IMouseClickHandler`。
 

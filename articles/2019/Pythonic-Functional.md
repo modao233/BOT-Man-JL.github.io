@@ -81,14 +81,14 @@ with open(__file__) as file:
 
 > Python 中的迭代器，类似于 [C++ 的 **输入迭代器** _(input iterator)_](https://en.cppreference.com/w/cpp/named_req/InputIterator) —— 每次只能读取一个元素，不能跨越，也不能后退，更不能随机访问。
 
-例如，迭代器常用于 `for` 循环：
+迭代器在 Python 中随处可见，最常用于 `for` 循环：
 
 ``` python
 for i in [1, 2, 3]:
     print(i)  # use(i)
 ```
 
-等效实现为 `while` 循环：
+如果用 `while` 循环，会比较冗长：
 
 ``` python
 it = iter([1, 2, 3])
@@ -100,7 +100,7 @@ while True:
         break
 ```
 
-Python 提出了 [**可迭代** _(iterable)_](https://docs.python.org/3/glossary.html#term-iterable) 的概念，支持从 容器或迭代器 通过 [`iter()` 函数](https://docs.python.org/3/library/functions.html#iter) 返回迭代器（即 容器或迭代器实现 [`__iter__()` 方法](https://docs.python.org/3/reference/datamodel.html#object.__iter__)，而迭代器返回 `self`）。
+Python 提出了 [**可迭代** _(iterable)_](https://docs.python.org/3/glossary.html#term-iterable) 的概念，支持从 容器或迭代器 通过 [`iter()` 函数](https://docs.python.org/3/library/functions.html#iter) 返回迭代器（即 容器或迭代器实现 [`__iter__()` 方法](https://docs.python.org/3/reference/datamodel.html#object.__iter__)；而迭代器返回 `self`，即 `iter(it) == it`）。
 
 ## 高阶函数
 

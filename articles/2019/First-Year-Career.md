@@ -28,14 +28,20 @@
 - https://www.fluentcpp.com/2019/09/13/the-surprising-limitations-of-c-ranges-beyond-trivial-use-cases/
 - http://aras-p.info/blog/2018/12/28/Modern-C-Lamentations/
 - 新技术如果能在狭缝中生存、壮大，那必定有他的独特优势：桌面性能好，移动性能差
+- [“有时候你费劲优化了半天，结果新CPU加了几条指令，直接在硬件层面把问题解决了。”](http://www.cppblog.com/Solstice/archive/2013/08/12/202489.html)
+- [“我对于市面上绝大部分开发类图书都不满——它们基本上都是面向知识体系本身的，而不是面向读者的。... 毫无重点地平铺直叙，不分轻重地陈述细节，往往在第三章以前就用无聊的细节谋杀了读者的热情。”](https://blog.csdn.net/myan/article/details/5877305)
+- [“编程其实是以逻辑为表象体现作者哲学和世界观的非常直观的途径。耍小聪明的，不求甚解的，抓小放大的，有大格局的，凡此种种，淋漓尽致。”](https://zhuanlan.zhihu.com/p/88749279#comment-778450096)
 
 ## 关于能力
 
-- 人和动物的区别：使用工具，例如 F12+bash
+- 使用工具 F12/bash
   - https://docs.python.org/2/faq/design.html
   - https://docs.python.org/3/faq/design.html
   - `JSON.stringify($('#contents ul li ul li').map((i, e) => $(e).text()).toArray())`
   - `document.designMode`
+- 使用工具 Debugger everywhere
+  - Process Monitor 排查公司 OA 客户端问题：中文用户名解码失败
+  - 开源软件崩溃，用 gdb 调试汇编，配合源码：MySQL Client 未连接的空指针问题
 - 概念/背景 + 行文/惯用法
   - 借助 IDE 只能提示写代码
 - 想清楚事情背后的来龙去脉，需要深入基础，例如 崩溃分析，程序员的基本修养
@@ -43,6 +49,10 @@
 - 知识体系融汇贯通，例如 从时空的维度看 I/O 模型
   - 人脑lru清理不可达记忆
   - 树状结构的知识管理，只是知识网络的一个视图
+
+> 我主张，在具备基础之后，学习任何新东西，都要抓住主线，突出重点。对于关键理论的学习，要集中精力，速战速决。而旁枝末节和非本质性的知识内容，完全可以留给实践去零敲碎打。
+> 
+> 因此我对于市面上绝大部分开发类图书都不满——它们基本上都是面向知识体系本身的，而不是面向读者的。总是把相关的所有知识细节都放在一堆，然后一堆一堆攒起来变成一本书。反映在内容上，就是毫无重点地平铺直叙，不分轻重地陈述细节，往往在第三章以前就用无聊的细节谋杀了读者的热情。
 
 ## 关于面试
 
@@ -58,6 +68,7 @@
 - 理想
   - 生活追求 房子？户口？
   - 技术追求 https://abcdabcd987.com/google-internship-2019/
+  - 现实很骨感 https://www.reddit.com/r/ProgrammerHumor/comments/418x95/theory_vs_reality/
 - 焦虑
   - 差距 山外有山，越学越不会，例如 并发设计，编程语言
   - 得失

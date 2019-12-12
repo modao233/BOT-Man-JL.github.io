@@ -19,29 +19,20 @@ class File {
   // data
 };
 
-using FilePtr = std::unique_ptr<File>;
-
 using Command = std::function<void()>;
 
 class Client {
   // Receiver
  private:
-  FilePtr file_;  // data storage
+  std::unique_ptr<File> file_;  // data storage
 
   // Indirection
  private:
-  std::unordered_map<Action, Command> handlers_;
-
- public:
-  Client() {
-    handlers_.emplace(ClickNew, [this] { file_ = File::New(); });
-    handlers_.emplace(ClickOpen, [this] { file_ = File::Open(); });
-    handlers_.emplace(ClickSave, [this] {
-      if (!file_)
-        return;
-      file_->Save();
-    });
-  }
+  std::unordered_map<Action, Command> handlers_ = {
+      {ClickNew, [this] { file_ = File::New(); }},
+      {ClickOpen, [this] { file_ = File::Open(); }},
+      {ClickSave, [this] { if (file_) file_->Save(); }},
+  };
 
   // Sender
  public:

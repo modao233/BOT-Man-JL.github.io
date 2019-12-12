@@ -85,16 +85,17 @@
 
 - [封装 _(encapsulation)_](https://en.wikipedia.org/wiki/Encapsulation_%28computer_programming%29)：将数据和计算放到一起，并引入访问控制，从而实现不变式 _(invariant)_
 - [继承 _(inheritance)_](https://en.wikipedia.org/wiki/Inheritance_%28object-oriented_programming%29)：共享数据和计算，避免冗余
-- [多态 _(polymorphism)_](https://en.wikipedia.org/wiki/Polymorphism_%28computer_science%29)：面向对象的核心，派发同一个消息 或 调用同一个方法，实现不同的操作
+  - class-based —— 通过派生类支持多继承
+  - prototype-based —— 通过原型链实现单继承
+- [多态 _(polymorphism)_](https://en.wikipedia.org/wiki/Polymorphism_%28computer_science%29)：面向对象的 **核心**，派发同一个消息 或 调用同一个方法，实现不同的操作
+  - subtyping —— 运行时的 **重写** _(override)_
+  - ad-hoc/parametric —— 编译时/运行时的 **重载** _(overload)_
 
-> - 继承又区分两种：
->   - class-based —— 通过派生类支持多继承
->   - prototype-based —— 通过原型链实现单继承
-> - 多态又分为两种：
->   - subtyping —— 运行时的 **重写** _(override)_
->   - ad-hoc —— 编译时的 **重载** _(overload)_
-> 
 > 参考：[浅谈面向对象编程](../2018/Object-Oriented-Programming.md)
+
+然而，这已经最原始的 “面向对象” 了 ——
+
+> Simula 和 Smalltalk 最重大的不同，就是 Simula 用方法调用的方式向对象发送消息，而 Smalltalk 构造了更灵活和更纯粹的消息发送机制。... C++的静态消息机制还引起了更深严重的问题 —— 扭曲了人们对面向对象的理解。... “面向对象编程”变成了“面向类编程”，“面向类编程”变成了“构造类继承树”。—— [《function/bind的救赎（上）》孟岩](https://blog.csdn.net/myan/article/details/5928531)
 
 ### 函数式
 
@@ -165,7 +166,10 @@ if (action == ClickNew) {
 }
 ```
 
-上边代码的主要问题是：事件的发送者 **直接依赖** 事件的接收者，即点击时直接用 `g_current_file` 调用 `*File` 函数。这导致按钮 **不能复用**：如果按钮点击后执行其他操作，就需要继续添加 `if-else` 语句。
+上边代码的主要问题是：
+
+- 事件的发送者 **直接依赖** 事件的接收者，即点击时直接用 `g_current_file` 调用 `*File` 函数
+- 导致按钮 **不能复用** —— 如果按钮点击后执行其他操作，就需要继续添加 `if-else` 语句
 
 为了让代码更灵活，我们可以使用 **面向对象** 的方法。
 
@@ -185,8 +189,6 @@ class File {
  private:
   // data
 };
-
-using FilePtr = std::unique_ptr<File>;
 ```
 
 定义命令接口 `Command`（利用 [命令模式 _(command pattern)_](../2017/Design-Patterns-Notes-3.md#Command)，消除点击事件的 **接收者** 和 **发送者** 之间的依赖）：
@@ -197,8 +199,6 @@ class Command {
   virtual ~Command() = default;
   virtual void Run() = 0;  // indirection
 };
-
-using CommandPtr = std::unique_ptr<Command>;
 ```
 
 定义新建/打开/保存文件对应的实际命令 `*Command`（实现 `Command` 接口，执行实际的 **操作**；存储 **上下文** _(context)_ **数据**，并在执行操作时使用）：
@@ -206,11 +206,11 @@ using CommandPtr = std::unique_ptr<Command>;
 ``` cpp
 class NewCommand : public Command {
  public:
-  NewCommand(FilePtr& file) : file_(file) {}
+  NewCommand(std::unique_ptr<File>& file) : file_(file) {}
   void Run() override { file_.get() = File::New(); }
 
  private:
-  std::reference_wrapper<FilePtr> file_;  // context
+  std::reference_wrapper<std::unique_ptr<File>> file_;  // context
 };
 
 class OpenCommand : public Command { /* ... */ };
@@ -220,13 +220,13 @@ class SaveCommand : public Command { /* ... */ };
 （点击事件的 **接收者**）定义文件 **对象** _(object)_（实例化类，存储对应的数据和操作）：
 
 ``` cpp
-FilePtr file_;  // data storage
+std::unique_ptr<File> file_;  // data storage
 ```
 
 （在点击事件的 **接收者** 和 **发送者** 之间）定义 **中间层** _(indirection)_（将点击事件的接收者 `file_` 传入 `Command` 的上下文；并利用 [依赖注入 _(dependency injection)_](https://en.wikipedia.org/wiki/Dependency_injection) 的方法，为不同的 `action` 分配不同的 `Command`）：
 
 ``` cpp
-std::unordered_map<Action, CommandPtr> handlers_;
+std::unordered_map<Action, std::unique_ptr<Command>> handlers_;
 
 handlers_.emplace(ClickNew,
     std::make_unique<NewCommand>(std::ref(file_)));
@@ -246,12 +246,14 @@ handlers_.at(action)->Run();
 
 ```
           Run                         Save
-(Sender) -----> Command(SaveCommand) ------> File(Receiver)
+(Sender) -----> SaveCommand(Command) ------> File(Receiver)
 ```
 
 命令模式最核心的地方就是：事件的发送者 发送 `Run` 消息给 `Command`，对于不同类型的 `Command` 对象，会执行不同的操作，从而实现动态选择行为。这样，事件的发送者 **不依赖于** 事件的接收者 —— 按钮不关心自己被点击之后执行什么操作，照着命令去做就行。
 
-为了 **解耦** _(decouple)_ 事件的发送者和接收者，面向对象就引入了好几种不同的 [设计行为型模式 _(behavioral patterns)_](../2017/Design-Patterns-Notes-3.md#Decouple-Sender-Receiver)。
+为了 **解耦** _(decouple)_ 事件的发送者和接收者，面向对象就引入了好几种不同的 [行为型设计模式 _(behavioral patterns)_](../2017/Design-Patterns-Notes-3.md#Decouple-Sender-Receiver)。
+
+> The problem with object-oriented languages is they’ve got all this implicit environment that they carry around with them. You wanted a banana but what you got was a gorilla holding the banana and the entire jungle. —— Joe Armstrong
 
 这代码还可以化简吗？可以，用 **函数式** 的方法化简！
 
@@ -259,7 +261,7 @@ handlers_.at(action)->Run();
 
 > [代码链接](Thinking-Programming-Paradigms/object-oriented.cc)
 
-复用上一个例子的文件 **类** `class File` 和 **对象** `FilePtr file_`（点击事件的 **接收者**）。
+复用上一个例子的文件 **类** `class File` 和 **对象** `file_`（点击事件的 **接收者**）。
 
 重新定义 `Command`（将命令定义为一个函数）：
 
@@ -270,15 +272,11 @@ using Command = std::function<void()>;
 利用新的 `Command` 定义类似的 **中间层**（将 `file_` 作为上下文构造闭包，再分配给各个 `action`）：
 
 ``` cpp
-std::unordered_map<Action, Command> handlers_;
-
-handlers_.emplace(ClickNew, [this] { file_ = File::New(); });
-handlers_.emplace(ClickOpen, [this] { file_ = File::Open(); });
-handlers_.emplace(ClickSave, [this] {
-  if (!file_)
-    return;
-  file_->Save();
-});
+std::unordered_map<Action, Command> handlers_ = {
+    {ClickNew, [this] { file_ = File::New(); }},
+    {ClickOpen, [this] { file_ = File::Open(); }},
+    {ClickSave, [this] { if (file_) file_->Save(); }},
+};
 ```
 
 （点击事件的 **发送者**）重新定义 **如何操作数据**（通过中间层选择函数，并执行对应的函数）：
@@ -290,7 +288,7 @@ handlers_.at(action)();
 和 **面向对象** 方法的区别在于：
 
 - 面向对象 把数据和操作 **放到对象里**
-- 函数式 把数据和计算 **放到 lambda 里**
+- 函数式 把数据和计算 **放到闭包里**
 
 对于 C++，上面的代码 **本质** 上是通过 **面向对象** 实现的：
 

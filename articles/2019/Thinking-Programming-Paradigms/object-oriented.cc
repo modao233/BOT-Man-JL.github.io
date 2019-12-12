@@ -19,37 +19,33 @@ class File {
   // data
 };
 
-using FilePtr = std::unique_ptr<File>;
-
 class Command {
  public:
   virtual ~Command() = default;
   virtual void Run() = 0;  // indirection
 };
 
-using CommandPtr = std::unique_ptr<Command>;
-
 class NewCommand : public Command {
  public:
-  NewCommand(FilePtr& file) : file_(file) {}
+  NewCommand(std::unique_ptr<File>& file) : file_(file) {}
   void Run() override { file_.get() = File::New(); }
 
  private:
-  std::reference_wrapper<FilePtr> file_;  // context
+  std::reference_wrapper<std::unique_ptr<File>> file_;  // context
 };
 
 class OpenCommand : public Command {
  public:
-  OpenCommand(FilePtr& file) : file_(file) {}
+  OpenCommand(std::unique_ptr<File>& file) : file_(file) {}
   void Run() override { file_.get() = File::Open(); }
 
  private:
-  std::reference_wrapper<FilePtr> file_;  // context
+  std::reference_wrapper<std::unique_ptr<File>> file_;  // context
 };
 
 class SaveCommand : public Command {
  public:
-  SaveCommand(const FilePtr& file) : file_(file) {}
+  SaveCommand(const std::unique_ptr<File>& file) : file_(file) {}
   void Run() override {
     if (!file_.get())
       return;
@@ -57,17 +53,17 @@ class SaveCommand : public Command {
   }
 
  private:
-  std::reference_wrapper<const FilePtr> file_;  // context
+  std::reference_wrapper<const std::unique_ptr<File>> file_;  // context
 };
 
 class Client {
   // Receiver
  private:
-  FilePtr file_;  // data storage
+  std::unique_ptr<File> file_;  // data storage
 
   // Indirection
  private:
-  std::unordered_map<Action, CommandPtr> handlers_;
+  std::unordered_map<Action, std::unique_ptr<Command>> handlers_;
 
  public:
   Client() {
@@ -88,4 +84,4 @@ class Client {
 
 // Message Flow:
 //           Run                         Save
-// (Sender) -----> Command(SaveCommand) ------> File(Receiver)
+// (Sender) -----> SaveCommand(Command) ------> File(Receiver)

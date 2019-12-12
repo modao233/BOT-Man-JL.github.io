@@ -213,6 +213,7 @@ FetchImageAsync(
 > 
 > - [`base::WeakPtr`](https://github.com/chromium/chromium/blob/master/base/memory/weak_ptr.h) 属于 Chromium 提供的 **侵入式** _(intrusive)_ 智能指针，非 **线程安全** _(thread-safe)_
 > - `base::Bind` 针对 `base::WeakPtr` 扩展了 `base::IsWeakReceiver<>` 检查，调用前判断弱引用有效性（参考：[Binding A Class Method With Weak Pointers | Callback<> and Bind()](https://github.com/chromium/chromium/blob/master/docs/callback.md#binding-a-class-method-with-weak-pointers)）
+> - 也可以基于 `std::weak_ptr` **非侵入式** _(non-intrusive)_ 表示弱引用所有权，但和 `std::shared_ptr` **“捆绑销售”** 🙃，在使用前需要调用 [`lock()`](https://en.cppreference.com/w/cpp/memory/weak_ptr/lock) 方法共享所有权（参考：[弱回调 |《当析构函数遇到多线程 —— C++ 中线程安全的对象回调》陈硕](https://github.com/downloads/chenshuo/documents/dtor_meets_mt.pdf)）
 
 基于弱引用指针，Chromium 封装了 **可取消** _(cancelable)_ 回调 [`base::CancelableCallback`](https://github.com/chromium/chromium/blob/master/base/cancelable_callback.h)，提供 `Cancel`/`IsCancelled` 接口。（参考：[Cancelling a Task | Threading and Tasks in Chrome](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#cancelling-a-task)）
 

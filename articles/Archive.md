@@ -102,7 +102,7 @@
 
 #### 2017
 
-- [代码之美](2017/Beauty-of-Code.md)
+- [代码之美](2017/Beauty-of-Code.md)（**荐**）
 - [简单的思考生活](2017/Thinking-Life.md)
 - [如何使用英文搜索](2017/How-to-Search-English.md)
 - [~~我们学习，都在学什么~~](2017/Thinking-College.md)

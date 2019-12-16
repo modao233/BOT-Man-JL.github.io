@@ -25,17 +25,7 @@
   - https://marketplace.visualstudio.com/items?itemName=PaulHarrington.EditorGuidelines
   - https://marketplace.visualstudio.com/items?itemName=GitHub.GitHubExtensionforVisualStudio
 - https://code.visualstudio.com/
-  - Replace [settings.json](vscode-settings.json)
-  - https://marketplace.visualstudio.com/items?itemName=bot-man.vs-keybindings
-  - https://marketplace.visualstudio.com/items?itemName=vscode-icons-team.vscode-icons
-  - https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools
-  - https://marketplace.visualstudio.com/items?itemName=ms-python.python
-  - https://marketplace.visualstudio.com/items?itemName=VisualStudioExptTeam.vscodeintellicode
-  - https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens
-  - https://marketplace.visualstudio.com/items?itemName=mhutchie.git-graph
-  - https://marketplace.visualstudio.com/items?itemName=npxms.hide-gitignored
-  - https://marketplace.visualstudio.com/items?itemName=fabiospampinato.vscode-commands
-  - https://marketplace.visualstudio.com/items?itemName=ryu1kn.partial-diff
+  - https://marketplace.visualstudio.com/items?itemName=bot-man.bot-man-workspace
 - Sysinternals Tools -> %SystemRoot%
   - https://docs.microsoft.com/en-us/sysinternals/downloads/process-explorer
   - https://docs.microsoft.com/en-us/sysinternals/downloads/procmon

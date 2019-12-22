@@ -6,12 +6,6 @@
 
 [heading-numbering]
 
-> 2018/11/17 更新：
->
-> - 对比 **命令式语言** 和 **面向对象语言**，在资源管理上的异同
-> - 强调资源的 **申请/释放** 过程，与资源的 **使用** 在面向对象程序中的不同
-> - 细化讨论 **强引用** 和 **弱引用** 的区别，以及在 C++ 里的具体实现
-
 ## [no-toc] [no-number] TOC
 
 [TOC]
@@ -41,34 +35,16 @@
 | 资源生命周期 | 举例 C 标准库函数 |
 |---|---|
 | 获取资源 | [打开文件](https://en.cppreference.com/w/c/io/fopen) `fopen(filename, open_mode)` |
-| 使用资源 | [读](https://en.cppreference.com/w/c/io/fread)/[写](https://en.cppreference.com/w/c/io/fwrite) 文件 `fread/fwrite(buffer, size, count, file)` |
+| 使用资源 | [读](https://en.cppreference.com/w/c/io/fread) / [写](https://en.cppreference.com/w/c/io/fwrite) 文件 `fread/fwrite(buffer, size, count, file)` |
 | 释放资源 | [关闭文件](https://en.cppreference.com/w/c/io/fclose) `fclose(file)` |
 
-在命令式语言中，对资源的操作往往通过函数调用的方式实现：
+在面向过程语言中，对资源的操作往往通过函数调用的方式实现：
 
 - 调用 open 函数获取资源，返回资源 **句柄** _(handle)_
 - 以句柄作为参数，调用资源操作函数（例如 read/write）使用资源
 - 使用结束后，以句柄作为参数，调用 close 函数释放资源
 
-由于命令式语言没有对象的概念，资源的 **所有权** _(ownership)_ 往往并不明确，从而容易导致忘记释放资源：
-
-``` c
-// function A
-  FILE* file = fopen(filename, "r");
-  if (file) {
-    // push |file| back to |pending_files|
-    PushBack(pending_files, file);
-  }
-
-// function B
-  // process all files in |pending_files|
-
-  // ...
-
-  // Oops: forgot to call |fclose| on |file|
-  // (DestroyList will only destroy list nodes)
-  DestroyList(pending_files);
-```
+由于面向过程语言没有对象的概念，资源的 **所有权** _(ownership)_ 往往并不明确，从而容易导致忘记释放资源（参考：[基于 C 语言函数指针的回调 | 深入 C++ 回调](../2019/Inside-Cpp-Callback.md#为什么要区分一次和多次回调)）
 
 在面向对象程序设计中，资源往往以对象为载体，资源对象 **拥有** _(own)_ 资源，通过对象的生命周期管理实现资源管理：
 
@@ -98,9 +74,11 @@
 对于资源对象的销毁，这两种方式在不同应用场景下各有利弊。例如：
 
 - 手动销毁
-  - **不释放不再使用** 的资源，会 **导致泄露** 问题（可以使用 **RAII 范式** 避免）
-  - 使用 **已经被释放** 的资源，会导致 **悬垂引用** 问题（可以通过观察者模式让引用失效，[sec|弱引用关系]）
-  - 如果 **释放** **正在使用的资源**（常见的是对象回调栈上，例如从  UI 的上下文菜单中删除弹出菜单的对象本身），可能导致 **崩溃** 问题（可以通过异步释放的方式改进）
+  - **不释放不再使用** 的资源，会导致 **泄露** 问题（可以使用 **RAII 机制** 避免）
+  - **使用被释放** 的资源，会导致 **悬垂引用** 问题（可以使用 [sec|弱引用关系] **弱引用机制** 避免）
+  - **释放正在使用** 的资源，会导致 **崩溃** 问题
+    - 单线程常见于：在对象回调栈上删除对象本身（例如 UI 弹出上下文菜单，点击按钮后，立即删除菜单对象；可以通过 **异步释放** 避免）
+    - 多线程常见于：通过弱引用使用资源，但同时资源却被强引用的持有者释放（使用前把弱引用 **固定** _(pin)_ 为强引用，持有对象所有权）
 - 自动销毁
   - 资源的释放 **位置和时机不可控**，往往依赖于垃圾回收系统的实现机制
   - 基于 [计数](https://en.wikipedia.org/wiki/Reference_counting#Variants_of_reference_counting) 的自动管理：如果对象之间出现 **循环引用**，也会导致 **资源泄露** 问题（可以使用弱引用避免，[sec|弱引用关系]）
@@ -118,7 +96,7 @@
 
 C++ 为了保证语言本身的性能，不支持自动销毁机制。为了解决 C 语言里资源所有权不明确的问题，现代 C++ 提供了更方便的 **资源安全** _(memory safe)_ 机制：
 
-- 引入 [**RAII** _(resource acquisition is initialization)_ 范式](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)，明确资源的所有权，避免资源泄露（例如，[`unique_ptr`](https://en.cppreference.com/w/cpp/memory/unique_ptr) / [`shared_ptr`](https://en.cppreference.com/w/cpp/memory/shared_ptr)）
+- 引入 [**RAII** _(resource acquisition is initialization)_ 机制](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)，明确资源的所有权，避免资源泄露（例如，[`unique_ptr`](https://en.cppreference.com/w/cpp/memory/unique_ptr) / [`shared_ptr`](https://en.cppreference.com/w/cpp/memory/shared_ptr)）
 - 支持 [**基于区域的内存管理** _(region-based memory management)_](https://github.com/CppCon/CppCon2016/blob/master/Presentations/Lifetime%20Safety%20By%20Default%20-%20Making%20Code%20Leak-Free%20by%20Construction/Lifetime%20Safety%20By%20Default%20-%20Making%20Code%20Leak-Free%20by%20Construction%20-%20Herb%20Sutter%20-%20CppCon%202016.pdf)，提供类似自动销毁的垃圾回收机制，并允许使用者 **控制** 回收的 **位置和时机**（例如，[`deferred_ptr`](https://github.com/hsutter/gcpp)）
 
 ## 资源和对象的映射关系

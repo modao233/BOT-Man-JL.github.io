@@ -25,7 +25,7 @@
   - https://marketplace.visualstudio.com/items?itemName=PaulHarrington.EditorGuidelines
   - https://marketplace.visualstudio.com/items?itemName=GitHub.GitHubExtensionforVisualStudio
 - https://code.visualstudio.com/
-  - https://marketplace.visualstudio.com/items?itemName=bot-man.bot-man-workspace
+  - https://marketplace.visualstudio.com/items?itemName=bot-man.workspace
 - Sysinternals Tools -> %SystemRoot%
   - https://docs.microsoft.com/en-us/sysinternals/downloads/process-explorer
   - https://docs.microsoft.com/en-us/sysinternals/downloads/procmon

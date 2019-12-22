@@ -33,11 +33,9 @@
   - 避免了 model 对 view 的直接依赖
   - model 只有一个，而未来可能有更多的 view 加入，不能耦合
 
-### 方案
-
 而在这次观察者模式的实践中，我遇到了一个问题：通过继承 **`IObserver` 接口**，还是直接使用 **回调函数对象**，来执行 model 对 view 的通知呢？
 
-#### 采用接口
+### 方案 1：接口
 
 首先，定义 `IObserver` 和 `IObservable` 接口：
 
@@ -115,7 +113,7 @@ public:
 };
 ```
 
-#### 采用回调
+### 方案 2：回调
 
 - 首先，定义 `ModelObserver` 为 `std::function`
 - 并为 model 加入 `IObservable` 相关的操作
@@ -183,7 +181,9 @@ void View::SetObserver() {
 - 而使用 **回调** 借助 `std::function`，可以装载 全局函数 _(global function)_、成员函数 _(member function)_、函数对象 _(function object, functor)_、匿名函数 _(anonymous function, lambda)_ 等，避免了各种破坏原有结构的接口
 - C++ 标准库中：几乎所有的算法都是基于迭代器的，但没有统一的 `Iterator` 接口；比较两个对象也不需要标准的 `Comparable` 接口
 
-> 2018/12/29 延伸：[简单的 C++ 结构体字段反射](../2018/Cpp-Struct-Field-Reflection.md) 讨论了 C++ 标准库如何利用 **泛型** _(generic)_ 可调用对象，实现 **编译时多态** _(compile-time polymorphism)_ 机制，从而避免引入 `Iterator`/`Comparable` 接口
+> 2018/12/29 补充：[简单的 C++ 结构体字段反射](../2018/Cpp-Struct-Field-Reflection.md)
+> 
+> 讨论了 C++ 标准库如何利用 **泛型** _(generic)_ 可调用对象，实现 **编译时多态** _(compile-time polymorphism)_ 机制，从而避免引入 `Iterator`/`Comparable` 接口。
 
 对于回调者，它关心的往往是一个 **可调用** _(callable)_ 的东西，只关注它的 **参数、返回值**，而不关心调用的东西具体是什么。所以：
 
@@ -206,7 +206,7 @@ public:
 
 而对于使用回调的方法，`using MouseClickHandler = std::function<void ()>;` 和 `ModelObserver` 却是相同类型的，可以相互转换。
 
-> 2019/1/16 延伸：[对编程范式的简单思考](../2019/Thinking-Programming-Paradigms.md)
+> 2019/1/16 补充：[对编程范式的简单思考](../2019/Thinking-Programming-Paradigms.md)
 > 
 > 从语言层面上看，接口属于 [**面向对象** _(object-oriented)_](https://en.wikipedia.org/wiki/Object-oriented_programming) 的概念，而回调属于 [**函数式** _(functional)_](https://en.wikipedia.org/wiki/Functional_programming) 的概念：
 > 
@@ -218,11 +218,11 @@ public:
 
 可调用的概念早在很多语言里都有实现。
 
-### C 语言中的回调
+### C 语言中的回调（面向过程语言）
 
-> 2018/12/15 延申：传统面向过程语言中的回调实现方法
+对于 C 风格的回调函数没有闭包的概念，不能方便的实现可调用对象，只能定义回调接口，然后定义业务逻辑处理函数实现接口，并通过回调函数的参数传递上下文变量。
 
-对于 C 风格的回调函数没有闭包的概念，不能方便的实现可调用对象，只能定义回调接口，然后定义业务逻辑处理函数实现接口，并通过回调函数的参数传递上下文变量。例如，使用 libevent 监听 socket 可写事件，实现异步/非阻塞发送数据：
+例如，使用 libevent 监听 socket 可写事件，实现异步/非阻塞发送数据：
 
 ``` c
 // callback interface
@@ -248,7 +248,7 @@ event_new(event_base, fd, EV_WRITE, do_send, buffer);
   - client 代码申请发送缓冲区 `buffer` 资源，并作为 `context` 传入注册函数
   - callback 代码从 `context` 中取出 `buffer`，发送数据后释放 `buffer` 资源
 
-### 脚本语言 Javascript 中的回调
+### Javascript 语言中的回调（面向对象脚本语言）
 
 在 JavaScript 里，**回调**、[**闭包** _(closure)_](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures) 是一个最基本的概念。
 
@@ -266,7 +266,7 @@ event_new(event_base, fd, EV_WRITE, do_send, buffer);
 
 代码里的 `alert('haha 😁 ~')` 就是一个回调对象，注册到按钮的点击事件上。对于 JavaScript 的回调，并 **不需要定义接口**，只需要给回调对象传入参数，然后调用就行。
 
-### C++ 语言中的回调
+### C++ 语言中的回调（面向对象编译语言）
 
 对于 **不做类型检查、原生支持内存回收** 的脚本语言来说，回调就是一个巨大的福利。而对于 **强类型、强检查** 的 C++ 语言而言，回调最大的问题在于如何 **构造和存储可调用实体**。主要有两个难点：
 
@@ -294,16 +294,18 @@ event_new(event_base, fd, EV_WRITE, do_send, buffer);
 
 很多人会好奇：`std::function` 是怎么实现的？这里有一个 [简单的实现原理](https://shaharmike.com/cpp/naive-std-function/)。（测试代码：[`std_function.cpp`](Callback-vs-Interface/std_function.cpp)）
 
-> 2019/1/12 延伸：[深入 C++ 回调](../2019/Inside-Cpp-Callback.md) 更系统的讨论了 [sec|C++ 语言中的回调] 提到的几个问题，并分析了 [Chromium 的 Bind/Callback 机制](https://github.com/chromium/chromium/blob/master/docs/callback.md)
+> 2019/1/12 补充：[深入 C++ 回调](../2019/Inside-Cpp-Callback.md)
 > 
-> 2019/10/16 补充：Arthur O’Dwyer [设计 `std::function` 时需要考虑哪些问题](https://quuxplusone.github.io/blog/2019/03/27/design-space-for-std-function/)？
+> 更系统的讨论了 C++ 回调的设计问题，并分析了 [Chromium 的 Bind/Callback 机制](https://github.com/chromium/chromium/blob/master/docs/callback.md)。
+> 
+> 2019/10/16 补充：[设计 `std::function` 时需要考虑哪些问题](https://quuxplusone.github.io/blog/2019/03/27/design-space-for-std-function/) (by Arthur O’Dwyer)？
 > 
 > - 核心语义层面
 >   - 是否接管 Callable 的所有权
 >   - 如果接管了所有权，是否可拷贝（以及如何处理不可拷贝的 Callable）
 >   - 如果可拷贝，是否共享底层的 Callable 对象（针对有状态闭包）
 >   - 是否支持不可移动的 Callable
-> - 是否支持小缓存优化（以及相关问题）
+> - 是否支持小 buffer 优化
 > - 是否支持空状态
 >   - 是否支持默认构造
 >   - 被移动后，是否进入空状态

@@ -7,7 +7,7 @@
 
 [heading-numbering]
 
-很多人已经写过了 `C` 语言的宏，使用不当可能带来的各种后果。
+很多人已经写过了 C 语言的宏，使用不当可能带来的各种后果。
 
 这里，我记录之前遇到的，在掉到 **宏 挖的坑里** 的故事。。。
 
@@ -185,6 +185,10 @@ error C2039: 'PathAppendW': is not a member of 'PathHelper'
 - [Dependency Injection](https://martinfowler.com/articles/injection.html)
 
 ## 写在最后 [no-number]
+
+> 2019/12/21 补充：
+> 
+> 除了 C 语言的宏污染，滥用 C++ 的运算符重载也很可怕（参考：[《恐怖的C++语言》陈皓](https://coolshell.cn/articles/1724.html)）
 
 非常感谢大家的支持！现在 **公众号 `BOTManJL`** 已经开通了评论功能！
 

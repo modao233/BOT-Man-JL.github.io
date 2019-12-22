@@ -94,6 +94,12 @@ TODO: shared_ptr
 - 放在 header 里，会导致 `incomplete type` 问题
 - 如果继承了 `std::enable_shared_from_this`，必须要使用至少一个 `std::shared_ptr` 来装载原始对象；否则调用 `shared_from_this()` 方法时，会抛出 `std::bad_weak_ptr` 异常
 
+TODO:
+
+- 多线程回调
+- 线程安全的观察者模式
+- 多线程资源管理
+
 如果有什么问题，**欢迎交流**。😄
 
 Delivered under MIT License &copy; 2019, BOT Man

@@ -72,7 +72,7 @@
 - 理想
   - 生活追求 房子？户口？
   - 技术追求 https://abcdabcd987.com/google-internship-2019/
-  - 现实很骨感 https://www.reddit.com/r/ProgrammerHumor/comments/418x95/theory_vs_reality/
+  - 现实很骨感
 - 焦虑
   - 差距 山外有山，越学越不会，例如 并发设计，编程语言
   - 得失
@@ -85,6 +85,7 @@
   - 学习 https://www.zhihu.com/question/273631529/answer/867707748
   - 笔记
 - 不忘初心，砥砺前行
+  - https://coolshell.cn/articles/20276.html
 - 女朋友
 
 ![girl](First-Year-Career/girl.jpg)

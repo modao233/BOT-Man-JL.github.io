@@ -40,7 +40,7 @@
 
 > C++ 语言 = C 语言的超集 + 抽象机制 + 标准库
 
-C++ 的 **抽象机制** _(abstraction mechanisms)_ 主要有两种：**面向对象编程** _(object-oriented programming)_ 和 **模板编程** _(generic programming)_。[cpp-pl]
+C++ 的 **抽象机制** _(abstraction mechanisms)_ 主要有两种：**面向对象编程** _(object-oriented programming)_ 和 **模板编程** _(template programming)_。[cpp-pl]
 
 为了实现面向对象编程，C++ 提供了 **类** _(class)_，用 C++ 的已有 **类型** _(type)_ 构造出新的类型。而在模板编程方面，C++ 提供了 **模板** _(template)_，以一种直观的方式表示 **通用概念** _(general concept)_。
 

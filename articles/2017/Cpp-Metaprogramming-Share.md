@@ -38,7 +38,7 @@
 👉 C++ 语言 = C 语言的超集 + **抽象机制** _(abstraction mechanisms)_ + 标准库
 
 👉 抽象机制 = **面向对象编程** _(object-oriented programming)_ +
-**模板编程** _(generic programming)_
+**模板编程** _(template programming)_
 
 - **类** _(class)_ -> 已有 **类型** _(type)_ 构造出新的类型
 - **模板** _(template)_ -> 表示 **通用概念** _(general concept)_

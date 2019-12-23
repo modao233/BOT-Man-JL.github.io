@@ -93,10 +93,6 @@
 
 > 参考：[浅谈面向对象编程](../2018/Object-Oriented-Programming.md)
 
-然而，这已经最原始的 “面向对象” 了 ——
-
-> Simula 和 Smalltalk 最重大的不同，就是 Simula 用方法调用的方式向对象发送消息，而 Smalltalk 构造了更灵活和更纯粹的消息发送机制。... C++的静态消息机制还引起了更深严重的问题 —— 扭曲了人们对面向对象的理解。... “面向对象编程”变成了“面向类编程”，“面向类编程”变成了“构造类继承树”。—— [《function/bind的救赎（上）》孟岩](https://blog.csdn.net/myan/article/details/5928531)
-
 ### 函数式
 
 由于数据是 **有状态的** _(stateful)_，而计算是 **无状态的** _(stateless)_；所以需要将数据 **绑定** _(bind)_ 到函数上，得到“有状态”的函数，即 [闭包 _(closure)_](https://en.wikipedia.org/wiki/Closure_%28computer_programming%29)。通过构造、传递、调用 闭包，实现复杂的功能组合。
@@ -252,8 +248,6 @@ handlers_.at(action)->Run();
 命令模式最核心的地方就是：事件的发送者 发送 `Run` 消息给 `Command`，对于不同类型的 `Command` 对象，会执行不同的操作，从而实现动态选择行为。这样，事件的发送者 **不依赖于** 事件的接收者 —— 按钮不关心自己被点击之后执行什么操作，照着命令去做就行。
 
 为了 **解耦** _(decouple)_ 事件的发送者和接收者，面向对象就引入了好几种不同的 [行为型设计模式 _(behavioral patterns)_](../2017/Design-Patterns-Notes-3.md#Decouple-Sender-Receiver)。
-
-> The problem with object-oriented languages is they’ve got all this implicit environment that they carry around with them. You wanted a banana but what you got was a gorilla holding the banana and the entire jungle. —— Joe Armstrong
 
 这代码还可以化简吗？可以，用 **函数式** 的方法化简！
 

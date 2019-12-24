@@ -5,6 +5,7 @@
 
 #### 2019
 
+- [再谈 “回调 vs 接口” 设计](2019/Callback-vs-Interface-Explained.md)
 - [Python 风格的函数式](2019/Pythonic-Functional.md)
 - [漫谈 C++ 的各种 检查](2019/Cpp-Check.md)（**荐**）
 - [从 时空维度 看 I/O 模型](2019/IO-Models.md)
@@ -30,7 +31,7 @@
 - [C++ / Windows 的一个 大坑](2017/Cpp-Windows-Crash.md)
 - [回调 vs 接口](2017/Callback-vs-Interface.md)
 - [令人头疼的 宏定义 污染](2017/Macro-Pollution.md)
-- [关于 写代码 的几点思考](2017/Thinking-Coding.md)
+- [~~关于 写代码 的几点思考~~](2017/Thinking-Coding.md)
 - [最简单的 分层窗口 样例](2017/Minimal-Layered-Window-Example.md)
 - [理解 观察者、中介者 模式](2017/Observer-Mediator-Explained.md)
 - [Node 单元测试的 Stub 总结](2017/Node-Test-Stub.md)

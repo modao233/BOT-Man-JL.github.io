@@ -157,7 +157,7 @@
   - 引用 _(reference)_ -> 指针 _(pointer)_
   - Lambda 表达式 -> 生成 Functor 内部类
   - `new`/`delete` -> 先申请内存再调用构造函数/先调用析构函数再释放内存
-  - 导出符号 _(export symbol)_：名字空间 && 类/函数/变量
+  - 导出符号 _(export symbol)_：命名空间 && 类/函数/变量
   - 名字改写/修饰 _(name mangling/decoration)_：将符号进行统一编码
 - 编译时检查
   - `const`

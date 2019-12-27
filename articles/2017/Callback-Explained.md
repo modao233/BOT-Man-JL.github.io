@@ -93,13 +93,15 @@ B(A);  // B called at T
 - 相同的要素是：**灯座**、**灯座上的那盏灯**、**打开灯座上的开关**
 - 不同的要素是：**彩灯**、**彩色的光**
 
-这里说明了回调函数的设计初衷 —— 利用 **依赖注入** _(dependency injection)_ 实现 [**控制反转** (Inversion of Control, IoC)](Thinking-Scalability.md#控制反转-计算可扩展性)，即将控制权下发给回调函数：
+这里说明了回调函数的设计初衷 —— 利用 **依赖注入** _(dependency injection, DI)_ 实现 [**控制反转** _(Inversion of Control, IoC)_ 和 **依赖倒置** _(dependency inversion principle, DIP)_](Thinking-Scalability.md#控制反转-计算可扩展性)，即将控制权下发给回调函数：
 
 - **灯座** 不需要知道灯座上的灯是 **白炽灯** 还是 **彩灯**
 - **灯座** 只需要知道 **灯座上有一盏灯**
 - **灯座** 在你 **打开灯座上的开关时**，会点亮 **灯座上有一盏灯**
 
 这样就可以 **换上不同的灯泡，得到不同颜色的灯光**。
+
+> DI is about wiring, IoC is about direction, and DIP is about shape. —— Brett L. Schuchert, from [_DIP in the Wild_](https://www.martinfowler.com/articles/dipInTheWild.html)
 
 ## 编程中的回调函数
 

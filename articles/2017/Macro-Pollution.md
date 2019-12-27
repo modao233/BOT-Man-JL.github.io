@@ -174,7 +174,7 @@ error C2039: 'PathAppendW': is not a member of 'PathHelper'
 - 避免引用可能导致宏污染的 `C` 相关头文件，例如 `Windows.h`
 - 尽可能把对 `C` 相关头文件的依赖放到实现上
 
-从而保持接口的干净（最好把自己定义的符号加入到 **名字空间** _(name space)_ 里）。
+从而保持接口的干净（最好把自己定义的符号加入到 **命名空间** _(name space)_ 里）。
 
 例如，上述代码里的 `my_module.h` 可以定义不依赖于 `Windows.h` 的接口，而把依赖于 `Windows.h` 的实现限制到 `my_module.cpp` 里。
 

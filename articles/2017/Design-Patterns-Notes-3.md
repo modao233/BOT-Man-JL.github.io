@@ -257,7 +257,7 @@
   - Updated by others after construction
   - like [&sect; Factory Method](Design-Patterns-Notes-1.md#Factory-Method)
 - vs. [sec|Template Method] Template Method
-  - Use delegation to inverse control (IOC)
+  - Use delegation to inverse control (IoC)
 
 ### Template Method
 
@@ -286,7 +286,7 @@
 #### [no-toc] [no-number] &sect; Comparison
 
 - vs. [sec|Strategy] Strategy
-  - Use inheritance to inverse control (IOC)
+  - Use inheritance to inverse control (IoC)
 
 ## Traverse Aggregate
 
@@ -306,7 +306,7 @@
   ([&sect; Factory Method](Design-Patterns-Notes-1.md#Factory-Method))
 - **Iterator** define basic iteration operations
   - External iterator (First / Next / IsDone / GetItem)
-  - Internal iterator (IOC pattern)
+  - Internal iterator (IoC pattern)
 
 #### [no-toc] [no-number] &sect; Process
 

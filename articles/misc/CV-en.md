@@ -28,7 +28,7 @@ EN | [中文](CV-zh.md)
 - Encapsulating QQ browser JavaScript SDK
 - Improving legacy APIs' flexability, simplifying operation development
 
-⚡ Developing Hippy **mobile cross-platform native framework**
+⚡ Developing [Hippy](https://github.com/Tencent/Hippy) **mobile cross-platform native framework**
 
 - Based on V8 engine, refactoring mutil-threading and logging module
 - Normalizing C++ code, optimizing JNI local debugging solution

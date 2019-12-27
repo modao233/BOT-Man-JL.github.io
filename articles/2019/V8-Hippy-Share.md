@@ -2,7 +2,7 @@
 
 > 2019/6/13
 > 
-> 最近在做 [Hippy 项目](https://img.w3ctech.com/Hippy-VueConf.pdf)，分享一些对 V8/Hippy 的理解
+> 最近在做 [Hippy 项目](https://github.com/Tencent/Hippy)，分享一些对 V8/Hippy 的理解
 
 [slide-mode]
 

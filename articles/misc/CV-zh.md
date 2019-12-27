@@ -28,7 +28,7 @@
 - 封装 QQ 浏览器 JavaScript SDK
 - 提高原接口 可扩展性，降低运营开发 成本
 
-⚡ 开发 Hippy **移动 跨平台 原生应用 开发框架**
+⚡ 开发 [Hippy](https://github.com/Tencent/Hippy) **移动 跨平台 原生应用 开发框架**
 
 - 基于 V8 引擎，重构 多线程模型、日志模块
 - 规范 C++ 代码，优化 JNI 本地调试方案

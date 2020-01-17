@@ -14,7 +14,7 @@
   - 举了 C++ 的例子，用 继承/组合接口、绑定函数/构造 lambda 的方式，实现 [**观察者模式** _(observer pattern)_](https://en.wikipedia.org/wiki/Observer_pattern)
   - 讨论了使用接口的 **局限性**、使用回调的 **灵活性**
   - 最后举了 面向过程 C 语言（没有对象和闭包）、面向对象脚本语言 JavaScript（动态类型 + 垃圾回收）、面向对象编译语言 C++（静态类型 + 内存管理）的例子，进一步分析 **如何实现** 回调机制
-- [对 编程范式 的简单思考](../2019/Thinking-Programming-Paradigms.md)
+- [对 编程范式 的简单思考](Thinking-Programming-Paradigms.md)
   - 从 [**编程范式** _(programming paradigm)_](https://en.wikipedia.org/wiki/Programming_paradigm) 的角度，分析了 “回调 vs 接口” **问题的本质**
   - 提到了可以用 函数式的 [**闭包** _(closure)_](https://en.wikipedia.org/wiki/Closure_%28computer_programming%29) 替换 面向对象的 [**设计模式** _(design patterns)_](https://en.wikipedia.org/wiki/Design_Patterns)
   - 然而，C++/Java 等面向对象语言，本质上借助了 **类** _(class)_ 和 **对象 _(object)_** 实现 `std::function<>` 和 `lambda`
@@ -110,6 +110,7 @@ DownloadAsync([](DerivedResult* d) {
 - 创建 `Derived` 对象
 - 转换为 基类指针 `Base*` 存储对象
 - 使用对象前，先还原为 派生类指针 `Derived*`
+- 使用对象时，却不使用 `Base` 提供的纯虚方法
 
 接下来用 “异步下载” 的例子，从代码设计的角度，阐述这个问题的 **由来** 和 **解法**：
 
@@ -135,7 +136,7 @@ void DownloadAsyncAndWriteToDB() {
 }
 ```
 
-通过 **抽取函数** _(extract function)_ 重构公共逻辑（异步下载的核心逻辑）：
+通过 [**抽取函数** _(extract function)_](https://refactoring.com/catalog/extractFunction.html) 重构公共逻辑（异步下载的核心逻辑）：
 
 ``` cpp
 std::future<Result> DownloadAsyncImpl();
@@ -224,7 +225,7 @@ DownloadAsync(std::make_unique<WriteToDBHandler>());
 - 模板方法 基于继承，接收者 **派生于** 发送者，在运行时 **不能动态更换** 接收者；故有 “组合优于继承” _(favor object composition over class inheritance)_
 - 策略模式 基于组合，但要为 **每种类型定义** 一个接收者的 **接口（虚基类）**，仍要和 “类” 捆绑在一起（参考：[回调 vs 接口](../2017/Callback-vs-Interface.md)）
 
-—— 本质上，面向对象的 **封装** _(encapsulation)_ 把 数据 和 对数据的操作（方法）捆绑在类里，引入了复杂的 **类层次结构** _(class hierarchy)_。（参考：[对编程范式的简单思考](../2019/Thinking-Programming-Paradigms.md)）
+—— 本质上，面向对象的 **封装** _(encapsulation)_ 把 数据 和 对数据的操作（方法）捆绑在类里，引入了复杂的 **类层次结构** _(class hierarchy)_，最后沦为 **面向类编程** _(class-oriented programming)_。（参考：[对编程范式的简单思考](Thinking-Programming-Paradigms.md)）
 
 [![theory-vs-reality](Callback-vs-Interface-Explained/theory-vs-reality.png)](https://www.reddit.com/r/ProgrammerHumor/comments/418x95/theory_vs_reality/)
 
@@ -232,11 +233,11 @@ DownloadAsync(std::make_unique<WriteToDBHandler>());
 
 > （设计模式）变成了一种教条，带来了公司里程序的严重复杂化以及效率低下 ... 什么都得放进 `class` 里 ... 代码弯了几道弯，让人难以理解。
 
-孟岩的 [function/bind的救赎（上）](https://blog.csdn.net/myan/article/details/5928531) 也提到 “类” 脱离了 **“对象的本质”**：
+孟岩的 [function/bind的救赎（上）](https://blog.csdn.net/myan/article/details/5928531) 也提到 “面向类编程” 脱离了 **“对象的本质”**：
 
-> Simula 和 Smalltalk 最重大的不同，就是 Simula **用方法调用的方式** 向对象发送消息，而 Smalltalk 构造了更灵活和更纯粹的消息发送机制 ... C++ **静态消息机制** 还引起了更深严重的问题 —— 扭曲了人们对面向对象的理解 ... “面向对象编程” 变成了 **“面向类编程”**，“面向类编程” 变成了 **“构造类继承树”**。
+> Simula 和 Smalltalk 最重大的不同，就是 Simula **用方法调用的方式** 向对象发送消息，而 Smalltalk 构造了更灵活和更纯粹的消息发送机制 ... C++ **静态消息机制** 还引起了更深严重的问题 —— 扭曲了人们对面向对象的理解 ... “面向对象编程” 变成了 “面向类编程”，“面向类编程” 变成了 **“构造类继承树”**。
 
-Joe Armstrong（Erlang 主要发明者）[也批评过](http://codersatwork.com/) “类” 的 **“污染性”**：
+Joe Armstrong（Erlang 主要发明者）[也批评过](http://codersatwork.com/) “面向类编程” 的 **“污染性”**：
 
 > The problem with object-oriented languages is they’ve got all this implicit environment that they carry around with them. You wanted a **banana** but what you got was a **gorilla holding the banana** and the **entire jungle**.
 
@@ -249,7 +250,6 @@ Joe Armstrong（Erlang 主要发明者）[也批评过](http://codersatwork.com/
 ``` cpp
 // interface
 using OnDoneCallable = std::function<void(const Result& result)>;
-
 void DownloadAsync(OnDoneCallable callback) {
   Result result = co_await DownloadAsyncImpl();
   callback(result);

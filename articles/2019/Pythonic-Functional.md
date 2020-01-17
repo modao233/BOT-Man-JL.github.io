@@ -297,7 +297,7 @@ list(filter(
 
 > 延伸阅读：
 > 
-> - [Python List Comprehensions: Explained Visually](https://treyhunner.com/2015/12/python-list-comprehensions-now-in-color/) —— 可视化解释：如何把 高阶函数 转换为 列表推导式
+> - [Python List Comprehensions: Explained Visually](https://treyhunner.com/2015/12/python-list-comprehensions-now-in-color/) —— 可视化解释：如何把 循环 转换为 列表推导式
 > - [Overusing list comprehensions and generator expressions in Python](https://treyhunner.com/2019/03/abusing-and-overusing-list-comprehensions-in-python/) —— 如何正确使用 列表推导式
 > - ["Modern" C++ Lamentations](http://aras-p.info/blog/2018/12/28/Modern-C-Lamentations/) —— 使用 C++ 20 range 实现上述代码的问题（编译慢、运行慢、心智负担）
 > - [The Surprising Limitations of C++ Ranges Beyond Trivial Cases](https://www.fluentcpp.com/2019/09/13/the-surprising-limitations-of-c-ranges-beyond-trivial-use-cases/) —— 如果你觉得高阶函数例子中，为了 _make it right_ 而引入的 `flatmap()` 很复杂；读完这篇文章，你会发现 C++ 里 _make it compile_ 的方式更复杂

@@ -44,7 +44,9 @@
   - `timed_mutex` - timeout
   - `shared_lock` - reader/writter lock
   - `condition_variable` - repeating event
-  - `future`/`promise` - once event
+  - `future`/`promise`/`packaged_task` - once event
+  - `async` - non-zero-overhead with internal thread-pool
+  - continuation/[continuable](https://github.com/Naios/continuable) - non-deterministic invocation thread
 
 ### Lock free
 

@@ -1,6 +1,6 @@
 ﻿# 浅谈 C++ 元编程
 
-> 2017/5/2
+> 2017/5/2 -> 2020/1/20
 >
 > 原文为 2017 程序设计语言结课论文，现已根据 C++ 17 标准更新。
 
@@ -66,7 +66,7 @@ C++ 的元编程主要依赖于语言提供的模板机制。除了模板，现�
 
 **别名模板** 和 **变量模板** 分别在 C++ 11 和 C++ 14 引入，分别提供了具有模板特性的 **类型别名** _(type alias)_ 和 **常量** _(constant)_ 的简记方法。前者 类模板的嵌套类 等方法实现，后者则可以通过 `constexpr` 函数、类模板的静态成员、函数模板的返回值 等方法实现。例如，C++ 14 中的 **别名模板** `std::enable_if_t<T>` 等价于 `typename std::enable_if<T>::type`，C++ 17 中的 **变量模板** `std::is_same<T, U>` 等价于 `std::is_same<T, U>::value`。尽管这两类模板不是必须的，但一方面可以增加程序的可读性（[sec|复杂性]），另一方面可以提高模板的编译性能（[sec|编译性能]）。
 
-C++ 中的 **模板参数** _(template parameter / argument)_ 可以分为三种：值参数，类型参数，模板参数。[cppref-template-param] 从 C++ 11 开始，C++ 支持了 **变长模板** _(variadic template)_：模板参数的个数可以不确定，变长参数折叠为一个 **参数包** _(parameter pack)_ [parameter-pack]，使用时通过编译时迭代，遍历各个参数（[sec|变长模板的迭代]）。标准库中的 **元组** _(tuple)_ —— `std::tuple` 就是变长模板的一个应用（元组的 **类型参数** 是不定长的，可以用 `template<typename... Ts>` 匹配）。
+C++ 中的 **模板参数** _(template parameter/argument)_ 可以分为三种：值参数，类型参数，模板参数。[cppref-template-param] 从 C++ 11 开始，C++ 支持了 **变长模板** _(variadic template)_：模板参数的个数可以不确定，变长参数折叠为一个 **参数包** _(parameter pack)_ [parameter-pack]，使用时通过编译时迭代，遍历各个参数（[sec|变长模板的迭代]）。标准库中的 **元组** _(tuple)_ —— `std::tuple` 就是变长模板的一个应用（元组的 **类型参数** 是不定长的，可以用 `template<typename... Ts>` 匹配）。
 
 尽管 模板参数 也可以当作一般的 类型参数 进行传递（模板也是一个类型），但之所以单独提出来，是因为它可以实现对传入模板的参数匹配。[sec|类型推导] 的例子（代码 [code|orm-to-nullable]）使用 `std::tuple` 作为参数，然后通过匹配的方法，提取 `std::tuple` 内部的变长参数。
 
@@ -86,9 +86,11 @@ C++ 的模板机制仅仅提供了 **纯函数** _(pure functional)_ 的方法�
 
 元编程的基本 **演算规则** _(calculus rule)_ 有两种：**编译时测试** _(compile-time test)_ 和 **编译时迭代** _(compile-time iteration)_ [cpp-pl]，分别实现了 **控制结构** _(control structure)_ 中的 **选择** _(selection)_ 和 **迭代** _(iteration)_。基于这两种基本的演算方法，可以完成更复杂的演算。
 
+另外，元编程中还常用模板参数传递不同的 **策略** _(policy)_，从而实现 **依赖注入** _(dependency injection)_ / **控制反转** _(Inversion of Control)_。例如，`std::vector<typename T, typename Allocator = std::allocator<T>>` 允许传递 `Allocator` 实现自定义内存分配。
+
 ### 编译时测试
 
-**编译时测试** 相当于面向过程编程中的 **选择语句** _(selection statement)_，可以实现 `if-else` / `switch` 的选择逻辑。
+**编译时测试** 相当于面向过程编程中的 **选择语句** _(selection statement)_，可以实现 `if-else`/`switch` 的选择逻辑。
 
 在 C++ 17 之前，编译时测试是通过模板的 实例化 和 特化 实现的 —— 每次找到最特殊的模板进行匹配；而 C++ 17 提出了使用 `constexpr-if` 的编译时测试方法。
 
@@ -120,9 +122,15 @@ static_assert (isZero<0>, "compile error");
 
 #### 测试类型
 
-在元编程的很多应用场景中，需要对类型进行测试，即对不同的类型实现不同的功能。而常见的测试类型又分为两种：判断一个类型 **是否为特定的类型** 和 **是否满足某些条件**。前者可以通过对模板的 **特化** 直接实现；后者既能通过 **替换失败不是错误 SFINAE** _(Substitution Failure Is Not An Error)_ 规则进行最优匹配 [cppref-SFINAE]，又能通过 **标签派发** _(tag dispatch)_ 匹配可枚举的有限情况 [cppref-tag-dispatch]。
+在元编程的很多应用场景中，需要对类型进行测试，即对不同的类型实现不同的功能。而常见的测试类型又分为两种。
 
-为了更好的支持 SFINAE，C++ 11 的 `<type_traits>` 除了提供类型检查的谓词模板 `is_*`/`has_*`，还提供了两个重要的辅助模板 [cppref-SFINAE]：
+- 判断一个类型 **是否为特定的类型**：
+  - 可以通过对模板的 **特化** 直接实现；
+- 判断一个类型 **是否满足某些条件**：
+  - 可以通过 **替换失败不是错误 SFINAE** _(Substitution Failure Is Not An Error)_ 规则进行最优匹配 [cppref-SFINAE]；
+  - 还能通过 **标签派发** _(tag dispatch)_ 匹配可枚举的有限情况（例如，`std::advance<Iter>` 根据 `std::iterator_traits<Iter>::iterator_category` 选择迭代器类型 `Iter` 支持的实现方式）[cppref-tag-dispatch]。
+
+为了更好的支持 **SFINAE**，C++ 11 的 `<type_traits>` 除了提供类型检查的谓词模板 `is_*`/`has_*`，还提供了两个重要的辅助模板 [cppref-SFINAE]：
 
 1. `std::enable_if` 将对条件的判断 **转化为常量表达式**，类似测试表达式（[sec|测试表达式]）实现重载的选择（但需要添加一个冗余的 函数参数/函数返回值/模板参数）；
 2. `std::void_t` 直接 **检查依赖** 的成员/函数是否存在，不存在则无法重载（可以用于构造谓词，再通过 `std::enable_if` 判断条件）。
@@ -220,7 +228,7 @@ std::string ToString (T val) {
 
 ### 编译时迭代
 
-**编译时迭代** 和面向过程编程中的 **循环语句** _(loop statement)_ 类似，用于实现与 `for` / `while` / `do` 类似的循环逻辑。
+**编译时迭代** 和面向过程编程中的 **循环语句** _(loop statement)_ 类似，用于实现与 `for`/`while`/`do` 类似的循环逻辑。
 
 在 C++ 17 之前，和普通的编程不同，元编程的演算规则是纯函数的，不能通过 变量迭代 实现编译时迭代，只能用 **递归** _(recursion)_ 和 **特化** 的组合实现。一般思路是：提供两类重载 —— 一类接受 **任意参数**，内部 **递归** 调用自己；另一类是前者的 **模板特化** 或 **函数重载**，直接返回结果，相当于 **递归终止条件**。它们的重载条件可以是 表达式 或 类型（[sec|编译时测试]）。
 
@@ -397,9 +405,9 @@ BOT Man 提出了一种基于 **编译时多态** _(compile-time polymorphism)_ 
 
 在元编程中，很多时候只关心推导的结果，而不是过程。例如，[sec|定长模板的迭代] 的代码 [code|calc-factor] 中，只关心最后的 `Factor<4> == 24`，而不需要中间过程中产生的临时模板。但是在 `N` 很大的时候，编译会产生很多临时模板。这些临时模板是 **死代码**，即不被执行的代码。所以，编译器会自动优化最终的代码生成，在 **链接时** _(link-time)_ 移除这些无用代码，使得最终的目标代码不会包含它们。尽管如此，如果产生过多的死代码，会浪费宝贵的 **编译时间**。（在 [sec|编译性能] 中详细讨论）
 
-另一种情况下，展开的代码都是 **有效代码**，即都是被执行的，但是又由于需要的参数的类型繁多，最后的代码体积仍然很大。编译器很难优化这些代码，所以程序员应该在 **设计时避免代码膨胀**。Bjarne Stroustrup 提出了一种消除 **冗余运算** _(redundant calculation)_ 的方法，用于缩小模板实例体积。具体思路是，将不同参数实例化得到的模板的 **相同部分** 抽象为共同的 函数或基类，然后通过 继承和重载 每种参数对应情况的 **不同部分**，从而实现更多代码的共享。
+另一种情况下，展开的代码都是 **有效代码**，即都是被执行的，但是又由于需要的参数的类型繁多，最后的代码体积仍然很大。编译器很难优化这些代码，所以程序员应该在 **设计时避免** 代码膨胀。一般用 **薄模板** _(thin template)_ 减小模板实例体积；具体思路是：将不同参数实例化得到的模板的 **相同部分** 抽象为共同的 基类或函数，然后将不同参数对应的 **不同部分** 继承基类或调用函数，从而实现代码共享。
 
-例如，在 `std::vector` 的实现中，对 `T *` 和 `void *` 进行了特化；然后将所有的 `T *` 的实现 **继承** 到 `void *` 的实现上，并在公开的函数里通过强制类型转换，进行 `void *` 和 `T *` 的相互转换；最后这使得所有的指针的 `std::vector` 就可以共享同一份实现，从而避免了代码膨胀。（代码 [code|spec-vector]）
+例如，在 `std::vector` 的实现中，对 `T *` 和 `void *` 进行了特化；然后将所有的 `T *` 的实现 **继承** 到 `void *` 的实现上，并在公开的函数里通过强制类型转换，进行 `void *` 和 `T *` 的相互转换；最后这使得所有的指针的 `std::vector` 就可以共享同一份实现，从而避免了代码膨胀。（代码 [code|spec-vector]）[cpp-pl]
 
 [code||spec-vector]
 
@@ -426,7 +434,9 @@ public:
 
 ### 编译性能
 
-元编程尽管不会带来额外的 **运行时开销** _(runtime overhead)_，但如果过度使用，可能会大大增加编译时间（尤其是在大型项目中）。为了提高元编程的编译性能，需要使用特殊的技巧进行优化。为了衡量编译性能的优化效果，Louis Dionne 设计了一个基于 CMake 的编译时间基准测试框架。[metabench]
+元编程尽管不会带来额外的 **运行时开销** _(runtime overhead)_，但如果过度使用，可能会大大增加编译时间（尤其是在大型项目中）。为了提高元编程的编译性能，需要使用特殊的技巧进行优化。
+
+根据 **单定义规则** _(One Definition Rule, ODR)_，允许一个模板在多个 **翻译单元** _(translation unit)_ 中使用相同的模板参数实例化，并在 **链接时** 合并为同一个实例。然而，每个翻译单元上的模板操作是独立的，一方面增加了编译时间，另一方面还会产生过多中间代码。因此，常用 **显式实例化** _(explicit instantiation)_ 避免进行多次模板实例化操作；具体思路是：在一个翻译单元中显式定义模板实例，在其他翻译单元中只需要通过 `extern` 声明相同的实例。由于接口与实现分离，该方法还常用于静态库的模板接口。[explicit-instantiation]
 
 Chiel Douwes 对元编程中的常用模板操作进行了深入分析，对比了几种 **模板操作的代价** _(Cost of operations: The Rule of Chiel)_（没有提到 C++ 14 的变量模板；从高到低）：[type-based]
 
@@ -438,9 +448,9 @@ Chiel Douwes 对元编程中的常用模板操作进行了深入分析，对比�
 - 添加参数到 别名模板
 - 使用 缓存的类型
 
-基于以上原则，Odin Holmes 设计了类型运算库 Kvasir，相比基于 C++ 98/11 的类型运算库，拥有极高的编译性能。[type-based]
+基于以上原则，Odin Holmes 设计了类型运算库 Kvasir，相比基于 C++ 98/11 的类型运算库，拥有极高的编译性能。[type-based] 为了衡量编译性能的优化效果，Louis Dionne 设计了一个基于 CMake 的编译时间基准测试框架。[metabench]
 
-另外，Mateusz Pusz 总结了一些元编程性能的实践经验。例如，基于 C++ 11 别名模板的 `std::conditional_t` 和基于 C++ 14 变量模板的 `std::is_same_v` 都比基于 `std::conditional`/`std::is_same` 的传统方案更快。代码 [code|optimized-is-same] 展示了基于 `std::is_same` 和直接基于变量模板的 `std::is_same_v` 的实现。
+另外，Mateusz Pusz 总结了一些元编程性能的实践经验。例如，基于 C++ 11 别名模板的 `std::conditional_t` 和基于 C++ 14 变量模板的 `std::is_same_v` 都比基于 `std::conditional`/`std::is_same` 的传统方案更快。代码 [code|optimized-is-same] 展示了基于 `std::is_same` 和直接基于变量模板的 `std::is_same_v` 的实现。[rethinking-templates]
 
 [code||optimized-is-same]
 
@@ -506,7 +516,7 @@ This article is published under MIT License &copy; 2017, BOT Man
 - [two-phase-name-lookup]: John Wilkinson, Jim Dehnert, Matt Austern. _A Proposed New Template Compilation Model_ [EB/OL] http://www.open-std.org/jtc1/sc22/wg21/docs/papers/1996/n0906.pdf
 - [false-v]: Arthur O’Dwyer. _Use-cases for `false_v`_ [EB/OL] https://quuxplusone.github.io/blog/2018/04/02/false-v/
 - [cppref-constexpr-if]: cppreference.com. _if statement_ [EB/OL] https://en.cppreference.com/w/cpp/language/if
-- [vs-if-exists]: Microsoft Docs. _`__if_exists` Statement_ [EB/OL] https://docs.microsoft.com/en-us/cpp/cpp/if-exists-statement?view=vs-2017
+- [vs-if-exists]: Microsoft Docs. _`__if_exists` Statement_ [EB/OL] https://docs.microsoft.com/en-us/cpp/cpp/if-exists-statement
 - [fold-expression]: cppreference.com. _fold expression (since C++17)_ [EB/OL] https://en.cppreference.com/w/cpp/language/fold
 - [expr-template]: Todd Veldhuizen. _Expression Templates_ [C] // S. B. Lippman. In _C++ Report_, 1995, 7(5): 26–31.
 - [gererative-programming]: K. Czarnecki, U. Eisenecker. _Generative Programming: Methods, Tools, and Applications_ [M] Addison-Wesley, 2000.
@@ -516,6 +526,8 @@ This article is published under MIT License &copy; 2017, BOT Man
 - [boost-hana]: Boost. _Your standard library for metaprogramming_ [EB/OL] https://github.com/boostorg/hana
 - [cppref-concept]: cppreference.com. _Constraints and concepts_ [EB/OL] https://en.cppreference.com/w/cpp/language/constraints
 - [tick-lib]: Paul Fultz II. _Goodbye metaprogramming, and hello functional: Living in a post-metaprogramming era in C++_ [EB/OL] https://github.com/boostcon/cppnow_presentations_2016/blob/master/03_friday/goodbye_metaprogramming_and_hello_functional_living_in_a_post_metaprogramming_era_in_cpp.pdf
-- [metabench]: Louis Dionne. _A simple framework for compile-time benchmarks_ [EB/OL] https://github.com/ldionne/metabench
+- [explicit-instantiation]: Microsoft Docs. _Explicit Instantiation_ [EB/OL] https://docs.microsoft.com/en-us/cpp/cpp/explicit-instantiation
 - [type-based]: Odin Holmes. _Type Based Template Metaprogramming is Not Dead_ [EB/OL] https://github.com/boostcon/cppnow_presentations_2017/blob/master/05-17-2017_wednesday/type_based_template_metaprogramming_is_not_dead__odin_holmes__cppnow_05-17-2017.pdf
+- [metabench]: Louis Dionne. _A simple framework for compile-time benchmarks_ [EB/OL] https://github.com/ldionne/metabench
+- [rethinking-templates]: Mateusz Pusz. _Rethinking the Way We Do Templates in C++_ [EB/OL] https://cdn2-ecros.pl/event/codedive/files/presentations/2019/code%20dive%202019%20-%20Mateusz%20Pusz%20-%20Rethinking%20Usage%20of%20C%2B%2B%20Templates.pdf
 - [chromium-common-extension-api]: Chromium. _Extension API Functions_ [EB/OL] https://github.com/chromium/chromium/blob/master/extensions/docs/api_functions.md

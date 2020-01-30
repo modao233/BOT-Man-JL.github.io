@@ -58,13 +58,13 @@
 
 #### 2018
 
-- [C++ 11 右值引用总结](2018/Cpp-Rvalue-Reference-Share.md)
+- ~~[深入浅出 C++ 11 右值引用](2018/Cpp-Rvalue-Reference.md)~~（文章已更新）
 - [匿名通信 Windows 客户端的设计与实现](2018/Anonymous-Communication-Client-Design-Share.md)
 
 #### 2017
 
 - [深入 C++ 元组 (tuple) 实现](2017/Inside-Cpp-Tuple-Share.md)
-- [浅谈 C++ 元编程](2017/Cpp-Metaprogramming-Share.md)
+- ~~[浅谈 C++ 元编程](2017/Cpp-Metaprogramming.md)~~（文章已更新）
 - [Virtual Network Embedding Algorithm Study](2017/Virtual-Network-Embedding-Study-Share.md)
 
 ## 笔记 | Notes

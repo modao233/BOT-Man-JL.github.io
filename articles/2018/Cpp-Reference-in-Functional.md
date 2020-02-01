@@ -180,7 +180,7 @@ Matrix<K> TransposeLref(const Matrix<K>& matrix) {
   return init;
 ```
 
-- op 传入参数 `init` 的 [右值引用](Cpp-Rvalue-Reference.md#右值引用)，由 `init` 的类型实现移动语义，从而避免对象 [**深拷贝** _(deep copy)_](https://en.wikipedia.org/wiki/Object_copying#Deep_copy)
+- op 传入参数 `init` 的 [右值引用](Cpp-Rvalue-Reference.md#左值引用-vs-右值引用-vs-常引用)，由 `init` 的类型实现移动语义，从而避免对象 [**深拷贝** _(deep copy)_](https://en.wikipedia.org/wiki/Object_copying#Deep_copy)
 - op 传出的返回值直接通过 [拷贝省略](Cpp-Rvalue-Reference.md#拷贝省略) 优化
 
 基于修改后的 `cpp20::accumulate`，我们可以将 `TransposeFunctional` 改写为 `TransposeRref`：
@@ -201,7 +201,7 @@ Matrix<K> TransposeRref(const Matrix<K>& matrix) {
 
 - `std::accumulate` 使用的 lambda 表达式传递 **右值引用**：
   - 参数类型 `const Matrix<K>&` 改为 `Matrix<K>&&`
-  - 传入的 **右值引用** 会 [在函数内退化为 **左值引用**](Cpp-Rvalue-Reference.md#误解-返回时-不移动右值引用参数)
+  - 传入的 **右值引用** [在函数内是 **左值**](Cpp-Rvalue-Reference.md#误解-不移动右值引用参数)
   - 在返回时强制转回 **右值引用** `return std::move(transposed);`
 - 迭代过程中，虽然生成了很多 `Matrix` 对象，但在 [移动语义](Cpp-Rvalue-Reference.md#移动语义) 和 [拷贝省略](Cpp-Rvalue-Reference.md#拷贝省略) 下，这些临时的 `Matrix` 对象做的都是 [**浅拷贝** _(shallow copy)_](https://en.wikipedia.org/wiki/Object_copying#Shallow_copy)，不会触发 `CopyGuard`
 
@@ -304,7 +304,7 @@ candidate constructor not viable: no known conversion
 
 ### 右值 -> 右值引用 -> 左值引用
 
-为了解决这个问题，我们可以使用 [右值引用的技巧](Cpp-Rvalue-Reference.md#右值引用) 进行优化：
+为了解决这个问题，我们可以使用 [右值引用](Cpp-Rvalue-Reference.md#左值引用-vs-右值引用-vs-常引用) 进行优化：
 
 ``` cpp
 [](std::ifstream&& ifs, std::ofstream&& ofs) -> void {
@@ -317,7 +317,7 @@ candidate constructor not viable: no known conversion
 
 - 使用一个参数为 `ifs`/`ofs` **右值引用** 的 lambda 表达式
 - 将临时构造出的 `fstream` **右值** 对象传入 lambda 表达式
-- 而 **右值引用** 参数会 [在函数内退化为左值引用](Cpp-Rvalue-Reference.md#误解-返回时-不移动右值引用参数)
+- 而 **右值引用** 参数 [在函数内是 **左值**](Cpp-Rvalue-Reference.md#误解-不移动右值引用参数)
 - 所以在 lambda 表达式内，`ifs`/`ofs` 会被当成 **左值引用** 看待，可以直接构造 `stream_iterator`
 
 基于这个技巧，我们就离 **告别局部变量** 更近了一步~ 😊

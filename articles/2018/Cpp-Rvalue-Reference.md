@@ -1,6 +1,6 @@
 ﻿# 深入浅出 C++ 11 右值引用
 
-> 2018/7/15 -> 2020/1/30
+> 2018/7/15 -> 2020/2/1
 >
 > 彻底搞清楚：右值引用/移动语义/拷贝省略/通用引用/完美转发
 
@@ -14,11 +14,9 @@
 
 > 如果你还不知道 C++ 11 引入的右值引用是什么，可以读读这篇文章，看看有什么 **启发**；如果你已经对右值引用了如指掌，也可以读读这篇文章，看看有什么 **补充**。欢迎交流~ 😉
 
-尽管 **C++ 17 标准** 在去年底已经正式发布了，但由于 C++ 语言变得 **越来越复杂**，让许多人对很多新特性 **望而却步**。
+尽管 C++ 17 标准已经发布了，很多人还不熟悉 C++ 11 的 **右值引用/移动语义/拷贝省略/通用引用/完美转发** 等概念，甚至对一些细节 **有所误解**（包括我 🙃）。
 
-对于 2011 年发布的 C++ 11 标准，很多人虽然对 **右值引用/移动语义/拷贝省略/通用引用/完美转发** 之类的概念都 **有所耳闻**，却没有详细了解其 **设计初衷/实现原理**，甚至对一些细节 **有所误解**（包括我 🙃）。
-
-我刚开始学习 C++ 的时候，也常常 **混淆** 这几个 **概念**。但随着深入了解、与人探讨，才逐步理清楚这几个概念的来龙去脉。先分享几个我曾经犯过的错误。
+本文将以最短的篇幅，一步步解释 关于右值引用的 **为什么/是什么/怎么做**。先分享几个我曾经犯过的错误。😂
 
 ### 误解：返回前，移动局部变量
 
@@ -43,24 +41,27 @@ LOG(INFO) << base_url;  // |base_url| may be moved-from
 
 > [C.64: A move operation should move and leave its source in a valid state](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-move-semantic)
 
+很多人认为：被移动的值会进入一个 **非法状态** _(invalid state)_，对应的 **内存不能再访问**。
+
+其实，C++ 标准要求对象 遵守 [sec|移动语义] **移动语义** —— 被移动的对象进入一个 **合法但未指定状态** _(valid but unspecified state)_，调用该对象的方法（包括析构函数）不会出现异常，甚至在重新赋值后可以继续使用：
+
 ``` cpp
 auto p = std::make_unique<int>(1);
 auto q = std::move(p);
-assert(p == nullptr);  // OK: use after move
 
+assert(p == nullptr);  // OK: reset to default
 p.reset(new int{2});   // or p = std::make_unique<int>(2);
-assert(*p == 1);       // OK: realive now
+assert(*p == 2);       // OK: reset to int*(2)
 ```
 
-很多人认为：被移动的值会进入一个 **非法状态** _(invalid state)_，对应的内存不能再访问。
+另外，基本类型（例如 `int/double`）的移动语义 和拷贝相同：
 
-其实，C++ 标准要求对象 遵守 [sec|移动语义] **移动语义**：被移动的对象进入一个 **合法但未指定状态** _(valid but unspecified state)_，调用该对象的方法不会出现异常。要求处于这个状态的对象：
+``` cpp
+int i = 1;
+int j = std::move(i);
 
-- （基本要求）能正确析构（不会重复释放已经被移动了的资源，例如 `std::unique_ptr::~unique_ptr()` 检查指针是否需要 `delete`）
-- （一般要求）重新赋值后，和新的对象没有差别（C++ 标准库基于这个假设）
-- （更高要求）恢复为默认值（例如 `std::unique_ptr` 恢复为 `nullptr`）
-
-另外，基本类型的值（例如 `int/double`）的移动和拷贝相同。例如，`int i = 42;` 被移动后，保持为原有值 `i == 42`。
+assert(i == j);
+```
 
 ### 误解：移动返回值
 
@@ -103,10 +104,10 @@ std::unique_ptr<int> bar(std::unique_ptr<int>&& val) {
 
 因为不论 **左值引用** 还是 **右值引用** 的变量（或参数）在初始化后，都是左值（参考 [sec|值类别 vs 变量类型]）：
 
-- 在作用域内，**左值** 可以 **被取地址、被赋值**
-- **命名的右值引用变量** _(named rvalue reference variable)_ 是 **左值**，但变量类型 却是 **右值引用**
+- **命名的右值引用** _(named rvalue reference)_ **变量** 是 **左值**，但变量类型 却是 **右值引用**
+- 在作用域内，**左值变量** 可以通过 **变量名** _(variable name)_ **被取地址、被赋值**
 
-所以，返回右值引用变量时，需要使用 `std::move()`/`std::forward()` 显式的 [sec|移动转发] **移动转发** 或 [sec|完美转发] **完美转发**，将变量的类型 “还原” 为右值引用。
+所以，返回右值引用变量时，需要使用 `std::move()`/`std::forward()` 显式的 [sec|移动转发] **移动转发** 或 [sec|完美转发] **完美转发**，将变量 “还原” 为右值（右值引用类型）。
 
 ### 误解：手写错误的移动构造函数
 
@@ -156,7 +157,7 @@ std::unique_ptr<int> bar(std::unique_ptr<int>&& val) {
 
 [**引用类型** _(reference type)_](https://en.cppreference.com/w/cpp/language/reference) 属于一种 [**变量类型** _(variable type)_](https://en.cppreference.com/w/cpp/language/type)，将在 [sec|左值引用 vs 右值引用 vs 常引用] 详细讨论。
 
-在变量 [**初始化** _(initialization)_](https://en.cppreference.com/w/cpp/language/initialization) 时，需要将 **初始值** _(initial value)_ 绑定到变量上；但 [**引用类型变量** 的初始化](https://en.cppreference.com/w/cpp/language/reference_initialization) 和其他变量不同：
+在变量 [**初始化** _(initialization)_](https://en.cppreference.com/w/cpp/language/initialization) 时，需要将 **初始值** _(initial value)_ 绑定到变量上；但 [**引用类型变量** 的初始化](https://en.cppreference.com/w/cpp/language/reference_initialization) 和其他的值类型（非引用类型）变量不同：
 
 - 创建时，**必须显式初始化**（和指针不同，不允许 **空引用** _(null reference)_；但可能存在 **悬垂引用** _(dangling reference)_）
 - 相当于是 其引用的值 的一个 **别名** _(alias)_（例如，对引用变量的 **赋值运算** _(assignment operation)_ 会赋值到 其引用的值 上）
@@ -204,7 +205,6 @@ g(Data{});  // ok, data is rvalue
 
 - 通过 右值引用/常引用 初始化的右值，都可以将 [**生命周期扩展** _(lifetime extension)_](https://en.cppreference.com/w/cpp/language/reference_initialization#Lifetime_of_a_temporary) 到 绑定该右值的 引用的生命周期
 - 初始化时 绑定了右值后，右值引用 **可以修改** 引用的右值，而 常引用 不能修改
-- 如果函数同时接受 右值引用/常引用 参数，编译器 **优先重载** 右值引用参数
 
 ``` cpp
 const Data& data1 = Data{};   // OK: extend lifetime
@@ -212,16 +212,35 @@ data1.modify();               // not compile: const
 
 Data&& data2 = Data{};        // OK: extend lifetime
 data2.modify();               // OK: non-const
+```
 
+### 引用参数重载优先级
+
+如果函数重载同时接受 右值引用/常引用 参数，编译器 **优先重载** 右值引用参数 —— 是 [sec|移动语义] 移动语义 的实现基础：
+
+``` cpp
 void f(const Data& data);  // 1, data is c-ref
 void f(Data&& data);       // 2, data is r-ref
 
 f(Data{});  // 2, prefer 2 over 1 for rvalue
 ```
 
+针对不同左右值 **实参** _(argument)_ 重载 引用类型 **形参** _(parameter)_ 的优先级如下：
+
+| 实参/形参 | T& | const T& | T&& | const T&& |
+|--------------|----|----------|-----|-----------|
+| lvalue       |  1 |     2    |     |           |
+| const lvalue |    |     1    |     |           |
+| rvalue       |    |     3    |  1  |     2     |
+| const rvalue |    |     2    |     |     1     |
+
+- 数值越小，优先级越高；如果不存在，则重载失败
+- 如果同时存在 **传值** _(by value)_ 重载（接受值类型参数 `T`），会和上述 **传引用** _(by reference)_ 重载产生歧义，编译失败
+- **常右值引用** _(const rvalue reference)_ `const T&&` 一般不直接使用（[参考](https://codesynthesis.com/~boris/blog/2012/07/24/const-rvalue-references/)）
+
 ### 引用折叠
 
-[**引用折叠** _(reference collapsing)_](https://en.cppreference.com/w/cpp/language/reference#Reference_collapsing) 是 `std::move()`/`std::forward()` 的实现基础：
+[**引用折叠** _(reference collapsing)_](https://en.cppreference.com/w/cpp/language/reference#Reference_collapsing) 是 [sec|移动转发] `std::move()` 和 [sec|完美转发] `std::forward()` 的实现基础：
 
 ``` cpp
 using Lref = Data&;
@@ -236,16 +255,19 @@ Rref&& r4 = Data{};  // r4 is Data&&
 
 ## 移动语义
 
-在 C++ 11 强化左右值概念后，我们可以针对右值进行优化。于是，C++ 11 中就提出了 **移动语义** _(move semantic)_：
+在 C++ 11 强化了左右值概念后，提出了 **移动语义** _(move semantic)_ 优化：由于右值对象一般是临时对象，在移动时，对象包含的资源 **不需要先拷贝再删除**，只需要直接 **从旧对象移动到新对象**。
 
-- 由于右值对象一般是临时对象，在移动时，对象包含的资源 **不需要先复制再删除**，只需要直接 **从旧对象移动到新对象**
-- 要求被移动的对象，**能正确析构**（参考 [sec|误解：被移动的值不能再使用]）
+同时，要求 **被移动的对象** 处于 **合法但未指定状态**（参考 [sec|误解：被移动的值不能再使用]）：
+
+- （基本要求）能正确析构（不会重复释放已经被移动了的资源，例如 `std::unique_ptr::~unique_ptr()` 检查指针是否需要 `delete`）
+- （一般要求）重新赋值后，和新的对象没有差别（C++ 标准库基于这个假设）
+- （更高要求）恢复为默认值（例如 `std::unique_ptr` 恢复为 `nullptr`）
 
 由于基本类型不包含资源，其移动和拷贝相同：被移动后，保持为原有值。
 
-### 避免先复制再释放资源
+### 避免先拷贝再释放资源
 
-针对包含了资源的对象，我们可以通过移动对象的资源进行优化。例如，常用的 STL 类模板都有：
+一般通过 **重载构造/赋值函数** 实现移动语义。例如，`std::vector` 有：
 
 - 以常引用作为参数的 **拷贝构造函数** _(copy constructor)_
 - 以右值引用作为参数的 **移动构造函数** _(move constructor)_
@@ -282,31 +304,31 @@ vector::~vector() {
 }
 ```
 
-上述代码中，构造函数 `vector::vector()` 根据参数的左右值类型判断：
+上述代码中，构造函数 `vector::vector()` 根据实参判断（重载优先级参考 [sec|引用参数重载优先级]）：
 
-- 参数为左值时，拷贝构造，使用 `new[]`/`std::copy_n` 拷贝原对象的内存（本方案有一次冗余的默认构造，可优化）
-- 参数为右值时，移动构造，把指向原对象内存的指针 `data_`、内存大小 `size_` 复制到新对象，并把原对象这两个成员置 `0`
+- 实参为左值时，拷贝构造，使用 `new[]`/`std::copy_n` 拷贝原对象的所有元素（本方案有一次冗余的默认构造，仅用于演示）
+- 实参为右值时，移动构造，把指向原对象内存的指针 `data_`、内存大小 `size_` 拷贝到新对象，并把原对象这两个成员置 `0`
 
 析构函数 `vector::~vector()` 检查 data_ 是否有效，决定是否需要释放资源。
 
-除了能判断参数是否为左右值，成员函数还可以判断当前对象的左右值类型：给成员函数加上 **引用限定符** _(reference qualifier)_，针对对象本身的左右值类型进行优化。
+此外，**类的成员函数** 还可以通过 [**引用限定符** _(reference qualifier)_](https://en.cppreference.com/w/cpp/language/member_functions#const-.2C_volatile-.2C_and_ref-qualified_member_functions)，针对当前对象本身的左右值状态（以及 const-volatile）重载：
 
 ``` cpp
 class Foo {
  public:
-  Data& data() & { return data_; }        // lvalue, l-ref
-  Data data() && { return move(data_); }  // rvalue, move-out
+  Data data() && { return std::move(data_); }  // rvalue, move-out
+  Data data() const& { return data_; }         // otherwise, copy
 };
 
-auto ret1 = foo.data();    // foo is lvalue, copy
-auto ret2 = Foo{}.data();  // foo is rvalue, move
+auto ret1 = foo.data();    // foo   is lvalue, copy
+auto ret2 = Foo{}.data();  // Foo{} is rvalue, move
 ```
 
-### 转移不可复制的资源
+### 转移不可拷贝的资源
 
-在之前写的 [资源管理小记](Resource-Management.md#资源和对象的映射关系) 提到：如果资源是不可复制的，那么装载资源的对象也应该是不可复制的。
+> 在之前写的 [资源管理小记](Resource-Management.md#资源和对象的映射关系) 提到：如果资源是 **不可拷贝** _(non-copyable)_ 的，那么装载资源的对象也应该是不可拷贝的。
 
-如果资源对象不可复制，那么只能通过移动，创建新对象。例如，智能指针 `std::unique_ptr` 只允许移动构造，不允许拷贝构造。
+如果资源对象不可拷贝，一般需要 定义 拷贝构造/赋值函数，并禁用 拷贝构造/赋值函数。例如，智能指针 `std::unique_ptr` **只能移动** _(move only)_：
 
 ``` cpp
 template<typename T>
@@ -327,7 +349,7 @@ unique_ptr::unique_ptr(unique_ptr&& rhs) noexcept {
 
 上述代码中，`unique_ptr` 的移动构造过程和 `vector` 类似：
 
-- 把指向原对象内存的指针 `data_` 复制到新对象
+- 把指向原对象内存的指针 `data_` 拷贝到新对象
 - 把原对象的指针 `data_` 置为空
 
 ### 反例：不遵守移动语义
@@ -415,7 +437,7 @@ unique_ptr<T> make_unique(Args&&... args) {
 ```
 
 - 对于传入的左值引用 `const Args&... args`，只要展开 `args...` 就可以转发这一组左值引用
-- 对于传入的右值引用 `Args&&... args`，需要通过 `std::move()` 转发出去，即 `std::move<Args>(args)...`（为什么要转发：参考 [sec|误解：不移动右值引用参数]）
+- 对于传入的右值引用 `Args&&... args`，需要通过 [sec|移动转发] `std::move()` 转发出去，即 `std::move<Args>(args)...`（为什么要转发：参考 [sec|误解：不移动右值引用参数]）
 
 上述代码的问题在于：如果传入的 `args` **既有** 左值引用 **又有** 右值引用，那么这两个模板都 **无法匹配**。
 
@@ -456,7 +478,7 @@ unique_ptr<T> make_unique(Args&&... args) {
 }
 ```
 
-其中，`std::forward()` 实现了 **针对不同左右值类型的转发** —— 完美转发。
+其中，`std::forward()` 实现了 **针对不同左右值参数的转发** —— 完美转发。
 
 ### 完美转发
 
@@ -469,13 +491,13 @@ unique_ptr<T> make_unique(Args&&... args) {
 
 ``` cpp
 template <typename T>
-T&& forward(std::remove_reference_t<T>& val) noexcept {
+T&& forward(std::remove_reference_t<T>& val) noexcept {  // #1
   // forward lvalue as either lvalue or rvalue
   return static_cast<T&&>(val);
 }
 
 template <typename T>
-T&& forward(std::remove_reference_t<T>&& val) noexcept {
+T&& forward(std::remove_reference_t<T>&& val) noexcept {  // #2
   // forward rvalue as rvalue (not lvalue)
   static_assert(!std::is_lvalue_reference_v<T>,
                 "Cannot forward rvalue as lvalue.");
@@ -483,14 +505,15 @@ T&& forward(std::remove_reference_t<T>&& val) noexcept {
 }
 ```
 
-| 实参/返回值 类型 | 左值引用返回值 | 右值引用返回值 |
+| 实参/返回值 | 重载 | l-ref 返回值 | r-ref 返回值 |
 |---|---|---|
-|（重载 1）左值引用实参 | 完美转发 | **移动转发** |
-|（重载 2）右值引用实参 | **语义错误** | 完美转发 |
+| l-ref 实参 | #1 | 完美转发 | **移动转发** |
+| r-ref 实参 | #2 | **语义错误** | 完美转发 |
 
 - 尽管初始化后的变量都是 **左值**（参考 [sec|误解：不移动右值引用参数]），但原始的 **变量类型** 仍会保留
-- 因此，可以根据 **实参类型** 选择重载，**和 `T` 的类型无关**
-- 返回值 `static_cast<T&&>(val)` 通过 [sec|引用折叠] 引用折叠 实现 完美转发 或 移动转发，**和实参类型无关**
+- 因此，可以根据 **实参类型** 选择重载，**和模板参数 `T` 的类型无关**
+- **返回值类型** `static_cast<T&&>(val)` 经过模板参数 `T&&` [sec|引用折叠] 引用折叠 实现 完美转发/移动转发，**和实参类型无关**
+- “将 l-ref 实参 转发为 r-ref 返回值” 等价于 [sec|移动转发] `std::move()` 移动转发
 
 ### 移动转发
 
@@ -504,14 +527,16 @@ std::remove_reference_t<T>&& move(T&& val) noexcept {
 }
 ```
 
-| 实参/返回值 类型 | 右值引用返回值 |
+| 实参/返回值 | r-ref 返回值 |
 |---|---|---|
-| 左值引用实参 | 移动转发 |
-| 右值引用实参 | 移动转发/完美转发 |
+| l-ref 实参 | 移动转发 |
+| r-ref 实参 | 移动转发（完美转发）|
 
-- 接受 通用引用参数 `T&& val`（无需两个模板，使用时无需指出 `T` 的类型）
-- 返回值 `static_cast<std::remove_reference_t<T>&&>(val)` 直接转为右值引用类型
+- 接受 通用引用模板参数 `T&&`（无需两个模板，使用时不区分 `T` 的引用类型）
+- 返回值 `static_cast<std::remove_reference_t<T>&&>(val)` 将实参 **转为将亡值**（右值引用类型）
 - 所以 `std::move<T>()` 等价于 `std::forward<std::remove_reference_t<T>&&>()`
+
+最后，`std::move()`/`std::forward()` 只是编译时的变量类型转换，不会产生目标代码。
 
 ## 写在最后 [no-number]
 

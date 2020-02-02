@@ -1,6 +1,6 @@
 # 再谈“回调 vs 接口”设计
 
-> 2019/12/21
+> 2019/12/21 -> 2020/2/2
 > 
 > 如何提高感知力和控制力，就像学游泳一样，要到水中练，去亲近水。——《格蠹汇编》张银奎
 
@@ -312,36 +312,30 @@ DownloadAsync(std::bind(&Print));
   - 而实际传入的回调闭包，却只能处理 `DerivedResult` 对象
 - 杂糅的 **设计缺陷** —— 试图用 **面向对象的方法**，解决 **泛型编程的问题**
 
-**基于泛型** 的 “直接做法” 是 —— 用 `typename OnDoneCallable` **直接泛化** 可调用对象：
+1) **基于泛型** 的 “直接做法” 是 —— 用 `typename OnDoneCallable` **直接泛化** 可调用对象：
 
 ``` cpp
 template <typename OnDoneCallable>
 void DownloadAsync(OnDoneCallable on_done);
 ```
 
-**基于泛型和回调** 的 “间接做法” 是 —— 先用 `std::function<>` **擦除** 可调用对象的 **类型**，再用 `typename Result` **泛化** 回调函数的 **签名**（优化前的原始方案）：
+2) **基于泛型和回调** 的 “间接做法” 是 —— 先用 `std::function<>` **擦除** 可调用对象的 **类型**，再用 `typename Result` **泛化** 回调函数的 **签名**（优化前的原始方案）：
 
 ``` cpp
 template <typename Result>
 void DownloadAsync(std::function<void(Result*)> on_done);
 ```
 
-**不用泛型** 的 “正确做法” 是 —— 针对不同类型 **分别定义并实现**（基于回调的）接口：
+3) **不用泛型** 的 “正确做法” 是 —— 针对不同类型 **分别定义并实现**（基于回调的）接口：
 
 ``` cpp
-void DownloadAsync(std::function<void(RawResult*)> on_done);
 void DownloadAsync(std::function<void(HtmlResult*)> on_done);
 void DownloadAsync(std::function<void(JsonResult*)> on_done);
 ```
 
-**不用泛型和回调** 的 “正确做法” 是 —— 引入面向对象机制，使用 **策略模式** 定义不同处理接口（也可以用 **模板方法模式**）：
+4) **不用泛型和回调** 的 “正确做法” 是 —— 引入面向对象机制，使用 **策略模式** 定义不同处理接口（也可以用 **模板方法模式**）：
 
 ``` cpp
-class RawResultHandler {
- public:
-  virtual ~RawResultHandler() = default;
-  virtual void Handle(const RawResult& result) const = 0;
-};
 class HtmlResultHandler {
  public:
   virtual ~HtmlResultHandler() = default;
@@ -353,12 +347,38 @@ class JsonResultHandler {
   virtual void Handle(const JsonResult& result) const = 0;
 };
 
-void DownloadAsync(std::unique_ptr<RawResultHandler> handler);
 void DownloadAsync(std::unique_ptr<HtmlResultHandler> handler);
 void DownloadAsync(std::unique_ptr<JsonResultHandler> handler);
 ```
 
 假设，再进一步 **去掉控制反转**，我们还可以...（篇幅有限，读者自由发挥）
+
+### 泛型缺陷 —— 回归类型擦除
+
+对于上述方案 1) 和 2)，**模板实现** 必须在 **头文件** 里提供，并在调用时需要针对 **不同的模板参数** 分别 **实例化模板**，从而导致代码膨胀、编译性能问题。
+
+然而，上述方案 **已经缓解** 了这两个问题：
+
+- 代码膨胀 —— 用 `DownloadAsyncImpl` 实现公共逻辑，并将 `DownloadAsync` 实现为 [**薄模板** _(thin template)_](../2017/Cpp-Metaprogramming.md#代码膨胀)（参考 [sec|泛型编程 —— 抽象概念“替换”类层次结构] 代码）
+- 编译性能 —— 如果模板参数可枚举（`Result` 只有 `HtmlResult` 和 `JsonResult` 两种），可以通过 [**显式实例化** _(explicit instantiation)_](../2017/Cpp-Metaprogramming.md#编译性能) 分离定义和声明（仅在头文件声明，并在源文件定义），不需要在调用时再实例化（类似方案 3)，但不需要拆分为两个函数）
+
+尽管如此，由于方案 1) 和 2) 使用了模板，这两个问题 **仍未解决**。
+
+> 无独有偶，STL 容器类模板 `std::vector<T, Allocator = std::allocator<T>>` 对于不同的 `Allocator` 类型参数，会实例化成 **不同的类**，而且不同类实例之间 **互不兼容**。
+> 
+> 直到 C++ 17 引入 [`std::pmr::vector`](https://en.cppreference.com/w/cpp/container/vector)，默认使用 基于接口的 **多态分配器** _(polymorphic allocator)_ [`Allocator = std::pmr::polymorphic_allocator<T>`](https://en.cppreference.com/w/cpp/memory/polymorphic_allocator)，才避免了使用不同 `Allocator` 的类实例之间不兼容的问题。
+
+最后，退一步思考 **泛型的必要性** —— 与其 给回调闭包传递 不同类型的 **预加工结果** `HtmlResult`/`JsonResult`，不如 直接给回调闭包传递 同一类型的 **加工前结果** `RawResult`：
+
+- 方案 2) 的 处理泛型结果的闭包 `std::function<void(Result*)>` 改为 处理原始结果的闭包 `std::function<void(RawResult*)>`
+- 方案 2) 中 `DownloadAsync` 将原始结果 `RawResult` 加工为不同类型 `Result` 的逻辑，放到闭包 `on_done` 自行处理
+- 最后得到 类似方案 3) 的接口
+
+``` cpp
+void DownloadAsync(std::function<void(RawResult*)> on_done);
+```
+
+原来事情如此简单。🙃
 
 ## 写在最后 [no-toc]
 

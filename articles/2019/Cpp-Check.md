@@ -204,15 +204,15 @@ Chromium 通过 [`base::internal::CheckedLock`](https://github.com/chromium/chro
 
 观察者可能在 `base::ObserverList` 通知时，再访问同一个 `base::ObserverList` 对象：
 
+- 通知迭代重入
+  - 问题：许多情况下，若不考虑 重入情况，可能会导致 [死循环问题](Insane-Observer-Pattern.md#问题-死循环)
+  - 解决：模板参数 `allow_reentrancy` 若为 `false`，在迭代时断言 “正在通知迭代时 不允许重入”
 - 添加观察者
   - 问题：是否需要在 本次迭代中，继续通知 新加入的观察者
   - 解决：被观察者参数 [`base::ObserverListPolicy`](https://github.com/chromium/chromium/blob/master/base/observer_list.h) 决定迭代过程中，是否通知 新加入的观察者
 - 移除观察者
   - 问题：循环内（间接）删除节点，导致迭代器失效（崩溃）`for(auto it = c.begin(); it != c.end(); ++it) c.erase(it);`
   - 解决：观察者节点 `MarkForRemoval()` 标记为 “待移除”，然后等迭代结束后移除
-- 通知迭代重入
-  - 问题：许多情况下，若不考虑 重入情况，可能会导致 [死循环问题](Insane-Observer-Pattern.md#问题-死循环)
-  - 解决：模板参数 `allow_reentrancy` 若为 `false`，在迭代时断言 “正在通知迭代时 不允许重入”
 - 销毁被观察者
   - 问题：需要立即停止 迭代过程，让所有迭代器 全部失效
   - 解决：通过特殊的 [`base::internal::WeakLinkNode`](https://github.com/chromium/chromium/blob/master/base/observer_list_internal.h) + 双向链表 [`base::LinkedList`](https://github.com/chromium/chromium/blob/master/base/containers/linked_list.h) 存储 `base::ObserverList` 所有的迭代器；在 `base::ObserverList` 析构时，将迭代器 标记为无效（自动停止迭代），并 移除、销毁

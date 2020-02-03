@@ -1,8 +1,8 @@
 ﻿# 令人抓狂的观察者模式
 
-> 2019/1/30
+> 2019/1/30 -> 2020/2/3
 > 
-> 本文总结了 C++ 实现观察者模式的一些问题，并给出基于 Chromium 的解决方案。
+> 本文总结了 C++ 实现观察者模式的一些问题，并介绍 Chromium 的解决方案。
 
 读完这篇文章，带你绕过 C++ 观察者模式的那些坑。
 
@@ -147,9 +147,7 @@ deactivate farm
 
 ![Invalid Bakery1](Insane-Observer-Pattern/invalid-bakery1.svg)
 
-**解决办法**（约定俗成的）：
-
-如果观察者不再继续观察，那么需要把它从被观察者的列表中移除：
+约定俗成的，如果观察者不再继续观察，那么需要把它从被观察者的列表中移除：
 
 ``` cpp
 farm.RemoveObserver(&bakery1);
@@ -183,14 +181,17 @@ deactivate farm
 
 ![Invalid Bakery1 Solved](Insane-Observer-Pattern/invalid-bakery1-solved.svg)
 
-**更安全的方法**：
+但如果观察者销毁时没被移除，那么仍会导致崩溃问题。
 
-- 使用 [RAII _(resource acquisition is initialization)_](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization) 风格的资源管理，例如
+**解决办法**：
+
+- （主动）观察者 销毁时 使用 [RAII _(resource acquisition is initialization)_](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization) 资源管理风格 **自动反注册**，例如
   - 引入 [`ScopedObserver`](https://github.com/chromium/chromium/blob/master/base/scoped_observer.h)，在它析构时自动调用 `RemoveObserver`
   - 注意：在 `ScopedObserver` 析构调用 `RemoveObserver` 时，需要确保观察者和被观察者仍然有效
-- 使用 **弱引用** 检查观察者的有效性，例如
+- （被动）被观察者 通知时 使用 **弱引用检查** 观察者的有效性，例如
   - [`base::ObserverList`](https://github.com/chromium/chromium/blob/master/base/observer_list.h) + [`base::CheckedObserver`](https://github.com/chromium/chromium/blob/master/base/observer_list_types.h) 在通知前检查观察者的有效性，避免因为通知无效观察者导致崩溃
-  - 对于自动垃圾回收的语言（例如 Java），如果不使用弱引用机制，容易导致 [失效监听者问题 _(lapsed listener problem)_](https://en.wikipedia.org/wiki/Lapsed_listener_problem)
+- （注意）对于自动垃圾回收的语言（例如 Java），如果观察者列表不使用弱引用，容易导致 [失效监听者问题 _(lapsed listener problem)_](https://en.wikipedia.org/wiki/Lapsed_listener_problem)
+  - 观察者虽然已失效，但因为强引用没有从列表中移除，导致泄露
 
 ### 问题：被观察者先销毁
 
@@ -243,17 +244,17 @@ destroyafter bakery2
 
 **解决办法**：
 
-- 引入 **外部协调者**，完成注册/反注册操作，例如
-  - 让 `farm` 和 `bakery1`/`bakery2` 的生命周期管理者，添加/移除观察关系（例如引入 [`ScopedObserver`](https://github.com/chromium/chromium/blob/master/base/scoped_observer.h)）
-  - 而不是在 `Bakery` 的构造函数/析构函数里实现
-- 被观察者销毁时，**通知观察者反注册**，例如
+- （被动）观察者 被移除时 使用 **弱引用检查** 被观察者的有效性，例如
+  - 使用 [`base::WeakPtr`](https://github.com/chromium/chromium/blob/master/base/memory/weak_ptr.h) 把 `Farm*` 替换为 `base::WeakPtr<Farm>`
+- （被动）被观察者 销毁时 **检查观察者列表** 是否为空（参考 [`base::ObserverList<bool check_empty>`](https://github.com/chromium/chromium/blob/master/base/observer_list.h)）
+- （绕开）被观察者 销毁时 **通知观察者反注册**，例如
   - 在 `views::View` 析构时，通知观察者 [`views::ViewObserver::OnViewIsDeleting`](https://github.com/chromium/chromium/blob/master/ui/views/view_observer.h)
-  - 注意：在回调时，不能直接从 `std::list`/`std::vector` 容器中移除观察者；而应该标记为“待移除”，然后等迭代结束后移除（参考 [`base::ObserverList::RemoveObserver`](https://github.com/chromium/chromium/blob/master/base/observer_list.h)）
-  - 循环内删除节点，会导致迭代器失效：`for(auto it = c.begin(); it != c.end(); ++it) c.erase(it);  // bad`
-- 用 **弱引用** 替换裸指针，移除时检查被观察者的有效性，例如
-  - 使用 [`base::WeakPtr`](https://github.com/chromium/chromium/blob/master/base/memory/weak_ptr.h) 把 `Farm* farm_` 替换为 `base::WeakPtr<Farm> farm_`（比较灵活）
+- （根治）引入 **外部协调者**，完成注册/反注册操作，例如
+  - 让 `farm` 和 `bakery1`/`bakery2` 的生命周期管理者，添加/移除观察关系（可以借助 [`ScopedObserver`](https://github.com/chromium/chromium/blob/master/base/scoped_observer.h)）
+  - 而不是在 `Bakery` 的构造函数/析构函数里实现
+- （注意）避免把 **静态对象**（全局变量/静态变量/单例）作为 **观察者**，因为他们的创建/销毁时机是不可控的
 
-## 调用关系问题
+## 通知迭代问题
 
 > 这些细节之前没说清楚。
 
@@ -309,10 +310,10 @@ deactivate ConfigModel
 - 分别使用两个回调事件，表示 **状态正在变化** `OnDoing` 和 **状态变化完成** `OnDone`，例如
   - 在 `views::Widget` 销毁时，通知观察者 [`views::WidgetObserver::OnWidgetDestroying`](https://github.com/chromium/chromium/blob/master/ui/views/widget/widget_observer.h)
   - 在 `views::Widget` 销毁后，通知观察者 [`views::WidgetObserver::OnWidgetDestroyed`](https://github.com/chromium/chromium/blob/master/ui/views/widget/widget_observer.h)
-- 一般监听 `OnDoing`，是为了
+- 事件 `OnDoing` 表示
   - 阻止变化生效，**提前拦截操作**（例如，关闭文档编辑器窗口前，提示用户确认保存）
   - **在其他观察者收到 `OnDone` 之前**，先做一些操作（例如，[sec|问题：顺序耦合] 提到的问题）
-- 一般监听 `OnDone` 是为了
+- 事件 `OnDone` 表示
   - **读取变化后的状态**，进行特定操作（例如，更新给用户展示的书签/联系人列表）
   - **确保变化正确结束后**，再执行操作（例如，连接 WiFi 网络后，自动更新手机 app）
 
@@ -322,7 +323,7 @@ deactivate ConfigModel
 
 **问题**：
 
-在回调时，要避免 **观察者同步修改被观察者状态**，从而再次触发当前回调，导致 **重入**；否则，一旦逻辑变得复杂，很容易进入 **死循环**。
+在回调时，**观察者 同步修改 被观察者 状态**，从而再次触发当前回调，导致 **重入**；否则，一旦逻辑变得复杂，很容易进入 **死循环**。
 
 **例子**：
 
@@ -389,11 +390,11 @@ deactivate ConfigModel
 
 - （绕开）根据具体情况，**打破循环的条件**，例如
   - 配置升级器 `ConfigUpgrade` 检查配置数据 `ConfigModel` 是否需要升级，仅在需要时更新
-  - 即，将 无条件更新 变为 有条件更新，只会出现一次重入
-- （根治）重构逻辑，避免 **观察者同步修改被观察者状态**，例如
-  - 让 `ConfigModel` 直接调用 `ConfigUpgrade` 检查/升级数据
-  - 使 `SyncManager` 收到 `OnDataUpdated` 时，就拿到已是最新的数据了
-- （避免）在迭代时，使用标识检查是否重入（参考 [`base::ObserverList`](https://github.com/chromium/chromium/blob/master/base/observer_list.h)）
+  - 将 无条件更新 变为 有条件更新，保证最多重入一次
+- （根治）重构逻辑，**避免** 观察者 **同步修改** 被观察者 状态，例如
+  - 让 `ConfigModel` 直接调用 `ConfigUpgrade` 检查并升级数据
+  - 使 `SyncManager` 收到 `OnDataUpdated` 时，就拿到最新的数据了
+- （被动）在迭代时，使用标识 **检查是否重入**（参考 [`base::ObserverList<bool allow_reentrancy>`](https://github.com/chromium/chromium/blob/master/base/observer_list.h)）
 
 ### 问题：顺序耦合
 
@@ -474,23 +475,30 @@ deactivate LoginStatus
   - 在欢迎页面处理 `WelcomePage::OnLogin` 时调用 [`base::TaskRunner::PostTask`](https://github.com/chromium/chromium/blob/master/base/task_runner.h)，把实际的处理操作抛到队尾，延迟到当前任务结束后异步执行
   - 当操作被执行时，状态变化已经结束（已经不在同一个调用栈里），从而避免读取到不确定的变化中的状态
   - 类似于 JavaScript 里的 [`setTimeout(fn, 0)`](https://stackoverflow.com/questions/779379/why-is-settimeoutfn-0-sometimes-useful)
-- （根治）重构逻辑，使用 **中介者模式** —— 引入中介者监听事件，然后协调各个事件处理函数的调用顺序，参考 [理解观察者、中介者模式](../2017/Observer-Mediator-Explained.md)
+- （根治）重构逻辑，使用 **中介者模式** —— 引入一个中介者监听事件，然后协调各个事件处理函数的调用顺序（参考 [理解观察者、中介者模式](../2017/Observer-Mediator-Explained.md)）
+- （根治）重构逻辑，将顺序耦合的观察者 **改为直接依赖** —— 被观察者直接在 `OnDoing`/`OnDone` 之间按顺序调用，而不使用观察者模式
 
-## 写在最后 [no-toc]
+### 问题：操作观察者列表
 
-> 2019/3/08 补充：
+> 咬自己的尾巴？
 
-- 避免把 **静态对象**（全局变量/静态变量/单例）作为观察者，因为他们的创建/销毁时机是不可控的，可以改为 **直接依赖**
-- 避免让 **监听同一事件** 的多个观察者 **相互依赖**，尽量只让 **一个模块来控制** 事件的 **处理顺序**
-  - 既可以把顺序控制放在被观察者 —— 在 OnDoing/OnDone 之间按顺序处理
-  - 也可以把顺序控制放在观察者 —— 只有一个观察者，由它来协调其他相互依赖的模块
+类似 [sec|问题：死循环]，在 被观察者 **通知时**，观察者 **同步操作** 被观察者的 **观察者列表**：
 
-> 2019/6/22 补充：
+- 添加观察者（问题：是否需要通知新添加的观察者）
+- 移除观察者（问题：删除迭代器，是否会出现崩溃）
+- 销毁被观察者（问题：如何立即停止通知过程，避免崩溃）
+- 线程安全问题（问题：上述三个操作 是否和 通知操作 在同一线程上进行）
 
-如果同时只有 **一个观察者**，可以直接使用 **依赖注入** 实现解耦，而 **不该滥用** 观察者模式：
+具体讨论参考：[漫谈 C++ 的各种检查](Cpp-Check.md#通知迭代检查)。
 
-- 使用 `OnceCallback` 改造：观察者发起 **一次请求后**，被观察者通过 **一次回调** 返回结果，而不是直接调用（例如，异步下载/读取文件）
-- 使用 `RepeatingCallback` 改造：被观察者通过 **多次回调**，**检查** 观察者的 **状态**，而不关心具体检查逻辑（例如，上下文菜单检查鼠标是否离开按钮区域）
+## 写在最后
+
+如果只有 **一个观察者**（而不是列表），可以直接使用 **依赖注入** 实现解耦，而 **不该误用** 观察者模式：
+
+- 一次回调 `OnceCallback` **解耦** 结果的 **获取和处理逻辑** —— 观察者 发起一次请求后，被观察者 返回响应结果，观察者 处理结果（例如，异步下载/读取文件）
+- 多次回调 `RepeatingCallback` **解耦** 状态的 **检查和处理逻辑** —— 被观察者 发起状态查询请求，观察者 返回当前状态，被观察者 处理状态（例如，检查鼠标位置）
+
+回调讨论参考：[深入 C++ 回调](Inside-Cpp-Callback.md#回调只能执行一次还是可以多次)。
 
 本文仅是我在实际项目中遇到的一些问题，以及我的一些个人理解。如果有什么问题，**欢迎交流**。😄
 

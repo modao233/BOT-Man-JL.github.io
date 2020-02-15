@@ -28,7 +28,7 @@
 
 ## 资源和对象生命周期
 
-> Item 13: Use objects to manage resources. —— Meyer Scott, _Effective C++ 3rd Edition_
+> Item 13: Use objects to manage resources. —— Scott Meyers, _Effective C++ 3rd Edition_
 
 一般的程序里，资源的 **生命周期** _(lifetime)_ 主要涉及三种操作：
 
@@ -101,7 +101,7 @@ C++ 为了保证语言本身的性能，不支持自动销毁机制。为了解�
 
 ## 资源和对象的映射关系
 
-> Item 14: Think carefully about copying behavior in resource-managing classes. —— Meyer Scott, _Effective C++ 3rd Edition_
+> Item 14: Think carefully about copying behavior in resource-managing classes. —— Scott Meyers, _Effective C++ 3rd Edition_
 
 用于资源管理的对象，往往需要注意它的 **拷贝语义**：
 

@@ -34,7 +34,7 @@ LOG(INFO) << base_url;  // |base_url| may be moved-from
 
 如何检查 **移动后使用** _(use after move)_：
 
-- 运行时，在移动构造函数中，将被移动的值设置为无效状态，并在每次使用前检查有效性
+- 运行时，在 移动构造/移动赋值 函数中，将被移动的值设置为无效状态，并在每次使用前检查有效性
 - 编译时，使用 Clang 标记对移动语义进行静态检查（参考：[Consumed Annotation Checking | Attributes in Clang](https://clang.llvm.org/docs/AttributeReference.html#consumed-annotation-checking)）
 
 ### 误解：被移动的值不能再使用
@@ -63,7 +63,7 @@ int j = std::move(i);
 assert(i == j);
 ```
 
-### 误解：移动返回值
+### 误解：移动非引用返回值
 
 > [F.48: Don’t `return std::move(local)`](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rf-return-move-local)
 
@@ -75,13 +75,13 @@ std::unique_ptr<int> foo() {
 }
 ```
 
-上述代码的问题在于：没必要使用 `std::move()` 移动返回值。
+上述代码的问题在于：没必要使用 `std::move()` 移动非引用返回值。
 
-C++ 会把 即将离开作用域的 **返回值** 当成 **右值**（参考 [sec|值类别 vs 变量类型]），对返回的对象进行 [sec|移动语义] 移动构造（语言标准）；如果编译器允许 [sec|拷贝省略] 拷贝省略，还可以省略这一步的构造，直接把 `ret` 存放到返回值的内存里（编译器优化）。
+C++ 会把 即将离开作用域的 **非引用类型的** 返回值当成 **右值**（参考 [sec|值类别 vs 变量类型]），对返回的对象进行 [sec|移动语义] 移动构造（语言标准）；如果编译器允许 [sec|拷贝省略] 拷贝省略，还可以省略这一步的构造，直接把 `ret` 存放到返回值的内存里（编译器优化）。
 
-> Never apply `std::move()` or `std::forward()` to local objects if they would otherwise be eligible for the return value optimization. —— Meyer Scott, _Effective Modern C++_
+> Never apply `std::move()` or `std::forward()` to local objects if they would otherwise be eligible for the return value optimization. —— Scott Meyers, _Effective Modern C++_
 
-另外，误用 `std::move()` 会 **阻止** 编译器的拷贝省略 **优化**。不过聪明的 Clang 会提示 `-Wpessimizing-move` 警告。
+另外，误用 `std::move()` 会 **阻止** 编译器的拷贝省略 **优化**。不过聪明的 Clang 会提示 [`-Wpessimizing-move`/`-Wredundant-move`](https://developers.redhat.com/blog/2019/04/12/understanding-when-not-to-stdmove-in-c/) 警告。
 
 ### 误解：不移动右值引用参数
 
@@ -121,10 +121,10 @@ std::unique_ptr<int> bar(std::unique_ptr<int>&& val) {
 
 实际上，多数情况下：
 
-- 如果 **没有定义** 构造/析构函数，编译器会 **自动生成** 移动构造/赋值函数（[rule of zero](https://en.cppreference.com/w/cpp/language/rule_of_three#Rule_of_zero)）
-- 如果 **需要定义** 构造/析构函数，不要忘了 移动构造/赋值函数，否则对象会 **不可移动**（[rule of five](https://en.cppreference.com/w/cpp/language/rule_of_three#Rule_of_five)）
-- **尽量使用** `=default` 让编译器生成 移动构造/赋值函数，否则 **容易写错**
-- 如果 **需要自定义** 移动构造/赋值函数，尽量定义为 `noexcept` 不抛出异常（编译器生成的版本会自动添加），否则 **不能高效** 使用标准库和语言工具
+- 如果 **没有定义** 拷贝构造/拷贝赋值/移动构造/移动赋值/析构 函数的任何一个，编译器会 **自动生成** 移动构造/移动赋值 函数（[rule of zero](https://en.cppreference.com/w/cpp/language/rule_of_three#Rule_of_zero)）
+- 如果 **需要定义** 拷贝构造/拷贝赋值/移动构造/移动赋值/析构 函数的任何一个，不要忘了 移动构造/移动赋值 函数，否则对象会 **不可移动**（[rule of five](https://en.cppreference.com/w/cpp/language/rule_of_three#Rule_of_five)）
+- **尽量使用** `=default` 让编译器生成 移动构造/移动赋值 函数，否则 **容易写错**
+- 如果 **需要自定义** 移动构造/移动赋值 函数，尽量定义为 `noexcept` 不抛出异常（编译器生成的版本会自动添加），否则 **不能高效** 使用标准库和语言工具
 
 例如，标准库容器 `std::vector` 在扩容时，会通过 [`std::vector::reserve()`](https://en.cppreference.com/w/cpp/container/vector/reserve#Exceptions) 重新分配空间，并转移已有元素。如果扩容失败，`std::vector` 满足 [**强异常保证** _(strong exception guarantee)_](https://en.cppreference.com/w/cpp/language/exceptions#Exception_safety)，可以回滚到失败前的状态。
 
@@ -311,6 +311,8 @@ vector::~vector() {
 
 析构函数 `vector::~vector()` 检查 data_ 是否有效，决定是否需要释放资源。
 
+> 此处省略 拷贝赋值/移动赋值 函数，但建议加上。（参考 [sec|误解：手写错误的移动构造函数]）
+
 此外，**类的成员函数** 还可以通过 [**引用限定符** _(reference qualifier)_](https://en.cppreference.com/w/cpp/language/member_functions#const-.2C_volatile-.2C_and_ref-qualified_member_functions)，针对当前对象本身的左右值状态（以及 const-volatile）重载：
 
 ``` cpp
@@ -328,7 +330,7 @@ auto ret2 = Foo{}.data();  // Foo{} is rvalue, move
 
 > 在之前写的 [资源管理小记](Resource-Management.md#资源和对象的映射关系) 提到：如果资源是 **不可拷贝** _(non-copyable)_ 的，那么装载资源的对象也应该是不可拷贝的。
 
-如果资源对象不可拷贝，一般需要 定义 拷贝构造/赋值函数，并禁用 拷贝构造/赋值函数。例如，智能指针 `std::unique_ptr` **只能移动** _(move only)_：
+如果资源对象不可拷贝，一般需要定义 移动构造/移动赋值 函数，并禁用 拷贝构造/拷贝赋值 函数。例如，智能指针 `std::unique_ptr` **只能移动** _(move only)_：
 
 ``` cpp
 template<typename T>
@@ -386,7 +388,7 @@ assert(v_old[0] == v_new[3]);
 然而，很多人会把移动语义和拷贝省略 **混淆**：
 
 - 移动语义是 **语言标准** 提出的概念，通过编写遵守移动语义的 移动构造函数、右值限定成员函数，**逻辑上** 优化 **对象内资源** 的转移流程
-- 拷贝省略是（C++ 17 前）非标准的 **编译器优化**，跳过移动/拷贝构造函数，让编译器直接在 **移动后的对象** 内存上，构造 **被移动的对象**（例如 [sec|误解：移动返回值] 的代码，直接在 函数返回值对象 的内存上，构造 函数局部对象 `ret` —— 在 **不同作用域** 里，共享 **同一块内存**）
+- 拷贝省略是（C++ 17 前）非标准的 **编译器优化**，跳过移动/拷贝构造函数，让编译器直接在 **移动后的对象** 内存上，构造 **被移动的对象**（例如 [sec|误解：移动非引用返回值] 的代码，直接在 函数返回值对象 的内存上，构造 函数局部对象 `ret` —— 在 **不同作用域** 里，共享 **同一块内存**）
 
 C++ 17 要求编译器对 **纯右值** _(prvalue, pure rvalue)_ 进行拷贝省略优化。（[参考](https://jonasdevlieghere.com/guaranteed-copy-elision/)）
 
@@ -443,9 +445,9 @@ unique_ptr<T> make_unique(Args&&... args) {
 
 ### 通用引用
 
-> Item 24: Distinguish universal references from rvalue references. —— Meyer Scott, _Effective Modern C++_
+> Item 24: Distinguish universal references from rvalue references. —— Scott Meyers, _Effective Modern C++_
 
-[Meyer Scott 指出](https://isocpp.org/blog/2012/11/universal-references-in-c11-scott-meyers)：有时候符号 `&&` 并不一定代表右值引用，它也可能是左值引用 —— 如果一个引用符号需要通过 左右值类型推导（模板参数类型 或 `auto` 推导），那么这个符号可能是左值引用或右值引用 —— 这叫做 **通用引用** _(universal reference)_。
+[Scott Meyers 指出](https://isocpp.org/blog/2012/11/universal-references-in-c11-scott-meyers)：有时候符号 `&&` 并不一定代表右值引用，它也可能是左值引用 —— 如果一个引用符号需要通过 左右值类型推导（模板参数类型 或 `auto` 推导），那么这个符号可能是左值引用或右值引用 —— 这叫做 **通用引用** _(universal reference)_。
 
 ``` cpp
 // rvalue ref: no type deduction
@@ -506,7 +508,7 @@ T&& forward(std::remove_reference_t<T>&& val) noexcept {  // #2
 ```
 
 | 实参/返回值 | 重载 | l-ref 返回值 | r-ref 返回值 |
-|---|---|---|
+|---|---|---|---|
 | l-ref 实参 | #1 | 完美转发 | **移动转发** |
 | r-ref 实参 | #2 | **语义错误** | 完美转发 |
 

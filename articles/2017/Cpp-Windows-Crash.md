@@ -18,7 +18,7 @@
 
 ### 不要在构造、析构时调用虚函数
 
-> Item 9: Never call virtual functions during construction or destruction. —— Meyer Scott, _Effective C++ 3rd Edition_
+> Item 9: Never call virtual functions during construction or destruction. —— Scott Meyers, _Effective C++ 3rd Edition_
 
 对 C++ 的对象初始化/反初始化有基本了解的人，都知道：不要在构造函数（或析构函数）里调用虚函数 —— 因为对象的基类在构造（或析构）时，派生类内部的成员变量没有被初始化（或已经被反初始化），调用的虚函数会引起派生类访问不合法的成员变量，从而可能导致崩溃。
 

@@ -51,6 +51,10 @@
 
 ## 分享 | Share
 
+#### 2020
+
+- [如何写更好的 C++ 代码](2020/Cpp-Better-Practice.md)
+
 #### 2019
 
 - [C++ 20 协程](2019/Cpp-Coroutine-Share.md)

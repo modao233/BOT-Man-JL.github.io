@@ -121,8 +121,8 @@ std::unique_ptr<int> bar(std::unique_ptr<int>&& val) {
 
 实际上，多数情况下：
 
-- 如果 **没有定义** 拷贝构造/拷贝赋值/移动构造/移动赋值/析构 函数的任何一个，编译器会 **自动生成** 移动构造/移动赋值 函数（[rule of zero](https://en.cppreference.com/w/cpp/language/rule_of_three#Rule_of_zero)）
-- 如果 **需要定义** 拷贝构造/拷贝赋值/移动构造/移动赋值/析构 函数的任何一个，不要忘了 移动构造/移动赋值 函数，否则对象会 **不可移动**（[rule of five](https://en.cppreference.com/w/cpp/language/rule_of_three#Rule_of_five)）
+- 如果 **没有定义** 拷贝构造/拷贝赋值/移动构造/移动赋值 函数的任何一个，编译器会 **自动生成** 移动构造/移动赋值 函数（[rule of zero](https://en.cppreference.com/w/cpp/language/rule_of_three#Rule_of_zero)）
+- 如果 **需要定义** 拷贝构造/拷贝赋值/移动构造/移动赋值 函数的任何一个，不要忘了 移动构造/移动赋值 函数，否则对象会 **不可移动**（[rule of five](https://en.cppreference.com/w/cpp/language/rule_of_three#Rule_of_five)）
 - **尽量使用** `=default` 让编译器生成 移动构造/移动赋值 函数，否则 **容易写错**
 - 如果 **需要自定义** 移动构造/移动赋值 函数，尽量定义为 `noexcept` 不抛出异常（编译器生成的版本会自动添加），否则 **不能高效** 使用标准库和语言工具
 

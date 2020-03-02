@@ -51,7 +51,7 @@ C++ 语言本身有很多编译时检查（例如 类的成员访问控制 _(mem
 - `DISALLOW_COPY_AND_ASSIGN` 用于禁用类的 拷贝构造函数 和 拷贝赋值函数
 - `DISALLOW_IMPLICIT_CONSTRUCTORS` 用于禁用类的 默认构造函数 和 拷贝行为
 
-由于 Chromium 大量使用了 C++ 的多态特性，这些宏随处可见。
+由于 Chromium 大量使用了 C++ 的多态特性，这些宏随处可见。但这两个宏 [不建议再使用](https://github.com/chromium/chromium/blob/master/styleguide/c++/c++-dos-and-donts.md#explicitly-declare-class-copyabilitymovability)，而应该考虑可移动（上述宏默认禁用移动）。
 
 ### 参数类型检查
 

@@ -21,12 +21,12 @@
 [code||pet-and-count-cats]
 
 ``` csharp
-int PetAndCountCats (List<Pet> pets) {
+int PetAndCountCats(List<Pet> pets) {
     int count = 0;
     for (var pet in pets) {
-        if (pet.GetType () == Pet.CAT) {
-            pet.Pet ();   // Pet cats
-            ++count;      // Count cats
+        if (pet.GetType() == Pet.CAT) {
+            pet.Pet();  // Pet cats
+            ++count;    // Count cats
         }
     }
     return count;
@@ -39,7 +39,7 @@ int PetAndCountCats (List<Pet> pets) {
 
 随着代码写的越来越多，我们发现：一般 **读代码** 的时间比 **写代码** 的时间要长。所以，我们在写代码的时候开始关心：如何通过代码来 **传达** 我们的 **想法**。
 
-对于上边的例子，[把查询和修改分开 (Separate Query from Modifier)](Refactoring-Notes.md#Separate-Query-from-Modifier-P279)，变为 `PetCats` 和 `CountCats`，更有利于传达我们的想法 —— 因为一般 **有返回值** 的方法只作为 **查询**，没有副作用；**没有返回值** 的方法作为 **修改**，才会产生副作用。（见 [笔记](Implementation-Patterns-Notes.md#Return-Type-P84)）
+对于上边的例子，[把查询和修改分开 _(Separate Query from Modifier)_](Refactoring-Notes.md#Separate-Query-from-Modifier-P279)，变为 `PetCats()` 和 `CountCats()`，更有利于传达我们的想法 —— 因为一般 **有返回值** 的方法只作为 **查询**，没有副作用；**没有返回值** 的方法作为 **修改**，才会产生副作用。（见 [笔记](Implementation-Patterns-Notes.md#Return-Type-P84)）
 
 ### 很多人用着面向对象语言，却只写着面向过程程序
 
@@ -51,7 +51,7 @@ int PetAndCountCats (List<Pet> pets) {
 
 ### 为什么要写这篇文章
 
-- 2018 年，读了 Martin Fowler 的[《重构》](../2018/Refactoring-Notes.md)、Kent Beck 的[《实现模式》](../2018/Implementation-Patterns-Notes.md)，深有 **感触**
+- 2018 年，读了 [重构 _(Martin Fowler)_](Refactoring-Notes.md) 和 [实现模式 _(Kent Beck)_](Implementation-Patterns-Notes.md)，深有 **感触**
 - **分享** 给大家，并收集 **反馈**
 
 ### 从一个例子开始
@@ -77,10 +77,10 @@ std::vector<Pet> pets_of_keeper1, pets_of_keeper2;
 PetFood pet_food_of_keeper1, pet_food_of_keeper2;
 Shampoo shampoo_of_keeper1, shampoo_of_keeper2;
 
-int CountCats (std::vector<Pet> pets);
-int CountDogs (std::vector<Pet> pets);
-void FeedPets (std::vector<Pet> &pets, PetFood &pet_food);
-void CleanPets (std::vector<Pet> &pets, Shampoo &shampoo);
+int CountCats(std::vector<Pet> pets);
+int CountDogs(std::vector<Pet> pets);
+void FeedPets(std::vector<Pet> &pets, PetFood &pet_food);
+void CleanPets(std::vector<Pet> &pets, Shampoo &shampoo);
 ```
 
 [align-center]
@@ -124,6 +124,8 @@ PetKeeper keeper1, keeper2;
 
 进一步的，代码 [code|imperative] 中的 4 个函数是对 `struct PetKeeper` 数据进行操作的逻辑，解决了 **同一领域的问题、变化频率一致**。所以，在代码 [code|encapsulate-data] 的基础上，把这些逻辑和数据封装在一起，构成了完整的类 `class PetKeeper`。从而实现对行为/逻辑的封装。
 
+同时，类的 **访问控制** 使其他对象不能直接修改对象内部的 `private` 状态，保证状态的 **不变式** _(invariant)_。例如，其他人只能通过 `PetKeeper::FeedPets()` 让饲养员喂食，避免非法投喂 🙃。
+
 [code||encapsulate-logic]
 
 ``` cpp
@@ -132,10 +134,10 @@ class PetKeeper {
     PetFood pet_food;
     Shampoo shampoo;
 public:
-    int CountCats () const;
-    int CountDogs () const;
-    void FeedPets ();
-    void CleanPets ();
+    int CountCats() const;
+    int CountDogs() const;
+    void FeedPets();
+    void CleanPets();
 };
 ```
 
@@ -153,7 +155,7 @@ public:
 
 ### 例子：继承实现
 
-为了避免重复，我们可以把两个类的 **共享逻辑** 抽出到一个父类里，然后这两个类继承于该父类。例如，猫和狗吃东西的逻辑有共同之处 —— 吃了食物后，需要一段时间消化食物，然后饥饿值下降。消化食物的逻辑 `DigestAfterEating`、饥饿值的状态 `hunger_points` 是猫和狗共有的，可以提到父类 `Pet` 里，从而避免分别在 `Cat` 和 `Dog` 里重复代码。
+为了避免重复，我们可以把两个类的 **共享逻辑** 抽出到一个父类里，然后这两个类继承于该父类。例如，猫和狗吃东西的逻辑有共同之处 —— 吃了食物后，需要一段时间消化食物，然后饥饿值下降。消化食物的逻辑 `DigestAfterEating()`、饥饿值的状态 `hunger_points` 是猫和狗共有的，可以提到父类 `Pet` 里，从而避免分别在 `Cat` 和 `Dog` 里重复代码。
 
 [code||inherit-implementation]
 
@@ -162,16 +164,16 @@ class Pet {
     // ...
 protected:
     int hunger_points;
-    void DigestAfterEating ();
+    void DigestAfterEating();
 };
 
 class Cat : public Pet {
     // ...
 public:
-    void Eat (PetFood &pet_food) {
+    void Eat(PetFood &pet_food) {
         // cat specific logic
-        DigestAfterEating ();  // shared logic
-        --hunger_points;       // shared data
+        DigestAfterEating();  // shared logic
+        --hunger_points;      // shared data
     }
 };
 
@@ -184,7 +186,7 @@ class Dog : public Pet {
 
 代码 [code|inherit-implementation] - 继承实现
 
-但是，代码 [code|inherit-implementation] 中的 `Pet` 一旦有修改，`Cat` 和 `Dog` 可能会被动的受到这个修改的困扰（例如 `Pet::DigestAfterEating` 要求传入参数，`Cat::Eat` 和 `Dog::Eat` 需要修改为传入参数的形式）。
+但是，代码 [code|inherit-implementation] 中的 `Pet` 一旦有修改，`Cat` 和 `Dog` 可能会被动的受到这个修改的困扰（例如 `Pet::DigestAfterEating()` 要求传入参数，`Cat::Eat()` 和 `Dog::Eat()` 需要修改为传入参数的形式）。
 
 ## 多态 Polymorphism
 
@@ -204,17 +206,17 @@ class Dog : public Pet {
 
 ### 例子：条件逻辑切换
 
-很多人，包括我，喜欢使用面向过程语言里的 **测试条件** _(testing conditionals)_ 实现逻辑策略切换。例如，在实现喂食功能 `PetKeeper::FeedPets`，而对于不同的动物有着不同的喂食逻辑时，我们会使用 `if/switch` 语句先判断 `pet` 的类型，然后针对不同类型进行处理。
+很多人，包括我，喜欢使用面向过程语言里的 **测试条件** _(testing conditionals)_ 实现逻辑策略切换。例如，在实现喂食功能 `PetKeeper::FeedPets()`，而对于不同的动物有着不同的喂食逻辑时，我们会使用 `if/switch` 语句先判断 `pet` 的类型，然后针对不同类型进行处理。
 
 [code||conditionals]
 
 ``` cpp
-void PetKeeper::FeedPets () {
+void PetKeeper::FeedPets() {
     for (Pet &pet : pets) {
-        if (pet.GetType () == Pet.CAT) {
+        if (pet.GetType() == Pet.CAT) {
             // cat eating pet_food logic
         }
-        else if (pet.GetType () == Pet.DOG) {
+        else if (pet.GetType() == Pet.DOG) {
             // dog eating pet_food logic
         }
     }
@@ -232,11 +234,11 @@ void PetKeeper::FeedPets () {
   - 消息的 **发送者** 不仅需要关心消息的意图，还需要关心消息处理逻辑的 **实现**
   - 一个类 `PetKeeper` **过度访问** 另一个类 `Pet` 的数据/实现，在 `PetKeeper` 里实现了应该在 `Pet` 里实现的功能，类的职责划分不恰当，是重构的一个信号（见 [笔记](Implementation-Patterns-Notes.md#Object-Design-Problem-P47)）
 - 不易于扩展
-  - 当我们需要引入一个新的宠物类型（例如，兔子🐰）的时候，就需要 **修改** 消息的 **发送者** `PetKeeper` 的 `PetKeeper::FeedPets` 实现，即加入 `if (pet.GetType () == Pet.RABBIT)` 分支
+  - 当我们需要引入一个新的宠物类型（例如，兔子🐰）的时候，就需要 **修改** 消息的 **发送者** `PetKeeper` 的 `PetKeeper::FeedPets()` 实现，即加入 `if(pet.GetType() == Pet.RABBIT)` 分支
 
 ### 例子：派生逻辑切换
 
-利用面向对象的方法，我们可以实现基于多态的派生逻辑切换。例如，同样是实现喂食功能 `PetKeeper::FeedPets`，我们只需要给 `Pet` 定义一个统一的接口 `Eat`，接收 `PetKeeper` 发送的消息；对于不同动物的不同逻辑，我们可以通过 **重写函数** _(overriding)_ / **实现接口** _(implementing)_ 实现。
+利用面向对象的方法，我们可以实现基于多态的派生逻辑切换。例如，同样是实现喂食功能 `PetKeeper::FeedPets()`，我们只需要给 `Pet` 定义一个统一的接口 `Eat()`，接收 `PetKeeper` 发送的消息；对于不同动物的不同逻辑，我们可以通过 **重写函数** _(overriding)_ / **实现接口** _(implementing)_ 实现。
 
 [code||subclasses]
 
@@ -244,20 +246,20 @@ void PetKeeper::FeedPets () {
 class Pet {
     // ...
 public:
-    virtual void Eat (PetFood &pet_food) = 0;
+    virtual void Eat(PetFood &pet_food) = 0;
 };
 
 class Cat : public Pet {
     // ...
 public:
-    void Eat (PetFood &pet_food) override {
+    void Eat(PetFood &pet_food) override {
         // cat specific logic
     }
 };
 
-void PetKeeper::FeedPets () {
+void PetKeeper::FeedPets() {
     for (Pet &pet : pets) {
-        pet.Eat (pet_food);  // only care intention
+        pet.Eat(pet_food);  // only care intention
     }
 }
 ```
@@ -270,16 +272,16 @@ void PetKeeper::FeedPets () {
 
 - 在函数中，`PetKeeper` 作为消息的发送者，`Pet` 是消息的接收者 —— `PetKeeper` 操作 `Pet` 的对象实现喂食逻辑
 - 有良好的封装性
-  - 消息的 **发送者只需要关心消息**（简单的 `Eat` 接口）的意图，不需要关心处理逻辑的实现
+  - 消息的 **发送者只需要关心消息**（简单的 `Eat()` 接口）的意图，不需要关心处理逻辑的实现
   - 消息的 **接收者只负责处理消息**，和发送者没有过多的耦合，尽职尽责
 - 易于扩展
-  - 当我们需要引入一个新的宠物类型（例如，兔子🐰）的时候，只需要在 `Rabbit` 类里实现 `Eat` 接口即可；消息 **发送者** 代码 **不需要修改**
+  - 当我们需要引入一个新的宠物类型（例如，兔子🐰）的时候，只需要在 `Rabbit` 类里实现 `Eat()` 接口即可；消息 **发送者** 代码 **不需要修改**
 
 ### 例子：委托逻辑切换
 
-类似于代码 [code|subclasses]，把 `Pet::Eat` 委托到 `PetImpl::EatImpl` 函数：
+类似于代码 [code|subclasses]，把 `Pet::Eat()` 委托到 `PetImpl::EatImpl()` 函数：
 
-- 对于`PetKeeper::FeedPets` 的消息调用是透明的，和派生相比，仅仅是 **实现上** 的不同
+- 对于`PetKeeper::FeedPets()` 的消息调用是透明的，和派生相比，仅仅是 **实现上** 的不同
 - 相对于派生实现的优势在于，可以在 `Pet` 对象 **生命周期内切换逻辑** —— 将变量 `pet_impl` 赋值为 `CatImpl` 对象时，可以实现猫的逻辑；赋值为 `DogImpl` 对象时，就可以动态切换为狗的逻辑（虽然在这个业务场景下没有实际意义，猫生出来不会变成狗。。。）
 
 [code||delegation]
@@ -287,13 +289,13 @@ void PetKeeper::FeedPets () {
 ``` cpp
 class PetImpl {
 public:
-    virtual void EatImpl (PetFood &pet_food) = 0;
+    virtual void EatImpl(PetFood &pet_food) = 0;
 };
 
 class CatImpl : public PetImpl {
     // ...
 public:
-    void EatImpl (PetFood &pet_food) override {
+    void EatImpl(PetFood &pet_food) override {
         // cat specific logic
     }
 };
@@ -302,8 +304,8 @@ class Pet {
     // ...
     PetImpl *pet_impl;
 public:
-    void Eat (PetFood &pet_food) {
-        pet_impl->EatImpl (pet_food);
+    void Eat(PetFood &pet_food) {
+        pet_impl->EatImpl(pet_food);
     }
 };
 ```
@@ -314,7 +316,7 @@ public:
 
 ## 写在最后 [no-number]
 
-由于经验、篇幅、时间限制，更多关于面向对象编程的问题讨论，可参考 Martin Fowler 的[《重构》](../2018/Refactoring-Notes.md)和 Kent Beck 的[《实现模式》](../2018/Implementation-Patterns-Notes.md)。
+由于经验、篇幅、时间限制，更多关于面向对象编程的问题讨论，可参考 [重构 _(Martin Fowler)_](Refactoring-Notes.md) 和 [实现模式 _(Kent Beck)_](Implementation-Patterns-Notes.md)。
 
 如果有什么问题，**欢迎交流**。😄
 

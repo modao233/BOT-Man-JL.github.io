@@ -24,7 +24,7 @@
 - [从 Windows Filtering Platform 学习 TCP/IP（2）](2018/Learn-TCP-IP-from-WFP-2.md)
 - [从 Windows Filtering Platform 学习 TCP/IP（1）](2018/Learn-TCP-IP-from-WFP-1.md)
 - [浅谈 面向对象编程](2018/Object-Oriented-Programming.md)
-- [资源管理 小记](2018/Resource-Management.md)（**荐**）
+- [资源管理 小记](2018/Resource-Management.md)
 
 #### 2017
 
@@ -53,7 +53,7 @@
 
 #### 2020
 
-- [如何写更好的 C++ 代码](2020/Cpp-Better-Practice.md)
+- [详解 C++ 风格/指南](2020/Cpp-Better-Practice.md)（**荐**）
 
 #### 2019
 

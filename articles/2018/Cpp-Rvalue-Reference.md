@@ -1,6 +1,6 @@
 ﻿# 深入浅出 C++ 11 右值引用
 
-> 2018/7/15 -> 2020/2/1
+> 2018/7/15 -> 2020/3/9
 >
 > 彻底搞清楚：右值引用/移动语义/拷贝省略/通用引用/完美转发
 
@@ -388,7 +388,56 @@ assert(v_old[0] == v_new[3]);
 然而，很多人会把移动语义和拷贝省略 **混淆**：
 
 - 移动语义是 **语言标准** 提出的概念，通过编写遵守移动语义的 移动构造函数、右值限定成员函数，**逻辑上** 优化 **对象内资源** 的转移流程
-- 拷贝省略是（C++ 17 前）非标准的 **编译器优化**，跳过移动/拷贝构造函数，让编译器直接在 **移动后的对象** 内存上，构造 **被移动的对象**（例如 [sec|误解：移动非引用返回值] 的代码，直接在 函数返回值对象 的内存上，构造 函数局部对象 `ret` —— 在 **不同作用域** 里，共享 **同一块内存**）
+- 拷贝省略是 非标准（C++ 17 前）的 **编译器优化**，跳过移动/拷贝构造函数，让编译器直接在 **移动后的对象** 内存上，构造 **被移动的对象** —— 在 **不同作用域** 的变量，使用 **同一块内存**
+
+``` cpp
+struct Foo {
+  int x, y;  // #1) sizeof(Foo) == 8
+};
+
+struct Bar {
+  int x[8];  // #2) sizeof(Bar) == 32
+};
+
+Foo CreateFoo() {
+  Foo foo;
+  foo.x = 1;   // #3) mov  dword ptr [rbp - 8], 1
+  return foo;  // #4) mov  rax, qword ptr [rbp - 8]
+}
+
+Bar CreateBar() {
+  Bar bar;
+  bar.x[0] = 2;  // #5) mov  dword ptr [rdi], 2
+  return bar;
+}
+
+int main() {
+  // sub  rsp, 48 (8 + 8 + 32)
+
+  auto a = CreateFoo();  // ret rax
+  // #6) mov  qword ptr [rbp - 16], rax
+
+  // #7) lea  rdi, [rbp - 48]
+  auto b = CreateBar();  // use rdi
+
+  return a.x + b.x[0];
+  // add  rsp, 80
+}
+```
+
+上述代码展示了什么是拷贝省略（[在线运行](https://godbolt.org/z/QkSr8M)）：
+
+- `Foo` 对象大小为 2 个 `int`（8 byte）#1
+  - 函数 `CreateFoo()` 给变量 `foo` 分配 8 byte 栈空间 #3
+  - 函数 `CreateFoo()` 返回时把 8 byte（`qword`）数据拷贝到 `rax` 寄存器 #4
+  - 函数 `main()` 把调用返回的 `rax` 拷贝到变量 `a` 的 8 byte（`qword`）的栈空间里 #6
+  - 因为对象比较小，一般通过 **寄存器传递**
+- `Bar` 对象大小为 8 个 `int`（32 byte）#2
+  - 函数 `main()` 把给变量 `b` 分配的 32 byte 栈空间的地址，写入 `rdi` 寄存器 #7
+  - 函数 `CreateBar()` 的变量 `bar` 和调用者 `main()` 里的 `b` 使用相同的地址（放在 `rdi`），不需要分配栈空间，也不构造新的对象 #5
+  - 因为对象比较大，一般支持 **拷贝省略**
+
+另外，[sec|误解：移动非引用返回值] 提到：如果使用 `std::move()` 移动返回值，会导致拷贝省略不可用 —— 分配两次栈空间，再多执行一次构造函数，将会带来 **不必要的开销**。
 
 C++ 17 要求编译器对 **纯右值** _(prvalue, pure rvalue)_ 进行拷贝省略优化。（[参考](https://jonasdevlieghere.com/guaranteed-copy-elision/)）
 
@@ -544,7 +593,7 @@ std::remove_reference_t<T>&& move(T&& val) noexcept {
 
 虽然这些东西你不知道，也不会伤害你；但如果你知道了，就可以合理利用，从而提升开发效率，避免不必要的问题。
 
-感谢 [@flythief](https://github.com/thiefuniverse) 的修改建议，感谢 @泛化之美 对 [sec|误解：手写错误的移动构造函数] 的补充~ 😊
+感谢 [@flythief](https://github.com/thiefuniverse)/[@WalkerJG](https://github.com/WalkerJG) 的修改建议，感谢 @泛化之美 对 [sec|误解：手写错误的移动构造函数] 的补充~ 😊
 
 如果有什么问题，**欢迎交流**。😄
 

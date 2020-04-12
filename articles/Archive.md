@@ -8,7 +8,7 @@
 - [再谈 “回调 vs 接口” 设计](2019/Callback-vs-Interface-Explained.md)
 - [Python 风格的函数式](2019/Pythonic-Functional.md)
 - [漫谈 C++ 的各种 检查](2019/Cpp-Check.md)（**荐**）
-- [从 时空维度 看 I/O 模型](2019/IO-Models.md)
+- [从 时空维度 看 I/O 模型](2019/IO-Models.md)（**荐**）
 - [深入 C++ 回调](2019/Inside-Cpp-Callback.md)（**荐**）
 - [令人抓狂的 观察者模式](2019/Insane-Observer-Pattern.md)
 - [对 编程范式 的简单思考](2019/Thinking-Programming-Paradigms.md)

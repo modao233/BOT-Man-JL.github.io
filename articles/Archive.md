@@ -3,6 +3,10 @@
 
 ## 代码 | Coding
 
+#### 2020
+
+- [无锁编程 与 惯性思维](2020/Lock-Free-and-Inertial-Thinking.md)
+
 #### 2019
 
 - [再谈 “回调 vs 接口” 设计](2019/Callback-vs-Interface-Explained.md)

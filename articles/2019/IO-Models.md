@@ -129,7 +129,8 @@ try {
 - 对于 **同步、阻塞模型**，常用 **多进程/多线程** 提高 I/O 吞吐量（多个进程/线程 同时发起 I/O，分别等待 各自 I/O 结果）
 - 对于 **同步、非阻塞模型**，常用 **I/O 多路复用** 提高 I/O 吞吐量（一个线程 同时发起 多个 I/O，同时轮询 所有 I/O 结果）
 - 对于 **异步模型**，由于 回调/协程 **调度顺序不确定**，需要在 I/O 完成后检查 **上下文** _(context)_ 的 **有效性**（参考：[深入 C++ 回调](Inside-Cpp-Callback.md#回调是同步还是异步的)）
-- 对于 [reactor 模式](https://en.wikipedia.org/wiki/Reactor_pattern)（I/O 多路复用，不同于 [proactor 模式](https://en.wikipedia.org/wiki/Proactor_pattern)）、[future-promise 模型](https://en.wikipedia.org/wiki/Futures_and_promises)，可以认为是 **非阻塞（同时发起多个 I/O 请求）+ 阻塞（等待 I/O 完成）** 的 **同步模型**
+- 对于 [reactor 模式](https://en.wikipedia.org/wiki/Reactor_pattern)（I/O 多路复用，不同于 [proactor 模式](https://en.wikipedia.org/wiki/Proactor_pattern)），可以认为是 **非阻塞（同时发起多个 I/O 请求）+ 阻塞（等待 I/O 完成）** 的 **同步模型**
+- 对于 [future-promise 模型](https://en.wikipedia.org/wiki/Futures_and_promises)，可以认为是 **非阻塞（同时发起多个 I/O 请求）+ 阻塞（等待 I/O 完成）** 的模型（同步 或 异步）
 
 ## 写在最后
 

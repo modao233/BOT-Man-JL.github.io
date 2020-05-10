@@ -480,6 +480,7 @@ class Foo {
 > - 注意：
 >   - 在类定义中，可以内联定义 accessor(getter)、mutator(setter) 和 空函数
 >   - 不要定义长函数，不需要显式 `inline`（参考：[Don’t use `inline` when defining a function in a class definition](http://llvm.org/docs/CodingStandards.html#don-t-use-inline-when-defining-a-function-in-a-class-definition)）
+>   - 建议在 静态成员（函数/数据）上一行加 `// static` 注释，可在代码折叠后方便查看
 
 ---
 
@@ -811,6 +812,7 @@ auto* item = item_.get();  // Good
 
 > - [来源](https://github.com/chromium/chromium/blob/master/styleguide/c++/c++-dos-and-donts.md#do-not-use-auto-to-deduce-a-raw-pointer)
 > - 增强可读性 + 检查 `item` 必须为 指针类型
+> - [Beware unnecessary copies with `auto`](https://llvm.org/docs/CodingStandards.html#beware-unnecessary-copies-with-auto)
 
 <br/>
 

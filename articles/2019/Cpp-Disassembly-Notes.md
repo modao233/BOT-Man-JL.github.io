@@ -88,11 +88,26 @@
   - Modified List：已被释放、已被修改，需要写回磁盘后再利用
 - 固定页 _(pinned page)_：避免从物理内存中，把内存页置换出去
 
-### 内存屏障 _(Memory Barrier)_
+### 内存屏障 _(Memory Barrier)_ / 内存栅栏 _(Memory Fence)_
 
 - 原因：指令重排 + 多核 CPU + CPU 流水线 + CPU 缓存
-- 实现：为了实现 内存顺序，编译器/CPU/MMIO 设置内存访问的同步点
-- 效果：防止指令重排（内存乱序访问）+ 保证数据可见性
+  - 一方面，使用 store buffer 和 invalidate queue 提升 CPU 吞吐量
+  - 另一方面，需要保证 缓存一致性 _(cache coherence)_
+- 实现：设置 内存访问的同步点，从而保证 内存顺序
+  - 控制 指令重排（编译时、运行时）
+  - 控制 其他 CPU 缓存可见性（在 store buffer 和/或 invalidate queue 放置同步点）
+  - [Memory Barriers: a Hardware View for Software Hackers](https://irl.cs.ucla.edu/~yingdi/web/paperreading/whymb.2010.06.07c.pdf)
+
+### 伪共享 _(False Sharing)_
+
+- 原因：多 CPU 同时轮流修改 _(ping-pong)_ 处于同一 缓存行 _(cache line)_ 的不同变量
+  - 不同变量 在内存中的相邻位置，会被放到 同一缓存行
+  - 一个 CPU 修改 一个变量，其他 CPU 缓存失效
+  - 其他 CPU 修改 变量前，需要 重新加载缓存（可能从其他 CPU 加载，不一定从内存加载）
+- 后果：多 CPU 并行效率 低于单 CPU 串行
+- 解决：
+  - 按缓存行对齐 不同变量内存
+  - 避免使用共享数据
 
 ## 函数调用
 
@@ -247,25 +262,38 @@
   - 一个标量对象（算术类型、指针类型、枚举类型、`std::nullptr_t`）
   - 非零长 位域 (bit field) 最大连续序列
 - 数据竞争 _(data race)_：多个线程同时访问一个内存位置，且至少一个是写操作
-  - 现象：线程从某个内存位置读取值，可能读到 初值、同一线程所写入的值、另一线程所写入的值
-- 内存顺序 _(memory order)_：
-  - Relaxed：无顺序约束，仅原子性
-  - Consume Load：
-    - 当前线程 **依赖于被读取值的** 读或写不能被重排到 **此前**（弱 向后保护）
-    - 其他线程 **依赖于被读取值的** Release 对当前线程 Consume 可见
-  - Acquire Load：
-    - 当前线程 读或写不能被重排到 **此前**（向后保护）
-    - 其他线程 Release 对当前线程 Acquire 可见
-  - Release Store：
-    - 当前线程 读或写不能被重排到 **此后**（向前保护）
-    - 当前线程 Release 对其他线程 Acquire 可见
-    - 当前线程 Release 对其他线程 **依赖于被读取值的** Consume 可见
-  - Acquire-Release Read-Modify-Write：
-    - 当前线程 读或写不能被重排到 **此前后**（局部保护）
-    - Acquire for Read + Release for Write
-  - Sequentially-Consistent：
-    - **所有线程** 以同一顺序观测到所有修改
-    - Acquire Load / Release Store / Acquire-Release Read-Modify-Write
+  - 现象：线程从某个内存位置读取值，可能读到 初值、同一线程所写入的值、另一线程所写入的值（未定义行为）
+- 内存顺序 _(memory order)_：利用内存屏障 控制（当前线程）指令重排 +（其他线程）可见性
+  - Relaxed = Atomic Operation (Load | Store | Read-Modify-Write)
+    - 可重排（可能 乱序执行）
+    - 不可见（可能 读到失效的缓存）
+  - Acquire Load = Atomic Load + Acquire Fence
+    - 当前线程 **所有的** 读或写 不能被重排到 **此前**（向后保护）
+    - Release 线程 **所有的** 修改 对 当前线程 可见
+  - Consume Load = Atomic Load + Consume Fence
+    - 当前线程 **依赖于原子变量的** 读或写 不能被重排到 **此前**（向后保护）
+    - Release 线程 **依赖于原子变量的** 修改 对 当前线程 可见
+    - 仅控制数据依赖 _(carry-a-dependency)_，性能更好，但多数编译器 **不支持**
+    - [The Purpose of memory_order_consume in C++11](https://preshing.com/20140709/the-purpose-of-memory_order_consume-in-cpp11/)
+  - Release Store = Release Fence + Atomic Store
+    - 当前线程 **所有的** 读或写 不能被重排到 **此后**（向前保护）
+    - 当前线程 **所有的** 修改 对 Acquire 线程 可见
+    - 当前线程 **依赖于原子变量的** 修改 对 Consume 线程 可见
+  - Acquire-Release Read-Modify-Write = Release Fence + Atomic Read-Modify-Write + Acquire Fence
+    - 当前线程 **所有的** 读或写 不能被重排到 **此前后**（双向保护）
+    - Release 线程 **所有的** 修改 对 当前线程 可见
+    - 当前线程 **所有的** 修改 对 Acquire 线程 可见
+    - 当前线程 **依赖于原子变量的** 修改 对 Consume 线程 可见
+  - Sequentially-Consistent
+    - Atomic Load + Full Fence
+    - Full Fence + Atomic Store
+    - Full Fence + Atomic Read-Modify-Write + Full Fence
+    - 当前线程 **所有的** 读或写 不能被重排到 **此前后**（双向保护）
+    - **所有线程** 以 **同一顺序观测到** 所有的修改
+- 缓存可见性 控制：
+  - 不保证 **原子变量** 的修改 **立即 对其他线程可见**
+  - 而保证 当 原子变量的修改 被其他线程观测到 时，**原子变量修改前的** 非原子 _(non-atomic)_ / 松弛原子 _(relaxed atomic)_ 变量 的修改 也必须 **对其他线程可见**
+  - 从而保证 “先序于 _(sequenced-before)_ Release/Full Fence 的修改” 先发生于 _(happens-before)_ “后序于 _(sequenced-after)_ Acquire/Consume/Full Fence 的读取”
 
 ## C++ 面向对象
 

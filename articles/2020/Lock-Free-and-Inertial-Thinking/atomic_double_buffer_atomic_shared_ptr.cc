@@ -12,24 +12,21 @@ template <typename T>
 class DoubleBuffer {
  public:
   std::shared_ptr<T> Read() const {
-    return data_[index_];  // get foreground, and ref_count++
+    return std::atomic_load(&foreground_);  // get foreground, and ref_count++
   }
 
   template <typename... Args>
   void Modify(Args&&... args) {
-    data_[!index_]->Update(args...);         // update background
-    index_ = !index_;                        // switch buffer
-    while (data_[!index_].use_count() != 1)  // check use_count()
-      std::this_thread::yield();             // busy waiting...
-    data_[!index_]->Update(args...);         // update background
+    background_->Update(args...);         // update background
+    background_ = std::atomic_exchange(&foreground_, background_);  // switch
+    while (background_.use_count() != 1)  // check use_count()
+      std::this_thread::yield();          // busy waiting...
+    background_->Update(args...);         // update background
   }
 
  private:
-  std::shared_ptr<T> data_[2]{
-      std::make_shared<T>(),
-      std::make_shared<T>(),
-  };  // atomic_counter inside shared_ptr
-  std::atomic<int> index_{0};
+  std::shared_ptr<T> foreground_ = std::make_shared<T>();  // atomic
+  std::shared_ptr<T> background_ = std::make_shared<T>();  // non-atomic
 };
 
 struct Data {

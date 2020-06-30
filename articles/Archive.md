@@ -5,6 +5,7 @@
 
 #### 2020
 
+- [宏编程 的艺术](2020/Macro-Programming-Art.md)
 - [无锁 双缓冲 算法](2020/Lock-Free-Double-Buffer.md)
 - [无锁编程 与 惯性思维](2020/Lock-Free-and-Inertial-Thinking.md)
 

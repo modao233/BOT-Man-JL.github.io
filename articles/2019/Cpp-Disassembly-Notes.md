@@ -106,8 +106,8 @@
   - 其他 CPU 修改 变量前，需要 重新加载缓存（可能从其他 CPU 加载，不一定从内存加载）
 - 后果：多 CPU 并行效率 低于单 CPU 串行
 - 解决：
-  - 按缓存行对齐 不同变量内存
-  - 避免使用共享数据
+  - [按缓存行对齐](https://en.cppreference.com/w/cpp/thread/hardware_destructive_interference_size)
+  - 避免使用 共享数据
 
 ## 函数调用
 

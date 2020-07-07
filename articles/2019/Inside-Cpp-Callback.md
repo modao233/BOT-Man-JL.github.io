@@ -1,6 +1,6 @@
 ﻿# 深入 C++ 回调
 
-> 2019/3/21
+> 2019/3/21 -> 2020/7/7
 > 
 > 本文深入分析 [Chromium 的 Bind/Callback 机制](https://github.com/chromium/chromium/blob/master/docs/callback.md)，并讨论设计 C++ 回调时 ~~你想知道的~~（**你可能不知道的**）一些问题。
 
@@ -165,6 +165,12 @@ FetchImageAsync(
 > 注：
 > 
 > - `View::FetchImageAsync` 基于 Chromium 的多线程任务模型（参考：[Keeping the Browser Responsive | Threading and Tasks in Chrome](https://github.com/chromium/chromium/blob/master/docs/threading_and_tasks.md#keeping-the-browser-responsive)）
+
+另外需要注意：
+
+- 即使图片加载能 **立即完成**（例如恰好命中 **缓存**），**也不要** 直接在 UI 线程 **同步回调**，而应该在 UI 线程 事件循环的另一个周期 **延迟调用**
+- 由于 **同步回调** 在同一个调用栈里执行，如果竞争同一个 **互斥资源**，就会导致 **死锁**（然而 `View::FetchImageAsync` 的使用者 **并不知道** 可能出现同步回调）
+- 参考：[Callbacks, synchronous and asynchronous | Havoc's Blog](https://blog.ometer.com/2011/07/24/callbacks-synchronous-and-asynchronous/)
 
 ### 回调时（弱引用）上下文会不会失效
 

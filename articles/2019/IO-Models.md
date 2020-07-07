@@ -63,7 +63,7 @@ fs.readFile(filename, (err, data) => {
 console.log('start file I/O, and continue');
 ```
 
-- 需要系统/语言支持，一般提供基于 [**回调** _(callback)_](https://en.wikipedia.org/wiki/Callback_%28computer_programming%29) 的接口：
+- 需要系统/语言支持，一般提供基于 [**回调** _(callback)_](../2017/Callback-Explained.md) 的接口：
   - 函数 `fs.readFile()` **发起 I/O 请求**，然后 **立即返回**
   - 在 “发起 I/O 请求” 到 “I/O 完成” 之间，当前线程会 **往下执行** `console.log()` 的代码
   - **I/O 完成时**，通过 **回调** `(err, data) => { ... }` 传入数据 `data`（如果成功）或错误 `err`（如果失败）

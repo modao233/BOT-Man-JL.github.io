@@ -1,6 +1,6 @@
-# 宏编程的艺术
+# C/C++ 宏编程的艺术
 
-> 2020/6/30
+> 2020/6/30 -> 2020/7/6
 > 
 > 可以言传者，物之粗也；可以意致者，物之精也。——《庄子·秋水》
 
@@ -168,7 +168,7 @@ PP_DEC(0)    // -> PP_DEC_0  (underflow)
 ```
 
 - `PP_INC(N)`/`PP_DEC(N)` 先展开为 `PP_INC_N`/`PP_DEC_N`，再经过 **二次扫描** 展开为对应数值 `N + 1`/`N - 1` 的符号
-- 但上述操作有上限，若超出则无法继续展开（例如 [BOOST_PP 中多数操作的上限是 256](https://www.boost.org/doc/libs/master/libs/preprocessor/doc/headers/config/limits.html)）
+- 但上述操作有上限，若超出则无法继续展开（例如 [BOOST_PP 数值操作的上限是 256](https://www.boost.org/doc/libs/master/libs/preprocessor/doc/ref/limit_mag.html)）
 
 ### 逻辑运算
 
@@ -695,8 +695,15 @@ PP_GET_TUPLE(0, PP_WHILE(PRED, OP_1, (x, 2)))  // -> x + 2 * 2 + 2 * 1 + 1 * 1
 
 不过，在展开 `PP_WHILE()` 时，**当前递归状态** 总是确定的，实际上 **不需要推导**。所以 BOOST_PP 建议尽量 [**传递状态**，而不是自动推导](https://www.boost.org/doc/libs/master/libs/preprocessor/doc/topics/reentrancy.html)：
 
-- `PP_WHILE_I()` 展开时，把下一个状态的下标 `I + 1`（连同当前 `VAL`）传给 `PRED(PP_INC(I), VAL)` 和 `OP(PP_INC(I), VAL)`
-- `PRED()`/`OP()` 可以直接使用 `I + 1` 对应的宏（及 `I + 1` 以后的宏），不再需要用 `PP_AUTO_DIM()` 推导可用的下标
+- `PP_WHILE_I()` 展开时，把 **下一个状态的下标** `I + 1`（连同当前 `VAL`）传给 `PRED(PP_INC(I), VAL)` 和 `OP(PP_INC(I), VAL)`
+- `PRED()`/`OP()` 可以直接使用 `I + 1` 对应的宏（及 `I + 1` 以后的宏），无需再用 `PP_AUTO_DIM()` 推导可用的下标
+
+当然，**自动推导** 和 **传递状态** 也可以用于实现 `PP_FOR_EACH()` 的递归重入：
+
+- 先将 `PP_FOR_EACH` 定义为 `PP_AUTO_DIM(PP_FOR_EACH_CHECK)` 推导出的 `PP_FOR_EACH_D` 符号（**自动推导**）
+- 每组 `PP_FOR_EACH_D` 再定义 不同变长参数个数 `I` 对应的 `PP_FOR_EACH_D_I`，然后用 上文提到的方法 遍历所有参数
+- 在展开 `DO()` 时，可以额外传递 **下一个状态的下标** `D + 1`（**传递状态**）
+- [BOOST_PP 支持 3 层循环嵌套](https://www.boost.org/doc/libs/master/libs/preprocessor/doc/ref/limit_dim.html)，[每层循环可以遍历 256 个变长参数](https://www.boost.org/doc/libs/master/libs/preprocessor/doc/ref/limit_repeat.html)，需要定义 $3 \times 256$ 个 `PP_FOR_EACH_D_I` **重载**
 
 ### 延迟展开
 

@@ -237,6 +237,7 @@ f(Data{});  // 2, prefer 2 over 1 for rvalue
 - 数值越小，优先级越高；如果不存在，则重载失败
 - 如果同时存在 **传值** _(by value)_ 重载（接受值类型参数 `T`），会和上述 **传引用** _(by reference)_ 重载产生歧义，编译失败
 - **常右值引用** _(const rvalue reference)_ `const T&&` 一般不直接使用（[参考](https://codesynthesis.com/~boris/blog/2012/07/24/const-rvalue-references/)）
+- 另外，避免使用 **常右值** _(const rvalue)_（例如 函数返回值不要用 `const T`，[否则无法使用](https://godbolt.org/z/KEo5MM) [sec|移动语义] 移动语义）
 
 ### 引用折叠
 

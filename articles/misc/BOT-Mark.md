@@ -46,6 +46,7 @@ Here we list the additional specs of _BOT Mark_:
   - `<p>[align-left]</p>`, `<p>[align-right]</p>`, `<p>[align-center]</p>` => alignment
   - `<p>[cite-sec]</p>` => citation style
   - `<p>[not-print]</p>` => not print (next element)
+  - `<p>[print-only]</p>` => print only (next element)
 - style setter
   - `<p>[TAG=STYLE]</p>`
   - set next TAG's (if present) style to STYLE
@@ -150,9 +151,9 @@ Here we list the additional specs of _BOT Mark_:
 
 ``` json
 [
-    "page-break", "float-left", "float-right",
-    "align-left", "align-right", "align-center",
-    "cite-sec", "not-print"
+    'page-break', 'float-left', 'float-right',
+    'align-left', 'align-right', 'align-center',
+    'cite-sec', 'not-print', 'print-only'
 ]
 ```
 

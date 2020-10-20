@@ -92,13 +92,13 @@ folly 提供了 x64/ppc64/aarch64 架构 **64 位系统** 的无锁版本的 `st
 >   - `_M_use_count` 强引用计数 控制 **共享对象** _(shared object)_ 析构（但不一定释放）
 >   - `_M_weak_count` 弱引用计数 控制 **共享的控制块** _(shared control block)_ 析构（并释放）
 >   - 参考：[Make_shared, almost a silver bullet _by Motti Lanzkron_](https://lanzkron.wordpress.com/2012/04/22/make_shared-almost-a-silver-bullet/)
-> - `_Sp_counted_ptr` 普通的控制块
+> - `_Sp_counted_ptr : _Sp_counted_base` 普通的控制块
 >   - `_M_ptr` **共享对象** 的指针
-> - `_Sp_counted_deleter` 带 **分配器** _(allocator)_ / **删除器** _(deleter)_ 的控制块
+> - `_Sp_counted_deleter : _Sp_counted_base` 带 **分配器** _(allocator)_ / **删除器** _(deleter)_ 的控制块
 >   - `_Del_base` **删除器** 对象
 >   - `_Alloc_base` **分配器** 对象
 >   - `_M_ptr` **共享对象** 的指针
-> - `_Sp_counted_ptr_inplace` **内置** _(in-place)_ 共享对象的控制块
+> - `_Sp_counted_ptr_inplace : _Sp_counted_base` **内置** _(in-place)_ 共享对象的控制块
 >   - `_A_base` **分配器** 对象
 >   - `_M_storage` **共享对象**（而不是指针）
 > - `__shared_count`/`__weak_count` 控制块的 **值语义** _(value semantic)_ 封装
@@ -107,7 +107,7 @@ folly 提供了 x64/ppc64/aarch64 架构 **64 位系统** 的无锁版本的 `st
 > - `__shared_ptr`/`__weak_ptr` 智能指针的 **内部实现**
 >   - `_M_ptr` **共享对象** 的指针（用于 直接返回指针）
 >   - `_M_refcount` 控制块的 `__shared_count`/`__weak_count` 值语义对象
->   - `std::shared_ptr`/`std::weak_ptr` 直接继承了内部实现（[代码参考](https://github.com/gcc-mirror/gcc/blob/master/libstdc%2B%2B-v3/include/bits/shared_ptr.h)）
+> - `std::shared_ptr`/`std::weak_ptr` 直接继承了 内部实现（[代码参考](https://github.com/gcc-mirror/gcc/blob/master/libstdc%2B%2B-v3/include/bits/shared_ptr.h)）
 > - 参考：[浅析 shared_ptr：Libstdc++ 篇 _by Kingsley Chen_](http://kingsamchen.github.io/2018/03/30/demystify-shared-ptr-and-weak-ptr-in-libstdcpp/)
 
 使用方法和 `std::atomic<std::shared_ptr>` 类似：

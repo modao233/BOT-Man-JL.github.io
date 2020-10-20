@@ -10,10 +10,14 @@
 - 假死率/卡顿率：超过 10s/2s 不响应心跳消息（机器数，次数）
 - 白屏率：页面区域持续 10s 白屏（机器数，次数）
 - 主界面/首页 加载完成时间/CPU 时间
-  - Log -> 旭日图
-  - Trace -> 火焰图
+  - Log -> 旭日图（按时间顺序统计）
+  - Trace -> 火焰图（按调用栈聚合）
 - 主界面/首页 首屏绘制完成时间：用户感知加载总时间
 - 用户触发启动 到 首次绘制完成时间：用户感知打开总时间
+- 分析瓶颈：
+  - CPU 占用瓶颈（On-CPU 时间）
+  - I/O 阻塞瓶颈（Off-CPU 时间）
+  - 线程调度瓶颈（线程切换频率）
 - 死锁问题：
   - 检查线程等待链，查看是否成环
   - 可能导致 假死/卡顿
@@ -44,19 +48,19 @@
 ## 工具
 
 - WinDbg：查看崩溃 Dump + 调试
-- XPerf：查看细化的 Trace（基于 ETW 更底层）
-- Visual Studio Diagnostic Tool：粗略分析 CPU/内存（最上层）
+- XPerf：分析 Trace（基于 ETW 事件跟踪）
+- Visual Studio Diagnostic Tool：分析 CPU/内存（基于 调用栈采样）
 - Process Explorer：查看进程关系
-- Process Monitor：查看进程活动情况（偏底层）
+- Process Monitor：查看进程活动情况（基于 系统调用监控）
 - RAMMap/VMMap：查看 系统/进程 内存分布
 
 ## 策略
 
 - 启动快
   - 核心思想：
-    - 能去掉就去掉
-    - 能优化就优化
-    - 都不能就预取
+    - 能去掉就 去掉
+    - 能优化就 优化
+    - 都不能就 预取/缓存
   - 原生绘制：提升体验/收入（漏斗：提前关闭/流量劫持/加载错误）
   - 延迟加载：优先完成首次绘制，其他功能往后放
   - 代码预取：避免内存映射文件 分散/少量 读取导致频繁 Page Fault（尤其是冷启动工作集从无到有）
@@ -81,5 +85,5 @@
 
 ## 后台
 
-- [如何回答性能优化的问题，才能打动阿里面试官？](https://mp.weixin.qq.com/s/snQ3T86usv4rXz0MMQvFfQ)
-- [性能优化策略总结](https://developer.aliyun.com/article/727625)
+- [如何回答性能优化的问题，才能打动阿里面试官？- 齐光](https://mp.weixin.qq.com/s/snQ3T86usv4rXz0MMQvFfQ)
+- [90%的人会遇到性能问题，如何用1行代码快速定位？- 齐光](https://developer.aliyun.com/article/727625)

@@ -1,11 +1,11 @@
 ﻿/*
-	BOT-Mark - a BOT Man flavored Markdown renderer :-)
+    BOT-Mark - a BOT Man flavored Markdown renderer :-)
 
     - https://github.com/BOT-Man-JL/BOT-Man-JL.github.io
     - based on marked (Christopher Jeffrey, https://github.com/chjj/marked)
     - with math patch (ViktorQvarfordt, https://github.com/ViktorQvarfordt/marked)
 
-	BOT Man, 2017 (MIT License)
+    BOT Man, 2017 (MIT License)
 */
 
 if (typeof require !== 'undefined')
@@ -324,7 +324,7 @@ MarkdownRenderer.prototype.renderSlides = function (mdHtml) {
 MarkdownRenderer.prototype.keywordTags = [
     'page-break', 'float-left', 'float-right',
     'align-left', 'align-right', 'align-center',
-    'cite-sec', 'not-print'
+    'cite-sec', 'not-print', 'print-only'
 ];
 
 MarkdownRenderer.prototype.renderKeywordTags = function (mdHtml) {

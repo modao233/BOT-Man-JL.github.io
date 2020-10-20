@@ -126,7 +126,7 @@
 
 - [Chromium 多进程架构](https://developers.google.cn/web/updates/2018/09/inside-browser-part1)
   - 划分：1 Browser + n Renderer + n Extension (Renderer) + 1 GPU + (1 Plugin) + x Util
-  - 模型：`process-per-site-instance`（内存最大）/`process-per-site`（内存相对小）/`process-per-tab`（默认）/`single-process`（内存最小，易于调试，Android WebView 使用该模型）
+  - 模型：`process-per-site-instance`（内存最大）/`process-per-site`（内存相对小）/`process-per-tab`（默认）/`single-process`（内存最小，易于调试）
 - 进程服务化
   - Browser 进程作为中心节点，能隔离/恢复其他进程的崩溃
   - Renderer/Plugin 进程在沙箱内运行，不能直接访问系统资源

@@ -10,9 +10,9 @@
 
 ## 常用宏
 
-- `DISALLOW_COPY_AND_ASSIGN` 禁用拷贝构造/赋值
-- `DISALLOW_IMPLICIT_CONSTRUCTORS` 禁用默认构造（一般只允许使用 `static` 函数）
-- `ignore_result` 忽略 WARN_UNUSED_RESULT 检查
+- `DISALLOW_COPY_AND_ASSIGN` 禁用拷贝构造/赋值（[不再建议使用，需要考虑可移动性](../2020/Conventional-Cpp.md#Not-Copyable-Or-Movable-Types)）
+- `DISALLOW_IMPLICIT_CONSTRUCTORS` 禁用默认构造（一般只允许使用 `static` 函数创建对象）
+- `ignore_result` 忽略 `WARN_UNUSED_RESULT` 检查
 
 ## STL 工具
 
@@ -24,7 +24,7 @@
 - `base::flat_map`/`base::flat_set` 基于线性存储的关联容器
 - `base::small_map` 小容量使用 `base::flat_map`，大容量使用 `std::map/unordered_map`
 - `base::RingBuffer`/`base::circular_deque` 环形缓冲（固定大小）/环形队列（自动扩容）
-- `base::LinkedList` 侵入式双向链表，快速删除/插入节点
+- `base::LinkedList` 侵入式双向链表，删除只需要 `O(1)` 时间，插入不需要分配额外空间
 
 ## 数值
 
@@ -141,19 +141,18 @@
 - `base::WeakPtr`（`base::SupportsWeakPtr`/`base::WeakPtrFactory`）
   - 侵入式弱引用管理
   - 实现：存储 `base::RefCountedThreadSafe` 包装的 `base::AtomicFlag` 标识，记录对象的有效性
-  - 标识线程安全：其他线程可能会 持有、销毁 标识
-  - 对象线程不安全：当对象析构时，其他线程检查 标识 可能仍有效
+  - 标识 线程安全：其他线程可以 持有、销毁 标识
+  - 指针 线程不安全：当指针析构时，其他线程检查 标识 可能仍有效；所以，不支持跨线程使用
 - `base::NoDestructor`
   - 实现 `Leakey` 特征
   - 存储：`alignas(T) char storage_[sizeof(T)]`
   - 创建：`new (storage_) T(...)`
 - `base::Singleton`
-  - 通过 AcquireLoad/ReleaseStore 原子操作标识状态（未构造/正在构造/已构造），避免构造过程不会重入
+  - 通过 AcquireLoad/ReleaseStore 原子操作标识状态（未构造/正在构造/已构造），避免构造过程重入
   - 通过 AcquireLoad 原子操作检查状态，让重入线程 原地等待（`PlatformThread::YieldCurrentThread/Sleep`）直到构造完成
   - 如果没有 `Leakey` 特征，会在 `base::AtExitManager` 里 `delete` 析构
   - 如果没有 `Leakey` 特征 或 非静态存储，不允许在 non-joinable 的线程上访问单例（`base::ThreadRestrictions` 会检查）
   - 使用：避免使用全局单例，可以改用 函数局部静态对象/`std::call_once`（[CP.110: Do not write your own double-checked locking for initialization](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rconc-double)）
-  - 补充：双检查锁方案会有内存顺序问题，重入的线程可能会读取到正在构造的单例对象（[C++ and the Perils of Double-Checked Locking](https://www.aristeia.com/Papers/DDJ_Jul_Aug_2004_revised.pdf)）
 - `base::ObserverList`
   - [漫谈 C++ 的各种检查](Cpp-Check.md#观察者模式检查)
 - `base::Value`

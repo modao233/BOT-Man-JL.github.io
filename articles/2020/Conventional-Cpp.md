@@ -642,7 +642,7 @@ try {
 >   - 抛出异常的类型 不能在 编译时检查 🙃
 >   - 难以确定 抛出来源（默认只有 `.what()`，没有 `.stack()`）
 >     - 例如 隐式转换 [`std::string detail = json_object;`](https://github.com/nlohmann/json#implicit-conversions)（忘了加 `.dump()`）抛出异常 `[json.exception.type_error.302] type must be string, but is object`
->     - 因为 一般认为此处不会抛异常，但又被外层 `try-catch` 捕获，导致无法定位来源（[未捕获的异常 一般可以看到调用栈](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=55917)）
+>     - 因为 一般认为此处不会抛异常，但又被外层 `try-catch` 捕获，导致无法定位来源（例如 [gcc8 前的 `std::thread` 存在这个问题](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=55917)），而只有 未捕获的异常 崩溃时可以看到调用栈
 >     - 另外 上层逻辑往往不希望看到 最原始的异常，而希望拿到 更有意义的异常（例如 `type of |json_object| must be string, but is object`）
 >   - 容易混淆 异常 和 错误
 >     - 例如 `const Value& Path::resolve(const Value& root) const;` 可能 [抛异常](https://github.com/open-source-parsers/jsoncpp/blob/7165f6ac4c482e68475c9e1dac086f9e12fff0d0/src/lib_json/json_value.cpp#L1417)，也可能 [返回 null 的 singleton 引用](https://github.com/open-source-parsers/jsoncpp/blob/ddabf50f72cf369bf652a95c4d9fe31a1865a781/src/lib_json/json_value.cpp#L1597)
@@ -964,14 +964,14 @@ std::unique_ptr<FILE, decltype(fclose)*>
 ### Smart Pointers Dangling
 
 ``` cpp
-std::shared_ptr<Bar> Foo::bar() const;
+class Foo { std::shared_ptr<Bar> bar_; };
 
-void f(const Foo& foo) {    // aliased
-  UseBarPtr(foo.bar().get());   // Bad
-  foo.bar()->IBar();            // Bad
-  auto pinned = foo.bar();  // pinned
-  UseBarPtr(pinned.get());      // Good
-  pinned->IBar();               // Good
+void fn(const Foo& foo) {  // aliased
+  UseBarPtr(foo.bar_.get());   // Bad
+  foo.bar_->IBar();            // Bad
+  auto pinned = foo.bar_;  // pinned
+  UseBarPtr(pinned.get());     // Good
+  pinned->IBar();              // Good
 }
 ```
 

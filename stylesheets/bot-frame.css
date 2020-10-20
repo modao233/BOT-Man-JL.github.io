@@ -269,6 +269,10 @@ nav a:active {
 
 /* Print Settings */
 
+.print-only + * {
+    display: none;
+}
+
 @media print {
     .page-break {
         page-break-after: always;
@@ -276,6 +280,10 @@ nav a:active {
 
     .not-print + * {
         display: none;
+    }
+
+    .print-only + * {
+        display: block;
     }
 }
 

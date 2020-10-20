@@ -154,6 +154,10 @@ New Page (when print)
 [not-print]
 
 NOT Print (when print)
+
+[print-only]
+
+Print Only (when print)
 ```
 
 [align-center]
@@ -183,6 +187,10 @@ New Page (when print)
 [not-print]
 
 NOT Print (when print)
+
+[print-only]
+
+Print Only (when print)
 
 ## Style Setter
 

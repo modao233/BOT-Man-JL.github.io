@@ -17,7 +17,7 @@
 - CPU + 内存 + I/O 设备
 - 寄存器 -> CPU 缓存 -> 主内存 -> 内存缓存 -> 磁盘
 
-### 进程 _(Process)_/线程 _(Thread)_
+### 进程 _(Process)_ / 线程 _(Thread)_
 
 - 进程（正在执行的程序的一个实例）= 代码 + 运行状态（内存/线程/资源...）
 - 线程（系统最小可调度的执行单元）= 栈内存 + 寄存器 + 线程本地存储 _(Thread Local Storage, TLS)_
@@ -35,8 +35,8 @@
 
 ### 字节序 _(Byte Order/Endianness)_
 
-- 大端：低到高
-- 小端：高到低
+- 大端：低到高（高字节放在低地址）
+- 小端：高到低（高字节放在高地址）
 
 ### 进程地址空间 _(Process Address Space)_
 
@@ -53,7 +53,7 @@
 - 32-bit 进程虚拟内存：
   - 空间：进程 2G 内存（`0x0 - 0x7FFFFFFF`）系统 2G 内存（`0x80000000-0xFFFFFFFF`）
   - 分页：4k-byte 分页
-  - 分段：进程地址空间（部分段可能多进程共享）
+  - 分段：进程地址空间（部分段的物理内存，可能被多进程共享）
 - 类型：
   - Image：可执行文件（TEXT/READONLY_DATA）
   - Sharable/Shared：
@@ -66,16 +66,16 @@
     - Process/Thread Environment Table（无法直接访问）
   - Page Table：内核维护的 当前进程页表（无法直接访问）
 - 大小：
-  - Private Size：进程申请的私有内存（Working Set + In Page File）
-  - Working Set：进程使用中的物理内存（Private Size + Sharable/Shared Size）
-  - Committed Size：进程提交的总内存（Private Size + Sharable/Shared Size）
-  - Virtual Size：进程占用的总内存（Committed Size + Reserved Size）
+  - Private Size：进程申请的 私有内存（可能包含 Working Set + In Page File）
+  - Working Set：进程使用中的 物理内存（可能包含 Private Size + Sharable/Shared Size）
+  - Committed Size：进程 提交的总内存（可能包含 Private Size + Sharable/Shared Size）
+  - Virtual Bytes：进程 占用的总内存（可能包含 Committed Size + Reserved Size）
 - VirtualAlloc 流程：
-  - Reserve：增加 Virtual Size
+  - Reserve：增加 Virtual Bytes
   - Commit：增加 Committed Size / Private Size
   - Read/Write/Exec：增加 Working Set
   - Decommit：减少 Committed Size / Private Size / Working Set
-  - Release：减少 Virtual Size
+  - Release：减少 Virtual Bytes
 
 ### 缺页中断 _(Page Fault)_
 
@@ -84,8 +84,8 @@
   - 页面文件 _(page file)_：存放被置换的虚拟内存
   - 内存映射文件 _(memory-mapped file)_：按需映射到虚拟内存中（包括可执行文件）
 - 软中断 _(soft fault)_：在物理内存中共享（支持 Copy-on-Write）
-  - Standby List：已被释放、没被修改，可以直接丢弃后再利用
-  - Modified List：已被释放、已被修改，需要写回磁盘后再利用
+  - Standby List：已被释放、没被修改，可以直接再利用
+  - Modified List：已被释放、已被修改，需要先写回磁盘再利用
 - 固定页 _(pinned page)_：避免从物理内存中，把内存页置换出去
 
 ### 内存屏障 _(Memory Barrier)_ / 内存栅栏 _(Memory Fence)_
@@ -96,7 +96,7 @@
 - 实现：设置 内存访问的同步点，从而保证 内存顺序
   - 控制 指令重排（编译时、运行时）
   - 控制 其他 CPU 缓存可见性（在 store buffer 和/或 invalidate queue 放置同步点）
-  - [Memory Barriers: a Hardware View for Software Hackers](https://irl.cs.ucla.edu/~yingdi/web/paperreading/whymb.2010.06.07c.pdf)
+  - [Memory Barriers: a Hardware View for Software Hackers - Paul E. McKenney](https://irl.cs.ucla.edu/~yingdi/web/paperreading/whymb.2010.06.07c.pdf)
 
 ### 伪共享 _(False Sharing)_
 
@@ -107,14 +107,14 @@
 - 后果：多 CPU 并行效率 低于单 CPU 串行
 - 解决：
   - [按缓存行对齐](https://en.cppreference.com/w/cpp/thread/hardware_destructive_interference_size)
-  - 避免使用 共享数据
+  - 避免多线程 共享数据
 
 ## 函数调用
 
 ### 调用栈 _(Call Stack)_
 
 - 参数（小于等于 4-byte）传递：优先使用寄存器，再使用栈内存
-- 参数（大于 4-byte）传递：在栈上拷贝对象（空间为 `sizeof(obj)`，可能调用拷贝构造函数）
+- 参数（大于 4-byte）传递：在栈上拷贝对象（分配 `sizeof(obj)` 空间，直接拷贝 Plain Old Data _(POD)_ 类型的内存，或调用非 POD 类型的拷贝构造函数）
 - 返回值（小于等于 4-byte）传递：通过 `eax` 返回
 - 返回值（大于 4-byte 对象）传递：
   - 第一个参数传入为对象预留的栈上内存地址，作为 this 指针调用构造函数
@@ -136,16 +136,17 @@
   - 函数出口 `ret n`（用于 被调用者退栈）
     - 先弹出 `[n/4]` 个 4-byte 大小的参数（相当于 `add esp n`）
     - 再弹出 4-byte 大小的 `RetAddr`（相当于 `pop eip`）
-- 内存布局（高到低）
-  - 传入参数（访问方式：`[ebp+n], n >= 8`）
-  - `RetAddr` 上一个函数的 返回地址，即下一个指令的 `eip`（访问方式：`[ebp+4]`）
-  - `ChildEBP` 上一个函数的 基地址 `ebp`（访问方式：`[ebp]`）
+- 压栈方向：从高地址向低地址
+- 内存布局（低到高）
   - 局部变量（访问方式：`[ebp-n], n >= 4`）
-- 基于 _Frame Pointer Omission (FPO)_ 的内存布局（高到低）
-  - 传入参数（访问方式：`[esp+x+n], n >= 4`）
-  - `RetAddr` 上一个函数的 返回地址，即下一个指令的 `eip`（访问方式：`[esp+x]`）
-  - 局部变量（访问方式：`[ebp+x-n], x > n >= 4`）
-  - （`esp` 寻址：根据栈顶找到栈底 `esp+x` 后寻址，当前局部变量占用 x-byte 空间，并省略 `ebp` 压栈）
+  - `ChildEBP` 上一个函数的 基地址 `ebp`（访问方式：`[ebp]`）
+  - `RetAddr` 上一个函数的 返回地址，即下一个指令的 `eip`（访问方式：`[ebp+4]`）
+  - 传入参数（访问方式：`[ebp+n], n >= 8`）
+- 基于 _Frame Pointer Omission (FPO)_ 的内存布局（低到高）
+  - 局部变量（访问方式：`[esp-x-n], n >= 4`）
+  - `RetAddr` 上一个函数的 返回地址，即下一个指令的 `eip`（访问方式：`[esp-x]`）
+  - 传入参数（访问方式：`[esp-x+n], x > n >= 4`）
+  - （`esp` 寻址：根据栈顶找到栈底 `esp-x` 后寻址，并省略 `ebp` 压栈）
 
 ### 调用约定 _(Calling Convention)_
 
@@ -156,7 +157,7 @@
 - 被调用者退栈 _(callee clean-up)_
   - `__stdcall`
   - `__fastcall` 前两个参数放入 `ecx`/`edx`，其余参数压栈
-- 根据有没有变长参数决定
+- 根据有没有变长参数，决定 “谁来退栈”
   - `thiscall` 把 this 指针放入 `ecx`，参数压栈
 
 ## C++ 语言
@@ -164,6 +165,7 @@
 ### 编译 _(Compile)_
 
 - 编译前处理
+  - 翻译单元 _(translation unit)_（遵循 One Definition Rule _(ODR)_ 规则）
   - 预处理 _(preprocess)_
 - 编译时转换
   - 静态成员 _(static member)_ -> 全局（静态）对象
@@ -215,7 +217,7 @@
 
 ### 异常 _(Exception)_
 
-- [Google 风格](https://google.github.io/styleguide/cppguide.html#Exceptions) **已禁用**
+- [Google 风格](https://google.github.io/styleguide/cppguide.html#Exceptions) 已禁用
 - Windows 通过 [Structured Exception Handling (SEH)](https://docs.microsoft.com/en-us/cpp/cpp/structured-exception-handling-c-cpp) 实现
 
 ### 作用域 _(Scope)_
@@ -257,49 +259,34 @@
 
 ### 内存模型 _(Memory Model)_
 
-- 最小可寻址单位是 Byte，但读写数据的最小单位是 内存位置
 - 内存位置 _(memory location)_：
-  - 一个标量对象（算术类型、指针类型、枚举类型、`std::nullptr_t`）
-  - 非零长 位域 (bit field) 最大连续序列
-- 数据竞争 _(data race)_：多个线程同时访问一个内存位置，且至少一个是写操作
-  - 现象：线程从某个内存位置读取值，可能读到 初值、同一线程所写入的值、另一线程所写入的值（未定义行为）
-- 内存顺序 _(memory order)_：利用内存屏障 控制（当前线程）指令重排 +（其他线程）可见性
-  - Relaxed = Atomic Operation (Load | Store | Read-Modify-Write)
-    - 可重排（可能 乱序执行）
-    - 不可见（可能 读到失效的缓存）
-  - Acquire Load = Atomic Load + Acquire Fence
-    - 当前线程 **所有的** 读或写 不能被重排到 **此前**（向后保护）
-    - Release 线程 **所有的** 修改 对 当前线程 可见
-  - Consume Load = Atomic Load + Consume Fence
-    - 当前线程 **依赖于原子变量的** 读或写 不能被重排到 **此前**（向后保护）
-    - Release 线程 **依赖于原子变量的** 修改 对 当前线程 可见
-    - 仅控制数据依赖 _(carry-a-dependency)_，性能更好，但多数编译器 **不支持**
-    - [The Purpose of memory_order_consume in C++11](https://preshing.com/20140709/the-purpose-of-memory_order_consume-in-cpp11/)
-  - Release Store = Release Fence + Atomic Store
-    - 当前线程 **所有的** 读或写 不能被重排到 **此后**（向前保护）
-    - 当前线程 **所有的** 修改 对 Acquire 线程 可见
-    - 当前线程 **依赖于原子变量的** 修改 对 Consume 线程 可见
-  - Acquire-Release Read-Modify-Write = Release Fence + Atomic Read-Modify-Write + Acquire Fence
-    - 当前线程 **所有的** 读或写 不能被重排到 **此前后**（双向保护）
-    - Release 线程 **所有的** 修改 对 当前线程 可见
-    - 当前线程 **所有的** 修改 对 Acquire 线程 可见
-    - 当前线程 **依赖于原子变量的** 修改 对 Consume 线程 可见
-  - Sequentially-Consistent
-    - Atomic Load + Full Fence
-    - Full Fence + Atomic Store
-    - Full Fence + Atomic Read-Modify-Write + Full Fence
-    - 当前线程 **所有的** 读或写 不能被重排到 **此前后**（双向保护）
-    - **所有线程** 以 **同一顺序观测到** 所有的修改
-- 缓存可见性 控制：
-  - 不保证 **原子变量** 的修改 **立即 对其他线程可见**
-  - 而保证 当 原子变量的修改 被其他线程观测到 时，**原子变量修改前的** 非原子 _(non-atomic)_ / 松弛原子 _(relaxed atomic)_ 变量 的修改 也必须 **对其他线程可见**
-  - 从而保证 “先序于 _(sequenced-before)_ Release/Full Fence 的修改” 先发生于 _(happens-before)_ “后序于 _(sequenced-after)_ Acquire/Consume/Full Fence 的读取”
+  - 一个标量对象（算术类型、指针类型、枚举类型、`std::nullptr_t`）或 非零长 位域 _(bit field)_ 最大连续序列
+  - 读写数据的最小单位（注意：最小可寻址单位是 Byte）
+- 数据竞争 _(data race)_：
+  - 多个线程同时访问一个内存位置，且至少一个是写操作
+  - 线程从某个内存位置读取值，可能读到 初值、同一线程所写入的值、另一线程所写入的值（未定义行为）
+- 内存顺序 _(memory order)_：
+
+| |（当前线程）指令重排 |（其他线程）可见性 |
+|-|-------------------|------------------|
+| Relaxed | 可重排（可能 乱序执行）| 不限制可见性（可能 读到失效的缓存）|
+| Acquire Load | 所有的读写 不能往前重排（向后保护）| Release 线程 所有的修改 可见于 当前线程 |
+| Consume Load | 依赖的读写 不能往前重排（向后保护）| Release 线程 依赖的修改 可见于 当前线程 |
+| Release Store | 所有的读写 不能往后重排（向前保护）| 当前线程 所有的修改 可见于 Acquire 线程；<br/> 当前线程 依赖的修改 可见于 Consume 线程 |
+| Acquire-Release Read-Modify-Write | 所有的读写 都不能被重排（双向保护）| Release 线程 所有的修改 可见于 当前线程；<br/> 当前线程 所有的修改 可见于 Acquire 线程；<br/> 当前线程 依赖的修改 可见于 Consume 线程 |
+| Sequentially-Consistent | 所有的读写 都不能被重排（双向保护）| 所有线程 以同一顺序 观测到所有的修改 |
+
+- 缓存可见性：
+  - 不保证 原子变量的修改 立即 可见于其他线程
+  - 只保证 一旦 原子变量的修改 被其他线程观测到，原子变量修改前的 其他修改 也必须 可见于其他线程
+  - 从而保证 “先序于 _(sequenced-before)_ Release 的修改” 先发生于 _(happens-before)_ “后序于 _(sequenced-after)_ Acquire/Consume 的读取”
+  - 所以 单个线程 无法观察到 可见性问题（满足 as-if rule 的保证）
 
 ## C++ 面向对象
 
 ### 对象内存布局 _(Object Memory Layout)_
 
-- 基类布局：`[虚表指针 (opt)]-[数据成员-...]`
+- （基）类布局：`[虚表指针 (opt)]-[数据成员-...]`
 - 派生类布局：`[基类布局-...]-[数据成员-...]`
 - 对于 继承 _(inheritance)_ 和 组合 _(composition)_ 的内存布局一致
 - 对于空类，占用 1-byte 空间
@@ -307,10 +294,10 @@
 
 ### 虚函数表 _(Virtual Function Table)_
 
-- 基类布局：`[类型信息指针 (opt)]-[虚函数指针-...]`
-- 派生类布局：`[类型信息指针 (opt)]-[基类虚函数指针-...]-[派生类虚函数指针-... (opt)]`
-- 如果禁用 [RTII](https://en.cppreference.com/w/cpp/types)，则没有类型信息指针
-- 对于纯虚函数，虚函数指针指向 [`_purecall`](../2017/Cpp-Windows-Crash.md)
+- 基类布局：`[类型信息指针 (opt)]-[基类的虚函数指针-...]`
+- 派生类布局：`[类型信息指针 (opt)]-[重写的虚函数指针-...]-[派生类独有的虚函数指针-... (opt)]`
+- 如果禁用 Run-Time Type Information _(RTII)_，则没有类型信息指针
+- 对于纯虚函数，虚函数指针指向 `_purecall`
 
 ### 虚函数调用 _(Virtual Function Call)_
 
@@ -318,30 +305,32 @@
 - `mov eax, [ecx]` 取出基类 this 指针对应的虚表指针
 - `call dword ptr [eax+n]` 调用虚表的偏移 `n` 对应的虚函数
 
-### 构造函数 _(Constructor)_/析构函数 _(Destructor)_
+### 构造函数 _(Constructor)_ / 析构函数 _(Destructor)_
 
 - 本质：把对象内存起始地址作为 this 指针，通过 `thiscall` 方式调用
 - 调用顺序（两者严格相反）：
   - 构造：`基类构造函数->...->成员构造函数->...->当前类构造函数`（按定义顺序从前到后）
   - 析构：`当前类析构函数->...->成员析构函数->...->基类析构函数`（按定义顺序从后到前）
 - 避免在构造/析构时调用虚函数：
-  - 对于直接调用，编译器已知虚函数指针，不需要查虚表
+  - 对于直接调用，编译器已知虚函数指针，跳过虚表，直接调用
   - 对于间接调用（调用的非虚函数调用了虚函数），[如果调用了纯虚函数，就会出现崩溃](../2017/Cpp-Windows-Crash.md)
 - 每个构造/析构函数入口，写入当前类的虚表指针：
   - 属于 [C++ 的保护措施](https://isocpp.org/wiki/faq/strange-inheritance#calling-virtuals-from-ctors)，构造/析构过程中分别写入，而不是一次性写入
-  - 否则如果使用了派生类的虚表指针，就会（间接）调用派生类的虚函数，但派生类的数据成员未构造或已析构，导致崩溃）
-- 基类的析构函数必须声明为虚函数：否则可能直接用派生类 this 指针调用基类析构函数
+  - 否则如果调用派生类的虚函数，但派生类的数据成员 未构造或已析构，会导致崩溃
+- [基类的析构函数 必须声明为 虚函数](../2020/Conventional-Cpp.md#Virtual-Destructors)
 
 ### 多重继承 _(Multiple Inheritance)_
 
 - 虚表：
   - 派生类的虚表个数 = 有虚表的基类个数
-  - 派生类自己的虚函数指针，只追加到 第一个基类 的虚表后
+  - 派生类独有的虚函数指针 只追加到 第一个基类 的虚表后
 - 派生类指针 调用 基类虚函数
-  - 需要把 this 指针偏移到基类的地址上（向后 `+n` 找到基类地址）
-  - 派生类重载的虚函数里，this 指针也指向对应基类的偏移位置（向前 `-n` 还原派生类地址）
-  - 对于第一个基类，`n == 0` 地址相同
-  - 对于非第一个基类，先检查输入的地址是否为空（第一个基类不需要检查）
+  - 向上转换 _(up cast)_：派生类地址 需要向后 `+n` 偏移到 基类地址（若已是基类地址，则不需要）
+  - 非虚转换 _(non-virtual thunk)_：
+    - 由于 重写的虚函数里 this 指针指向派生类，调用前 基类地址 需要向前 `-n` 还原为 派生类地址
+    - 虚表 中对应的 虚函数指针 指向一个自动生成的函数 `sub PTR n; jmp IMP`，先进行 向下转换 _(down cast)_，再调用 重写的虚函数
+  - 对于第一个基类，`n == 0` 地址相同，不需要向上转换，也不会生成 非虚转换 函数
+  - 对于非第一个基类，需要先检查 指针是否为空（第一个基类不需要检查）
 
 ### 虚继承 _(Virtual Inheritance)_
 
@@ -375,17 +364,9 @@
 
 ### C++ 标准库
 
-- 理解 STL 中的概念，和 STL 的基本实现原理（可以借助 [NatVis](https://docs.microsoft.com/en-us/visualstudio/debugger/create-custom-views-of-native-objects) 可视化查看对象）
+- 理解 STL 中的概念、基本实现原理（可以借助 [NatVis](https://docs.microsoft.com/en-us/visualstudio/debugger/create-custom-views-of-native-objects) 可视化查看对象）
 - 从 `std::string` 内存中定位 `c_str_/size_/capacity_` 数据
 - 从 智能指针 内存中定位 `ptr_/ref_count_` 等数据
-
-### [对象生命周期模型](../2018/Resource-Management.md)
-
-- 互斥所有权 `std::unique_ptr`
-- 共享所有权 `std::shared_ptr`
-- 弱引用关系 `std::weak_ptr`
-- 外部调用管理 `Class::OnDestroy() { delete this; }`
-- 线程安全：创建、访问、销毁
 
 ## 参考 [no-number]
 

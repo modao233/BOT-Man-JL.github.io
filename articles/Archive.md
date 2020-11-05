@@ -68,6 +68,7 @@
 
 #### 2018
 
+- [在腾讯工作是一种什么样的体验](2018/Work-in-Tencent-Share.md)
 - ~~[深入浅出 C++ 11 右值引用](2018/Cpp-Rvalue-Reference.md)~~（文章已更新）
 - [匿名通信 Windows 客户端的设计与实现](2018/Anonymous-Communication-Client-Design-Share.md)
 

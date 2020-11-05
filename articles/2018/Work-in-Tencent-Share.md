@@ -10,7 +10,7 @@
 
 ### 我是谁
 
-- BOT Man
+- [BOT Man](https://bot-man-jl.github.io/)
 - 2014 计算机科学与技术
 - 2017 QQ 浏览器 后台开发 实习
 - 2018 QQ 浏览器 PC 客户端开发
@@ -42,6 +42,7 @@
 - 用数据说话
   - 数据上报
   - 数据分析
+- 用户反馈
 
 ---
 
@@ -50,9 +51,9 @@
 - Github：BOT-Man-JL
 - 公众号：BOTManJL
 
-<br />
-<br />
-<br />
+<br/>
+<br/>
+<br/>
 
 [align-right]
 

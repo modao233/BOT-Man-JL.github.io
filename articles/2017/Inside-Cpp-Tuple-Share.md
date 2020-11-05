@@ -1,6 +1,6 @@
 ﻿# 深入 C++ 元组 (tuple) 实现
 
-> BOT Man, 2017/12/1
+> BOT Man, 2017/12/1 -> 2020/11/3
 >
 > 分享 C++ 元组 (tuple) 的实现方式
 
@@ -24,12 +24,12 @@
 using Person = tuple<std::string, char, int>;
 Person john { "John"s, 'M', 21 };
 Person jess { "Jess"s, 'F', 19 };
-Person jack = make_tuple ("Jack"s, 'M', 20);
+Person jack = make_tuple("Jack"s, 'M', 20);
 
-std::string john_name = get<0> (john);
-int jess_age = get<int> (jess);
+std::string john_name = get<0>(john);
+int jess_age = get<int>(jess);
 char gender_jack;
-tie (ignore, gender_jack, ignore) = jack;
+tie(ignore, gender_jack, ignore) = jack;
 ```
 
 ---
@@ -45,7 +45,7 @@ Hobby kongfu { "Kong Fu", 2 };  // implicit
 // Select and Join from 2 tables :-)
 //   tuple < name, gender, age, hobby, score >
 //   tuple { "Johh"s, 'M', 21, "Kong Fu"s, 2 }
-auto john_hobby = tuple_cat (john, kongfu);
+auto john_hobby = tuple_cat(john, kongfu);
 ```
 
 ## 什么是 `tuple`
@@ -54,11 +54,11 @@ auto john_hobby = tuple_cat (john, kongfu);
 
 ``` cpp
 // ORM-Lite
-auto usersOrderList = mapper.Query (userModel)
-    .Join (userModel,
-           field (userModel.user_id) ==
-           field (orderModel.user_id)
-    ).ToList ();
+auto usersOrderList = mapper.Query(userModel)
+  .Join(userModel,
+        field(userModel.user_id) ==
+        field(orderModel.user_id)
+  ).ToList();
 
 // SELECT * FROM UserModel
 // JOIN OrderModel
@@ -74,7 +74,7 @@ template <typename... Types>
 class tuple : Types... {};
 ```
 
-- `tuple<int> : int`
+- 错误：`tuple<int> : int`
 
 ---
 
@@ -82,91 +82,110 @@ class tuple : Types... {};
 
 ``` cpp
 template <typename T>
-struct _tuple_leaf { T value_; };
+struct _t_leaf { T _val; };
 
 template <typename... Types>
-class tuple : _tuple_leaf<Types>... {};
+class tuple : _t_leaf<Types>... {};
 ```
 
-- `tuple<int, int>`
-- `tuple<int, double>` === `tuple<double, int>`
+- 错误：`tuple<int, int>`
+- 错误：`tuple<int, double>` == `tuple<double, int>`
 
 ---
 
 ## 存储实现
 
 ``` cpp
-template <size_t, typename T>
-struct _tuple_leaf { T value_; };
+template <> class tuple<> {};
 
-template <typename S, typename... Ts>
-struct _tuple;
-
-template <size_t... Is, typename... Ts>
-struct _tuple<index_sequence<Is...>, Ts...>
-  : _tuple_leaf<Is, Ts>... {};
-```
-
----
-
-## 存储实现
-
-``` cpp
-template <typename... Ts>
-class tuple : _tuple<
-  make_index_sequence<sizeof...(Ts)>,
-  Ts...> {};
-```
-
-- [libc++ (clang)](https://llvm.org/svn/llvm-project/libcxx/trunk/include/tuple)
-- `((_tuple<Index, Type> &) t)._val`
-
----
-
-## 存储实现
-
-``` cpp
-template<>
-class tuple<>;
-
-template<typename Head, typename ...Tails>
-class tuple<Head, Tails ...> {
+template <typename Head, typename... Tails>
+class tuple<Head, Tails...> {
   Head _head;
-  tuple<Tails ...> _tails;
+  tuple<Tails...> _tails;
 };
 ```
 
-- `t._tails._tails._tails._head`
+- `sizeof(tuple<int>) >= sizeof(int) + 1`
+- 阻止 [EBO _(Empty Base Optimization)_](https://en.cppreference.com/w/cpp/language/ebo)
 
 ---
 
 ## 存储实现
 
 ``` cpp
-template<>
-class tuple<>;
+template <> class tuple<> {};
 
-template<typename Head, typename ...Tails>
-class tuple<Head, Tails ...>
-  : tuple<Tails ...> { Head _val; };
+template <typename Head, typename... Tails>
+class tuple<Head, Tails...>
+  : tuple<Tails...> { Head _head; };
 ```
 
-- MSVC STL
-- `((tuple<BaseType> &) t)._val`
+- `sizeof(tuple<int, Empty>) >= sizeof(int) + 1`
+- 但 C++ 20 可用 [`[[no_unique_address]]`](https://en.cppreference.com/w/cpp/language/attributes/no_unique_address) 代替 EBO
+- 参考：[msvc](https://github.com/microsoft/STL/blob/39eb812426167fc7955005b53b28d696c50e8b61/stl/inc/tuple#L238)
+
+---
 
 ## 存储实现
 
 ``` cpp
-template<>
-class tuple<>;
+template <size_t, typename T,
+          bool = std::is_empty_v<T> &&
+                 !std::is_final_v<T>>
+struct _t_leaf { T _val; };
 
-template<typename Head, typename ...Tails>
-class tuple<Head, Tails ...>
-  : tuple<Tails ...>, _leaf<Head> {};
+template <size_t I, typename T>
+struct _t_leaf<I, T, false> { T _val; };
+
+template <size_t I, typename T>
+struct _t_leaf<I, T, true> : private T {};
 ```
 
-- [libstdc++ (gcc)](https://gcc.gnu.org/svn/gcc/trunk/libstdc++-v3/include/std/tuple)
-- `((_leaf<BaseHead> &) ((tuple<BaseType> &) t)._val`
+- 参考：[libc++](https://github.com/llvm/llvm-project/blob/691eb814c1ae38d5015bf070dfed3fd54d542582/libcxx/include/tuple#L167) / [libstdc++](https://github.com/gcc-mirror/gcc/blob/f0c0f124ebe28b71abccbd7247678c9ac608b649/libstdc%2B%2B-v3/include/std/tuple#L72)
+
+---
+
+## 存储实现
+
+``` cpp
+template <typename S, typename... Ts>
+struct _t_impl;
+
+template <size_t... Is, typename... Ts>
+struct _t_impl<std::index_sequence<Is...>,
+               Ts...>
+  : _t_leaf<Is, Ts>... {};
+
+template <typename... Ts>
+class tuple : _t_impl<
+  std::make_index_sequence<sizeof...(Ts)>,
+  Ts...> {};
+```
+
+- 参考：[libc++](https://github.com/llvm/llvm-project/blob/691eb814c1ae38d5015bf070dfed3fd54d542582/libcxx/include/tuple#L479)
+
+---
+
+## 存储实现
+
+``` cpp
+template <size_t Idx, typename... Ts>
+struct _t_impl;
+
+template <size_t Idx>
+struct _t_impl<Idx> {};
+
+template <size_t Idx, typename Head,
+          typename... Tails>
+struct _t_impl<Idx, Head, Tails...>
+  : _t_impl<Idx + 1, Tails...>,
+    _t_leaf<Idx, Head> {};
+
+template <typename... Ts>
+class tuple : _t_impl<0, Ts...> {};
+```
+
+- 参考：[libstdc++](https://github.com/gcc-mirror/gcc/blob/f0c0f124ebe28b71abccbd7247678c9ac608b649/libstdc%2B%2B-v3/include/std/tuple#L244)
 
 ---
 
@@ -174,88 +193,40 @@ class tuple<Head, Tails ...>
 
 ``` cpp
 // default ctor
-tuple ();
+tuple();
 
 // value direct ctor
-tuple (const Head &, const Tails &...);
+tuple(const Head&, const Tails&...);
 
 // value convert ctor
-template<typename T, typename ...Ts>
-  tuple (T &&arg, Ts &&...args);
+template <typename T, typename... Ts>
+tuple(T&& arg, Ts&& ...args);
 
 // tuple convert ctor
-template<typename ...Rhs>
-  tuple (const tuple<Rhs ...> &rhs);
-template<typename ...Rhs>
-  tuple (tuple<Rhs ...> &&rhs);
+template <typename... Rhs>
+tuple(const tuple<Rhs...>& rhs);
+template <typename... Rhs>
+tuple(tuple<Rhs...>&& rhs);
 
 // copy/move ctor
-tuple (const tuple &);
-tuple (tuple &&);
+tuple(const tuple&);
+tuple(tuple&&);
 ```
-
----
-
-### （右值引用）
-
-``` cpp
-template<typename T> class vector {
-    vector(const vector &); // copy data
-    vector(vector &&);      // move data
-};
-
-template<typename T> class unique_ptr {
-    unique_ptr(const unique_ptr &) = delete;
-    unique_ptr(unique_ptr &&);  // move only
-};
-```
-
----
-
-### （通用引用）
-
-``` cpp
-// rvalue ref: no type deduction
-void f1 (Widget &&param);
-Widget &&var1 = Widget ();
-template<typename T> void f2 (vector<T> &&);
-
-// universal ref: type deduction
-auto &&var2 = var1;       
-template<typename T> void f3 (T &&param);
-```
-
----
-
-### （完美转发）
-
-``` cpp
-template<typename T, typename... Args>
-unique_ptr<T> make_unique(Args &&...args) {
-    return unique_ptr<T> {
-        new T { std::forward<Args>(args)... }
-    };
-}
-```
-
-- `& & => &`
-- `& && => &` / `&& & => &`
-- `&& && => &&`
 
 ---
 
 ## 构造函数
 
 ``` cpp
-template<typename T, typename ...Ts>
-tuple (T &&arg, Ts &&...args) :
-    Tail (std::forward<Ts> (args)...),
-    _val (std::forward<T> (arg)) {}
+template <typename T, typename... Ts>
+tuple(T&& arg, Ts&& ...args) :
+    Tail(std::forward<Ts>(args)...),
+    _val(std::forward<T>(arg)) {}
 
-template<typename ...Rhs>
-tuple (tuple<Rhs ...> &&rhs) :
-    Tail (std::move (rhs._tail ())),
-    _val (std::move (rhs._head ())) {}
+template <typename... Rhs>
+tuple(tuple<Rhs...>&& rhs) :
+    Tail(std::move(rhs._tail())),
+    _val(std::move(rhs._head())) {}
 ```
 
 ---
@@ -267,7 +238,7 @@ tuple (tuple<Rhs ...> &&rhs) :
 //   tuple<int> { int }
 //   tuple<int> { tuple<int> }
 
-tuple<int> t (tuple<int> { 1 });
+tuple<int> t(tuple<int> { 1 });
 ```
 
 - 引入模板匹配错误 `SFINAE` + `is_convertible`
@@ -280,13 +251,13 @@ tuple<int> t (tuple<int> { 1 });
 ``` cpp
 // only check T & Head here
 
-template<typename T, typename ...Ts,
+template <typename T, typename... Ts,
     typename = std::enable_if_t<
-        std::is_convertible<T, Head>::value
+        std::is_convertible_v<T, Head>
     >
-> explicit tuple (T &&arg, Ts &&...args) :
-    Tail (std::forward<Ts> (args)...),
-    _val (std::forward<T> (arg)) {}
+> explicit tuple(T&& arg, Ts&& ...args) :
+    Tail(std::forward<Ts>(args)...),
+    _val(std::forward<T>(arg)) {}
 ```
 
 ---
@@ -294,15 +265,15 @@ template<typename T, typename ...Ts,
 ## `tuple_element` & `get`
 
 ``` cpp
-template<size_t I, typename Tuple>
+template <size_t I, typename Tuple>
 struct tuple_element;
 
-template<size_t I, typename ...Ts>
-tuple_element<I, tuple<Ts ...>>::type &get (
-    tuple<Ts ...> &);
-// (const Tuple &) -> const Elem &
-// (Tuple &&) -> Elem &&
-// (const Tuple &&) -> const Elem &&
+template <size_t I, typename... Ts>
+tuple_element<I, tuple<Ts...>>::type& get(
+    tuple<Ts...>&);
+// (const Tuple&) -> const Elem&
+// (Tuple&&) -> Elem&&
+// (const Tuple&&) -> const Elem&&
 ```
 
 ---
@@ -310,14 +281,14 @@ tuple_element<I, tuple<Ts ...>>::type &get (
 ## `tuple_element` & `get`
 
 ``` cpp
-template<size_t I, typename T, typename ...Ts>
-struct tuple_element<I, tuple<T, Ts ...>>
-    : tuple_element<I - 1, tuple<Ts ...>> {};
+template<size_t I, typename T, typename... Ts>
+struct tuple_element<I, tuple<T, Ts...>>
+    : tuple_element<I - 1, tuple<Ts...>> {};
 
-template<typename T, typename ...Ts>
-struct tuple_element<0, tuple<T, Ts ...>> {
-    using type = T;
-    using _tuple = tuple<T, Ts ...>;
+template <typename T, typename... Ts>
+struct tuple_element<0, tuple<T, Ts...>> {
+  using type = T;
+  using _tuple = tuple<T, Ts...>;
 };
 ```
 
@@ -326,13 +297,12 @@ struct tuple_element<0, tuple<T, Ts ...>> {
 ## `tuple_element` & `get`
 
 ``` cpp
-template<size_t I, typename ...Ts>
-tuple_element<I, tuple<Ts ...>>::type &get (
-    tuple<Ts ...> &t)
-{
-    // resolve to base, and return head value
-    return ((tuple_element<I, tuple<Ts ...>>
-        ::_tuple &) t)._val;
+template <size_t I, typename...Ts>
+tuple_element<I, tuple<Ts...>>::type& get(
+  tuple<Ts...>& t) {
+  // resolve to base, and return head value
+  return ((tuple_element<I, tuple<Ts...>>::
+           _tuple&) t)._val;
 }
 ```
 
@@ -355,13 +325,9 @@ tuple_element<I, tuple<Ts ...>>::type &get (
 
 ## Q & A
 
-👉 完整实现：[`tuple.h`](Inside-Cpp-Tuple/tuple.h)
-
-👉 完整测试：[`test_tuple.cpp`](Inside-Cpp-Tuple/test_tuple.cpp)
-
-<br />
-<br />
-<br />
+<br/>
+<br/>
+<br/>
 
 [align-right]
 

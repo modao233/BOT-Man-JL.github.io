@@ -312,7 +312,8 @@ class Foo {
 > - [C.41: A constructor should create a fully initialized object](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-complete)
 > - 如果 允许异常，[C.42: If a constructor cannot construct a valid object, throw an exception](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-throw)（Google Style 不允许）
 > - 如果 禁用异常，可以使用 工厂方法 `Create()` 支持构造失败
->   - 建议返回 智能指针（参考：[sec|Smart Pointers Ownership]）保存多态对象（参考：[sec|Polymorphic Classes Slicing]）
+>   - 建议返回 多态对象的 智能指针（参考：[sec|Smart Pointers Ownership]），避免截断（参考：[sec|Polymorphic Classes Slicing]）
+>   - 或是返回 非多态对象的 `std::optional`，避免动态分配内存
 >   - 不要同时提供 `public` 构造函数 和 工厂方法（参考：[Don't mix `Create()` factory methods and public constructors in one class](https://github.com/chromium/chromium/blob/master/styleguide/c%2B%2B/blink-c++.md#dont-mix-create-factory-methods-and-public-constructors-in-one-class)）
 > - [C.82: Don’t call virtual functions in constructors and destructors](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-ctor-virtual)
 > - [C.50: Use a factory function if you need “virtual behavior” during initialization](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-factory)
@@ -642,7 +643,7 @@ try {
 >   - 抛出异常的类型 不能在 编译时检查 🙃
 >   - 难以确定 抛出来源（默认只有 `.what()`，没有 `.stack()`）
 >     - 例如 隐式转换 [`std::string detail = json_object;`](https://github.com/nlohmann/json#implicit-conversions)（忘了加 `.dump()`）抛出异常 `[json.exception.type_error.302] type must be string, but is object`
->     - 因为 一般认为此处不会抛异常，但又被外层 `try-catch` 捕获，导致无法定位来源（例如 [gcc8 前的 `std::thread` 存在这个问题](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=55917)），而只有 未捕获的异常 崩溃时可以看到调用栈
+>     - 因为 一般认为此处不会抛异常，但又被外层 `try-catch` 捕获，导致无法定位来源（例如 [gcc8 前的 `std::thread` 存在这个问题](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=55917)），而只有 未捕获的异常 崩溃时可以看到调用栈（可用 `noexcept` 提前崩溃，避免异常继续传递）
 >     - 另外 上层逻辑往往不希望看到 最原始的异常，而希望拿到 更有意义的异常（例如 `type of |json_object| must be string, but is object`）
 >   - 容易混淆 异常 和 错误
 >     - 例如 `const Value& Path::resolve(const Value& root) const;` 可能 [抛异常](https://github.com/open-source-parsers/jsoncpp/blob/7165f6ac4c482e68475c9e1dac086f9e12fff0d0/src/lib_json/json_value.cpp#L1417)，也可能 [返回 null 的 singleton 引用](https://github.com/open-source-parsers/jsoncpp/blob/ddabf50f72cf369bf652a95c4d9fe31a1865a781/src/lib_json/json_value.cpp#L1597)
@@ -864,6 +865,8 @@ auto iter = std::find(            // Good
 >   - 字符串 `s.find(v) != S::npos`
 >   - 线性容器 `std::find(c, v) != c.end()`
 >   - 关联容器 `c.find(v) != c.end()`（[P0458R2](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0458r2.html)）
+> - 封装统一的 [`base::Erase[If]`](https://github.com/chromium/chromium/blob/master/base/stl_util.h) 语义
+> - 使用 `std::clamp(v, lo, hi)` 代替 `std::min(std::max(lo, v), hi)`
 > - [Turn Predicate Loops into Predicate Functions](http://llvm.org/docs/CodingStandards.html#turn-predicate-loops-into-predicate-functions)
 
 ---

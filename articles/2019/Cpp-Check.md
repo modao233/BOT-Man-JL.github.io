@@ -1,6 +1,6 @@
 ﻿# 漫谈 C++ 的各种检查
 
-> 2019/9/20
+> 2019/9/20 -> 2020/11/4
 > 
 > What you don't use you don't pay for. (zero-overhead principle) —— Bjarne Stroustrup
 
@@ -46,24 +46,51 @@ C++ 语言本身有很多编译时检查（例如 类的成员访问控制 _(mem
 - [C.67: A polymorphic class should suppress copying](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-copy-virtual)
 - [C.130: For making deep copies of polymorphic classes prefer a virtual clone function instead of copy construction/assignment](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-copy)
 
-为此，Chromium 提供了两个 [常用的宏](https://github.com/chromium/chromium/blob/master/base/macros.h)：
+为此，Chromium 提供了两个 [常用的宏](https://github.com/chromium/chromium/blob/master/base/macros.h)（通过构造函数的 `= delete` 实现）：
 
 - `DISALLOW_COPY_AND_ASSIGN` 用于禁用类的 拷贝构造函数 和 拷贝赋值函数
 - `DISALLOW_IMPLICIT_CONSTRUCTORS` 用于禁用类的 默认构造函数 和 拷贝行为
 
 由于 Chromium 大量使用了 C++ 的多态特性，这些宏随处可见。但这两个宏 [不建议再使用](https://github.com/chromium/chromium/blob/master/styleguide/c++/c++-dos-and-donts.md#explicitly-declare-class-copyabilitymovability)，而应该考虑可移动（上述宏默认禁用移动）。
 
+### 遗忘返回值检查
+
+对于一些 C 风格的接口，常用 **输出参数** _(output parameter)_（[通过指针或引用实现，但不建议使用](../2020/Conventional-Cpp.md#Parameters-and-Arguments)）返回调用结果，再用 `bool`/`int` 等返回值表示 调用是否成功。所以，一般需要 通过返回值判断 调用是否成功。
+
+例如，[`abseil`](https://github.com/abseil/abseil-cpp) 提供的 字符串解析数值接口 [`bool absl::SimpleAtoi(str, out)`](https://github.com/abseil/abseil-cpp/blob/master/absl/strings/numbers.h) 返回值被标记为 [`ABSL_MUST_USE_RESULT`](https://github.com/abseil/abseil-cpp/blob/8f1c34a77a2ba04512b7f9cbc6013d405e6a0b31/absl/base/attributes.h)：
+
+- 如果解析出错，函数返回 `false`，但 `out` 参数进入 **未定义状态** _(unspecified state)_（可能被修改，不再是初始值）
+- 在这种情况下，如果返回值被遗忘，编译器会提示 **警告** _(warning)_（但不是 错误），避免使用者出现 **逻辑错误**：
+
+``` cpp
+int val = 0;
+absl::SimpleAtoi(str, &val);  // compiler warning!
+if (val != 0) {
+  // dangerous: |val| can be invalid (but non-zero) if parsing failed
+}
+
+if (absl::SimpleAtoi(str, &val)) { /* safe */ }
+if (absl::SimpleAtoi(str, &val) && val != 0) { /* safe */ }
+```
+
+另外，返回值检查 还可以用于其他场景，例如：
+
+- 分配资源（如果 `new T()` 的返回值被遗忘，可能导致 内存泄漏）
+- 不修改状态的函数（一般返回非 `void` 类型；例如，单独调用 `const` 成员函数 `std::vector<>::emtpy()` 是没有意义的，大概率是代码不小心写错了）
+
+由于 Chromium 暂不支持 C++ 17 的 [`[[nodiscard]]`](https://en.cppreference.com/w/cpp/language/attributes/nodiscard) 属性，[`WARN_UNUSED_RESULT`](https://github.com/chromium/chromium/blob/master/base/compiler_specific.h) 目前使用 **编译器扩展** 实现。
+
 ### 参数类型检查
 
 Chromium 还基于 [现代 C++ 元编程](../2017/Cpp-Metaprogramming.md) 技术，通过 `static_assert` 进行静态断言。
 
-在之前写的 [深入 C++ 回调](Inside-Cpp-Callback.md) 中，分析了 Chromium 的 [`base::Callback<>` + `base::Bind()`](https://github.com/chromium/chromium/blob/master/docs/callback.md) 回调机制，提到了相关的静态断言检查。
+在之前写的 [深入 C++ 回调](Inside-Cpp-Callback.md) 中，分析了 Chromium 的 [`base::Callback<>` + `base::Bind()`](https://github.com/chromium/chromium/blob/master/docs/callback.md) 回调机制，提到了相关的静态断言检查 ——
 
 `base::Bind` 为了 [处理失效的（弱引用）上下文](Inside-Cpp-Callback.md#如何处理失效的（弱引用）上下文)，针对弱引用指针 [`base::WeakPtr`](https://github.com/chromium/chromium/blob/master/base/memory/weak_ptr.h) 扩展了 `base::IsWeakReceiver` 检查，判断弱引用的上下文是否有效；并通过 静态断言检查传入参数，**强制要求使用者遵循** 弱引用检查的规范：
 
-- `base::Bind` 不允许直接将 **`this` 指针** 绑定到 类的成员函数 上，因为 `this` 裸指针可能失效 变成野指针
-- `base::Bind` 不允许绑定 **lambda 表达式**，因为 `base::Bind` 无法检查 lambda 表达式捕获的 弱引用 的 有效性
-- `base::Bind` 只允许将 `base::WeakPtr` 指针绑定到 **没有返回值的**（返回 `void`）类的成员函数 上，因为 当弱引用失效时不调用回调，也没有返回值
+- 不允许绑定 **lambda 表达式**，因为 `base::Bind` 无法检查 lambda 表达式捕获的 弱引用 的 有效性
+- 不允许直接将 **`this` 指针** 绑定到 类的成员函数 上，因为 `this` 裸指针可能失效 变成野指针
+- 只允许将 `base::WeakPtr` 指针绑定到 **没有返回值的**（返回 `void`）类的成员函数 上，因为 当弱引用失效时不调用回调，也没有返回值
 
 `base::Callback` 区分 [回调只能执行一次还是可以多次](Inside-Cpp-Callback.md#回调只能执行一次还是可以多次)，通过 引用限定符 _(reference qualifier)_ `&&` / `const &`，区分 在对象处于 非 const 右值 / 其他 状态时的 `Run` 成员函数，只允许一次回调 `base::OnceCallback` 在 非 const 右值 状态下调用 `Run` 函数，保证严谨的 [资源管理语义](../2018/Resource-Management.md#资源和对象的映射关系)：
 

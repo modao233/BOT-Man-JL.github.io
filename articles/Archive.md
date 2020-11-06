@@ -5,6 +5,7 @@
 
 #### 2020
 
+- [如何 比较两个 浮点数](2020/Comparing-Floating-Point-Numbers.md)
 - [C/C++ 宏编程 的艺术](2020/Macro-Programming-Art.md)（**荐**）
 - [无锁 双缓冲 算法](2020/Lock-Free-Double-Buffer.md)
 - [无锁编程 与 惯性思维](2020/Lock-Free-and-Inertial-Thinking.md)
